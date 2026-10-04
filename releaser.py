@@ -1,4 +1,4 @@
-"""Release SixthSense: set the version, file the changelog, build, commit, tag and upload.
+"""Release SeventhSense: set the version, file the changelog, build, commit, tag and upload.
 
 Double-click this file, or run py releaser.py, and it offers a numbered menu: the whole release, or any one
 step of it.  Every step says what it is about to do and asks Y or N first, and it waits for Enter at the
@@ -13,15 +13,15 @@ The steps, in the order a full release takes them:
     2. prepare    VERSION becomes today's date and that day's release number, 26.09.23-1 for the first
                   release on the 23rd of September 2026, -2 for the second, counted from the tags; and the
                   lines under "unrelease:" are filed under that version in docks\\changelog.txt
-    3. build      compiler.py builds it into dist\\SixthSense-Windows, or dist/SixthSense-Linux on Linux: the
+    3. build      compiler.py builds it into dist\\SeventhSense-Windows, or dist/SeventhSense-Linux on Linux: the
                   folder build, or the single executable with the sounds and the game's data inside.  If
                   the build fails, VERSION and the changelog go back to how they were
-    4. zip        the build becomes dist\\SixthSense-Win-<version>.zip, or SixthSense-Linux-<version>.zip,
+    4. zip        the build becomes dist\\SeventhSense-Win-<version>.zip, or SeventhSense-Linux-<version>.zip,
                   which extracts to a folder of the same name as the build's - only a build made for this
                   version, so an older build can never go out under the new name
     5. commit     VERSION and docks\\changelog.txt are committed as "Release <version>" and pushed
     6. tag        the commit is tagged V<version>, and the tag is pushed
-    7. upload     the zip goes up to GitHub as the release "SixthSense V<version>", with that version's
+    7. upload     the zip goes up to GitHub as the release "SeventhSense V<version>", with that version's
                   changelog lines as its notes; if that release is already there, the zip is added to it
 
 A step you answer N to is skipped, and the ones after it still ask; each checks for itself that what it
@@ -55,7 +55,7 @@ import compiler                                                      # noqa: E40
 from compiler import (NAME, UNRELEASE, _parse_changelog, _render_changelog,   # noqa: E402
                       changelog_heading, unreleased_lines)
 
-#: What a release's title and tag are made of: "SixthSense V26.09.23-1", tag "V26.09.23-1".
+#: What a release's title and tag are made of: "SeventhSense V26.09.23-1", tag "V26.09.23-1".
 TITLE_PREFIX = NAME + ' V'
 TAG_PREFIX = 'V'
 
@@ -190,7 +190,7 @@ PACK_STEPS = 4
 
 def zip_name(version: str, system: dict = None) -> str:
     """The archive's file name for ``version`` on this system, or ``system`` from compiler.SYSTEMS:
-    SixthSense-Win-26.09.28-1.zip, SixthSense-Linux-26.09.28-1.tar.gz.  It is called the zip here, as
+    SeventhSense-Win-26.09.28-1.zip, SeventhSense-Linux-26.09.28-1.tar.gz.  It is called the zip here, as
     the Windows one always was."""
     system = system or compiler.SYSTEM
     return '%s-%s-%s.%s' % (NAME, system['zip'], version, system['archive'])
@@ -202,7 +202,7 @@ def zip_path(version: str) -> str:
 
 
 def built_version(build_dir: str = None) -> str:
-    """The version the build in dist\\SixthSense-Windows (or -Linux) carries, from the VERSION beside its
+    """The version the build in dist\\SeventhSense-Windows (or -Linux) carries, from the VERSION beside its
     executable, or '' when there is no build."""
     path = os.path.join(build_dir or BUILD_DIR, 'VERSION')
     try:
@@ -463,7 +463,7 @@ def choose_build():
 
 
 def step_build(saved=None):
-    """compiler.py, building dist\\SixthSense-Windows, or -Linux on Linux.  After step_prepare, a failed
+    """compiler.py, building dist\\SeventhSense-Windows, or -Linux on Linux.  After step_prepare, a failed
     build undoes it.  True when it built, False when it failed, None when skipped."""
     flags = choose_build()
     if flags is None:
@@ -699,7 +699,7 @@ MENU = (
 def menu() -> None:
     while True:
         say()
-        say('SixthSense releaser.  VERSION is %s.' % (read_version() or 'missing'))
+        say('SeventhSense releaser.  VERSION is %s.' % (read_version() or 'missing'))
         say()
         for number, (text, _action) in enumerate(MENU, 1):
             say('  %d. %s' % (number, text))

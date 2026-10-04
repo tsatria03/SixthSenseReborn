@@ -11,7 +11,7 @@ metadata:
 
 **The dev's request:** they pointed at an example in the gitignored `user/` folder, a port of another game (never name it, [[feedback_no_other_games]]), which keeps `save.json`, `settings.json` and `keys.json`, routed by key name (its `SplitDefaults`, with a `SETTINGS_KEYS` set and everything else to the save). The dev: "That's exactly what I want. save.json, settings.json, and keys.json."
 
-## The three files, in `%APPDATA%\SixthSense`
+## The three files, in `%APPDATA%\SeventhSense`
 - **`save.json`:** progress. Every key not named as a setting: `TUTORIAL`, `FIREST`, `GOLD`, `COIN`, `COIN_TIMER`, `COIN_TIMER_START`, `GRENADECOUNT`, `STAGE`, the owned weapons (`SHOTGUN`, `M4`, `AK47`, `MG80`, `JAPAN`), the equipped ones (`*USE`), `TOPSCORE`, `TOPSCOREWEEK`, `WEEKTIME`, `NOWRANK`, `REVIEWCOUNT`, and any key added later. Progress is the safe default for a new key, as in the example.
 - **`settings.json`:** the player's preferences: `EYEMODE` (voice over) and `MENUMUSICVOLUME` (the menu music volume, [[project_menu_music_volume_plan]]). A `SETTINGS_KEYS` set in `platform/defaults.py` names them; a new setting is added there.
 - **`keys.json`:** unchanged. `platform/keymap.py` already writes it on its own, with the defaults on the first start (2026-09-25).

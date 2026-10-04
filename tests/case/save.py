@@ -1,7 +1,7 @@
 """The save files: ``UserDefaults`` never writes over a save it could not read, keeps
 progress in save.json and settings in settings.json, and moves an old defaults.json over.
 
-Every test points ``SIXTHSENSE_USER_DIR`` at a throwaway folder of its own, so the real
+Every test points ``SEVENTHSENSE_USER_DIR`` at a throwaway folder of its own, so the real
 save is never read or written.
 """
 from __future__ import annotations
@@ -15,8 +15,8 @@ import tempfile
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 import _scratch_save                                             # noqa: E402,F401  never the real save
 
-from sixthsense import paths                                     # noqa: E402
-from sixthsense.platform.defaults import UserDefaults            # noqa: E402
+from seventhsense import paths                                     # noqa: E402
+from seventhsense.platform.defaults import UserDefaults            # noqa: E402
 
 
 class _Folder:
@@ -25,7 +25,7 @@ class _Folder:
     def __enter__(self):
         self.old = os.environ.get(paths.USER_DIR_ENV)
         self.top = tempfile.mkdtemp()
-        self.dir = os.path.join(self.top, 'SixthSense')
+        self.dir = os.path.join(self.top, 'SeventhSense')
         os.environ[paths.USER_DIR_ENV] = self.dir
         return self
 
@@ -128,7 +128,7 @@ def test_a_new_key_is_progress():
 
 def test_settings_json_is_written_in_its_own_order():
     """Not sorted by name: the order SETTINGS_KEYS gives."""
-    from sixthsense.platform.defaults import SETTINGS_KEYS
+    from seventhsense.platform.defaults import SETTINGS_KEYS
     with _Folder() as f:
         _save(EYEMODE='1', MENUMUSICVOLUME=100)
         with open(f.file('settings.json'), encoding='utf-8') as fh:

@@ -1,4 +1,4 @@
-# SixthSense — how the game works
+# SeventhSense — how the game works
 
 Everything here was read out of `Payload/sixsense.app/sixsense`, an **unencrypted**
 armv7 Mach-O (`LC_ENCRYPTION_INFO cryptid = 0`), plus the data files shipped beside it.
@@ -81,7 +81,7 @@ the result to `-[oalPlayback queueNote:gain:sourcePos:defaultZ:repeats:]` with
 The last row is where the transcription stops being certain: below 440 cm the compiler
 reuses `d8` and `s16` for both the gain and the converted coordinates, and there is no
 way to check the reading by running it, because the shipped layer is empty. That is
-why the method is not ported — see `PORTING_STATUS.md`.
+why the method is not ported.
 
 ### The action layer
 
@@ -440,7 +440,7 @@ free.
   `-[Stage_1_E accelerometer:didAccelerate:]` (0x3c84c) counts accelerations over
   1.0 g and frees you at **10**. Nothing ever resets that count, so after the first
   escape in a stage every later grab breaks on one shake. The port asks for 1 to 5
-  presses of the shake key instead, drawn for each grab (see DIVERGENCES.md).
+  presses of the shake key instead, drawn for each grab.
 * `monsterNumber == 21` (the girl) → **HP++** if HP <= 3, and her `hitPlayer` plays 270,
   her thank you. She is a rescue, not a threat; shooting her costs a heart.
 * otherwise → HP-- (only once `isTutorial` is set, 0x3b2e6), `player_damage` (83) 0.1 s

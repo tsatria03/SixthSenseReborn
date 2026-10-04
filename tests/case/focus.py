@@ -13,13 +13,13 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 import _scratch_save                                             # noqa: E402,F401  never the real save
 
-from sixthsense.game import stage_1_e as S1E                    # noqa: E402
-from sixthsense.game.app_delegate import AppDelegate            # noqa: E402
-from sixthsense.game.stage_1_e import Stage_1_E                 # noqa: E402
-from sixthsense.platform.defaults import UserDefaults           # noqa: E402
-from sixthsense.platform.runloop import RunLoop                 # noqa: E402
-from sixthsense.ui.focus import focus_lost, interrupt_stop      # noqa: E402
-from sixthsense.ui.input import Input                           # noqa: E402
+from seventhsense.game import stage_1_e as S1E                    # noqa: E402
+from seventhsense.game.app_delegate import AppDelegate            # noqa: E402
+from seventhsense.game.stage_1_e import Stage_1_E                 # noqa: E402
+from seventhsense.platform.defaults import UserDefaults           # noqa: E402
+from seventhsense.platform.runloop import RunLoop                 # noqa: E402
+from seventhsense.ui.focus import focus_lost, interrupt_stop      # noqa: E402
+from seventhsense.ui.input import Input                           # noqa: E402
 
 
 def _new_stage():

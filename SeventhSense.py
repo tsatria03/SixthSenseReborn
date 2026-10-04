@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""SixthSense - Windows port.  Entry point.
+"""SeventhSense - Windows port.  Entry point.
 
 ``kr.co.bitbee.sixsense`` 1.2 was an iPhone audio game: you walk down a corridor in the
 dark and shoot what you hear coming.  This runs the same game on Windows, off the same
@@ -7,11 +7,11 @@ data files, with OpenAL Soft doing what iOS's OpenAL did.
 
 Run it with headphones on - the game says so itself (``SoundList[234]``).
 
-    python SixthSense.py                 the menu, as the original opens
-    python SixthSense.py --stage         straight into the stage
-    python SixthSense.py --tutorial      straight into the tutorial
-    python SixthSense.py --game DIR      read the app bundle from somewhere else
-    python SixthSense.py --debug         nothing hurts you, and no kill, score or gold counts
+    python SeventhSense.py                 the menu, as the original opens
+    python SeventhSense.py --stage         straight into the stage
+    python SeventhSense.py --tutorial      straight into the tutorial
+    python SeventhSense.py --game DIR      read the app bundle from somewhere else
+    python SeventhSense.py --debug         nothing hurts you, and no kill, score or gold counts
 
 The screen loop below stands in for ``UINavigationController``: the menu pushes the
 stage or the tutorial, and when one ends the menu comes back.
@@ -27,35 +27,35 @@ log = logging.getLogger('main')
 
 
 def _new_stage():
-    from sixthsense.game.stage_1_e import Stage_1_E
+    from seventhsense.game.stage_1_e import Stage_1_E
     st = Stage_1_E()
     st.viewDidLoad()
     return st
 
 
 def _new_tutorial(first_run=False):
-    from sixthsense.game.stage_tutorial import Stage_Tutorial
+    from seventhsense.game.stage_tutorial import Stage_Tutorial
     st = Stage_Tutorial(first_run=bool(first_run))
     st.viewDidLoad()
     return st
 
 
 def _new_test_range(testWeapon):
-    from sixthsense.game.stage_1_test import Stage_1_TEST
+    from seventhsense.game.stage_1_test import Stage_1_TEST
     st = Stage_1_TEST(testWeapon)
     st.viewDidLoad()
     return st
 
 
 def _new_menu():
-    from sixthsense.game.main_controller import MainController
+    from seventhsense.game.main_controller import MainController
     m = MainController()
     m.viewDidLoad()
     return m
 
 
 def _new_intro():
-    from sixthsense.game.intro import StartIntroPage
+    from seventhsense.game.intro import StartIntroPage
     page = StartIntroPage()
     page.viewDidLoad()
     return page
@@ -67,9 +67,9 @@ def _new_screen(name, arg=None):
     The original pushes these onto a ``UINavigationController``; the frame loop keeps
     a stack of its own and does the same.
     """
-    from sixthsense.game.inventory import (DetailInventoryController,
+    from seventhsense.game.inventory import (DetailInventoryController,
                                            InventoryController)
-    from sixthsense.game.store import (DetailStoreController, MainStoreController,
+    from seventhsense.game.store import (DetailStoreController, MainStoreController,
                                        StoreController)
     made = {
         'store': lambda: MainStoreController(),
@@ -93,7 +93,7 @@ PUSHED = ('store', 'store_weapons', 'store_detail', 'inventory',
 
 
 def main(argv=None):
-    ap = argparse.ArgumentParser(description='SixthSense (Windows port)')
+    ap = argparse.ArgumentParser(description='SeventhSense (Windows port)')
     ap.add_argument('--game', help="the original app bundle's contents, or a folder "
                                     'holding Payload/sixsense.app (default: game/)')
     ap.add_argument('--stage', action='store_true',
@@ -117,18 +117,18 @@ def main(argv=None):
         level=logging.DEBUG if args.verbose else logging.INFO,
         format='%(levelname)-7s %(name)-8s %(message)s')
 
-    from sixthsense import paths
+    from seventhsense import paths
     if args.game:
         paths.set_game(args.game)
 
-    from sixthsense.game.app_delegate import AppDelegate
-    from sixthsense.platform.defaults import UserDefaults
-    from sixthsense.platform.runloop import RunLoop
+    from seventhsense.game.app_delegate import AppDelegate
+    from seventhsense.platform.defaults import UserDefaults
+    from seventhsense.platform.runloop import RunLoop
 
     app = AppDelegate.shared()
     app.didFinishLaunching()
     app.debug = args.debug
-    from sixthsense.platform.keymap import KeyMap
+    from seventhsense.platform.keymap import KeyMap
     KeyMap.shared().debug = args.debug
     defaults = UserDefaults.standardUserDefaults()
     loop = RunLoop.main()
@@ -150,17 +150,17 @@ def main(argv=None):
         return 0
 
     import pygame
-    from sixthsense.ui.focus import focus_lost, interrupt_stop
-    from sixthsense.ui.input import Input
-    from sixthsense.ui.keybind_screen import KeyBindScreen
-    from sixthsense.ui.menu_input import MenuInput
-    from sixthsense.ui.screen_input import ScreenInput
+    from seventhsense.ui.focus import focus_lost, interrupt_stop
+    from seventhsense.ui.input import Input
+    from seventhsense.ui.keybind_screen import KeyBindScreen
+    from seventhsense.ui.menu_input import MenuInput
+    from seventhsense.ui.screen_input import ScreenInput
 
     # Only what the port uses.  pygame.init() also starts the SDL mixer, which opens a
     # second audio device beside the OpenAL one the whole game plays through.
     pygame.display.init()
     pygame.font.init()
-    pygame.display.set_caption('SixthSense (debug)' if args.debug else 'SixthSense')
+    pygame.display.set_caption('SeventhSense (debug)' if args.debug else 'SeventhSense')
     display = pygame.display.set_mode((640, 400))
     font = pygame.font.SysFont('Consolas', 16)
     clock = pygame.time.Clock()
@@ -312,8 +312,8 @@ def main(argv=None):
 
 
 def _menu_lines(menu):
-    from sixthsense.game.main_controller import ROWS
-    out = ['SixthSense   headphones recommended', '',
+    from seventhsense.game.main_controller import ROWS
+    out = ['SeventhSense   headphones recommended', '',
            'coins %d      next coin in %s' % (menu.app.Coin, menu.coin_clock), '']
     if getattr(menu, 'message', ''):
         out += [menu.message, '']
@@ -327,8 +327,8 @@ def _intro_lines(page):
     if getattr(page, 'logo', False):
         return ['Bitbee', '', 'Enter skips the logo   Escape skips to the menu']
     if page.splash:
-        return ['SixthSense', '', '0_splash2.png']
-    out = ['SixthSense   headphones required', '']
+        return ['SeventhSense', '', '0_splash2.png']
+    out = ['SeventhSense   headphones required', '']
     # wrap the warning the original puts on explainLabel
     words, line = page.text.split(), ''
     for w in words:
@@ -365,7 +365,7 @@ SCREEN_TITLE = {
 
 
 def _screen_lines(kind, screen):
-    out = ['SixthSense   %s' % SCREEN_TITLE[kind], '',
+    out = ['SeventhSense   %s' % SCREEN_TITLE[kind], '',
            'gold %d' % screen.app.haveGold]
     if kind in ('store_detail', 'inventory_detail'):
         out.append('%s   ammo %s   range %dm   damage %d   price %dG'
@@ -396,7 +396,7 @@ PANEL_TITLE = {1: 'PAUSED', 2: 'MISSION COMPLETE', 3: 'GAME OVER'}
 
 def _panel_lines(stage):
     """``-[Stage_1_E selectTapPointSoundStart]``'s ten bands, as a list."""
-    out = ['SixthSense   %s' % PANEL_TITLE.get(stage.gameState, ''), '',
+    out = ['SeventhSense   %s' % PANEL_TITLE.get(stage.gameState, ''), '',
            'zombies %s   headshots %s   score %s   gold %s'
            % (stage.killZombiesLabel, stage.HeadShotLabel,
               stage.ScoreLabel, stage.GoldLabel),
@@ -416,7 +416,7 @@ def _stage_lines(stage, inp):
     p = stage.gamePlayer
     w = stage.weaponSource[p.useWepon]
     lines = [
-        'SixthSense   headphones recommended',
+        'SeventhSense   headphones recommended',
         '',
         'HP %d      weapon %s (%d rounds)' % (
             p.HP, '-' if w is None else
@@ -459,7 +459,7 @@ def _say_why(text):
     the screen reader or a Windows voice - the game's own sound may be what failed."""
     print(text, file=sys.stderr)
     try:
-        from sixthsense.platform.speech import Speech
+        from seventhsense.platform.speech import Speech
         Speech.shared().speak(text)
         time.sleep(min(15.0, 2.0 + 0.07 * len(text)))   # a voice stops when we exit
     except Exception:
@@ -476,7 +476,7 @@ def run():
         return 1
     except Exception as e:
         log.exception('the game stopped')
-        _say_why('SixthSense stopped because of an error. %s: %s' % (type(e).__name__, e))
+        _say_why('SeventhSense stopped because of an error. %s: %s' % (type(e).__name__, e))
         return 1
 
 

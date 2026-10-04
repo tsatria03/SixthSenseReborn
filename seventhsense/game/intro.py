@@ -13,7 +13,6 @@ menu.
 
 ``intro2storyPage`` (0x2b288..0x2c4d0) is the same screen with the story on it, and
 **nothing in the binary ever creates one** - the story lives here, in ``shakeDevice``.
-See ``aidocks/PORTING_STATUS.md``.
 """
 from __future__ import annotations
 

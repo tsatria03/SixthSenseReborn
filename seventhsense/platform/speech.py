@@ -1,6 +1,6 @@
 """PORT ADDITION: a synthesiser, for the words the game's own recordings cannot say.
 
-SixthSense speaks entirely through its 269 recorded WAVs, which ``SoundList.plist`` names
+SeventhSense speaks entirely through its 269 recorded WAVs, which ``SoundList.plist`` names
 by number. That covers everything the original ever needed to say - and nothing the
 key-binding screen needs, which is key names ("Left Arrow", "Left Shift"), action names,
 and whatever the player has just bound. The only letters or digits in the bundle are
@@ -51,7 +51,7 @@ NARRATOR_EXE = 'narrator.exe'
 VOICES = ('SAPI', 'ONE_CORE', 'SPEECH_DISPATCHER', 'AV_SPEECH')
 #: Set to 1 by the tests: nothing is ever spoken or cut off, and neither NVDA's client nor
 #: Prism is loaded.  The game itself never sets it.
-SILENT_ENV = 'SIXTHSENSE_SILENT'
+SILENT_ENV = 'SEVENTHSENSE_SILENT'
 
 
 class _Nvda:
@@ -291,7 +291,7 @@ class Speech:
         return cls._shared
 
     def __init__(self, nvda=None, prism=None):
-        # SIXTHSENSE_SILENT: the tests' way of never reaching the player's screen reader.
+        # SEVENTHSENSE_SILENT: the tests' way of never reaching the player's screen reader.
         # Stand-ins passed in are still used, so the tests of this class keep working.
         self.silent = (nvda is None and prism is None
                        and os.environ.get(SILENT_ENV) == '1')

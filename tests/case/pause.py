@@ -12,13 +12,13 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 import _scratch_save                                             # noqa: E402,F401  never the real save
 
-from sixthsense import paths                                    # noqa: E402
-from sixthsense.game import stage_1_e as S1E                    # noqa: E402
-from sixthsense.game.app_delegate import AppDelegate            # noqa: E402
-from sixthsense.game.stage_1_e import Stage_1_E                 # noqa: E402
-from sixthsense.platform.defaults import UserDefaults           # noqa: E402
-from sixthsense.platform import runloop                         # noqa: E402
-from sixthsense.platform.runloop import RunLoop                 # noqa: E402
+from seventhsense import paths                                    # noqa: E402
+from seventhsense.game import stage_1_e as S1E                    # noqa: E402
+from seventhsense.game.app_delegate import AppDelegate            # noqa: E402
+from seventhsense.game.stage_1_e import Stage_1_E                 # noqa: E402
+from seventhsense.platform.defaults import UserDefaults           # noqa: E402
+from seventhsense.platform import runloop                         # noqa: E402
+from seventhsense.platform.runloop import RunLoop                 # noqa: E402
 
 
 def _new_stage(coins=3):
@@ -98,7 +98,7 @@ def test_home_and_end_on_the_panel_in_the_screen_reader_mode():
     """With voice over off, Home and End go to the panel's first row and its last, and
     Left and Right to the previous row and the next; with voice over on, End and Right
     stay where they were."""
-    from sixthsense.ui.input import Input
+    from seventhsense.ui.input import Input
 
     class _Pygame:
         KEYDOWN, KEYUP, QUIT = 1, 2, 3

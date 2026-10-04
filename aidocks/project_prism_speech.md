@@ -19,7 +19,7 @@ metadata:
 - It needs cffi (2.1.1 is installed) and Windows 10 or later.
 - Its native half is `prism/_native/prism.dll` and `_prism_cffi.pyd`. It is licensed MPL-2.0.
 
-**How `sixthsense/platform/speech.py` works now.** The pattern follows the dev's reference speech layer in `user/`. `Speech.speak(text, interrupt=True)` tries these in order:
+**How `seventhsense/platform/speech.py` works now.** The pattern follows the dev's reference speech layer in `user/`. `Speech.speak(text, interrupt=True)` tries these in order:
 1. **`_Nvda`**, the vendored controller DLL, asked before every line whether NVDA runs. `Speech.prism` is built lazily, so an NVDA player never loads Prism.
 2. **`_Prism.speak_reader`**, through the screen readers in `READERS`, in order: NVDA, JAWS, ZDSR, ZoomText, System Access, PC-Talker, Boy PC Reader, Sense Reader, Window-Eyes, UIA.
    - NVDA is in the list only as a backstop, for when its own DLL can't load.

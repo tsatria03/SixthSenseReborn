@@ -4,7 +4,7 @@ Reads each WAV in ``game/sounds/used/``, measures its integrated loudness (ITU-R
 K-weighted, 400 ms blocks, gated at -70 LUFS and 10 LU under the mean) and its sample
 peak, and gives it the trim that brings it to ``TARGET_LUFS``, a boost no more than
 ``MAX_BOOST_DB``, and never a cut in ``NEVER_CUT``.  Then it rewrites the ``MEASURED`` block of
-``sixthsense/platform/sound_trims.py``; ``BY_EAR`` is never touched.
+``seventhsense/platform/sound_trims.py``; ``BY_EAR`` is never touched.
 aidocks/project_sound_trims_plan.md has why.
 
 It prints one line per file, folder by folder, and makes no sound.  Standard library
@@ -24,10 +24,10 @@ import wave
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 
-from sixthsense.game.oal_playback import MONO_AT_LOAD, _fold_to_mono    # noqa: E402
+from seventhsense.game.oal_playback import MONO_AT_LOAD, _fold_to_mono    # noqa: E402
 
 USED = os.path.join(ROOT, 'game', 'sounds', 'used')
-TABLE = os.path.join(ROOT, 'sixthsense', 'platform', 'sound_trims.py')
+TABLE = os.path.join(ROOT, 'seventhsense', 'platform', 'sound_trims.py')
 BEGIN, END = '# ---- MEASURED begin ----', '# ---- MEASURED end ----'
 
 #: The one loudness every sound is brought to (tunmi13productions, 2026-09-27: "let's try option

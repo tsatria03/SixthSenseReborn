@@ -7,8 +7,8 @@
 Gold is local - ``NSUserDefaults`` key ``GOLD``, which ``Stage_1_E`` pays into at the
 end of a run - so buying a weapon works here exactly as it did on the phone.  The two
 things that do not are the gold store and the coin store, which were in-app purchases,
-*Purchase all weapons*, which was the StoreKit product ``SixthSense.AllWeapon``, and
-restore purchases.  The port leaves all four rows out (``aidocks/DIVERGENCES.md``): Apple's
+*Purchase all weapons*, which was the StoreKit product ``SeventhSense.AllWeapon``, and
+restore purchases.  The game leaves all four rows out: Apple's
 in-app purchases no longer exist, and there are no recordings for buying any of them with
 gold instead.
 
@@ -165,7 +165,7 @@ class StoreController(BlindScreen):
     copies.
 
     **DIVERGENCE:** row 9, *Purchase all weapons* (366, ``ItemAllAction:`` 0x1647c,
-    the product ``SixthSense.AllWeapon``), is left out.  It was an Apple in-app purchase,
+    the product ``SeventhSense.AllWeapon``), is left out.  It was an Apple in-app purchase,
     which no longer exists, there is no recording for a gold price, and each weapon can
     be bought on its own for gold.
     """

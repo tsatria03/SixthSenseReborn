@@ -38,8 +38,7 @@ The AL parameters are the original's, unchanged:
                      {cosf(rot + M_PI_2), sinf(rot + M_PI_2), 0, 0, 1, 1})
 
 The up vector the original passes is (0, 1, 1), not a unit vector, and its "at" vector lies
-in x/y while sources are placed in x/z.  Both are reproduced as written - see
-aidocks/DIVERGENCES.md.
+in x/y while sources are placed in x/z.  Both are kept as written.
 """
 from __future__ import annotations
 

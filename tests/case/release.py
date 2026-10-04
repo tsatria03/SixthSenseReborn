@@ -48,7 +48,7 @@ def test_the_date_is_two_digit_year_month_and_day():
 
 def test_the_tag_and_the_title():
     assert releaser.tag_for('26.09.21-3') == 'V26.09.21-3'
-    assert releaser.title_for('26.09.21-3') == 'SixthSense V26.09.21-3'
+    assert releaser.title_for('26.09.21-3') == 'SeventhSense V26.09.21-3'
 
 
 # --- the changelog ----------------------------------------------------------------------------------
@@ -256,8 +256,8 @@ def test_the_zip_is_named_for_the_version():
 
 def test_each_system_has_its_own_zip():
     """tunmi13productions, 2026-09-28: one release carries both builds, each in its own zip."""
-    assert releaser.zip_name('26.09.28-1', compiler.SYSTEMS['win32']) == 'SixthSense-Win-26.09.28-1.zip'
-    assert releaser.zip_name('26.09.28-1', compiler.SYSTEMS['linux']) == 'SixthSense-Linux-26.09.28-1.tar.gz'
+    assert releaser.zip_name('26.09.28-1', compiler.SYSTEMS['win32']) == 'SeventhSense-Win-26.09.28-1.zip'
+    assert releaser.zip_name('26.09.28-1', compiler.SYSTEMS['linux']) == 'SeventhSense-Linux-26.09.28-1.tar.gz'
     assert releaser.zip_name('26.09.28-1') == releaser.zip_name('26.09.28-1', compiler.SYSTEM)
 
 
@@ -287,15 +287,15 @@ class _Release:
 
 def test_the_second_system_adds_its_zip_to_the_release_and_replaces_nothing():
     with tempfile.TemporaryDirectory() as folder:
-        archive = os.path.join(folder, 'SixthSense-Linux-26.09.28-1.tar.gz')
+        archive = os.path.join(folder, 'SeventhSense-Linux-26.09.28-1.tar.gz')
         open(archive, 'wb').close()
-        with _Release(['SixthSense-Win-26.09.28-1.zip']) as r:
+        with _Release(['SeventhSense-Win-26.09.28-1.zip']) as r:
             assert releaser.add_to_release('V26.09.28-1', archive) is True
-        assert r.uploaded == ['SixthSense-Linux-26.09.28-1.tar.gz']
-        with _Release(['SixthSense-Win-26.09.28-1.zip', 'SixthSense-Linux-26.09.28-1.tar.gz']) as r:
+        assert r.uploaded == ['SeventhSense-Linux-26.09.28-1.tar.gz']
+        with _Release(['SeventhSense-Win-26.09.28-1.zip', 'SeventhSense-Linux-26.09.28-1.tar.gz']) as r:
             assert releaser.add_to_release('V26.09.28-1', archive) is True
         assert r.uploaded == [], 'a zip already on the release was uploaded again'
-        with _Release(['SixthSense-Win-26.09.28-1.zip'], answer=False) as r:
+        with _Release(['SeventhSense-Win-26.09.28-1.zip'], answer=False) as r:
             assert releaser.add_to_release('V26.09.28-1', archive) is False
         assert r.uploaded == []
         with _Release(None) as r:
@@ -304,9 +304,9 @@ def test_the_second_system_adds_its_zip_to_the_release_and_replaces_nothing():
 
 
 def _fake_build(folder, version):
-    build = os.path.join(folder, 'SixthSense')
+    build = os.path.join(folder, 'SeventhSense')
     os.makedirs(os.path.join(build, 'game'))
-    for name, body in (('SixthSense.exe', 'exe'), ('VERSION', version + '\n'),
+    for name, body in (('SeventhSense.exe', 'exe'), ('VERSION', version + '\n'),
                        (os.path.join('docks', 'todo list.txt'), 'todo'),
                        (os.path.join('game', 'SoundList.plist'), 'x')):
         os.makedirs(os.path.dirname(os.path.join(build, name)), exist_ok=True)
@@ -320,7 +320,7 @@ def test_the_releaser_zips_the_build_under_one_folder():
     saved = releaser.zip_path
     with tempfile.TemporaryDirectory() as folder:
         build = _fake_build(folder, '26.09.23-1')
-        releaser.zip_path = lambda version: os.path.join(folder, 'SixthSense-Win-%s.zip' % version)
+        releaser.zip_path = lambda version: os.path.join(folder, 'SeventhSense-Win-%s.zip' % version)
         try:
             archive = releaser.package(build, '26.09.23-1')
             with zipfile.ZipFile(archive) as zf:
@@ -330,19 +330,19 @@ def test_the_releaser_zips_the_build_under_one_folder():
             releaser.zip_path = saved
     # The archive extracts to the current system's build folder.
     assert names == [compiler.FOLDER + '/' + name for name in
-                     ('SixthSense.exe', 'VERSION', 'docks/todo list.txt', 'game/SoundList.plist')]
+                     ('SeventhSense.exe', 'VERSION', 'docks/todo list.txt', 'game/SoundList.plist')]
     assert not leftover
 
 
 def test_the_linux_build_is_a_tar_gz_that_extracts_to_a_linux_folder():
-    """tunmi13productions, 2026-09-28: a gzipped tar, which every Linux opens, under one SixthSense-Linux
+    """tunmi13productions, 2026-09-28: a gzipped tar, which every Linux opens, under one SeventhSense-Linux
     folder, like the Windows zip."""
     import tarfile
     saved = (releaser.zip_path, compiler.FOLDER)
     with tempfile.TemporaryDirectory() as folder:
         build = _fake_build(folder, '26.09.28-1')
-        releaser.zip_path = lambda version: os.path.join(folder, 'SixthSense-Linux-%s.tar.gz' % version)
-        compiler.FOLDER = 'SixthSense-Linux'
+        releaser.zip_path = lambda version: os.path.join(folder, 'SeventhSense-Linux-%s.tar.gz' % version)
+        compiler.FOLDER = 'SeventhSense-Linux'
         try:
             archive = releaser.package(build, '26.09.28-1')
             with tarfile.open(archive, 'r:gz') as tf:
@@ -350,9 +350,9 @@ def test_the_linux_build_is_a_tar_gz_that_extracts_to_a_linux_folder():
             leftover = os.path.exists(archive + '.part')
         finally:
             releaser.zip_path, compiler.FOLDER = saved
-    assert names == ['SixthSense-Linux/SixthSense.exe', 'SixthSense-Linux/VERSION',
-                     'SixthSense-Linux/docks/todo list.txt',
-                     'SixthSense-Linux/game/SoundList.plist'], names
+    assert names == ['SeventhSense-Linux/SeventhSense.exe', 'SeventhSense-Linux/VERSION',
+                     'SeventhSense-Linux/docks/todo list.txt',
+                     'SeventhSense-Linux/game/SoundList.plist'], names
     assert not leftover
 
 
@@ -469,7 +469,7 @@ def test_embedding_puts_the_sounds_and_the_data_inside_one_executable():
         cmd = compiler.command(_Args(embed=True, console=True), data)
     assert '--onefile' in cmd
     assert cmd[cmd.index('--distpath') + 1] == compiler.output_dir()
-    assert cmd[cmd.index('--name') + 1] == 'SixthSense'
+    assert cmd[cmd.index('--name') + 1] == 'SeventhSense'
     added = [cmd[i + 1] for i, part in enumerate(cmd) if part == '--add-data']
     assert compiler.EMBED_STAGE + os.pathsep + 'game' in added
     assert os.path.join(bundle, 'sounds', 'used') + os.pathsep + 'game/sounds/used' in added
@@ -486,21 +486,21 @@ def test_a_flat_bundle_embeds_its_top_folder_alone():
 
 
 def test_every_build_lands_in_one_folder():
-    """tsatria03, 2026-09-25: the folder is SixthSense-Windows, and the executable inside it
-    is still SixthSense.exe."""
+    """tsatria03, 2026-09-25: the folder is SeventhSense-Windows, and the executable inside it
+    is still SeventhSense.exe."""
     assert compiler.output_dir(_Args()) == compiler.output_dir(_Args(embed=True)) \
         == os.path.join(ROOT, 'dist', compiler.FOLDER) == releaser.BUILD_DIR
 
 
 def test_each_system_builds_its_own_folder_with_its_own_libraries():
-    """tunmi13productions, 2026-09-28: the same compiler builds on Linux, into SixthSense-Linux, around an
+    """tunmi13productions, 2026-09-28: the same compiler builds on Linux, into SeventhSense-Linux, around an
     executable with no .exe, with OpenAL Soft's Linux library and no NVDA client."""
     assert compiler.system_key('win32') == 'win32'
     assert compiler.system_key('linux') == compiler.system_key('linux2') == 'linux'
     assert compiler.system_key('darwin') == 'darwin'
     win, linux = compiler.SYSTEMS['win32'], compiler.SYSTEMS['linux']
-    assert (win['folder'], win['exe']) == ('Windows', 'SixthSense.exe')
-    assert (linux['folder'], linux['exe']) == ('Linux', 'SixthSense')
+    assert (win['folder'], win['exe']) == ('Windows', 'SeventhSense.exe')
+    assert (linux['folder'], linux['exe']) == ('Linux', 'SeventhSense')
     assert [src for src, _ in linux['binaries']] == ['vendor/openal/libopenal.so.1']
     assert not any('nvda' in src for src, _ in linux['binaries'])
     assert not any(folder == 'nvda-controller-client' for folder, _ in linux['licenses'])
@@ -511,7 +511,7 @@ def test_each_system_builds_its_own_folder_with_its_own_libraries():
             for src in files:
                 assert os.path.isfile(os.path.join(ROOT, src)), src
     assert compiler.SYSTEM is compiler.SYSTEMS[compiler.system_key()]
-    assert compiler.FOLDER == 'SixthSense-' + compiler.SYSTEM['folder']
+    assert compiler.FOLDER == 'SeventhSense-' + compiler.SYSTEM['folder']
 
 
 def test_macos_builds_a_copyable_native_app():
@@ -533,20 +533,20 @@ def test_macos_builds_a_copyable_native_app():
 
 
 def test_a_folder_build_is_moved_to_the_windows_folder():
-    """PyInstaller names a folder build after the executable, dist\\SixthSense; the compiler
-    moves it to dist\\SixthSense-Windows, and clears both before the next build."""
+    """PyInstaller names a folder build after the executable, dist\\SeventhSense; the compiler
+    moves it to dist\\SeventhSense-Windows, and clears both before the next build."""
     saved = compiler.HERE
     with tempfile.TemporaryDirectory() as here:
         compiler.HERE = here
         try:
             built = compiler.pyinstaller_dir()
             dest = compiler.output_dir()
-            assert built == os.path.join(here, 'dist', 'SixthSense')
+            assert built == os.path.join(here, 'dist', 'SeventhSense')
             os.makedirs(os.path.join(built, '_internal'))
-            open(os.path.join(built, 'SixthSense.exe'), 'w').close()
+            open(os.path.join(built, 'SeventhSense.exe'), 'w').close()
             compiler.move_folder_build(dest)
             assert not os.path.exists(built)
-            assert os.path.isfile(os.path.join(dest, 'SixthSense.exe'))
+            assert os.path.isfile(os.path.join(dest, 'SeventhSense.exe'))
             assert os.path.isdir(os.path.join(dest, '_internal'))
             os.makedirs(built)
             compiler.clear_output(dest)

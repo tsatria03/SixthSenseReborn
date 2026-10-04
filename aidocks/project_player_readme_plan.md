@@ -32,7 +32,7 @@ The repository's `README.md` is for developers: Markdown, Python requirements, t
   9. How to play: the five lanes, footsteps getting closer, attack before it reaches you, the gap in the breathing for a headshot, your own breathing as your health.
   10. The shop: the weapon list, a weapon's page, Try for the test range, the inventory; gold is 12 a kill and 2 a headshot (`ObtainedGold`, 0x3c616).
   11. Voice over: on, the game's own recordings; off, the screen reader reads the menus, the shop, the inventory, the opening screen and the result panel, and names the keys in the tutorial.
-  12. Your save: `%APPDATA%\SixthSense`, `defaults.json` and `keys.json`.
+  12. Your save: `%APPDATA%\SeventhSense`, `defaults.json` and `keys.json`.
   13. Credits: Bitbee's game; lbk2907 made the port; tsatria03 and tunmi13productions, by GitHub username ([[feedback_use_github_usernames]]); a line each, no long lists.
   14. Licenses: the license.txt and the licenses folder beside the game, and that the game's sounds and data are Bitbee's.
 - **Left out:** Python and pip, command-line flags, debug mode ([[feedback_changelog]]: players never see it), the layout, tests, building and releasing, the choosers, where the port came from, the porting status.

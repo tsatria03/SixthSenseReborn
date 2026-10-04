@@ -16,13 +16,13 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 import _scratch_save                                             # noqa: E402,F401  never the real save
 
-from sixthsense import paths                                     # noqa: E402
-from sixthsense.game.app_delegate import AppDelegate             # noqa: E402
-from sixthsense.platform import openal as al                     # noqa: E402
-from sixthsense.platform import volume                           # noqa: E402
-from sixthsense.platform.defaults import UserDefaults            # noqa: E402
-from sixthsense.platform.keymap import FIXED_IN_PLAY             # noqa: E402
-from sixthsense.ui.input import Input, gameplay_volume_key       # noqa: E402
+from seventhsense import paths                                     # noqa: E402
+from seventhsense.game.app_delegate import AppDelegate             # noqa: E402
+from seventhsense.platform import openal as al                     # noqa: E402
+from seventhsense.platform import volume                           # noqa: E402
+from seventhsense.platform.defaults import UserDefaults            # noqa: E402
+from seventhsense.platform.keymap import FIXED_IN_PLAY             # noqa: E402
+from seventhsense.ui.input import Input, gameplay_volume_key       # noqa: E402
 
 #: note -> (file, the group it should land in).  High notes, clear of what the game uses.
 SOUNDS = {110: ('weapon_ak_fire', volume.WEAPONS),

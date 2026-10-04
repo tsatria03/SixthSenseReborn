@@ -9,15 +9,15 @@ import time
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 import _scratch_save                                             # noqa: E402,F401  never the real save
 
-from sixthsense import paths                                     # noqa: E402
-from sixthsense.game.app_delegate import AppDelegate             # noqa: E402
-from sixthsense.game.main_controller import (COIN_INTERVAL, COIN_MAX,  # noqa: E402
+from seventhsense import paths                                     # noqa: E402
+from seventhsense.game.app_delegate import AppDelegate             # noqa: E402
+from seventhsense.game.main_controller import (COIN_INTERVAL, COIN_MAX,  # noqa: E402
                                              ROWS, MainController)
-from sixthsense.platform import openal as al                     # noqa: E402
-from sixthsense.platform import sound_trims, volume              # noqa: E402
-from sixthsense.platform.defaults import UserDefaults            # noqa: E402
-from sixthsense.platform.music import MusicPlayer                # noqa: E402
-from sixthsense.platform.runloop import RunLoop                  # noqa: E402
+from seventhsense.platform import openal as al                     # noqa: E402
+from seventhsense.platform import sound_trims, volume              # noqa: E402
+from seventhsense.platform.defaults import UserDefaults            # noqa: E402
+from seventhsense.platform.music import MusicPlayer                # noqa: E402
+from seventhsense.platform.runloop import RunLoop                  # noqa: E402
 
 
 class _Recorder:
@@ -324,7 +324,7 @@ def test_no_coin_means_no_game():
 def test_no_coin_stops_after_its_first_two_words():
     """DIVERGENCE: 358 goes on to the coin store and the ranking page, which are
     gone, so it is stopped in the pause after "no coin"."""
-    from sixthsense.game.app_delegate import NO_COIN_WORDS_SECONDS
+    from seventhsense.game.app_delegate import NO_COIN_WORDS_SECONDS
     m = _menu(coins=0)
     app = m.app
     try:
@@ -579,7 +579,7 @@ def test_moving_off_the_coin_row_stops_the_time_to_the_next_coin():
     seconds after that.  Moving away once "after" has played used to leave the
     minutes and seconds queued, and they were read over the next row."""
     import time as _time
-    from sixthsense.game import app_delegate as A
+    from seventhsense.game import app_delegate as A
     m = _menu(coins=3)
     app = m.app
     app.mode = 1
@@ -613,7 +613,7 @@ def test_store_and_an_empty_start_click_first():
     0xad32 and 0xb6a8) before StartGameAction: and StoreAction:.  So Start Game with no
     coin clicks, then says "no coin" (358), and the Store row clicks.  The port clicked
     only when a coin was spent, and never for the Store row."""
-    from sixthsense.game import main_controller as MC
+    from seventhsense.game import main_controller as MC
     m = _menu(coins=0)
     app = m.app
     app.mode = 1
@@ -639,8 +639,8 @@ def test_the_coin_row_keeps_the_originals_pauses():
     """The count 1.6 s after "number of coins" (0x9bec..0x9c0c), the minutes 1.3 s after
     "after" (0x5e62..0x5e82) and the seconds 0.8 s after "minutes" (0x5dbc..0x5dd6).
     The port waited 1.5, 2.0 and 1.0."""
-    from sixthsense.game import app_delegate as A
-    from sixthsense.platform import runloop
+    from seventhsense.game import app_delegate as A
+    from seventhsense.platform import runloop
     m = _menu(coins=3)
     app = m.app
     app.mode = 1
@@ -718,10 +718,10 @@ def test_home_and_end_in_the_screen_reader_mode():
     """With voice over off, Home and End go to the first row and the last, in the main
     menu and in the shop, as a screen reader's own lists do.  With voice over on, End
     stays where it was."""
-    from sixthsense.game.main_controller import ROWS
-    from sixthsense.game.store import MainStoreController
-    from sixthsense.ui.menu_input import MenuInput
-    from sixthsense.ui.screen_input import ScreenInput
+    from seventhsense.game.main_controller import ROWS
+    from seventhsense.game.store import MainStoreController
+    from seventhsense.ui.menu_input import MenuInput
+    from seventhsense.ui.screen_input import ScreenInput
     m = _menu()
     shop = MainStoreController(speech=_Recorder())
     try:
@@ -757,10 +757,10 @@ def test_left_and_right_move_like_voiceovers_flicks_in_the_screen_reader_mode():
     """With voice over off, Right goes to the next row and Left to the previous one, in
     the main menu and in the shop, as VoiceOver's flicks did.  With voice over on, Left
     and Right only repeat the row in the main menu, and do nothing in the shop."""
-    from sixthsense.game.main_controller import ROWS
-    from sixthsense.game.store import MainStoreController
-    from sixthsense.ui.menu_input import MenuInput
-    from sixthsense.ui.screen_input import ScreenInput
+    from seventhsense.game.main_controller import ROWS
+    from seventhsense.game.store import MainStoreController
+    from seventhsense.ui.menu_input import MenuInput
+    from seventhsense.ui.screen_input import ScreenInput
     m = _menu()
     shop = MainStoreController(speech=_Recorder())
     nums = [r[0] for r in ROWS]

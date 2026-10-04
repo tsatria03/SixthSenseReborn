@@ -9,8 +9,7 @@ the stage hands you.
 
 The table is read out of ``-[DetailInventoryController viewDidLoad]`` (0x27632
 onward), which sets it out slot by slot in code.  Its numbers do **not** agree with
-the shop's for the same weapons - see ``aidocks/DIVERGENCES.md``; both are reproduced as
-they stand.
+the shop's for the same weapons; both are kept as they stand.
 """
 from __future__ import annotations
 

@@ -29,7 +29,7 @@ Voice over is the main menu's voice over row.  The recorded instructions play ei
 with it off, the screen reader also names the keys to press for each one.
 
 **Your save is never touched.**  It plays on its own save in
-``%APPDATA%\\SixthSense\\tutorial_chooser``, and takes a fresh copy of your key bindings
+``%APPDATA%\\SeventhSense\\tutorial_chooser``, and takes a fresh copy of your key bindings
 each time it starts.  Choosing Tutorial from its main menu starts the chosen lesson again.
 """
 from __future__ import annotations
@@ -64,15 +64,15 @@ LESSONS = (
 def _own_save():
     """Point APPDATA at the chooser's own folder, before anything reads it."""
     real = os.path.join(os.environ.get('APPDATA') or os.path.expanduser('~'),
-                        'SixthSense')
+                        'SeventhSense')
     mine = os.path.join(real, 'tutorial_chooser')
-    os.makedirs(os.path.join(mine, 'SixthSense'), exist_ok=True)
+    os.makedirs(os.path.join(mine, 'SeventhSense'), exist_ok=True)
     # your key bindings and your settings (the volumes), but never your save; the voice
     # over question below then sets voice over in the chooser's own settings
     for name in ('keys.json', 'settings.json'):
         yours = os.path.join(real, name)
         if os.path.exists(yours):
-            shutil.copyfile(yours, os.path.join(mine, 'SixthSense', name))
+            shutil.copyfile(yours, os.path.join(mine, 'SeventhSense', name))
     os.environ['APPDATA'] = mine
 
 
@@ -116,7 +116,7 @@ def _questions():
 def main(argv=None):
     if argv is None:
         argv = sys.argv[1:] or _questions()
-    ap = argparse.ArgumentParser(description='Start the SixthSense tutorial at any lesson.')
+    ap = argparse.ArgumentParser(description='Start the SeventhSense tutorial at any lesson.')
     ap.add_argument('--ending', choices=ENDINGS, default='menu',
                     help='start: P counts down into the real game, as after a first '
                          'Start; menu: P goes back to the main menu, as from the '
@@ -136,9 +136,9 @@ def main(argv=None):
 
     _own_save()
 
-    import SixthSense
-    from sixthsense.game.stage_tutorial import BEAT_NAMES, Stage_Tutorial
-    from sixthsense.platform.defaults import UserDefaults
+    import SeventhSense
+    from seventhsense.game.stage_tutorial import BEAT_NAMES, Stage_Tutorial
+    from seventhsense.platform.defaults import UserDefaults
 
     d = UserDefaults.standardUserDefaults()
     d.setObject_forKey_('1' if args.voice == 'on' else '0', 'EYEMODE')
@@ -178,12 +178,12 @@ def main(argv=None):
         st.viewDidLoad()
         return st
 
-    SixthSense._new_tutorial = new_tutorial
+    SeventhSense._new_tutorial = new_tutorial
     print('The tutorial from lesson %d, %s, with the %s ending, voice over %s.  '
           'Your own save is not used.'
           % (args.lesson, lesson_name,
              'Start' if args.ending == 'start' else 'Tutorial button', args.voice))
-    return SixthSense.main(['--tutorial'] + (['-v'] if args.verbose else []))
+    return SeventhSense.main(['--tutorial'] + (['-v'] if args.verbose else []))
 
 
 if __name__ == '__main__':

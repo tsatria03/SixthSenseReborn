@@ -1,7 +1,7 @@
-Sixth Sense
+Seventh Sense
 
-Sixth Sense is an audio game for blind players: you walk down a dark corridor and shoot the zombies you hear coming, from five directions laid out like a clock face.
-It was made by Bitbee for the iPhone in 2013, and this is its Windows version, playing the original's own recordings.
+Seventh Sense is an audio game for blind players: you walk down a dark corridor and shoot the zombies you hear coming, from five directions laid out like a clock face.
+It is based on Sixth Sense, which Bitbee made for the iPhone in 2013, and it plays that original's own recordings. Unlike the faithful Windows port, it makes changes of its own.
 
 Headphones
 
@@ -11,7 +11,7 @@ The game says so itself when it starts.
 Starting the game
 
 macOS builds require macOS 11 or newer, or a newer version if specified by the build.
-On macOS, copy SixthSense.app to Applications or another folder and open it in Finder.
+On macOS, copy SeventhSense.app to Applications or another folder and open it in Finder.
 
 When the game opens, it plays Bitbee's logo, then the opening screen.
 Enter skips the logo, and Escape goes straight to the main menu.
@@ -115,9 +115,9 @@ Choose the voice over row in the main menu to turn it on or off.
 Your save
 
 Your progress is saved in save.json, your settings, such as voice over and the menu music volume, in settings.json, and your keys in keys.json.
-On Windows, all three are in the SixthSense folder in your AppData Roaming folder, which you can open by typing %APPDATA%\SixthSense into the Windows Run box.
-On Linux, they are in ~/.local/share/SixthSense, or $XDG_DATA_HOME/SixthSense when set.
-On macOS, they are in ~/Library/Application Support/SixthSense.
+On Windows, all three are in the SeventhSense folder in your AppData Roaming folder, which you can open by typing %APPDATA%\SeventhSense into the Windows Run box.
+On Linux, they are in ~/.local/share/SeventhSense, or $XDG_DATA_HOME/SeventhSense when set.
+On macOS, they are in ~/Library/Application Support/SeventhSense.
 In settings.json you can set six volumes, from 0 for silent to 100, the original's mix.
 MASTERVOLUME is everything, MENUMUSICVOLUME the menu music, LEVELMUSICVOLUME the music during a game, AMBIENCEVOLUME the cave, the forest and the rain, WEAPONVOLUME the weapons, and PLAYERVOLUME your own sounds.
 GAMEPLAYGAIN is the gain during a game, from 0 to 6 decibels, where 0 is the original's mix; a number it cannot use counts as 0.
@@ -128,8 +128,8 @@ If one of the files is ever damaged, the game keeps it with .damaged on the end 
 
 Credits
 
-Sixth Sense is Bitbee's game, from 2013.
-lbk2907 made the Windows version from the original.
+Seventh Sense is based on Sixth Sense, Bitbee's game, from 2013.
+lbk2907 made the Windows port of the original, which this started from.
 tsatria03 publishes it and carries it on: the releases, this readme, the sounds sorted into folders, speech for every screen reader, the logo and the story, and many fixes checked against the original.
 tunmi13productions has fixed and added a great deal of it: zombies that move, the boss and the girl who heals you, the tutorial's order, the screen reader mode, the weapon test range, pausing, and a save that survives damage.
 

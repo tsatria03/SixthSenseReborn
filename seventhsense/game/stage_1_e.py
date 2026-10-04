@@ -296,7 +296,7 @@ class Stage_1_E:
         self.isTutorialEnd = 0
         self.GirlMonsterNumber = 0
         self.DieFlag = False
-        self.monstersFrozen = False     # --debug, sixthsense/game/debug.py
+        self.monstersFrozen = False     # --debug, seventhsense/game/debug.py
         self.debugSpawn = 0
         self.debugHits = False          # --debug's F7: zombies hit you, for no heart
         self.debugSectionReady = 0.0    # --debug's F2 cools down until then
@@ -1668,8 +1668,7 @@ class Stage_1_E:
 
         **DIVERGENCE (2026-09-23, tsatria03's decision):** choosing a result row rereads
         that row, in both modes.  Row 1 says its own state again, row 3 the headshots,
-        row 4 the score, and row 10 the top score; ``aidocks/DIVERGENCES.md`` has the
-        original's table.
+        row 4 the score, and row 10 the top score.
         """
         self.StopElseSpeak()
         row = self.selectMenu
@@ -1938,7 +1937,7 @@ class Stage_1_E:
 
         Everything above that in ``ReadObtainedGold`` - the headshot multiplier string
         and all twelve per-kind tallies - is computed into ``r0`` and then clobbered
-        by the next selector load.  See ``aidocks/DIVERGENCES.md``.
+        by the next selector load.
         """
         p = self.gamePlayer
         return 12 * p.killMonsterCount + 2 * p.HeadShotCount

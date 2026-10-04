@@ -1,15 +1,15 @@
-# SixthSense-Windows
+# SeventhSense
 
-A Python port of **SixthSense** (`kr.co.bitbee.sixsense` 1.2, Bitbee, 2013), an iPhone
-audio game for blind players: you walk down a corridor in the dark and shoot what you
-hear coming.
+A Windows, Linux and macOS game in Python, branched from a port of **Sixth Sense**
+(`kr.co.bitbee.sixsense` 1.2, Bitbee, 2013), an iPhone audio game for blind players: you walk
+down a corridor in the dark and shoot what you hear coming. This is the `seventh-sense`
+branch, where changes need not be faithful to the original; `main` is the faithful port.
 
 The port runs off the original app bundle's own data — the binary plists and the three
 map layers, unconverted, and the original's recorded sounds, sorted into folders under
 their own names — and drives OpenAL Soft with the same calls and the same values the
-iOS build used. Nothing about the game's numbers was invented here;
-where the original's data is malformed, the port reproduces the malformed result and
-`aidocks/DIVERGENCES.md` says why.
+iOS build used. On `main` nothing about the game's numbers was invented; this branch
+changes what the dev chooses to.
 
 **Wear headphones.** The game says so itself (`SoundList.plist` 234,
 "you must use earphone") and none of it works on speakers.
@@ -18,17 +18,17 @@ where the original's data is malformed, the port reproduces the malformed result
 
 To play without installing Python, download the newest release from the
 [latest release page](https://github.com/tsatria03/SixthSense-Windows/releases/latest).
-Each release has a zip for Windows, `SixthSense-Win-<version>.zip`. Extract it and run
-`SixthSense.exe` in the `SixthSense-Windows` folder it contains. From 2026-09-28 a release
-can also carry `SixthSense-Linux-<version>.tar.gz`: extract it with
-`tar xzf SixthSense-Linux-<version>.tar.gz`, or your archive manager, and run
-`SixthSense` in the `SixthSense-Linux` folder. The `docks` folder beside it
+Each release has a zip for Windows, `SeventhSense-Win-<version>.zip`. Extract it and run
+`SeventhSense.exe` in the `SeventhSense-Windows` folder it contains. From 2026-09-28 a release
+can also carry `SeventhSense-Linux-<version>.tar.gz`: extract it with
+`tar xzf SeventhSense-Linux-<version>.tar.gz`, or your archive manager, and run
+`SeventhSense` in the `SeventhSense-Linux` folder. The `docks` folder beside it
 holds the player's readme, the changelog and the todo list.
 
 A version is the date of the release and that day's number: `26.09.24-2` is the second
 release of the 24th of September 2026. The changelog lists what each release changed,
 and every release so far is on the [releases page](https://github.com/tsatria03/SixthSense-Windows/releases).
-Your save is kept in `%APPDATA%\SixthSense`, not in the game's folder, so a new release
+Your save is kept in `%APPDATA%\SeventhSense`, not in the game's folder, so a new release
 can go in a fresh folder and carries on from your progress.
 
 ---
@@ -42,7 +42,7 @@ To run it from source instead: 64-bit Python 3.12 or newer on Windows 10 or late
 
 | package | what needs it |
 |---|---|
-| `pygame` | the window, the keyboard and the frame loop (`SixthSense.py`, `ui/`). It must be `pygame`, not `pygame-ce`: the two cannot be installed side by side, and the port is written against `pygame` |
+| `pygame` | the window, the keyboard and the frame loop (`SeventhSense.py`, `ui/`). It must be `pygame`, not `pygame-ce`: the two cannot be installed side by side, and the port is written against `pygame` |
 | `prismatoid` | Prism, which speaks the few lines no recording covers through any screen reader other than NVDA, or through a Windows voice when none is running (`platform/speech.py`). Without it the game still runs, but only NVDA speaks |
 
 Everything else is the standard library — the audio is OpenAL Soft through `ctypes`,
@@ -51,11 +51,11 @@ and the WAVs, plists and map files are read with `wave` and `plistlib`. OpenAL S
 `vendor/openal/libopenal.1.dylib` for macOS) ships with the repository, so there is
 nothing to install for it. On Linux, if the vendored library is
 missing, the system's own `libopenal.so.1` is used (`libopenal1` on Debian and Ubuntu).
-On Linux the save is in `~/.local/share/SixthSense` (or `$XDG_DATA_HOME/SixthSense`)
-instead of `%APPDATA%\SixthSense`, and the NVDA client, being Windows-only, is skipped:
+On Linux the save is in `~/.local/share/SeventhSense` (or `$XDG_DATA_HOME/SeventhSense`)
+instead of `%APPDATA%\SeventhSense`, and the NVDA client, being Windows-only, is skipped:
 Prism speaks instead.
 
-On macOS the save is in `~/Library/Application Support/SixthSense`, and Prism
+On macOS the save is in `~/Library/Application Support/SeventhSense`, and Prism
 speaks through VoiceOver, or a native voice when no screen reader is running.
 The bundled OpenAL Soft is universal: source runs need Python and packages for
 the Mac's own architecture, Apple Silicon or Intel.
@@ -81,7 +81,7 @@ vendored OpenAL Soft the game does.
 ## Running it
 
 ```bash
-python SixthSense.py
+python SeventhSense.py
 ```
 
 That opens on the publisher's logo and its sound, then the splash and the warning, as
@@ -114,7 +114,7 @@ tutorial first, as the original does; pressing P at its end counts 3, 2, 1 and s
 the real game. Finished once, by either route, Start Game goes straight into the game.
 `--skip-tutorial` writes the key the tutorial writes, if you would rather skip it.
 
-The save lives in `%APPDATA%\SixthSense`, in three files: `save.json` (progress),
+The save lives in `%APPDATA%\SeventhSense`, in three files: `save.json` (progress),
 `settings.json` (the volumes and voice over) and `keys.json` (the key bindings).
 `settings.json` holds `MASTERVOLUME`, `MENUMUSICVOLUME`, `LEVELMUSICVOLUME`,
 `AMBIENCEVOLUME`, `WEAPONVOLUME` and `PLAYERVOLUME`, whole percentages
@@ -175,7 +175,7 @@ the game's own voice is 269 recorded WAVs and none of them can say "Left Arrow".
 
 Binding captures a chord — hold the keys together and let go. **F1 and Escape are not
 rebindable**, so there is always a way back in. Bindings live in
-`%APPDATA%\SixthSense\keys.json`, stored by key name so a pygame update cannot
+`%APPDATA%\SeventhSense\keys.json`, stored by key name so a pygame update cannot
 scramble them.
 
 ## How to play
@@ -196,8 +196,8 @@ Your own breathing tells you your health: three hearts is `player_breath_1`, two
 ## Layout
 
 ```
-SixthSense.py            entry point
-sixthsense/
+SeventhSense.py            entry point
+seventhsense/
   paths.py               where the bundle's data lives
   platform/
     openal.py            ctypes binding for OpenAL Soft
@@ -233,7 +233,7 @@ game/                    the original app bundle, its sounds sorted into folders
 vendor/                  OpenAL Soft and NVDA's controller client, with their licenses
 analysis/                the binary, and the disassembly this was written from
 tools/                   the Mach-O / Objective-C / Thumb tooling that produced it
-aidocks/                 GAME_STRUCTURE.md, DIVERGENCES.md, PORTING_STATUS.md, and
+aidocks/                 GAME_STRUCTURE.md (how the original works), and
                          the notes for AI-assisted work (see CLAUDE.md)
 docks/                   readme.txt, changelog.txt and todo list.txt, which ship in a docks folder
 tests/case/              the tests, one plain script each
@@ -252,7 +252,7 @@ of the binary, with addresses.
 `game/` holds the contents of `Payload/sixsense.app` as the IPA shipped them: the binary
 plists, the three map layers, the nibs, the PNGs, `Info.plist`, `iTunesArtwork`, the
 Facebook resource bundle, `_CodeSignature/` and the `sixsense` binary itself. The port
-never writes to it — the save file lives in `%APPDATA%\SixthSense`.
+never writes to it — the save file lives in `%APPDATA%\SeventhSense`.
 
 The one thing that is not where the original kept it is the sounds. The original keeps
 its 269 WAVs in one flat folder; here every sound the game uses sits in
@@ -265,10 +265,9 @@ only what the game plays, 236 files. `game/sounds/unused/` holds 126 the game ne
 plays: the original's sounds for things the port leaves out, such as the ranking and
 the coin store, extra copies, the sounds that are not the original's own, and a blooper.
 One entry of `SoundList.plist` follows a renamed file.
-`aidocks/DIVERGENCES.md` has the details.
 
 The port reads from there, so the data it runs on is the original's data. `--game PATH`
-(or `SIXTHSENSE_GAME`) points at another copy; an untouched original bundle, with its
+(or `SEVENTHSENSE_GAME`) points at another copy; an untouched original bundle, with its
 WAVs all in one folder, works too.
 
 `analysis/bin/sixsense_armv7` is the thin armv7 slice cut out of `game/sixsense`, which
@@ -324,8 +323,8 @@ lane, that every sound number the monster tables use resolves to a WAV in
 spatialise stereo, and the game relies on that).
 
 **The tests never touch your save, and make no sound.** Each one imports
-`tests/case/_scratch_save.py` first, which points `SIXTHSENSE_USER_DIR` at a throwaway
-folder and deletes it afterwards, sets `SIXTHSENSE_SILENT` so nothing is ever sent to your
+`tests/case/_scratch_save.py` first, which points `SEVENTHSENSE_USER_DIR` at a throwaway
+folder and deletes it afterwards, sets `SEVENTHSENSE_SILENT` so nothing is ever sent to your
 screen reader or a Windows voice, and sends the audio to OpenAL Soft's null driver with no
 window, whatever your shell has set. `case/paths.py` fails if a test file leaves that out.
 `_scratch_save.py` is not a test; skip files starting with `_` when running them all.
@@ -337,8 +336,8 @@ Building needs PyInstaller (`pip install pyinstaller`); releasing also needs the
 CLI, signed in with `gh auth login`.
 
 `compiler.py` only builds. It never zips and never changes the repository. Everything
-lands in `dist\SixthSense-Windows`, around `SixthSense.exe`. Run on Linux, WSL included, it
-builds a Linux game instead, in `dist/SixthSense-Linux` around `SixthSense`, with OpenAL
+lands in `dist\SeventhSense-Windows`, around `SeventhSense.exe`. Run on Linux, WSL included, it
+builds a Linux game instead, in `dist/SeventhSense-Linux` around `SeventhSense`, with OpenAL
 Soft's Linux library and no NVDA client; PyInstaller only builds for the system it runs
 on. `releaser.py` releases both, one system at a time (below).
 
@@ -355,7 +354,7 @@ where a player can open them. The third-party licenses go inside the executable,
 `licenses` folder. `docks/readme.txt` is the player's own readme: plain text, one sentence a line,
 with none of this file's developer parts.
 
-On macOS it builds `dist/SixthSense-macOS/SixthSense.app`, with
+On macOS it builds `dist/SeventhSense-macOS/SeventhSense.app`, with
 the data, dependencies and documents inside: copy the app on its own and open
 it in Finder. The app targets the build Python's architecture, ARM64 or Intel.
 `--console` keeps a console-folder build instead; otherwise
@@ -375,18 +374,18 @@ before each one:
    `26.09.23-1`, and the unreleased lines are filed under it in `docks/changelog.txt`.
 3. **Build** with the compiler, as a folder or a single exe. A failed build puts
    `VERSION` and the changelog back.
-4. **Zip** `dist\SixthSense-Windows` into `dist\SixthSense-Win-26.09.23-1.zip`, which
-   extracts to a `SixthSense-Windows` folder. It only zips a build made for this version.
+4. **Zip** `dist\SeventhSense-Windows` into `dist\SeventhSense-Win-26.09.23-1.zip`, which
+   extracts to a `SeventhSense-Windows` folder. It only zips a build made for this version.
 5. **Commit and push** `VERSION` and `docks/changelog.txt` as "Release 26.09.23-1".
 6. **Tag** it `V26.09.23-1`, and push the tag.
-7. **Upload** the zip to GitHub as the release "SixthSense V26.09.23-1", with that
+7. **Upload** the zip to GitHub as the release "SeventhSense V26.09.23-1", with that
    version's changelog lines as its notes. If the release is already there, the zip is
    added to it.
 
 It never moves or replaces a tag, a release, or a file already on a release.
 
-One release carries both builds: `SixthSense-Win-<version>.zip`, and
-`SixthSense-Linux-<version>.tar.gz`, which extracts to a `SixthSense-Linux` folder; a
+One release carries both builds: `SeventhSense-Win-<version>.zip`, and
+`SeventhSense-Linux-<version>.tar.gz`, which extracts to a `SeventhSense-Linux` folder; a
 tar keeps the executable runnable and every Linux can open it. Since
 PyInstaller only builds for the system it runs on, make the release on one system with
 the full release, then on the other choose **Add this system's build to the release**:
@@ -411,7 +410,7 @@ python tests/interact/level_chooser.py 1 --row 300        # level 1, from row 30
 
 A level is what walking there would give you: monsters 1.5 times tougher and faster per
 level, one more of them out at a time, and the area alternating between the cave and
-the forest. It plays on its own save in `%APPDATA%\SixthSense\level_chooser`, so your
+the forest. It plays on its own save in `%APPDATA%\SeventhSense\level_chooser`, so your
 own save is never touched, and it copies your key bindings in each time it starts.
 
 ### Starting the tutorial at any lesson
@@ -437,7 +436,7 @@ python tests/interact/tutorial_chooser.py --voice off                  # with th
 
 The lessons before the one you choose count as done, so the tutorial carries on from
 there as it would have. It plays on its own save in
-`%APPDATA%\SixthSense\tutorial_chooser`, so your own save is never touched.
+`%APPDATA%\SeventhSense\tutorial_chooser`, so your own save is never touched.
 
 ## Where this came from
 
@@ -467,8 +466,7 @@ The opening, the menu, the tutorial, the stage, the monsters, the weapons, the
 fighting, the pause and result panel, the shop and the inventory are ported, along with
 the whole audio path, and so is the weapon test range behind the shop's Try button
 (`Stage_1_TEST`). What is left is the ambient sound layer the shipped map does not use, and everything that needed the
-publisher's server or the App Store. `aidocks/PORTING_STATUS.md` has the full list, and
-`aidocks/DIVERGENCES.md` has the original's own bugs that the port keeps.
+publisher's server or the App Store.
 
 ## Credits
 
@@ -536,7 +534,7 @@ Contributors, in the order they joined:
   - saying aloud why the game could not start, or stopped
   - the bloopers folder
 
-SixthSense itself is Bitbee's game, from 2013.
+SeventhSense itself is Bitbee's game, from 2013.
 
 ## Licence
 

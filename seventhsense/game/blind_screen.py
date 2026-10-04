@@ -105,8 +105,7 @@ class BlindScreen:
     def say(self, text, interrupt=True):
         """For a row the port cannot carry out - the two in-app-purchase screens, the
         publisher's server and the weapon test range - and for everything these
-        screens say with voice over off.  ``aidocks/DIVERGENCES.md`` says why this
-        speaks."""
+        screens say with voice over off."""
         log.info('%s', text)
         if self.speech is None:
             from ..platform.speech import Speech

@@ -11,10 +11,10 @@ import time
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 import _scratch_save                                             # noqa: E402,F401  never the real save
 
-from sixthsense.game import intro as I                            # noqa: E402
-from sixthsense.game.app_delegate import AppDelegate              # noqa: E402
-from sixthsense.game.intro import StartIntroPage                  # noqa: E402
-from sixthsense.platform.runloop import RunLoop                   # noqa: E402
+from seventhsense.game import intro as I                            # noqa: E402
+from seventhsense.game.app_delegate import AppDelegate              # noqa: E402
+from seventhsense.game.intro import StartIntroPage                  # noqa: E402
+from seventhsense.platform.runloop import RunLoop                   # noqa: E402
 
 _REAL_WELCOME_SECONDS = I.WELCOME_SECONDS
 
@@ -206,7 +206,7 @@ def test_the_logo_sound_waits_a_moment_and_the_welcome_waits_for_it():
 def test_enter_skips_the_logo_to_the_opening_screen():
     """PORT ADDITION: Enter during the logo stops it and brings the opening screen at
     once, whose welcome follows its splash as usual."""
-    from sixthsense.ui.screen_input import ScreenInput
+    from seventhsense.ui.screen_input import ScreenInput
     page, app = _launch(logo=5.0)
     played, real_play = _spy(app)
     try:
@@ -226,7 +226,7 @@ def test_enter_skips_the_logo_to_the_opening_screen():
 
 
 def test_enter_in_the_quiet_before_the_logo_skips_it_too():
-    from sixthsense.ui.screen_input import ScreenInput
+    from seventhsense.ui.screen_input import ScreenInput
     page, app = _launch(delay=5.0)
     played, real_play = _spy(app)
     try:
@@ -242,7 +242,7 @@ def test_enter_in_the_quiet_before_the_logo_skips_it_too():
 
 
 def test_escape_during_the_logo_skips_to_the_menu():
-    from sixthsense.ui.screen_input import ScreenInput
+    from seventhsense.ui.screen_input import ScreenInput
     page, app = _launch(logo=5.0)
     played, real_play = _spy(app)
     try:
@@ -332,7 +332,7 @@ def test_leaving_the_story_row_stops_the_story_and_its_music():
 
 
 def test_enter_on_the_story_row_skips_to_the_menu_and_stops_it():
-    from sixthsense.ui.screen_input import ScreenInput
+    from seventhsense.ui.screen_input import ScreenInput
     page = _page(welcome=5.0)
     app = page.app
     music, undo = _music_spy(app)

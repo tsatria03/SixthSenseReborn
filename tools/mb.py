@@ -3,16 +3,16 @@ import struct, json, os
 _HERE = os.path.dirname(os.path.abspath(__file__))
 _ROOT = os.path.dirname(_HERE)
 # The thin armv7 slice sits in analysis/bin/; the fat binary in game/ works too, the
-# parser takes either.  SIXTHSENSE_BINARY overrides both.
+# parser takes either.  SEVENTHSENSE_BINARY overrides both.
 _CANDIDATES = [
-    os.environ.get('SIXTHSENSE_BINARY'),
+    os.environ.get('SEVENTHSENSE_BINARY'),
     os.path.join(_ROOT, 'analysis', 'bin', 'sixsense_armv7'),
     os.path.join(_ROOT, 'game', 'sixsense'),
     os.path.join(_HERE, 'sixsense'),
 ]
 PATH = next((p for p in _CANDIDATES if p and os.path.exists(p)), None)
 if PATH is None:
-    raise SystemExit('No SixthSense binary found. Tried: '
+    raise SystemExit('No SeventhSense binary found. Tried: '
                      + ', '.join(p for p in _CANDIDATES if p))
 _data = open(PATH,'rb').read()
 if struct.unpack('>I', _data[:4])[0] == 0xcafebabe:          # fat: take the armv7 slice

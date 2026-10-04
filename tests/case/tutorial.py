@@ -11,12 +11,12 @@ import time
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 import _scratch_save                                             # noqa: E402,F401  never the real save
 
-from sixthsense.game import stage_1_e as S1E                     # noqa: E402
-from sixthsense.game import stage_tutorial as T                  # noqa: E402
-from sixthsense.game.app_delegate import AppDelegate             # noqa: E402
-from sixthsense.game.stage_tutorial import BEAT_NAMES, Stage_Tutorial  # noqa: E402
-from sixthsense.platform.defaults import UserDefaults            # noqa: E402
-from sixthsense.platform.runloop import RunLoop                  # noqa: E402
+from seventhsense.game import stage_1_e as S1E                     # noqa: E402
+from seventhsense.game import stage_tutorial as T                  # noqa: E402
+from seventhsense.game.app_delegate import AppDelegate             # noqa: E402
+from seventhsense.game.stage_tutorial import BEAT_NAMES, Stage_Tutorial  # noqa: E402
+from seventhsense.platform.defaults import UserDefaults            # noqa: E402
+from seventhsense.platform.runloop import RunLoop                  # noqa: E402
 
 LANE = {1: 180.0, 2: 123.0, 3: 90.0, 4: 57.0, 5: 0.0}
 _REAL_BEATS = list(T.BEATS)
@@ -191,7 +191,7 @@ def test_a_beat_prompts_then_sends_its_monster():
 def test_voice_over_off_adds_the_keys_after_the_prompt():
     """PORT ADDITION: with voice over off, the key hint follows the recording, and
     names the player's own bindings."""
-    from sixthsense.platform.keymap import KeyMap
+    from seventhsense.platform.keymap import KeyMap
     st = _tutorial(prompt=0.4)
     app = st.app
     km = KeyMap.shared()

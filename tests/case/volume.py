@@ -7,7 +7,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 import _scratch_save                                             # noqa: E402,F401  never the real save
 
-from sixthsense.platform import volume                           # noqa: E402
+from seventhsense.platform import volume                           # noqa: E402
 
 
 def test_zero_decibels_changes_nothing():
@@ -161,7 +161,7 @@ def test_a_missing_volume_is_added_and_the_rest_kept():
 
 
 def test_settings_json_lists_them_in_the_devs_order():
-    from sixthsense.platform.defaults import SETTINGS_KEYS
+    from seventhsense.platform.defaults import SETTINGS_KEYS
     assert SETTINGS_KEYS == ('MASTERVOLUME', 'MENUMUSICVOLUME', 'LEVELMUSICVOLUME',
                              'AMBIENCEVOLUME', 'GAMEPLAYGAIN', 'WEAPONVOLUME',
                              'PLAYERVOLUME', 'EYEMODE')

@@ -11,8 +11,8 @@ metadata:
 - **`tests/interact/`**: the two tools you play by ear, `level_chooser.py` (was `level_tester.py`) and `tutorial_chooser.py` (was `tutorial_tester.py`).
 
 **What Claude changed to make it work, the same day:**
-- Every file found the repository by going one folder up from itself, which was now `tests/`, so none could import `sixthsense` (`ModuleNotFoundError`). Each now goes two folders up. `case/release.py` also uses that root to check where the zip goes.
-- The choosers' own saves moved with their names, at the dev's choice: `%APPDATA%\SixthSense\level_chooser` and `...\tutorial_chooser`. Their old `level_tester` and `tutorial_tester` folders are left behind unused, and can be deleted.
+- Every file found the repository by going one folder up from itself, which was now `tests/`, so none could import `seventhsense` (`ModuleNotFoundError`). Each now goes two folders up. `case/release.py` also uses that root to check where the zip goes.
+- The choosers' own saves moved with their names, at the dev's choice: `%APPDATA%\SeventhSense\level_chooser` and `...\tutorial_chooser`. Their old `level_tester` and `tutorial_tester` folders are left behind unused, and can be deleted.
 - Their headers give the new commands and say they are tools, not tests, by their folder, rather than "the name does not start with test_".
 - README.md, CLAUDE.md, PORTING_STATUS.md and the notes that give instructions use the new paths. History entries in [[project_evaluation_2026_09]] and [[project_safe_test_run]] keep the old names, as records of their time.
 - The full suite passed from the new place: 270 of 270 across the 17 files. The latest full run is in [[project_safe_test_run]].

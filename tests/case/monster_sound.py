@@ -16,15 +16,15 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 import _scratch_save                                             # noqa: E402,F401  never the real save
 
-from sixthsense.game import stage_1_e as S1E                    # noqa: E402
-from sixthsense.game.app_delegate import AppDelegate            # noqa: E402
-from sixthsense.game.monster_control import (WOMAN_GROWL,         # noqa: E402
+from seventhsense.game import stage_1_e as S1E                    # noqa: E402
+from seventhsense.game.app_delegate import AppDelegate            # noqa: E402
+from seventhsense.game.monster_control import (WOMAN_GROWL,         # noqa: E402
                                              ZIGZAG_ANGLE)
-from sixthsense.game.stage_1_e import Stage_1_E                 # noqa: E402
-from sixthsense.platform import openal as al                    # noqa: E402
-from sixthsense.platform import sound_trims                     # noqa: E402
-from sixthsense.platform.defaults import UserDefaults           # noqa: E402
-from sixthsense.platform.runloop import RunLoop                 # noqa: E402
+from seventhsense.game.stage_1_e import Stage_1_E                 # noqa: E402
+from seventhsense.platform import openal as al                    # noqa: E402
+from seventhsense.platform import sound_trims                     # noqa: E402
+from seventhsense.platform.defaults import UserDefaults           # noqa: E402
+from seventhsense.platform.runloop import RunLoop                 # noqa: E402
 
 #: -[oalPlayback queueNote:...] 0xe0de: AL_REFERENCE_DISTANCE
 REFERENCE = 40.0
@@ -350,7 +350,7 @@ def test_a_death_sound_plays_to_its_end():
         note = app.CheckSoundBuf_(m.dieSound)
         sid = app.playback._sources[note].sourceId
         stopped.clear()                            # DieMonster stops it before it plays
-        from sixthsense.platform import runloop
+        from seventhsense.platform import runloop
         RunLoop.main().pump(now=runloop.clock() + m.dieSoundTime + 0.1)
         assert m.dieSound not in stopped, 'MonsterDead stopped the death sound'
         assert m.monsterFlag is False, 'MonsterDead did not mark the monster dead'

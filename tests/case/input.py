@@ -17,15 +17,15 @@ import _scratch_save                                             # noqa: E402,F4
 
 import pygame                                                    # noqa: E402
 
-from sixthsense.game import stage_1_e as S1E                     # noqa: E402
-from sixthsense.game.app_delegate import AppDelegate             # noqa: E402
-from sixthsense.game.stage_1_e import Stage_1_E                  # noqa: E402
-from sixthsense.platform.defaults import UserDefaults            # noqa: E402
-from sixthsense.platform.keymap import (ACTION_IDS, CHORD_WINDOW,  # noqa: E402
+from seventhsense.game import stage_1_e as S1E                     # noqa: E402
+from seventhsense.game.app_delegate import AppDelegate             # noqa: E402
+from seventhsense.game.stage_1_e import Stage_1_E                  # noqa: E402
+from seventhsense.platform.defaults import UserDefaults            # noqa: E402
+from seventhsense.platform.keymap import (ACTION_IDS, CHORD_WINDOW,  # noqa: E402
                                         DEFAULTS, FIXED, KeyMap)
-from sixthsense.platform.runloop import RunLoop                  # noqa: E402
-from sixthsense.ui.input import LANE_ANGLE, Input                # noqa: E402
-from sixthsense.ui.keybind_screen import KeyBindScreen           # noqa: E402
+from seventhsense.platform.runloop import RunLoop                  # noqa: E402
+from seventhsense.ui.input import LANE_ANGLE, Input                # noqa: E402
+from seventhsense.ui.keybind_screen import KeyBindScreen           # noqa: E402
 
 
 def _stage():
@@ -267,7 +267,7 @@ def test_escape_pauses_and_resumes():
 
 def test_escape_still_leaves_the_tutorial():
     """The tutorial's stop button skips it, so Escape leaves instead of pausing."""
-    from sixthsense.game.stage_tutorial import Stage_Tutorial
+    from seventhsense.game.stage_tutorial import Stage_Tutorial
     assert Stage_Tutorial.ESCAPE_LEAVES
     st, _inp = _stage()
     try:

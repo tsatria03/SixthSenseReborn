@@ -2,11 +2,11 @@
 
 Every test file imports this first, before any of the game.  It:
 
-* points ``SIXTHSENSE_USER_DIR`` at a fresh folder of its own, so ``save.json``,
+* points ``SEVENTHSENSE_USER_DIR`` at a fresh folder of its own, so ``save.json``,
   ``settings.json`` and ``keys.json`` are written there and never to
-  ``%APPDATA%\\SixthSense``, and deletes
+  ``%APPDATA%\\SeventhSense``, and deletes
   that folder when the run ends;
-* sets ``SIXTHSENSE_SILENT``, so ``platform/speech.py`` never loads NVDA's client or
+* sets ``SEVENTHSENSE_SILENT``, so ``platform/speech.py`` never loads NVDA's client or
   Prism and never speaks or cuts off the player's screen reader;
 * sends the sound to OpenAL Soft's null driver and SDL's dummy audio, and gives pygame
   a dummy display, so nothing is heard and no window opens for a screen reader to
@@ -23,10 +23,10 @@ import os
 import shutil
 import tempfile
 
-FOLDER = tempfile.mkdtemp(prefix='sixthsense_test_save_')
+FOLDER = tempfile.mkdtemp(prefix='seventhsense_test_save_')
 QUIET = {
-    'SIXTHSENSE_USER_DIR': FOLDER,
-    'SIXTHSENSE_SILENT': '1',
+    'SEVENTHSENSE_USER_DIR': FOLDER,
+    'SEVENTHSENSE_SILENT': '1',
     'ALSOFT_DRIVERS': 'null',
     'SDL_AUDIODRIVER': 'dummy',
     'SDL_VIDEODRIVER': 'dummy',
