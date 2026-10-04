@@ -1,111 +1,14 @@
 ##Unfinished.
 
-Nothing is waiting here right now. New bugs, planned changes and anything still to be decided will be listed here as they come up.
+Remove the voice over row from the main menu, so the game is driven entirely by the screen reader.
+Make the MG80 fire continuously while its key is held, like a machine gun, and keep the AK47 firing one shot per press.
+Make weapons upgradeable, so that they can do more damage.
+Move the zombies at 10:30 and 1:30 closer to 12 o'clock, so it is easier to tell which lane a zombie is in.
+Remove the coin limit, so you do not have to wait for coins to charge before you can play.
+Raise the gold you earn after a death a little, so weapons are a bit easier to get.
+Make the tutorial screen reader friendly, so it can be followed without the recordings.
+Speak all of the game's speech through Prism instead of the recordings.
+Remove the recordings once everything they say is spoken through Prism.
 
 ##Finished.
 
-During a game, Page Up and Page Down set the gain, and with Shift, Control or Alt the weapons, the entities and the player volumes.
-The knife and the sword play only their own hit sound, without a gun's hit sound under it.
-A zombie's death sound plays to its end, as in the original, instead of sometimes being cut off, most of all the second zombie's.
-settings.json has volumes for everything, the menu music, the level music and the ambience, from 0 to 100 percent, where 100 is the original's mix.
-Each weapon's ammo capacity, range, damage and price are written into save.json when it is bought or equipped, and the three starting weapons' in a new save. Changing them by hand does nothing.
-The save is split into save.json for your progress, settings.json for your settings and keys.json for your keys, and an older save is moved over by itself.
-Gunshots and the empty magazine click line up with the zombies in each lane: far left and far right are fully to the side, and the diagonals moved further out, from about a third of the way to the side to about half.
-Starting a game with the grenade, knife and colt unequipped no longer brings them back when a weapon you bought is equipped, and Tab offers only what you equipped.
-Choosing the Store row, or Start Game with no coin, clicks as in the original.
-The coin row reads your coins and the time until the next one with the original's pauses between its parts.
-You can click an empty magazine again straight away, as in the original.
-A zombie hitting you, and the girl thanking you, are heard in the middle of your head, as in the original.
-A grenade adds to the score for every zombie it hurts, as in the original, not only for the ones it kills.
-The weapon change sound is as quiet as in the original, and changing again stops the one before.
-The tutorial's reload lesson says its instruction once, as in the original, instead of repeating it until you reload.
-Pausing says "paused" half a second after the click, as in the original, or through your screen reader with voice over off.
-The readme, the changelog and the todo list are in a docks folder beside the game.
-A readme.txt beside the game says how to play, in plain text with one sentence a line.
-The opening screen's third row tells the game's story, which the original recorded but never played, with quiet music under it, read by your screen reader with voice over off.
-A save with too few coins and no coin clock running starts the clock when the main menu opens, so the coins always come back.
-The game opens with Bitbee's logo sound a moment after it starts, as the original does, and Enter skips it.
-When headphones are unplugged or plugged back in, or the output is switched in Windows, the game's sound follows within a second, music included.
-When the game cannot start, or stops because of an error, it says why out loud.
-Changing the music or the ambience no longer leaks memory.
-A damaged save file is kept aside, and the game carries on from a backup of the save before it, so your gold and weapons are kept.
-A new save starts with voice over on, so "Gold is lacking" is heard and the mode row is right.
-Pausing a game pauses the ambience and the music, and continuing carries each on where it was, instead of stopping the music or silencing the ambience.
-Pausing in the two seconds after a level's boss dies holds the level change until you continue, and restarting then no longer makes you walk twice as fast.
-The key bindings screen lists Escape as back, pause or quit, since it goes back in the shop, pauses a game and quits only from the main menu.
-Starting a game with no coin says only no coin, without pointing to the coin store or the ranking page, which are gone.
-Moving between the two rows of the opening screen stops the "you must use earphones" warning, which plays only once, after the first welcome message.
-Moving between the two rows of the opening screen no longer lets their sounds overlap.
-Choosing a result row on the pause and result panel reads that row again, instead of the wrong number or nothing.
-With voice over on, the score row on the pause and result panel reads your score aloud after its name, as in the original.
-With voice over turned off, the Left and Right arrows move to the previous and the next row in the menus and on the pause and result panel, like VoiceOver's flicks.
-The coin store and purchase all weapons rows are gone from the shop, since Apple in-app purchases no longer exist and there are no recordings for buying them with gold.
-The tutorial's steps always come in the original's order, and reloading or changing weapon early no longer skips a lesson.
-Pressing P at the end of the tutorial ends it. The first time, from Start, it counts down into the game, and from the Tutorial button it goes back to the main menu.
-The tutorial's last step is pressing P, the original's pause gesture, and Shift+Tab stays the previous weapon.
-Starting your first game spends a coin and runs the tutorial first, as in the original.
-Shaking off the animal zombie takes between one and five separate presses of space, a new number for each grab, and holding space counts as one press.
-With voice over turned off, the tutorial says which keys to press after each recorded instruction, using your own key bindings.
-The turn keys, comma and full stop, are gone, since the original never turned you. A zombie can no longer sound as though it is in one lane while the attack keys aim at another.
-With voice over turned off, Home and End go to the first and the last row of the main menu, the shop, the inventory, the opening screen and the pause and result panel.
-The voice over row in the main menu says what choosing it does, as in the original, and turning voice over off plays the game's own recording.
-Moving away from the coin row stops the time until the next coin, instead of reading it over the row you moved to.
-The restore purchases row is gone from the shop. It restored Apple in-app purchases, which no longer exist.
-The ranking row and the rank are gone everywhere, including the main menu and the result panel. The online ranking they came from is gone.
-The Game Center row is gone everywhere. In the original it opened Apple's online leaderboard, which the Windows port does not have.
-Closing the game window quits the game from any screen, instead of going back to the menu.
-Closing the window from the shop or the inventory no longer leaves the old main menu running in the background with its coin timer.
-The girl and the woman zombie keep level 1's speed and health on every level, as in the original, instead of getting faster and tougher with each level.
-The Try button on a weapon's page has been added. It opens the weapon test range with that weapon, as in the original.
-A bullet keeps the original's half second between firing and hitting the zombie. It is one setting and can still be switched back.
-Opening the key bindings with F1 during a stage or the tutorial stops the game until you close them.
-Escape pauses a stage and resumes it from the pause panel, instead of leaving the stage.
-With voice over turned off, the menus, the shop, the inventory and the pause and result panel speak through the screen reader. The tutorial and the announcements during play still use the recordings.
-The girl and the zombies walk straight in along their own lane and stop there, instead of passing through the middle of your head and stepping out to the side on their last step.
-The woman zombie growls once, about three and a half metres away, on every level, instead of reaching you on level 2 and up before her growl could be heard.
-Switching away from the game window pauses a stage, the same as pressing P, as the original did when the phone left the game.
-You can pause as often as you like, with P or by switching away from the window, as in the original, instead of only once per stage.
-You can rebind a key again. Letting go of enter no longer ends the capture before you press the key you want.
-The key bindings screen asks before it resets every binding, and a second press of R means it. Any other key keeps the bindings you have.
-Rolling from one attack key to the next attacks the lane you just pressed, and a chord still wins when one of its own keys is the one pressed.
-The inventory refuses to equip a weapon you have not bought and says so, while one an old save has switched on can still be switched off.
-The shop, the weapon list, a weapon's page and the inventory each say which screen you are on as they open, instead of only saying "back button".
-You can no longer fire while reloading, and a reload refills the gun you started it with, as in the original.
-Reload does nothing with the grenade or a blade, and does not work while a zombie holds you or once the game is over.
-Headshots are timed as in the original: the breathing pause counts when you fire, even though the shot takes half a second to land, and the headshot announcement plays in the centre.
-Zombie sounds move as they walk, so you hear each zombie come closer and louder in its own lane, a zigzag walker's sound sweeps across with it, and the breathing that times a headshot plays through.
-Near the end of each level an alarm sounds and a boss comes down the middle, and the level only ends once the boss is dead.
-Zombies still alive at the end of a level die there instead of following you into the next one, and the ambience changes with the level.
-The girl who heals you and the woman zombie appear during a normal game. The girl has her own voice, thanks you when she reaches you, and shooting her costs a heart instead of counting as a kill.
-Zombies come as often as in the original, and each section of the corridor starts with a quiet stretch.
-A zombie that has just appeared is in its own lane straight away.
-The knife and the sword do their normal damage on a headshot, and a hit, a kill and a miss each have their own sound.
-Shaking free always frees you from the zombie holding you, even when two reach you at once.
-The zombie sound tables, the woman zombie's kill tally, how close a zombie gets, and the sword's sound all match the original.
-You no longer lose health during the tutorial.
-In the tutorial's shaking step the animal zombie grabs you, so space shakes it off. It can no longer be shot, and the step starts again if it gets you.
-Gunshots and knife swings are heard off to the side when you aim at a side lane, the same way a zombie in that lane is heard.
-A bullet hitting a zombie is heard where the zombie is, instead of in the middle of your head.
-Gunshots are as loud as in the original, and killing a zombie plays its kill sound where it fell.
-Dying plays the player death sound where you fell, and "game over" is said once, by the panel that follows.
-A key you were holding when you left a stage no longer stays pressed in the next one, and nothing stays stuck after you switch away from the window.
-The game opens one audio device, the one it plays through, instead of also starting pygame's mixer.
-The menu music carries on where it was when you come back to the menu, instead of starting over from the beginning.
-Moving to another row in the shop, the inventory or the main menu now stops whatever that row was saying, instead of letting it run into the next one.
-The tutorial's prompts no longer restart every second once they have already played through once.
-Pressing P during the tutorial now stops its prompts and its timer, instead of leaving them running.
-Replaying the tutorial from the menu no longer reads it as already finished.
-Leaving the tutorial now stops whatever prompt was still playing, instead of letting it run into the menu.
-The "you must use earphones" warning now plays once, from the opening screen, instead of colliding with the main menu's title or repeating every time you start a game.
-The "no coin" message no longer speaks its own sentence over the recording that already says it.
-"Now Loading" now always plays first, before the menu music stops or the level's own sound and the tutorial's first prompt begin.
-Restore Purchases and Game Center now stop their own sentence when you move to another row, instead of letting it run on into whatever you land on next.
-The key bindings screen and the main menu's spoken messages speak through Prism, so JAWS, ZoomText, System Access, Narrator and other screen readers work as well as NVDA, and a Windows voice speaks when no screen reader is running, without needing comtypes. The build script puts the licenses for Prism, pygame, OpenAL Soft and the NVDA controller client in a licenses folder beside the game.
-The game finds its sounds in game/sounds/used again, so every sound plays.
-The level music and ambience play as quietly as in the original, so the zombies can be heard over them.
-The rain in the third area keeps falling for the whole level.
-Leaving a stage stops the zombie footsteps, the ambience and the music.
-Switching weapons keeps each weapon's own ammo instead of refilling the magazine.
-The coin economy now matches the original: a new player gets 10 coins once, a coin comes back every 30 minutes instead of 10, up to 5, time spent away grants the coins missed while you were gone, and spending a coin no longer restarts a countdown that is already running. Coins were kept as a gate on Start Game, matching the original, rather than made free.
-The coin row can say how long until your next coin, instead of always reading zero, and it stops reading a stale coin count after you have already moved to another row.
-Spoken numbers are read digit by digit in the correct order, instead of backwards, so ten now says "one, zero" instead of "zero, one".
