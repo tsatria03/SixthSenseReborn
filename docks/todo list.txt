@@ -1,5 +1,7 @@
 ##Unfinished.
 
+Consider adding joystick support, which needs some thought first because of the clock face lanes.
+If joystick support is added, consider stick movement for the lanes, vibration and similar extras.
 Remove the voice over row from the main menu, so the game is driven entirely by the screen reader.
 Make the MG80 fire continuously while its key is held, like a machine gun, and keep the AK47 firing one shot per press.
 Make weapons upgradeable, so that they can do more damage.
