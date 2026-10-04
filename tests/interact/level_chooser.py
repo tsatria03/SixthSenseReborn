@@ -21,7 +21,7 @@ Starting part-way down the corridor replays the action cells above the start row
 spawn tier, the quiet stretch and the level music are what they would have been.
 
 **Your save is never touched.**  It plays on its own save in
-``%APPDATA%\\SeventhSense\\level_chooser``, marked as past the tutorial, and takes a fresh copy
+``%APPDATA%\\SixthSense\\level_chooser``, marked as past the tutorial, and takes a fresh copy
 of your key bindings each time it starts.  Gold and scores earned here stay there.
 
 Everything else is the real game: Escape pauses and resumes, the pause panel's Main menu
@@ -49,14 +49,14 @@ NEAR_BOSS_ROW = SIREN_ROW + 2
 def _own_save():
     """Point APPDATA at the chooser's own folder, before anything reads it."""
     real = os.path.join(os.environ.get('APPDATA') or os.path.expanduser('~'),
-                        'SeventhSense')
+                        'SixthSense')
     mine = os.path.join(real, 'level_chooser')
-    os.makedirs(os.path.join(mine, 'SeventhSense'), exist_ok=True)
+    os.makedirs(os.path.join(mine, 'SixthSense'), exist_ok=True)
     # your key bindings and your settings (voice over, the volumes), but never your save
     for name in ('keys.json', 'settings.json'):
         yours = os.path.join(real, name)
         if os.path.exists(yours):
-            shutil.copyfile(yours, os.path.join(mine, 'SeventhSense', name))
+            shutil.copyfile(yours, os.path.join(mine, 'SixthSense', name))
     os.environ['APPDATA'] = mine
 
 
@@ -104,7 +104,7 @@ def _questions():
 def main(argv=None):
     if argv is None:
         argv = sys.argv[1:] or _questions()
-    ap = argparse.ArgumentParser(description='Start SeventhSense at any level.')
+    ap = argparse.ArgumentParser(description='Start SixthSense at any level.')
     ap.add_argument('level', nargs='?', type=int, default=1,
                     help='the level to start on, 1 and up (default 1)')
     ap.add_argument('--mode', choices=sorted(MODES),
@@ -128,10 +128,10 @@ def main(argv=None):
 
     _own_save()
 
-    import SeventhSense
-    from seventhsense.game.stage_1_e import Stage_1_E
-    from seventhsense.platform import volume
-    from seventhsense.platform.defaults import UserDefaults
+    import SixthSense
+    from sixthsense.game.stage_1_e import Stage_1_E
+    from sixthsense.platform import volume
+    from sixthsense.platform.defaults import UserDefaults
 
     d = UserDefaults.standardUserDefaults()
     d.setObject_forKey_('1', 'TUTORIAL')      # the stage only walks once it is set
@@ -188,10 +188,10 @@ def main(argv=None):
         st.viewDidLoad()
         return st
 
-    SeventhSense._new_stage = new_stage
+    SixthSense._new_stage = new_stage
     print('Level %d, %s, from row %d.  Your own save is not used.'
           % (args.level, args.mode or 'area as the game picks it', row))
-    return SeventhSense.main(['--stage'] + (['-v'] if args.verbose else []))
+    return SixthSense.main(['--stage'] + (['-v'] if args.verbose else []))
 
 
 if __name__ == '__main__':

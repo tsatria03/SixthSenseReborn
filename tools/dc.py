@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Symbolic annotator for the SeventhSense armv7 Thumb binary."""
+"""Symbolic annotator for the SixthSense armv7 Thumb binary."""
 import os, sys, json, re, struct, bisect
 sys.path.insert(0, '.')
 import mb as B

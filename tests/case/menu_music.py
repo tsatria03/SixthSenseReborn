@@ -17,16 +17,16 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 import _scratch_save                                             # noqa: E402,F401  never the real save
 
-from seventhsense.game.app_delegate import (MENU_MUSIC_KEY,        # noqa: E402
+from sixthsense.game.app_delegate import (MENU_MUSIC_KEY,        # noqa: E402
                                           AppDelegate)
-from seventhsense.game.main_controller import MainController       # noqa: E402
-from seventhsense.platform import openal as al                     # noqa: E402
-from seventhsense.platform import volume                           # noqa: E402
-from seventhsense.platform.defaults import UserDefaults            # noqa: E402
-from seventhsense.platform.keymap import FIXED                     # noqa: E402
-from seventhsense.platform.runloop import RunLoop                  # noqa: E402
-from seventhsense.ui.menu_input import MenuInput                   # noqa: E402
-from seventhsense.ui.screen_input import ScreenInput               # noqa: E402
+from sixthsense.game.main_controller import MainController       # noqa: E402
+from sixthsense.platform import openal as al                     # noqa: E402
+from sixthsense.platform import volume                           # noqa: E402
+from sixthsense.platform.defaults import UserDefaults            # noqa: E402
+from sixthsense.platform.keymap import FIXED                     # noqa: E402
+from sixthsense.platform.runloop import RunLoop                  # noqa: E402
+from sixthsense.ui.menu_input import MenuInput                   # noqa: E402
+from sixthsense.ui.screen_input import ScreenInput               # noqa: E402
 
 FULL = volume.gain(volume.MENU_MUSIC_DB)
 # These check the menu music's setting alone, so the per-file trims are off here;
@@ -238,8 +238,8 @@ def test_spoken_only_with_voice_over_off():
 
 
 def test_the_shop_and_the_inventory_take_the_keys_too():
-    from seventhsense.game.inventory import InventoryController
-    from seventhsense.game.store import MainStoreController
+    from sixthsense.game.inventory import InventoryController
+    from sixthsense.game.store import MainStoreController
     m = _menu(saved=None, voice_over=False)
     shop = MainStoreController(speech=_Recorder())
     inv = InventoryController(speech=_Recorder())
@@ -276,7 +276,7 @@ def test_a_levels_music_and_the_storys_are_never_touched():
 
 
 def test_the_opening_screen_leaves_the_keys_alone():
-    from seventhsense.game.intro import StartIntroPage
+    from sixthsense.game.intro import StartIntroPage
     m = _menu(saved=None, voice_over=False)
     m.app.playback.backgroundSoundStop()
     page = StartIntroPage(speech=_Recorder())

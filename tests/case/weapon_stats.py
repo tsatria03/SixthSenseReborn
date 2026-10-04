@@ -20,14 +20,14 @@ import tempfile
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 import _scratch_save                                             # noqa: E402,F401  never the real save
 
-from seventhsense import paths                                     # noqa: E402
-from seventhsense.game import weapon_stats                         # noqa: E402
-from seventhsense.game.app_delegate import AppDelegate             # noqa: E402
-from seventhsense.game.inventory import DetailInventoryController  # noqa: E402
-from seventhsense.game.store import DetailStoreController          # noqa: E402
-from seventhsense.game.weapon_control import WeaponControl         # noqa: E402
-from seventhsense.platform.defaults import UserDefaults            # noqa: E402
-from seventhsense.platform.runloop import RunLoop                  # noqa: E402
+from sixthsense import paths                                     # noqa: E402
+from sixthsense.game import weapon_stats                         # noqa: E402
+from sixthsense.game.app_delegate import AppDelegate             # noqa: E402
+from sixthsense.game.inventory import DetailInventoryController  # noqa: E402
+from sixthsense.game.store import DetailStoreController          # noqa: E402
+from sixthsense.game.weapon_control import WeaponControl         # noqa: E402
+from sixthsense.platform.defaults import UserDefaults            # noqa: E402
+from sixthsense.platform.runloop import RunLoop                  # noqa: E402
 
 #: as ammo capacity, range, damage and price; checked against the binary on 2026-09-25
 EXPECTED = {
@@ -48,7 +48,7 @@ class _NewSave:
     def __enter__(self):
         self.old = os.environ.get(paths.USER_DIR_ENV)
         self.top = tempfile.mkdtemp()
-        os.environ[paths.USER_DIR_ENV] = os.path.join(self.top, 'SeventhSense')
+        os.environ[paths.USER_DIR_ENV] = os.path.join(self.top, 'SixthSense')
         UserDefaults._instance = None
         self.d = UserDefaults.standardUserDefaults()
         self.app = AppDelegate.shared()

@@ -1,4 +1,4 @@
-"""The frame loop in ``SeventhSense.main``: closing the window quits from any screen and
+"""The frame loop in ``SixthSense.main``: closing the window quits from any screen and
 tears down every screen stacked underneath, while Escape and the back rows keep
 doing what each screen makes them do.
 
@@ -16,11 +16,11 @@ import _scratch_save                                             # noqa: E402,F4
 
 import pygame                                                    # noqa: E402
 
-import SeventhSense                                                # noqa: E402
-from seventhsense.game import stage_1_e as S1E                     # noqa: E402
-from seventhsense.platform import speech                           # noqa: E402
-from seventhsense.platform.defaults import UserDefaults            # noqa: E402
-from seventhsense.platform.runloop import RunLoop                  # noqa: E402
+import SixthSense                                                # noqa: E402
+from sixthsense.game import stage_1_e as S1E                     # noqa: E402
+from sixthsense.platform import speech                           # noqa: E402
+from sixthsense.platform.defaults import UserDefaults            # noqa: E402
+from sixthsense.platform.runloop import RunLoop                  # noqa: E402
 
 speech.Speech.speak = lambda self, text, interrupt=True: False  # never the real reader
 
@@ -47,7 +47,7 @@ class Run:
     def go(self):
         S1E.LOADING_SECONDS = 0.0
         RunLoop.main().reset()
-        real = {n: getattr(SeventhSense, n) for n in
+        real = {n: getattr(SixthSense, n) for n in
                 ('_new_menu', '_new_stage', '_new_tutorial', '_new_screen',
                  '_new_test_range')}
         run = self
@@ -62,11 +62,11 @@ class Run:
                 return screen
             return make
 
-        SeventhSense._new_menu = wrap('menu', real['_new_menu'])
-        SeventhSense._new_stage = wrap('stage', real['_new_stage'])
-        SeventhSense._new_tutorial = wrap('tutorial', real['_new_tutorial'])
-        SeventhSense._new_screen = wrap('screen', real['_new_screen'])
-        SeventhSense._new_test_range = wrap('weapon_test', real['_new_test_range'])
+        SixthSense._new_menu = wrap('menu', real['_new_menu'])
+        SixthSense._new_stage = wrap('stage', real['_new_stage'])
+        SixthSense._new_tutorial = wrap('tutorial', real['_new_tutorial'])
+        SixthSense._new_screen = wrap('screen', real['_new_screen'])
+        SixthSense._new_test_range = wrap('weapon_test', real['_new_test_range'])
         real_get = pygame.event.get
 
         def get():
@@ -82,11 +82,11 @@ class Run:
 
         pygame.event.get = get
         try:
-            SeventhSense.main(['--no-intro'])
+            SixthSense.main(['--no-intro'])
         finally:
             pygame.event.get = real_get
             for n, fn in real.items():
-                setattr(SeventhSense, n, fn)
+                setattr(SixthSense, n, fn)
         self.frames_run = self.frame
         return self
 
@@ -190,7 +190,7 @@ def test_escape_in_the_range_still_pauses():
 def test_the_window_lists_every_debug_key():
     """In debug mode the stage's window text names each debug key, F7 included."""
     from types import SimpleNamespace
-    from seventhsense.platform.keymap import DEBUG_IDS, KeyMap
+    from sixthsense.platform.keymap import DEBUG_IDS, KeyMap
     km = KeyMap()
     km.debug = True
     player = SimpleNamespace(useWepon=0, HP=3, playerXplot=20, playerYplot=30,
@@ -198,7 +198,7 @@ def test_the_window_lists_every_debug_key():
     stage = SimpleNamespace(gameState=0, gamePlayer=player, weaponSource=[None],
                             gameMode=1, LVUP=1, score=0, MonsterBuffer=[],
                             app=SimpleNamespace(debug=True))
-    lines = SeventhSense._stage_lines(stage, SimpleNamespace(keymap=km))
+    lines = SixthSense._stage_lines(stage, SimpleNamespace(keymap=km))
     debug = [line for line in lines if line.startswith('debug')]
     assert len(debug) == 1, lines
     missing = [a for a in DEBUG_IDS if km.keys_text(a) not in debug[0]]
@@ -207,27 +207,27 @@ def test_the_window_lists_every_debug_key():
 
 
 def _failing_run(error):
-    """``SeventhSense.run`` with ``main`` raising ``error``; what it would say, and its exit
+    """``SixthSense.run`` with ``main`` raising ``error``; what it would say, and its exit
     code."""
     said = []
-    real_main, real_say = SeventhSense.main, SeventhSense._say_why
+    real_main, real_say = SixthSense.main, SixthSense._say_why
 
     def fail(argv=None):
         raise error
-    SeventhSense.main, SeventhSense._say_why = fail, said.append
+    SixthSense.main, SixthSense._say_why = fail, said.append
     try:
-        return said, SeventhSense.run()
+        return said, SixthSense.run()
     finally:
-        SeventhSense.main, SeventhSense._say_why = real_main, real_say
+        SixthSense.main, SixthSense._say_why = real_main, real_say
 
 
 def test_a_failed_start_says_why():
     said, code = _failing_run(OSError('alcOpenDevice failed'))
     assert code == 1
-    assert said == ['SeventhSense stopped because of an error. OSError: alcOpenDevice failed'], said
-    said, code = _failing_run(SystemExit("SeventhSense's game data was not found. Tried:\n  x"))
+    assert said == ['SixthSense stopped because of an error. OSError: alcOpenDevice failed'], said
+    said, code = _failing_run(SystemExit("SixthSense's game data was not found. Tried:\n  x"))
     assert code == 1
-    assert said == ["SeventhSense's game data was not found. Tried:"], said
+    assert said == ["SixthSense's game data was not found. Tried:"], said
 
 
 def test_a_normal_exit_says_nothing():

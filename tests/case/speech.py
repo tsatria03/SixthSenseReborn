@@ -13,7 +13,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 import _scratch_save                                             # noqa: E402,F401  never the real save
 
-from seventhsense.platform.speech import Speech, _Prism                # noqa: E402
+from sixthsense.platform.speech import Speech, _Prism                # noqa: E402
 
 
 class _Nvda:
@@ -288,10 +288,10 @@ def test_an_empty_line_says_nothing():
 
 
 def test_the_tests_never_reach_the_players_screen_reader():
-    """_scratch_save sets SEVENTHSENSE_SILENT, so a Speech built with no stand-ins - as
+    """_scratch_save sets SIXTHSENSE_SILENT, so a Speech built with no stand-ins - as
     Speech.shared() builds one - loads neither NVDA's client nor Prism, and never speaks
     or cuts off the screen reader."""
-    assert os.environ.get('SEVENTHSENSE_SILENT') == '1'
+    assert os.environ.get('SIXTHSENSE_SILENT') == '1'
     s = Speech()
     assert s.silent and s.nvda is None and s._prism is None
     assert s.speak('Debug mode.') is False

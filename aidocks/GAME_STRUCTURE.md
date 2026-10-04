@@ -1,4 +1,4 @@
-# SeventhSense — how the game works
+# SixthSense — how the game works
 
 Everything here was read out of `Payload/sixsense.app/sixsense`, an **unencrypted**
 armv7 Mach-O (`LC_ENCRYPTION_INFO cryptid = 0`), plus the data files shipped beside it.

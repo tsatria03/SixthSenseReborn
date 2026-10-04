@@ -16,12 +16,12 @@ import wave
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 import _scratch_save                                             # noqa: E402,F401  never the real save
 
-from seventhsense import paths                                        # noqa: E402
-from seventhsense.game.make_maps import MakeMaps                      # noqa: E402
-from seventhsense.game.monster_control import MOVING_TYPE_ANGLE, START_POS  # noqa: E402
-from seventhsense.game.stage_1_e import (MONSTER_ARRAY, MONSTER_SOUNDS,  # noqa: E402
+from sixthsense import paths                                        # noqa: E402
+from sixthsense.game.make_maps import MakeMaps                      # noqa: E402
+from sixthsense.game.monster_control import MOVING_TYPE_ANGLE, START_POS  # noqa: E402
+from sixthsense.game.stage_1_e import (MONSTER_ARRAY, MONSTER_SOUNDS,  # noqa: E402
                                        SHAKE_SOUNDS, MAKE_MONSTER_TIER)
-from seventhsense.game.weapon_control import (WEAPON_FILES, WEAPON_SLOTS,  # noqa: E402
+from sixthsense.game.weapon_control import (WEAPON_FILES, WEAPON_SLOTS,  # noqa: E402
                                             WeaponControl, obj_float, obj_int)
 
 
@@ -221,7 +221,7 @@ def test_the_renamed_sounds_are_what_the_list_names():
         p = paths.path_for_resource(sl[n], 'wav')
         assert p and os.sep + 'used' + os.sep in p, (n, sl[n], p)
     # both bosses are hurt with their own entry now, not zombie 9's
-    from seventhsense.game.stage_1_e import KIND_BOSS
+    from sixthsense.game.stage_1_e import KIND_BOSS
     assert MONSTER_SOUNDS[KIND_BOSS][2] == [371]
     assert MONSTER_SOUNDS[9][2] == MONSTER_SOUNDS[10][2] == [205, 206, 207]
 
@@ -269,7 +269,7 @@ def test_no_sound_list_name_is_a_file_that_is_not_the_originals():
 def test_score_formula():
     """-[Stage_1_E ReadScore] 0x3bf38 - the per-kind weights and the string-built
     headshot multiplier."""
-    from seventhsense.game.stage_1_e import Stage_1_E
+    from sixthsense.game.stage_1_e import Stage_1_E
     assert Stage_1_E.headshot_multiplier(0) == 1.0
     assert Stage_1_E.headshot_multiplier(5) == 1.05
     assert Stage_1_E.headshot_multiplier(9) == 1.09
@@ -300,7 +300,7 @@ def test_the_zigzag_walks_sweep_and_turn_round():
 
     Half the shipped monster types walk one of these, so this is not a corner case.
     """
-    from seventhsense.game.monster_control import MonsterControl, ZIGZAG_ANGLE
+    from sixthsense.game.monster_control import MonsterControl, ZIGZAG_ANGLE
     import glob
     import plistlib as _pl
 

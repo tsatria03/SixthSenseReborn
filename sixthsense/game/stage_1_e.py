@@ -296,7 +296,7 @@ class Stage_1_E:
         self.isTutorialEnd = 0
         self.GirlMonsterNumber = 0
         self.DieFlag = False
-        self.monstersFrozen = False     # --debug, seventhsense/game/debug.py
+        self.monstersFrozen = False     # --debug, sixthsense/game/debug.py
         self.debugSpawn = 0
         self.debugHits = False          # --debug's F7: zombies hit you, for no heart
         self.debugSectionReady = 0.0    # --debug's F2 cools down until then

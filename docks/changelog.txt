@@ -1,5 +1,4 @@
 unrelease:
-The game is now called Seventh Sense, a version that makes changes of its own to the original Sixth Sense. Its save is kept in a SeventhSense folder, so a Sixth Sense save is not carried over.
 Added macOS support with a copyable app and VoiceOver or native speech; targets macOS 11 or newer.
 
 26.09.28-2:

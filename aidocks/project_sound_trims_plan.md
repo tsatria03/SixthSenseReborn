@@ -32,7 +32,7 @@ metadata:
 - Every file loads bit for bit as it is on disk.
 
 ## What is built
-- **`seventhsense/platform/sound_trims.py`**: `MEASURED` (written by the tool), `BY_EAR` (the dev's own, which win and which the tool never touches), `MAX_GAIN`, and `trim_db`, `gain` (what `AL_GAIN` is multiplied by). A Python module, so PyInstaller bundles it with no change to `compiler.py`.
+- **`sixthsense/platform/sound_trims.py`**: `MEASURED` (written by the tool), `BY_EAR` (the dev's own, which win and which the tool never touches), `MAX_GAIN`, and `trim_db`, `gain` (what `AL_GAIN` is multiplied by). A Python module, so PyInstaller bundles it with no change to `compiler.py`.
 - **`tools/sound_trims.py`**: measures every file in `game/sounds/used/`, prints one line per file (folder, loudness, peak, trim) for NVDA, and rewrites only `MEASURED`; `--dry-run` only prints. Standard library only; makes no sound.
 - **`platform/openal.py`**: `AL_MAX_GAIN`.
 - **`platform/music.py`**: `_ensure` raises the source's `AL_MAX_GAIN`; `_heard` caps the game's gain at 1.0 and multiplies in the playing file's trim, so the music and the ambience are levelled too and F8 reaches them through `refreshGains`.

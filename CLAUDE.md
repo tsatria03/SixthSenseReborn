@@ -4,9 +4,9 @@ This file guides Claude Code when it works in this repository. **It is a lean di
 
 **Memory location:** all memory files (the `[[name]]` links and the `MEMORY.md` index) live in the repo's **`aidocks/`** folder, as `aidocks/<name>.md`. Read memory from there and write new or updated memory there, never to the `~/.claude` memory store. `aidocks/MEMORY.md` is the index, so add a one-line pointer there for every new memory. Keep this file under 40,000 characters and move detail into memory ([[feedback_memory_in_aidocks]]).
 
-## This branch: seventh-sense (read first)
+## This branch: custom (read first)
 
-**You are on `seventh-sense`, a branch of the port where changes need not be faithful to the original.** `main` is the faithful port; this branch is where the dev makes their own changes ([[project_seventh_sense_branch]]).
+**You are on `custom`, a branch of the port where changes need not be faithful to the original.** `main` is the faithful port; this branch is where the dev makes their own changes ([[project_custom_branch]]). The game is still called Sixth Sense here, and its save folder is the same as `main`'s.
 
 - **Fidelity is not the goal here.** Do what the dev asks, even when the original did otherwise.
 - **Compare, then follow the dev.** When a change is proposed, say briefly what the original did (and the binary address when it matters) and the likely better solution or difference, then do what the dev picks. Never refuse or argue for a change because it departs from the original.
@@ -16,7 +16,7 @@ This file guides Claude Code when it works in this repository. **It is a lean di
 
 ## What this is
 
-A Windows port of **Sixth Sense** (`kr.co.bitbee.sixsense` 1.2; this branch calls the game **Seventh Sense**), a 2013 iPhone audio-only zombie shooter for blind players. You walk down a dark corridor and shoot what you hear coming, in five lanes laid out like a clock face.
+A Windows port of **Sixth Sense** (`kr.co.bitbee.sixsense` 1.2), a 2013 iPhone audio-only zombie shooter for blind players. You walk down a dark corridor and shoot what you hear coming, in five lanes laid out like a clock face.
 
 There is no source code for the original. The port is **recovered from the ARMv7 binary** and rewritten method by method **entirely in Python**. **lbk2907 created it**, including the binary extraction, and handed it to tsatria03 to publish and develop together; the "Initial commit" is entirely their work ([[project_provenance]]). Each Python module mirrors one Objective-C class and cites the binary address it came from ([[project_python_only]]).
 
@@ -24,14 +24,14 @@ The game plays the original's own 269 recorded WAVs, which `SoundList.plist` nam
 
 ## Layout
 
-- **`SeventhSense.py`**: the entry point and screen loop (stands in for `UINavigationController`).
-- **`seventhsense/game/`**: one module per original class. `stage_1_e.py` is the core loop; the others include `monster_control.py`, `weapon_control.py`, `main_controller.py` (the menu and coin economy), `stage_tutorial.py`, `stage_1_test.py` (the weapon test range behind the shop's Try button, [[project_test_range]]), `debug.py` (the `--debug` keys), `store.py`, `inventory.py`, `intro.py`, `app_delegate.py` and `oal_playback.py`.
-- **`seventhsense/platform/`**:
+- **`SixthSense.py`**: the entry point and screen loop (stands in for `UINavigationController`).
+- **`sixthsense/game/`**: one module per original class. `stage_1_e.py` is the core loop; the others include `monster_control.py`, `weapon_control.py`, `main_controller.py` (the menu and coin economy), `stage_tutorial.py`, `stage_1_test.py` (the weapon test range behind the shop's Try button, [[project_test_range]]), `debug.py` (the `--debug` keys), `store.py`, `inventory.py`, `intro.py`, `app_delegate.py` and `oal_playback.py`.
+- **`sixthsense/platform/`**:
   - `openal.py`: a ctypes binding to OpenAL Soft, with HRTF off.
   - `runloop.py`: stands in for `NSTimer` and `performSelector:afterDelay:`.
   - `defaults.py`: stands in for `NSUserDefaults`.
   - `speech.py`, `keymap.py`, `music.py` and `volume.py` (the decibel knobs, [[project_volume_knobs]]).
-- **`seventhsense/ui/`**: the keyboard input for the stage, the menus and the screens, plus the F1 key-bindings screen.
+- **`sixthsense/ui/`**: the keyboard input for the stage, the menus and the screens, plus the F1 key-bindings screen.
 - **`game/`**: the original app bundle's data: the plists, the maps, the images and the iOS binary. Every sound the game uses lives in `game/sounds/used/`, in folders, a deliberate divergence. Since the dev's third sort (2026-09-25), the zombies, bosses, monster and characters have one folder each, `used/` holds only what the game plays (195 files), `game/sounds/unused/` the 101 it never plays (the original's sounds for left-out features and unspawned zombies, extra copies and the non-original WAVs), and `game/sounds/bloopers/` the blooper clip, which builds leave out. Most keep their original file name; sounds the dev found misnamed are renamed (the "woman" monster is a man, shared zombie sounds are named for one zombie), and `SoundList.plist` follows them, with one entry added, 371, the bosses' own being-hurt sound: the only changes to the original's plists ([[project_sound_rename_plan]]). `paths.path_for_resource` looks in the top folder first, then by file name under `game/sounds/used/`, and last under `game/sounds/unused/`, so a name in `used/` always wins; builds carry both folders ([[project_sound_organization]]). Don't move, rename, convert or delete sound files unless the dev asks.
 - **`analysis/`**:
   - `bin/sixsense_armv7`: the binary itself.
@@ -41,21 +41,21 @@ The game plays the original's own 269 recorded WAVs, which `SoundList.plist` nam
 - **`tools/`**: the Mach-O and disassembly tools that produced `analysis/`. `dz.py` and `dc.py` need `capstone`.
 - **`aidocks/`** also holds `GAME_STRUCTURE.md`, the developer reference for how the original works, beside the memory notes.
 - **`docks/`**: the documents a player reads, which the build puts in a `docks` folder beside the executable, laid out as here: `readme.txt` (plain text for players, kept in step with what it describes, [[project_player_readme_plan]]), `changelog.txt` and `todo list.txt`.
-- **`tests/`** ([[project_tests_layout]]): `tests/case/` holds the tests, plain scripts, each with its own runner. **They keep off the real save and are silent by themselves**: each imports `_scratch_save`, which sets `SEVENTHSENSE_USER_DIR` to a throwaway folder, `SEVENTHSENSE_SILENT` so nothing reaches the screen reader, and the null audio and dummy video drivers; `paths.py` fails if one does not. Testing must speak nothing whatsoever; read [[project_safe_test_run]] before running any. `tests/interact/` holds two tools played by ear. `tests/interact/level_chooser.py` is not a test: it starts the real game at any level, area and row, on its own save in `%APPDATA%\SeventhSense\level_chooser`, for checking by ear. `tests/interact/tutorial_chooser.py`, likewise not a test, does the same for the tutorial: any lesson, either ending, voice over on or off, on its own save in `%APPDATA%\SeventhSense\tutorial_chooser` ([[project_tutorial_tester_plan]]).
+- **`tests/`** ([[project_tests_layout]]): `tests/case/` holds the tests, plain scripts, each with its own runner. **They keep off the real save and are silent by themselves**: each imports `_scratch_save`, which sets `SIXTHSENSE_USER_DIR` to a throwaway folder, `SIXTHSENSE_SILENT` so nothing reaches the screen reader, and the null audio and dummy video drivers; `paths.py` fails if one does not. Testing must speak nothing whatsoever; read [[project_safe_test_run]] before running any. `tests/interact/` holds two tools played by ear. `tests/interact/level_chooser.py` is not a test: it starts the real game at any level, area and row, on its own save in `%APPDATA%\SixthSense\level_chooser`, for checking by ear. `tests/interact/tutorial_chooser.py`, likewise not a test, does the same for the tutorial: any lesson, either ending, voice over on or off, on its own save in `%APPDATA%\SixthSense\tutorial_chooser` ([[project_tutorial_tester_plan]]).
 - **`vendor/`**: `soft_oal.dll` and `nvdaControllerClient64.dll` (x64), and `libopenal.so.1` for Linux ([[project_linux_build_plan]]).
-- **`compiler.py`**: the PyInstaller build script. Run it with no flags for a menu; it builds `dist\SeventhSense-Windows` (around `SeventhSense.exe`; the release zip extracts to that folder too), a folder build or with `--embed` one exe holding the sounds and data, and never zips or changes the repository ([[project_compiler_py]]). Run on Linux (the dev builds in WSL) it builds `dist/SeventhSense-Linux` around `SeventhSense` instead, from its `SYSTEMS` table ([[project_linux_build_plan]]).
+- **`compiler.py`**: the PyInstaller build script. Run it with no flags for a menu; it builds `dist\SixthSense-Windows` (around `SixthSense.exe`; the release zip extracts to that folder too), a folder build or with `--embed` one exe holding the sounds and data, and never zips or changes the repository ([[project_compiler_py]]). Run on Linux (the dev builds in WSL) it builds `dist/SixthSense-Linux` around `SixthSense` instead, from its `SYSTEMS` table ([[project_linux_build_plan]]).
 - **`releaser.py`**: sets the date version, files the changelog, runs the compiler, zips the build, commits, tags `V<version>` and uploads the zip to GitHub through `gh` ([[project_release_tooling_plan]]). Built and confirmed working by the dev on 2026-09-23. Since 2026-09-28 one release carries the Windows zip and the Linux .tar.gz: the full release on one system, then "Add this system's build to the release" on the other ([[project_linux_release_plan]]).
 - **`bloopers/`**: short clips of funny bugs, kept for fun and preferably under two minutes. Its README sets the naming and format rules. The build leaves it out; only add clips the dev provides.
 - **`New File.txt`** at the root is the dev's private scratchpad. It is gitignored; never read, edit, flag or delete it.
 - **`user/`** is gitignored private reference material. Read it, but never edit it. Never name the dev's other games that are kept in it, in the todo list, memory, or code and comments ([[feedback_no_other_games]]). The dev's old NVGT remake of this game used to be there; it was deleted on 2026-09-21 ([[project_nvgt_remake_reference]]).
 
-The save lives in `%APPDATA%\SeventhSense\` (on Linux `~/.local/share/SeventhSense/`), in three files since 2026-09-25: `save.json` (progress), `settings.json` (preferences, `defaults.SETTINGS_KEYS`) and `keys.json` (the key bindings). An older `defaults.json` is moved over on the first start and kept as `defaults.json.old` ([[project_save_split_plan]]).
+The save lives in `%APPDATA%\SixthSense\` (on Linux `~/.local/share/SixthSense/`), in three files since 2026-09-25: `save.json` (progress), `settings.json` (preferences, `defaults.SETTINGS_KEYS`) and `keys.json` (the key bindings). An older `defaults.json` is moved over on the first start and kept as `defaults.json.old` ([[project_save_split_plan]]).
 
 ## Running and building
 
 **The dev runs and builds, not Claude.** Never build unless told to. The tests may be run without asking, always the safe way ([[project_safe_test_run]]), but only the scripts that cover the Python files changed; the full suite runs only when the dev asks ([[feedback_dont_run_or_build]]). Ask before running the game, `compiler.py`, or anything else that executes game code or speaks ([[feedback_dont_run_or_build]]).
 
-`python SeventhSense.py` plays the publisher's logo, then the opening screen, then the menu. Flags:
+`python SixthSense.py` plays the publisher's logo, then the opening screen, then the menu. Flags:
 - `--no-intro` opens straight on the menu.
 - `--stage` and `--tutorial` start those directly.
 - `--skip-tutorial` writes `TUTORIAL=1`.

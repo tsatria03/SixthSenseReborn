@@ -5,7 +5,7 @@ metadata:
   type: project
 ---
 
-Ported 2026-09-22 at the dev's request ("follow the game", "match the original exactly"). It is `seventhsense/game/stage_1_test.py`, subclassing `Stage_1_E`. 38 of the 241 shared methods differ; the ones that matter were read in the raw disassembly (`tools/dz.py`), the rest reuse the stage's.
+Ported 2026-09-22 at the dev's request ("follow the game", "match the original exactly"). It is `sixthsense/game/stage_1_test.py`, subclassing `Stage_1_E`. 38 of the 241 shared methods differ; the ones that matter were read in the raw disassembly (`tools/dz.py`), the rest reuse the stage's.
 
 - **Try** (`DetailStoreController testAction:` 0x1c1c0) plays 10 and pushes the range with `setTestWeapon:`. The jump table at 0x1c1f2 maps weaponType 1..6 to slots 3..8, anything else to 0 (`TEST_WEAPON`).
 - **Setup**: `isTutorial = 1` (0x409c2); the area is `(arc4random() & 1) + 1` (0x40fce), the cave or the forest, never the rain; the player gets only the test weapon (0x40be0). `gunChangeAction:` is `bx lr` (0x49198). `weaponInit` plays the sword's draw (329) for slot 7 and the saw's idle (74, looping) for slot 8.

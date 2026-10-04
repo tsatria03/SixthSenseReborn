@@ -12,11 +12,11 @@ import time
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 import _scratch_save                                             # noqa: E402,F401  never the real save
 
-from seventhsense.game import stage_1_e as S1E                    # noqa: E402
-from seventhsense.game.app_delegate import AppDelegate            # noqa: E402
-from seventhsense.game.stage_1_e import Stage_1_E                 # noqa: E402
-from seventhsense.platform.defaults import UserDefaults           # noqa: E402
-from seventhsense.platform.runloop import RunLoop                 # noqa: E402
+from sixthsense.game import stage_1_e as S1E                    # noqa: E402
+from sixthsense.game.app_delegate import AppDelegate            # noqa: E402
+from sixthsense.game.stage_1_e import Stage_1_E                 # noqa: E402
+from sixthsense.platform.defaults import UserDefaults           # noqa: E402
+from sixthsense.platform.runloop import RunLoop                 # noqa: E402
 
 LANE = {1: 180.0, 2: 123.0, 3: 90.0, 4: 57.0, 5: 0.0}
 _REAL_LOADING_SECONDS = S1E.LOADING_SECONDS
@@ -653,9 +653,9 @@ def test_the_girl_and_the_woman_keep_level_1s_speed():
 
 
 def test_the_debug_commands():
-    """seventhsense/game/debug.py: F6 holds zombies at their range, F11 reads them out,
+    """sixthsense/game/debug.py: F6 holds zombies at their range, F11 reads them out,
     F2 moves on a section and Shift+F2 a level."""
-    from seventhsense.game import debug
+    from sixthsense.game import debug
     _app, st = _new_stage()
     loop = RunLoop.main()
     said = []
@@ -705,7 +705,7 @@ def test_more_debug_commands():
     """--debug: Tab reaches every weapon, bought or not, and nothing runs out; F7 lets
     a zombie hit you for no heart; Shift+F2 goes round from level 8 to level 1; F2
     says the section, not the level, while a level is changing."""
-    from seventhsense.game import debug
+    from sixthsense.game import debug
     app, st = _new_stage()
     loop = RunLoop.main()
     app.debug = True

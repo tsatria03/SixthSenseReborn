@@ -13,14 +13,14 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 import _scratch_save                                             # noqa: E402,F401  never the real save
 
-from seventhsense import paths                                      # noqa: E402
-from seventhsense.game.app_delegate import AppDelegate              # noqa: E402
-from seventhsense.game.inventory import (SLOTS, DetailInventoryController,  # noqa: E402
+from sixthsense import paths                                      # noqa: E402
+from sixthsense.game.app_delegate import AppDelegate              # noqa: E402
+from sixthsense.game.inventory import (SLOTS, DetailInventoryController,  # noqa: E402
                                        InventoryController)
-from seventhsense.game.store import (SHOP, DetailStoreController,   # noqa: E402
+from sixthsense.game.store import (SHOP, DetailStoreController,   # noqa: E402
                                    MainStoreController, StoreController)
-from seventhsense.platform.defaults import UserDefaults             # noqa: E402
-from seventhsense.platform.runloop import RunLoop                   # noqa: E402
+from sixthsense.platform.defaults import UserDefaults             # noqa: E402
+from sixthsense.platform.runloop import RunLoop                   # noqa: E402
 
 OWNED = ('SHOTGUN', 'M4', 'AK47', 'MG80', 'JAPAN')
 EQUIPPED = ('GRENADEUSE', 'KNIFEUSE', 'COLTUSE', 'SHOTGUNUSE',

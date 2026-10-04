@@ -16,7 +16,7 @@ import tempfile
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 import _scratch_save                                             # noqa: E402,F401  never the real save
 
-from seventhsense import paths                                     # noqa: E402
+from sixthsense import paths                                     # noqa: E402
 
 # what paths._is_bundle looks for before it takes a folder for the bundle
 MARKERS = ('SoundList.plist', 'g_CH1_E')
@@ -159,8 +159,8 @@ def test_pointing_somewhere_else_forgets_the_old_sounds():
         _done(first)
 
 
-def test_the_save_goes_where_seventhsense_user_dir_points():
-    """The tests' way off the real save; without it, the save is in %APPDATA%\\SeventhSense."""
+def test_the_save_goes_where_sixthsense_user_dir_points():
+    """The tests' way off the real save; without it, the save is in %APPDATA%\\SixthSense."""
     old_dir, old_appdata = os.environ.get(paths.USER_DIR_ENV), os.environ.get('APPDATA')
     was = paths.WINDOWS
     top = tempfile.mkdtemp()
@@ -171,7 +171,7 @@ def test_the_save_goes_where_seventhsense_user_dir_points():
         os.environ.pop(paths.USER_DIR_ENV)
         paths.WINDOWS = True
         os.environ['APPDATA'] = top
-        assert paths.user_dir() == os.path.join(top, 'SeventhSense')
+        assert paths.user_dir() == os.path.join(top, 'SixthSense')
     finally:
         paths.WINDOWS = was
         for key, old in ((paths.USER_DIR_ENV, old_dir), ('APPDATA', old_appdata)):
@@ -183,7 +183,7 @@ def test_the_save_goes_where_seventhsense_user_dir_points():
 
 
 def test_on_linux_the_save_goes_in_the_users_data_folder():
-    """2026-09-28: $XDG_DATA_HOME/SeventhSense, which is ~/.local/share/SeventhSense when unset."""
+    """2026-09-28: $XDG_DATA_HOME/SixthSense, which is ~/.local/share/SixthSense when unset."""
     keys = (paths.USER_DIR_ENV, 'XDG_DATA_HOME')
     old = {k: os.environ.get(k) for k in keys}
     was = paths.WINDOWS, paths.MACOS
@@ -193,7 +193,7 @@ def test_on_linux_the_save_goes_in_the_users_data_folder():
         paths.WINDOWS = False
         paths.MACOS = False
         os.environ['XDG_DATA_HOME'] = top
-        assert paths.user_dir() == os.path.join(top, 'SeventhSense')
+        assert paths.user_dir() == os.path.join(top, 'SixthSense')
         os.environ.pop('XDG_DATA_HOME')
         assert paths.save_base() == os.path.join(os.path.expanduser('~'), '.local', 'share')
     finally:
@@ -225,7 +225,7 @@ def test_on_macos_the_save_goes_in_application_support():
                 patch.dict(os.environ, {'XDG_DATA_HOME': os.path.join(top, 'xdg')}):
             assert paths.user_dir() == _scratch_save.FOLDER, 'save override was ignored'
             os.environ.pop(paths.USER_DIR_ENV)
-            expected = os.path.join(top, 'Library', 'Application Support', 'SeventhSense')
+            expected = os.path.join(top, 'Library', 'Application Support', 'SixthSense')
             assert paths.user_dir() == expected and os.path.isdir(expected)
 
 

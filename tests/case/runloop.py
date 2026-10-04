@@ -11,8 +11,8 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 import _scratch_save                                             # noqa: E402,F401  never the real save
 
-from seventhsense.platform import runloop                         # noqa: E402
-from seventhsense.platform.runloop import RunLoop                 # noqa: E402
+from sixthsense.platform import runloop                         # noqa: E402
+from sixthsense.platform.runloop import RunLoop                 # noqa: E402
 
 
 class _Target:

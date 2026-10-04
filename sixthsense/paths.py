@@ -19,12 +19,12 @@ belongs to one of the files that are not the original's own.
 Because the top folder comes first, an untouched original bundle still works: its WAVs are
 all found where the original found them.
 
-The port never writes to ``game/``.  The save file lives in ``%APPDATA%\\SeventhSense`` on
-Windows, ``~/.local/share/SeventhSense`` on Linux, ``~/Library/Application Support/SeventhSense``
-on macOS, or wherever ``SEVENTHSENSE_USER_DIR`` points,
+The port never writes to ``game/``.  The save file lives in ``%APPDATA%\\SixthSense`` on
+Windows, ``~/.local/share/SixthSense`` on Linux, ``~/Library/Application Support/SixthSense``
+on macOS, or wherever ``SIXTHSENSE_USER_DIR`` points,
 which the tests use.
 
-``--game PATH`` (or ``SEVENTHSENSE_GAME``) points somewhere else: another copy of the
+``--game PATH`` (or ``SIXTHSENSE_GAME``) points somewhere else: another copy of the
 bundle, or a folder holding ``Payload/sixsense.app``.
 """
 from __future__ import annotations
@@ -57,9 +57,9 @@ NVDA_DLL = os.path.join(VENDOR, 'nvda', 'nvdaControllerClient64.dll')
 # The thin armv7 slice, for tools/.  Not needed to play.
 BINARY = os.path.join(ROOT, 'analysis', 'bin', 'sixsense_armv7')
 
-GAME_ENV = 'SEVENTHSENSE_GAME'
-# The save's folder in place of %APPDATA%\SeventhSense - set by the tests, never by the game.
-USER_DIR_ENV = 'SEVENTHSENSE_USER_DIR'
+GAME_ENV = 'SIXTHSENSE_GAME'
+# The save's folder in place of %APPDATA%\SixthSense - set by the tests, never by the game.
+USER_DIR_ENV = 'SIXTHSENSE_USER_DIR'
 APP_NAME = 'sixsense.app'
 
 # Where the sounds are, inside the bundle folder.  An original bundle has no such folders.
@@ -119,7 +119,7 @@ def game() -> str:
                 break
             tried.append('%s: %s' % (why, path))
         else:
-            raise SystemExit("SeventhSense's game data was not found. Tried:\n  "
+            raise SystemExit("SixthSense's game data was not found. Tried:\n  "
                              + '\n  '.join(tried)
                              + "\nPass --game with the path to Payload/sixsense.app.")
     return _game
@@ -193,13 +193,13 @@ def save_base() -> str:
 
 
 def user_dir() -> str:
-    """Where ``NSUserDefaults`` and the save game live: ``%APPDATA%\\SeventhSense``, or on
-    Linux ``$XDG_DATA_HOME/SeventhSense`` (``~/.local/share/SeventhSense``), on macOS
-    ``~/Library/Application Support/SeventhSense``, or the folder
-    ``SEVENTHSENSE_USER_DIR`` names.  The tests set that to a throwaway folder, so they never
+    """Where ``NSUserDefaults`` and the save game live: ``%APPDATA%\\SixthSense``, or on
+    Linux ``$XDG_DATA_HOME/SixthSense`` (``~/.local/share/SixthSense``), on macOS
+    ``~/Library/Application Support/SixthSense``, or the folder
+    ``SIXTHSENSE_USER_DIR`` names.  The tests set that to a throwaway folder, so they never
     read or write the real save."""
     p = os.environ.get(USER_DIR_ENV)
     if not p:
-        p = os.path.join(save_base(), 'SeventhSense')
+        p = os.path.join(save_base(), 'SixthSense')
     os.makedirs(p, exist_ok=True)
     return p

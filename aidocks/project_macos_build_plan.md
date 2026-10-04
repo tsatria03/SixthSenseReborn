@@ -8,7 +8,7 @@ metadata:
 
 # macOS builds
 
-Default output: `dist/SeventhSense-macOS/SeventhSense.app`, native architecture.
+Default output: `dist/SixthSense-macOS/SixthSense.app`, native architecture.
 For a distributable build targeting macOS 11:
 
 ```sh

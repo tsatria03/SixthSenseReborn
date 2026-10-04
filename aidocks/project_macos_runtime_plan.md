@@ -15,7 +15,7 @@ metadata:
   Source, build commands, hashes and licenses: `vendor/openal/macos-source.md`.
 - Prism tries `VOICE_OVER`, then `AV_SPEECH` without a reader. Recorded speech
   and gameplay are unchanged; HRTF remains off despite embedded library data.
-- Saves use `~/Library/Application Support/SeventhSense`; `SEVENTHSENSE_USER_DIR`
+- Saves use `~/Library/Application Support/SixthSense`; `SIXTHSENSE_USER_DIR`
   remains the isolation override.
 
 Source and app builds were checked on ARM64 and Intel under Rosetta.

@@ -7,9 +7,9 @@ metadata:
 
 **Status: FINISHED, 2026-09-23.** The dev tested it and confirmed: "All tests past." The plan was committed on its own as `addf747`; the dev asked for the code to be a separate commit, made only once they had tested it and it was marked finished here ("I want the built code to be a seprat commit, after I tested that it works, and that it's marked finished"), so the tester, its README and CLAUDE.md lines and this status went in together after that.
 
-**Renamed the same day by the dev:** it is now `tests/interact/tutorial_chooser.py`, beside `tests/interact/level_chooser.py`, and its save is `%APPDATA%\SeventhSense\tutorial_chooser` ([[project_tests_layout]]). The plan below was written for `tests/tutorial_tester.py`; the paths in it have been updated, and the design is unchanged.
+**Renamed the same day by the dev:** it is now `tests/interact/tutorial_chooser.py`, beside `tests/interact/level_chooser.py`, and its save is `%APPDATA%\SixthSense\tutorial_chooser` ([[project_tests_layout]]). The plan below was written for `tests/tutorial_tester.py`; the paths in it have been updated, and the design is unchanged.
 
-**Built as planned:** `tests/interact/tutorial_chooser.py` with `LESSONS`, `_own_save`, `_questions`, and a `LessonTutorial(Stage_Tutorial)` that marks the earlier beats done in `MapInitInBundle` and swaps the chosen beat in for the first `tutorial_beat` call (`_opened`). `new_tutorial` replaces `SeventhSense._new_tutorial`, giving the first tutorial the asked-for ending and later ones their menu route's. `EYEMODE` is written "1" or "0" on the tester's save before the game starts.
+**Built as planned:** `tests/interact/tutorial_chooser.py` with `LESSONS`, `_own_save`, `_questions`, and a `LessonTutorial(Stage_Tutorial)` that marks the earlier beats done in `MapInitInBundle` and swaps the chosen beat in for the first `tutorial_beat` call (`_opened`). `new_tutorial` replaces `SixthSense._new_tutorial`, giving the first tutorial the asked-for ending and later ones their menu route's. `EYEMODE` is written "1" or "0" on the tester's save before the game starts.
 
 **What the dev asked for:** a tutorial tester to play by ear, not an automated test ("I meant the one I play by ear, not the other case test"). `tests/case/tutorial.py` already has the automated checks. Asked after tunmi13productions' tutorial ending work ([[project_tutorial_ending_plan]]), when the dev found the Start ending hard to reach without deleting their save.
 
@@ -20,7 +20,7 @@ metadata:
 
 ## The design
 - **`tests/interact/tutorial_chooser.py`**, beside `level_chooser.py` and shaped like it. Not a test: it lives in `tests/interact/`, apart from the tests in `tests/case/`.
-- **Its own save**, `%APPDATA%\SeventhSense\tutorial_chooser`, taking a fresh copy of the player's `keys.json` each start, the same `_own_save()` as the level tester. The player's save is never touched.
+- **Its own save**, `%APPDATA%\SixthSense\tutorial_chooser`, taking a fresh copy of the player's `keys.json` each start, the same `_own_save()` as the level tester. The player's save is never touched.
 - **Asked when opened with nothing after its name**, in this order, Enter giving the default each time:
   1. The ending: `start` or `menu` (Enter for `menu`).
   2. The lesson, 1 to 10 (Enter for 1), read out as a numbered list:
@@ -28,8 +28,8 @@ metadata:
   3. Voice over: `on` or `off` (Enter for `on`). Written to the tester's save as `EYEMODE`, "1" or "0".
 - **The same on the command line:** `--ending start|menu`, `--lesson N`, `--voice on|off`, and `-v`.
 - **How a lesson is started:** a `Stage_Tutorial` subclass marks every lesson before the chosen one done (`beat_done`), and swaps the chosen lesson in for the first `tutorial_beat('One')` that `MapInitInBundle` plays, so nothing of lesson One is heard. From there the tutorial runs as it does in the game: `REQUIRES` is already met, `NextTutorial` goes on in order, and P works from lesson 10 on, or once lessons One to Eight are done.
-- **The ending:** the first tutorial gets `first_run` from the answer. `SeventhSense._new_tutorial` is replaced, as the level tester replaces `_new_stage`, so a tutorial started later from the tester's menu also starts at the chosen lesson, with the ending the menu's own route gives it (Tutorial row: menu; a first Start: the countdown).
-- It starts the game with `SeventhSense.main(['--tutorial'])`.
+- **The ending:** the first tutorial gets `first_run` from the answer. `SixthSense._new_tutorial` is replaced, as the level tester replaces `_new_stage`, so a tutorial started later from the tester's menu also starts at the chosen lesson, with the ending the menu's own route gives it (Tutorial row: menu; a first Start: the countdown).
+- It starts the game with `SixthSense.main(['--tutorial'])`.
 - README's "Starting at any level" section gains a short "Starting the tutorial at any lesson" part, and CLAUDE.md's `tests/` line names the new tester.
 - No automated test is added, since it is a tool, like the level tester. Checked by importing it and by `--help`, which runs nothing of the game.
 

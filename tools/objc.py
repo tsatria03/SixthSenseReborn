@@ -2,7 +2,7 @@ import struct, json, sys
 
 import os
 _HERE = os.path.dirname(os.path.abspath(__file__))
-PATH = next((p for p in (os.environ.get('SEVENTHSENSE_BINARY'),
+PATH = next((p for p in (os.environ.get('SIXTHSENSE_BINARY'),
                          os.path.join(os.path.dirname(_HERE), 'analysis', 'bin', 'sixsense_armv7'),
                          os.path.join(os.path.dirname(_HERE), 'game', 'sixsense'),
                          os.path.join(_HERE, 'sixsense')) if p and os.path.exists(p)), None)

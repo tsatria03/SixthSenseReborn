@@ -1,6 +1,6 @@
 ---
 name: project_volume_knobs
-description: "seventhsense/platform/volume.py (built 2026-09-22): decibel knobs that move groups of sounds - master, level music, ambience, and the menu music in full - while every gain the game plays stays the binary's own value. How it is wired and how to tune it."
+description: "sixthsense/platform/volume.py (built 2026-09-22): decibel knobs that move groups of sounds - master, level music, ambience, and the menu music in full - while every gain the game plays stays the binary's own value. How it is wired and how to tune it."
 metadata:
   node_type: memory
   type: project
@@ -9,7 +9,7 @@ metadata:
 **Built 2026-09-22**, at the dev's request ("convert all volumes to use db if possible ... a constant for master volume, and gameplay related volumes"). They chose the design that keeps the binary's gains exact and puts the decibels in knobs on top.
 
 ## What is where
-- **`seventhsense/platform/volume.py`** holds the knobs and the two conversions:
+- **`sixthsense/platform/volume.py`** holds the knobs and the two conversions:
   - `gain(db)` is `10 ** (db / 20)`, and `decibels(g)` is `20 * log10(g)`; silence comes back as `-inf`.
   - `MASTER_DB`, `MUSIC_DB`, `AMBIENCE_DB` are **trims**, all 0.0 dB as shipped, which multiplies by exactly 1.0, so the mix is the binary's bit for bit until one is turned.
   - `MENU_MUSIC_DB` is **the whole value**, -14.0 dB, because the original never plays music on its menu and so has no gain to sit on top of.
@@ -31,5 +31,5 @@ Gains in the game, with their decibels: 1.0 is 0 dB (gunshots), 0.5 is -6 dB (br
 **How to apply:**
 - Never replace a binary gain with a decibel constant. Add a trim if a group needs moving.
 - A new kind of sound that the original has no gain for gets its own absolute `*_DB` constant, as the menu music has.
-- These are constants, not saved settings. Settings would be a JSON file in `%APPDATA%\SeventhSense` beside `defaults.json` and `keys.json`; the reference project in `user/` splits its own defaults into save, settings and keys files and stores its menu music as a percentage in steps of ten ([[feedback_no_other_games]]: don't name it).
+- These are constants, not saved settings. Settings would be a JSON file in `%APPDATA%\SixthSense` beside `defaults.json` and `keys.json`; the reference project in `user/` splits its own defaults into save, settings and keys files and stores its menu music as a percentage in steps of ten ([[feedback_no_other_games]]: don't name it).
 - Changing a shipped knob is a player-facing change, so it needs a changelog line ([[feedback_changelog]]).

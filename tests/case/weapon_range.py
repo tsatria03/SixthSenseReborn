@@ -12,10 +12,10 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 import _scratch_save                                             # noqa: E402,F401  never the real save
 
-from seventhsense.game import stage_1_e as S1E                    # noqa: E402
-from seventhsense.game.app_delegate import AppDelegate            # noqa: E402
-from seventhsense.game.stage_1_test import Stage_1_TEST           # noqa: E402
-from seventhsense.platform.runloop import RunLoop                 # noqa: E402
+from sixthsense.game import stage_1_e as S1E                    # noqa: E402
+from sixthsense.game.app_delegate import AppDelegate            # noqa: E402
+from sixthsense.game.stage_1_test import Stage_1_TEST           # noqa: E402
+from sixthsense.platform.runloop import RunLoop                 # noqa: E402
 
 
 def _range(slot=4):
@@ -160,7 +160,7 @@ def test_losing_the_last_heart_ends_it_once():
 
 def test_it_is_always_the_cave_or_the_forest():
     """0x40fce: gameMode is (arc4random() & 1) + 1, never 3, the rain."""
-    from seventhsense.game import stage_1_test
+    from sixthsense.game import stage_1_test
     real = stage_1_test.arc4random
     try:
         for value, mode in ((0, 1), (1, 2), (2, 1), (5, 2), (0xFFFFFFFF, 2)):
@@ -219,7 +219,7 @@ def test_the_back_row_leaves_the_range():
 def test_going_back_to_the_weapon_page_silences_the_cave():
     """The back row, then the frame loop's teardown, stop the ambience and the music:
     straight away, after a pause and a resume, and while Now Loading still plays."""
-    from seventhsense.game import stage_1_test
+    from sixthsense.game import stage_1_test
     real = stage_1_test.arc4random
     stage_1_test.arc4random = lambda: 0         # the cave
     try:
@@ -251,7 +251,7 @@ def test_going_back_to_the_weapon_page_silences_the_cave():
 
 def test_the_corridor_keys_of_debug_mode_do_nothing_here():
     """F2 and Shift+F2 have no level or section to move to in the range."""
-    from seventhsense.game import debug
+    from sixthsense.game import debug
     app, st, _played = _range()
     said = []
     st._say = said.append

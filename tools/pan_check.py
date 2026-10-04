@@ -20,7 +20,7 @@ from ctypes import POINTER, byref, c_char_p, c_float, c_int, c_uint, c_void_p
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from seventhsense.platform import openal as al          # noqa: E402
+from sixthsense.platform import openal as al          # noqa: E402
 
 # ALC_SOFT_loopback
 ALC_FORMAT_CHANNELS_SOFT = 0x1990

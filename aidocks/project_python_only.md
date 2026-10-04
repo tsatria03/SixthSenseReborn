@@ -13,4 +13,4 @@ The Windows port of Sixth Sense is written entirely in Python: pygame for the wi
 
 **Why:** Both are the dev's stated decisions from 2026-09-21.
 
-**How to apply:** Write any new code in Python and follow the existing package layout (`seventhsense/game`, `platform`, `ui`). Never run `compiler.py` or build without the dev's say-so; see [[feedback_dont_run_or_build]].
+**How to apply:** Write any new code in Python and follow the existing package layout (`sixthsense/game`, `platform`, `ui`). Never run `compiler.py` or build without the dev's say-so; see [[feedback_dont_run_or_build]].
