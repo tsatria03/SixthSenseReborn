@@ -1,4 +1,8 @@
 unrelease:
+The girl who heals you now says only "thank you". The kiss after it is cut off.
+The man who comes in the girl's place now vibrates a game controller when he hits you: a short wind-up, then one hard bash, like a blow with a stone.
+A game controller now gives a short bump, 75 milliseconds, when you kill a zombie, softer for the MG80, and one bump for a grenade however many it kills. The closer the zombie was, the heavier and longer the bump, up to a hard double thump when you kill one right in your face. A headshot keeps its own firmer vibration unless the zombie was that close.
+A game controller now gives a firm, short vibration, a quarter of a second, when you land a headshot.
 Games are free. Starting a game and playing again no longer cost a coin, so there is no waiting for coins to charge, and the coins row is gone from the main menu.
 The main menu has a new row, between Store and voice over, that says "Vibration, currently on" or "off", and Enter on it switches the controller's vibration. The game remembers it, in settings.json as VIBRATION.
 A game controller now vibrates when a zombie hits you, each zombie in its own way: a light punch from the first, scratching pulses from the second and fourth, a heavy mauling from the third, fifth and seventh, a pounce from the sixth, a firm grip when you fail to shake off the animal zombie, a hard smash from the ninth, and a chainsaw that revs up, saws and revs down from the tenth. Shooting the girl who heals you gives a long rumble, and dying gives two hard seconds. Pausing or leaving a game stops it.

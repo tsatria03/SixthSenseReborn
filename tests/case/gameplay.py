@@ -522,6 +522,30 @@ def test_the_girl_heals_and_says_thank_you():
         st.teardown()
 
 
+def test_the_thank_you_is_cut_before_the_kiss():
+    """tunmi13productions, 2026-10-05: 270 is "thank you" and a kiss from 1.4 s; it stops at
+    643 ms."""
+    from sixthsense.game.monster_control import THANK_YOU_ENDS, THANK_YOU_SOUND
+    app, st = _new_stage()
+    stopped = []
+    real = app.stopSoundBufNumber_
+    app.stopSoundBufNumber_ = lambda n: (stopped.append(n), real(n))[-1]
+    loop = RunLoop.main()
+    try:
+        assert THANK_YOU_SOUND == 270 and THANK_YOU_ENDS == 0.643
+        st.MonsterInit_(10003)
+        m = st.MonsterBuffer[0]
+        stopped.clear()
+        m.hitPlayer()
+        _run(loop, THANK_YOU_ENDS - 0.15)
+        assert THANK_YOU_SOUND not in stopped, 'cut before "thank you" was over'
+        _run(loop, 0.3, until=lambda: THANK_YOU_SOUND in stopped)
+        assert THANK_YOU_SOUND in stopped, 'the kiss was left to play'
+    finally:
+        del app.stopSoundBufNumber_
+        st.teardown()
+
+
 def test_shooting_the_girl_costs_a_heart():
     """0x3a850..0x3a97a: killing her takes a heart and is not a kill."""
     _app, st = _new_stage()

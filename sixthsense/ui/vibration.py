@@ -44,6 +44,37 @@ def _pulses(first, last, every, low, high, ms):
     return out
 
 
+#: A kill's bump grows with how close the zombie was: the plain bump at ``CLOSE_FAR`` cm or
+#: more, the heaviest at ``CLOSE_NEAR`` (a zombie reaches you at 25), eased so it is mostly
+#: the last stretch that is felt.  ``kill_effect`` gives the segments for a distance.
+CLOSE_NEAR, CLOSE_FAR = 25.0, 300.0
+KILL_BASE = {'kill': (0.35, 0.20), 'kill_soft': (0.20, 0.10)}      # at a distance
+KILL_PEAK = {'kill': (1.00, 0.85), 'kill_soft': (0.80, 0.60)}      # in your face
+KILL_MS = (75, 260)
+#: A headshot's own thump is kept unless the zombie was at least this close (``closeness``).
+HEADSHOT_YIELDS_AT = 0.5
+
+
+def closeness(distance):
+    """0.0 for a kill at ``CLOSE_FAR`` cm or more, 1.0 at ``CLOSE_NEAR`` or less."""
+    linear = (CLOSE_FAR - distance) / (CLOSE_FAR - CLOSE_NEAR)
+    linear = min(1.0, max(0.0, linear))
+    return linear * linear
+
+
+def kill_effect(distance, kind='kill'):
+    """Segments for a kill at ``distance`` cm, ``kind`` being 'kill' or 'kill_soft'."""
+    t = closeness(distance)
+    (b_low, b_high), (p_low, p_high) = KILL_BASE[kind], KILL_PEAK[kind]
+    low = round(b_low + (p_low - b_low) * t, 3)
+    high = round(b_high + (p_high - b_high) * t, 3)
+    ms = round(KILL_MS[0] + (KILL_MS[1] - KILL_MS[0]) * t)
+    out = [(0, low, high, ms)]
+    if t >= 0.6:                        # a close one rings on a little
+        out.append((ms, round(low * 0.5, 3), round(high * 0.4, 3), 140))
+    return out
+
+
 EFFECTS = {
     # zombie 1: a light punch after the wind-up
     'punch': [(803, 0.45, 0.25, 160)],
@@ -61,8 +92,19 @@ EFFECTS = {
     'chainsaw': (_ramp(0, 405, (0.15, 0.70), (0.10, 0.40))
                  + [(405, 0.70, 0.40, 2219 - 405)]
                  + _ramp(2219, 3198, (0.70, 0.0), (0.40, 0.0))),
+    # the man who comes in place of the girl (kind 22): a 113 ms wind-up, then a hard bash
+    # as short as a blow with a stone
+    'stone': [(113, 0.90, 0.60, 100)],
     # the girl who heals you, shot by mistake: a long rumble, that was a bad move
     'girl': [(0, 0.60, 0.35, 1600)],
+    # a headshot: a firm, short thump
+    'headshot': [(0, 0.60, 0.60, 250)],
+    # a zombie killed far off: a short bump, softer for the MG80's rapid fire; closer kills
+    # are heavier, and these two stand for the least and a sample of the most
+    'kill': kill_effect(CLOSE_FAR),
+    'kill_soft': kill_effect(CLOSE_FAR, 'kill_soft'),
+    'kill_mid': kill_effect(100.0),
+    'kill_near': kill_effect(CLOSE_NEAR),
     # the menu row turned on: a short buzz to say so
     'confirm': [(0, 0.50, 0.50, 150)],
     # you die: two hard seconds, from the moment the game over music starts
@@ -72,7 +114,8 @@ EFFECTS = {
 #: ``MonsterControl.monsterNumber`` to its effect.  Zombies 4, 5 and 7 share the hit sound
 #: of 2, 3 and 3 in the original, and the dev gave them those effects.
 ZOMBIE_EFFECTS = {1: 'punch', 2: 'scratch', 3: 'maul', 4: 'scratch', 5: 'maul',
-                  6: 'pounce', 7: 'maul', 8: 'grab', 9: 'smash', 10: 'chainsaw'}
+                  6: 'pounce', 7: 'maul', 8: 'grab', 9: 'smash', 10: 'chainsaw',
+                  22: 'stone'}
 
 
 class Vibration:
@@ -86,7 +129,19 @@ class Vibration:
     def play(self, name):
         """Start an effect by name, replacing the one playing.  Nothing happens without a
         pad or for a name that has no effect."""
-        segments = EFFECTS.get(name)
+        return self._start(EFFECTS.get(name))
+
+    def play_kill(self, distance, kind='kill'):
+        """A zombie's death at ``distance`` cm, by how close it was.  ``kind`` is 'kill',
+        'kill_soft' (the MG80) or 'headshot', whose thump already played with the hit and
+        is kept unless the zombie was close enough for the heavier bump to take over."""
+        if kind == 'headshot':
+            if closeness(distance) < HEADSHOT_YIELDS_AT:
+                return False
+            kind = 'kill'
+        return self._start(kill_effect(distance, kind))
+
+    def _start(self, segments):
         pads = self.controllers.pads
         if not segments or not pads or not self.enabled():
             return False

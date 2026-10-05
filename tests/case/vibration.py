@@ -19,7 +19,8 @@ from sixthsense.game.monster_control import MonsterControl       # noqa: E402
 from sixthsense.game.stage_1_e import Stage_1_E                  # noqa: E402
 from sixthsense.platform.defaults import UserDefaults            # noqa: E402
 from sixthsense.platform.runloop import RunLoop                  # noqa: E402
-from sixthsense.ui.vibration import EFFECTS, ZOMBIE_EFFECTS, Vibration  # noqa: E402
+from sixthsense.ui.vibration import (CLOSE_FAR, CLOSE_NEAR, EFFECTS, ZOMBIE_EFFECTS,  # noqa: E402
+                                     Vibration, closeness, kill_effect)
 
 
 class _Pad:
@@ -68,7 +69,7 @@ def _run(vib, clock, total_ms, step=10):
 
 
 def test_every_zombie_the_dev_named_has_an_effect():
-    assert sorted(ZOMBIE_EFFECTS) == list(range(1, 11))
+    assert sorted(ZOMBIE_EFFECTS) == list(range(1, 11)) + [22]
     for kind, name in ZOMBIE_EFFECTS.items():
         assert name in EFFECTS, (kind, name)
     assert 'girl' in EFFECTS
@@ -151,6 +152,17 @@ def test_zombie_9_is_the_hardest_and_short():
     assert sum(ms for _s, _l, _h, ms in EFFECTS['smash']) < 600
 
 
+def test_the_man_in_the_girls_place_waits_113_ms_then_bashes_for_100():
+    vib, pad, clock = _vib()
+    vib.play_zombie(22)
+    _run(vib, clock, 90)
+    assert _rumbles(pad) == [], 'it vibrated during the wind-up'
+    _run(vib, clock, 100)
+    (_k, low, high, ms), = _rumbles(pad)
+    assert ms == 100 and low >= 0.8, (low, high, ms)
+    assert low < EFFECTS['smash'][0][1], 'the smash of zombie 9 should stay the hardest'
+
+
 def test_the_chainsaw_revs_up_saws_and_revs_down():
     vib, pad, clock = _vib()
     vib.play_zombie(10)
@@ -185,6 +197,54 @@ def test_dying_is_two_hard_seconds():
     assert ms == 2000 and low >= 0.9 and high >= 0.7, (low, high, ms)
 
 
+def test_a_headshot_is_a_firm_quarter_second_and_a_kill_a_short_bump():
+    got = {}
+    for name in ('headshot', 'kill', 'kill_soft'):
+        vib, pad, clock = _vib()
+        vib.play(name)
+        _run(vib, clock, 400)
+        (_k, low, high, ms), = _rumbles(pad)
+        got[name] = (low, high, ms)
+    assert got['headshot'][2] == 250 and got['headshot'][0] >= 0.5, got
+    assert got['kill'][2] == 75 and got['kill_soft'][2] == 75, got
+    assert got['kill_soft'][0] < got['kill'][0] < got['headshot'][0], got
+    assert got['kill_soft'][1] < got['kill'][1] < got['headshot'][1], got
+    assert got['headshot'][0] < EFFECTS['maul'][0][1], 'a headshot should be softer than a maul'
+
+
+def test_a_kill_grows_heavier_the_closer_the_zombie_was():
+    assert closeness(CLOSE_FAR) == 0.0 and closeness(CLOSE_FAR + 500) == 0.0
+    assert closeness(CLOSE_NEAR) == 1.0 and closeness(0) == 1.0
+    assert kill_effect(CLOSE_FAR) == EFFECTS['kill'], 'a far kill is the plain bump'
+    last = None
+    for d in (300, 250, 200, 150, 100, 60, 25):
+        (_s, low, high, ms), = kill_effect(d)[:1]
+        if last:
+            assert low >= last[0] and high >= last[1] and ms >= last[2], (d, last, low)
+        last = (low, high, ms)
+    (_s, low, high, ms) = kill_effect(CLOSE_NEAR)[0]
+    assert low == 1.0 and 0.8 <= high <= 1.0 and 200 <= ms <= 300, (low, high, ms)
+    assert len(kill_effect(CLOSE_NEAR)) == 2 and len(kill_effect(CLOSE_FAR)) == 1
+    assert max(low for _s, low, _h, _m in kill_effect(CLOSE_NEAR)) <= 1.0
+
+
+def test_the_mg80_stays_softer_at_every_distance():
+    for d in (300, 150, 25):
+        assert kill_effect(d, 'kill_soft')[0][1] < kill_effect(d)[0][1], d
+    assert kill_effect(CLOSE_FAR, 'kill_soft') == EFFECTS['kill_soft']
+
+
+def test_play_kill_by_distance_and_a_headshots_thump():
+    vib, pad, clock = _vib()
+    assert vib.play_kill(400) and vib.play_kill(30)
+    _run(vib, clock, 400)
+    assert _rumbles(pad)[0][1] < 0.4 and _rumbles(pad)[1][1] > 0.9, _rumbles(pad)
+    vib, pad, clock = _vib()
+    assert vib.play_kill(400, 'headshot') is False, 'a far headshot keeps its thump'
+    assert vib.play_kill(100, 'headshot') is True, 'a close headshot kill is heavier'
+    assert vib.play_kill(30, 'headshot') is True
+
+
 def test_a_new_effect_replaces_the_one_playing():
     vib, pad, clock = _vib()
     vib.play_zombie(2)
@@ -216,7 +276,7 @@ def test_without_a_pad_nothing_happens_and_nothing_breaks():
 
 def test_a_zombie_with_no_effect_does_not_vibrate():
     vib, pad, clock = _vib()
-    for kind in (11, 12, 21, 22, 5000, 5001):
+    for kind in (11, 12, 21, 5000, 5001):
         assert vib.play_zombie(kind) is False
     _run(vib, clock, 500)
     assert pad.calls == []
@@ -250,6 +310,9 @@ class _Recorder:
 
     def play(self, name):
         self.played.append(('effect', name))
+
+    def play_kill(self, distance, kind='kill'):
+        self.played.append(('kill', distance, kind))
 
     def stop(self):
         self.stopped += 1
@@ -313,6 +376,96 @@ def test_shooting_the_girl_rumbles():
         m.monsterNumber = S1E.MONSTER_GIRL
         st._monster_killed(m)
         assert ('effect', 'girl') in rec.played, rec.played
+    finally:
+        app.vibration = None
+        st.teardown()
+
+
+def _zombie(kind=1):
+    m = MonsterControl()
+    m.monsterNumber = kind
+    m.app = AppDelegate.shared()
+    m.monsterRange = 500.0
+    return m
+
+
+def test_a_kill_bumps_and_the_girl_does_not():
+    st, app = _stage()
+    rec = _Recorder()
+    try:
+        app.vibration = rec
+        st._monster_killed(_zombie())
+        assert rec.played == [('kill', 500.0, 'kill')], rec.played
+        rec.played.clear()
+        st._monster_killed(_zombie(), bump='kill_soft')
+        assert rec.played == [('kill', 500.0, 'kill_soft')], rec.played
+        rec.played.clear()
+        st._monster_killed(_zombie(), bump=None)
+        assert rec.played == [], rec.played
+        st._monster_killed(_zombie(S1E.MONSTER_GIRL))
+        assert rec.played == [('effect', 'girl')], rec.played
+    finally:
+        app.vibration = None
+        st.teardown()
+
+
+def _shoot(st, app, weapon, headshot, monsters=1, kill=True, ranges=None):
+    """Fire ``weapon`` at ``monsters`` zombies through MonsterDamage; returns what played."""
+    rec = _Recorder()
+    app.vibration = rec
+    st.isShake = False
+    st.gamePlayer.useWepon = weapon
+    st.MonsterBuffer = []
+    for _ in range(monsters):
+        m = _zombie()
+        m.HP = 1 if kill else 10 ** 6
+        m.isHeadShot = headshot
+        m.Pos = (0.0, 0.0)
+        if ranges:
+            m.monsterRange = ranges[len(st.MonsterBuffer)]
+        st.MonsterBuffer.append(m)
+    st.monsterHitHeadFind = lambda: st.MonsterBuffer[0]
+    st._remove = lambda m: st.MonsterBuffer.remove(m) if m in st.MonsterBuffer else None
+    st.MonsterDamage()
+    return rec.played
+
+
+def test_a_gun_kill_bumps_softer_for_the_mg80():
+    st, app = _stage()
+    try:
+        assert _shoot(st, app, 1, False) == [('kill', 500.0, 'kill')]
+        assert _shoot(st, app, S1E.MG80_SLOT, False) == [('kill', 500.0, 'kill_soft')]
+    finally:
+        app.vibration = None
+        st.teardown()
+
+
+def test_a_headshot_thumps_and_leaves_the_bump_to_the_distance():
+    st, app = _stage()
+    try:
+        assert _shoot(st, app, 1, True) == [('effect', 'headshot'), ('kill', 500.0, 'headshot')]
+        assert _shoot(st, app, 1, True, kill=False) == [('effect', 'headshot')]
+    finally:
+        app.vibration = None
+        st.teardown()
+
+
+def test_a_hit_that_does_not_kill_makes_no_bump():
+    st, app = _stage()
+    try:
+        assert _shoot(st, app, 1, False, kill=False) == []
+    finally:
+        app.vibration = None
+        st.teardown()
+
+
+def test_a_grenade_bumps_once_however_many_it_kills():
+    st, app = _stage()
+    try:
+        assert _shoot(st, app, 0, False, monsters=3) == [('kill', 500.0, 'kill')]
+        got = _shoot(st, app, 0, False, monsters=3, ranges=[400.0, 40.0, 220.0])
+        assert got == [('kill', 40.0, 'kill')], 'the nearest one sets the bump'
+        assert _shoot(st, app, 0, False, monsters=3, kill=False) == []
     finally:
         app.vibration = None
         st.teardown()

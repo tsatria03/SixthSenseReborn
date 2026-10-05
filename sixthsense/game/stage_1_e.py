@@ -1018,6 +1018,7 @@ class Stage_1_E:
             if m is None:
                 return
             m.MonsterHitSoundDealloc()
+            headshot = m.isHeadShot
             if m.isHeadShot:                                    # 0x3a174
                 m.isHeadShot = False
                 m.HP -= weapon.Damage * 2                       # 0x3a1dc
@@ -1029,6 +1030,7 @@ class Stage_1_E:
                 # (tunmi13productions, 2026-09-27): at 0.2, level with every spoken row.
                 self.app.playSound_Gain_Pos_z_reprats_(
                     SOUND_HEADSHOT, HEADSHOT_CALL_GAIN, m.Pos, 40, False)
+                self.app.vibrate_effect('headshot')            # PORT ADDITION: a firm thump
             else:
                 m.HP -= weapon.Damage                           # 0x3a796
             self.gamePlayer.gunEggCountShot += 1                # 0x3a7cc
@@ -1038,13 +1040,17 @@ class Stage_1_E:
                 # weapon_gun_att2 (the original's weapon_head_shot): the kill, headshot or
                 # not - the headshot's own sound (330) went out above.
                 self.app.playHitSound_Gain_Pos_z_(SOUND_KILL, 1.0, m.Pos, 40)
-                self._monster_killed(m)
+                # PORT ADDITION: a headshot's thump is kept unless the kill was very close
+                bump = ('headshot' if headshot else
+                        'kill_soft' if self.gamePlayer.useWepon == MG80_SLOT else 'kill')
+                self._monster_killed(m, bump=bump)
         else:
             # the grenade hits every live monster (0x3a4f0..0x3a562), and for each one:
             # HP - Damage, gunEggCountShot + 1 (0x3a538), MonsterKillCount: (0x3a546) -
             # the per-kind tally the score is made of, sent before the HP check, so a
             # zombie that lives through the blast still adds to the score - and then
             # MonsterHitSound:.  Only a death adds to the kills (0x3a636..0x3a642).
+            nearest = None
             for m in list(self.MonsterBuffer):
                 m.HP -= weapon.Damage
                 self.gamePlayer.gunEggCountShot += 1
@@ -1052,13 +1058,20 @@ class Stage_1_E:
                     self.MonsterKillCount_(m)
                 m.MonsterHitSound_(None)
                 if m.HP <= 0:
-                    self._monster_killed(m, tally=False)
+                    if m.monsterNumber != MONSTER_GIRL:
+                        nearest = (m.monsterRange if nearest is None
+                                   else min(nearest, m.monsterRange))
+                    self._monster_killed(m, tally=False, bump=None)
+            if nearest is not None:
+                self.app.vibrate_kill(nearest)                 # PORT ADDITION: one bump
 
-    def _monster_killed(self, m, tally=True):
+    def _monster_killed(self, m, tally=True, bump='kill'):
         """What every weapon does with a monster it has just killed (0x3a84c, 0x3a56a,
         0x39b12).  Killing the girl who heals you is not a kill: it costs you a heart,
         once the tutorial is behind you, and is not counted (0x3a850..0x3a97a).
-        ``tally`` is False for the grenade, which has tallied every monster it hit."""
+        ``tally`` is False for the grenade, which has tallied every monster it hit.
+        ``bump`` is the PORT ADDITION vibration for a zombie's death ('kill', 'kill_soft' or
+        'headshot', felt by how close it was), or None for none."""
         if m.monsterNumber == MONSTER_GIRL:
             self.app.vibrate_effect('girl')                    # PORT ADDITION: that was a bad move
             RunLoop.main().perform(self, 'playerDamage_', None, 0.1)
@@ -1070,6 +1083,8 @@ class Stage_1_E:
                 self.gamePlayer.killMonsterCount += 1       # 0x3aad4
                 if tally:
                     self.MonsterKillCount_(m)
+            if bump:
+                self.app.vibrate_kill(m.monsterRange, bump)
             self._kill_seen(m)
         self._remove(m)
 

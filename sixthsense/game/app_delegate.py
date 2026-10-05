@@ -241,6 +241,11 @@ class AppDelegate:
         if self.vibration is not None:
             self.vibration.play(name)
 
+    def vibrate_kill(self, distance, kind='kill'):
+        """PORT ADDITION: a zombie killed ``distance`` cm away; the closer, the heavier."""
+        if self.vibration is not None:
+            self.vibration.play_kill(distance, kind)
+
     def vibrate_zombie(self, kind):
         """PORT ADDITION: a zombie's blow on you, by its ``monsterNumber``."""
         if self.vibration is not None:

@@ -91,6 +91,12 @@ START_POS = {
 }
 START_RANGE = 1000.0
 
+#: PORT DIVERGENCE (tunmi13productions, 2026-10-05): the girl's thank you, 270, is "thank you"
+#: and then a kiss that people find uncomfortable.  It is cut at 643 ms, where the words end
+#: and just before she breathes in; the file itself is left as it is.
+THANK_YOU_SOUND = 270
+THANK_YOU_ENDS = 0.643
+
 #: The five zig-zag walks, from the ``tbb``-free chain at 0x1155e..0x1187c.
 #:
 #: ``MovingType`` 1..5 walk straight down one lane.  11, 22, 33, 44 and 55 sweep
@@ -441,6 +447,8 @@ class MonsterControl:
         self.app.playSound_Gain_Pos_z_reprats_(
             self.playerHitSound, 1.0, (0.0, 0.0), 40, False)
         self.app.vibrate_zombie(self.monsterNumber)     # PORT ADDITION, with the sound
+        if self.playerHitSound == THANK_YOU_SOUND:      # PORT DIVERGENCE: no kiss
+            RunLoop.main().perform(self, 'MonsterHitAndDead', None, THANK_YOU_ENDS)
         RunLoop.main().perform(self, 'MonsterHitAndDead', None, self.dieSoundTime)
 
     # -[MonsterControl MonsterHitAndDead] 0x11fec

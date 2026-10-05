@@ -74,6 +74,12 @@ GAME_EFFECTS = (('Zombie 1, the punch', 'punch'), ('Zombie 2 and 4, scratching',
                 ('Zombie 3, 5 and 7, mauling', 'maul'), ('Zombie 6, the pounce', 'pounce'),
                 ('Zombie 8, not shaken off', 'grab'), ('Zombie 9, the smash', 'smash'),
                 ('Zombie 10, the chainsaw', 'chainsaw'),
+                ("The man in the girl's place, the stone bash", 'stone'),
+                ('A zombie killed far off, the bump', 'kill'),
+                ('A zombie killed a metre away, heavier', 'kill_mid'),
+                ('A zombie killed right in your face, the heaviest', 'kill_near'),
+                ('A zombie killed by the MG80, the soft bump', 'kill_soft'),
+                ('A headshot, the thump', 'headshot'),
                 ('The girl, shot by mistake', 'girl'), ('Dying', 'death'))
 
 
