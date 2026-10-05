@@ -7,11 +7,11 @@ data files, with OpenAL Soft doing what iOS's OpenAL did.
 
 Run it with headphones on - the game says so itself (``SoundList[234]``).
 
-    python SixthSense.py                 the menu, as the original opens
-    python SixthSense.py --stage         straight into the stage
-    python SixthSense.py --tutorial      straight into the tutorial
-    python SixthSense.py --game DIR      read the app bundle from somewhere else
-    python SixthSense.py --debug         nothing hurts you, and no kill, score or gold counts
+    python SixthSenseReborn.py                 the menu, as the original opens
+    python SixthSenseReborn.py --stage         straight into the stage
+    python SixthSenseReborn.py --tutorial      straight into the tutorial
+    python SixthSenseReborn.py --game DIR      read the app bundle from somewhere else
+    python SixthSenseReborn.py --debug         nothing hurts you, and no kill, score or gold counts
 
 The screen loop below stands in for ``UINavigationController``: the menu pushes the
 stage or the tutorial, and when one ends the menu comes back.

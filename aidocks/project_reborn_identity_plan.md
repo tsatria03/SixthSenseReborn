@@ -5,7 +5,7 @@ metadata:
   type: project
 ---
 
-**Status: planned 2026-10-04, agreed with the dev one question at a time; not started.** Mark it finished only once the dev says it works ([[feedback_record_plans_first]]).
+**Status: in progress.** Planned 2026-10-04, agreed with the dev one question at a time. Step 2, the save folder and the one-time copy, was built in `8f81032` and confirmed by the dev the same day ("the save thing worked for both repos"); the entry script became `SixthSenseReborn.py` the same day. Steps 3 and 4 are still to do. Mark it finished only once the dev says it works ([[feedback_record_plans_first]]).
 
 **Background.** SixthSenseReborn is the old `custom` branch of SixthSenseOriginal, moved here with its full history on 2026-10-04 (237 commits, no tags) and deleted there. Everything in it still carries SixthSenseOriginal's identity, so the two games would overwrite each other's save and publish look-alike downloads.
 
@@ -23,7 +23,7 @@ metadata:
 - **Releases** (`releaser.py`): titles "SixthSenseReborn V<version>", archives `SixthSenseReborn-Win-<version>.zip` and `SixthSenseReborn-Linux-<version>.tar.gz`. Tags stay `V<version>`; this repository has none yet, so the first release is that day's `-1`. `VERSION` is rewritten by the releaser, so it needs no hand reset.
 - **The changelog** (`docks/changelog.txt`): a heading line above `26.09.28-2:` saying the sections below are Sixth Sense's, before Reborn. Check that the releaser's entry counting and filing still work with it (it files only the `unrelease:` block).
 - **In the game:** the window title "Sixth Sense Reborn" (and "(debug)"); the menu title the screen reader speaks, "Sixth Sense: The Zombies", becomes "Sixth Sense Reborn: The Zombies". The recordings that say "Sixth Sense" stay; they go with the recordings later.
-- **Code names stay:** `SixthSense.py`, the `sixthsense` package and the `SIXTHSENSE_*` variables keep their names (the branch's Seventh Sense rename of them was undone on purpose); only what a player sees changes.
+- **The entry script is `SixthSenseReborn.py`** (renamed from `SixthSense.py` at the dev's word on 2026-10-04, when SixthSenseOriginal's became `SixthSenseOriginal.py`; `compiler.ENTRY`, `tests/case/window.py` and the choosers follow). **Other code names stay:** the `sixthsense` package and the `SIXTHSENSE_*` variables keep their names (the branch's Seventh Sense rename of them was undone on purpose).
 - **Tests** that pin the old names change in the same change: `paths.py`, `save.py`, `weapon_stats.py`, `release.py` and `menu.py`, plus new tests for the one-time copy (copies when only the old folder exists, never touches the old folder, does nothing the second time or when there is no old save).
 - **Docs:** CLAUDE.md's "This branch: custom" section becomes "This repository: SixthSenseReborn", the save and build names in CLAUDE.md, README.md and `docks/readme.txt` follow, `project_custom_branch.md` becomes a Reborn note, and the links to the four notes that were never carried over (`DIVERGENCES.md`, `PORTING_STATUS.md`, `project_evaluation_2026_09`, `feedback_side_by_side`) are fixed. The changelog gets one line for players: the new name, and the save copied over from Sixth Sense.
 
