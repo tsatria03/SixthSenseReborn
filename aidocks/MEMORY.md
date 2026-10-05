@@ -64,6 +64,7 @@ The `[[name]]` links in `CLAUDE.md` and across these memories resolve to `aidock
 - [Todo list format](feedback_todo_list_format.md): `todo list.txt` has ##Unfinished. then ##Finished. headings, one plain sentence per line, as short as the rest, new items at the top, LF, no markdown. Players only since 2026-09-23; developer tasks go in [Developer tasks](project_dev_tasks.md). Bugs are stated plainly, never as "Fix a bug where". Items move to finished only when the dev confirms.
 - [Joystick plan](project_joystick_plan.md): FINISHED 2026-10-04. Controller support through SDL's game controller layer (never XInput): menus, stage, connect sounds, per-zombie vibration and a vibration menu row.
 - [Free games plan](project_free_games_plan.md): building 2026-10-04. Games cost no coin: the cost, the recharge clock and the coin row are gone; the dev picked this over keeping the row or unlimited coins.
+- [Screen reader only plan](project_screen_reader_only_plan.md): planned 2026-10-05. Drop the self-voiced mode: announcements and tutorial spoken through Prism, then remove the voice over row; staged, not built.
 
 ## User
 - [Screen reader](user_screen_reader.md): the dev works with NVDA running. Prefer lists and short lines to wide tables, and never make noise or speak through NVDA from tools or tests.
