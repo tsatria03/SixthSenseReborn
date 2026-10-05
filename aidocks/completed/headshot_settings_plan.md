@@ -1,6 +1,6 @@
 ---
-name: project_headshot_settings_plan
-description: "Agreed 2026-10-05: two main menu toggles, speaking the headshot and a beep on a headshot (the dev's headshot_beep.wav, played at the zombie's position); saved in settings.json. Planned, not built."
+name: headshot_settings_plan
+description: "FINISHED 2026-10-05, confirmed by tunmi13productions. Agreed 2026-10-05: two main menu toggles, speaking the headshot and a beep on a headshot (the dev's headshot_beep.wav, played at the zombie's position); saved in settings.json. Built, and the beep made 2.5 dB louder by ear."
 metadata:
   node_type: memory
   type: project
@@ -22,4 +22,4 @@ metadata:
 
 **Built 2026-10-05, awaiting the dev's ear:** `AppDelegate.headshot_speech_on`/`headshot_beep_on` and their setters, main menu rows 10 and 11 (`HeadshotSpeechAction_`, `HeadshotBeepAction_`; turning the beep on plays it once), `SoundList.plist` entry 374, `defaults.SETTINGS_KEYS`, the call in `Stage_1_E.MonsterDamage` through `playHitSound_Gain_Pos_z_` at `m.Pos`, z 40, gain 1.0 (it fades with distance like the gun's hit). `tools/sound_trims.py` gave the beep +3.5 dB, and the dev asked for it slightly louder, so `BY_EAR` holds +6.0 dB for it (it wins over the measured value); rerunning it also wanted to add trims for the two controller sounds (`ctrl_detected`, `ctrl_not_detected`, +8.5 dB each), which were left out because that would change their loudness. Tests: `menu`, `monster_sound`, `data`, `volume`.
 
-**Status:** planned. Mark it finished only once the dev says it works, then move it to `aidocks/completed/` ([[feedback_completed_projects]]).
+**Status: FINISHED 2026-10-05, confirmed by tunmi13productions** (the beep's level too). Moved to `aidocks/completed/` ([[feedback_completed_projects]]).

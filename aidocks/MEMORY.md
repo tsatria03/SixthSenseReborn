@@ -51,6 +51,7 @@ The `[[name]]` links in `CLAUDE.md` and across these memories resolve to `aidock
 - [Linux build plan](completed/linux_build_plan.md): FINISHED 2026-09-28, confirmed by tunmi13productions in WSL. The game runs and builds on Linux (the dev builds in WSL): OpenAL from vendor/openal/libopenal.so.1, the save in ~/.local/share/SixthSense, compiler.py building dist/SixthSense-Linux from a per-system table. The releaser stays Windows-only for now.
 - [Linux release plan](completed/linux_release_plan.md): FINISHED 2026-09-28, confirmed with release 26.09.28-2. releaser.py packs each system's build (SixthSense-Win-<v>.zip, SixthSense-Linux-<v>.tar.gz); one release carries both, the second system adding its archive to the release the first made. Never replaces an asset.
 - [Joystick plan](completed/joystick_plan.md): FINISHED 2026-10-04. Controller support through SDL's game controller layer (never XInput): menus, stage, connect sounds, per-zombie vibration and a vibration menu row.
+- [Headshot settings plan](completed/headshot_settings_plan.md): FINISHED 2026-10-05, confirmed by tunmi13productions. Two main menu toggles, a spoken headshot and a beep on a headshot (headshot_beep.wav at the zombie's position, every headshot hit); speech on and beep off by default; settings.json keys HEADSHOTSPEECH and HEADSHOTBEEP.
 
 ## Feedback: how the dev wants you to work
 - [Memory in aidocks](feedback_memory_in_aidocks.md): all memory goes in aidocks/ with this index, and CLAUDE.md is a lean dispatcher under 40,000 chars.
@@ -67,7 +68,6 @@ The `[[name]]` links in `CLAUDE.md` and across these memories resolve to `aidock
 - [Record plans first](feedback_record_plans_first.md): an agreed plan gets its own aidocks note before any code, committed on its own first and never pushed until the whole thing is built and tested; it is marked finished in that note only once the dev says it works.
 - [Todo list format](feedback_todo_list_format.md): `todo list.txt` has ##Unfinished. then ##Finished. headings, one plain sentence per line, as short as the rest, new items at the top, LF, no markdown. Players only since 2026-09-23; developer tasks go in [Developer tasks](project_dev_tasks.md). Bugs are stated plainly, never as "Fix a bug where". Items move to finished only when the dev confirms.
 - [Free games plan](project_free_games_plan.md): building 2026-10-04. Games cost no coin: the cost, the recharge clock and the coin row are gone; the dev picked this over keeping the row or unlimited coins.
-- [Headshot settings plan](project_headshot_settings_plan.md): planned 2026-10-05. Two main menu toggles, a spoken headshot and a beep on a headshot (headshot_beep.wav at the zombie's position, every headshot hit); speech on and beep off by default; settings.json keys HEADSHOTSPEECH and HEADSHOTBEEP.
 - [Screen reader only plan](project_screen_reader_only_plan.md): planned 2026-10-05. Drop the self-voiced mode: announcements and tutorial spoken through Prism, then remove the voice over row; staged, not built.
 
 ## User
