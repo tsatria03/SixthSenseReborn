@@ -25,6 +25,7 @@ from sixthsense.platform import openal as al                    # noqa: E402
 from sixthsense.platform import sound_trims                     # noqa: E402
 from sixthsense.platform.defaults import UserDefaults           # noqa: E402
 from sixthsense.platform.runloop import RunLoop                 # noqa: E402
+from sixthsense.platform.sound_position import heard_bearing    # noqa: E402
 
 #: -[oalPlayback queueNote:...] 0xe0de: AL_REFERENCE_DISTANCE
 REFERENCE = 40.0
@@ -107,7 +108,7 @@ def test_a_zombie_closes_in_and_gets_louder_without_restarting():
             assert d1 < d0, 'the source did not come closer: %.0f -> %.0f cm' % (d0, d1)
             assert l1 > l0, 'the zombie did not get louder: %.4f -> %.4f' % (l0, l1)
         for _d, bearing, _l in steps[1:]:
-            assert abs(bearing - 123.0) < 0.5, 'the source left lane 2: %.1f' % bearing
+            assert abs(bearing - heard_bearing(123.0)) < 0.5, 'the source left lane 2: %.1f' % bearing
         rise = 20 * math.log10(steps[-1][2] / steps[0][2])
         assert rise > 3.0, 'six steps only made it %.1f dB louder' % rise
     finally:
@@ -132,7 +133,7 @@ def test_a_zombie_on_top_of_you_is_close_and_loud():
         assert w.restarts == 0
         assert w.playing()
         assert abs(near[0] - 20.0) < 0.5, 'it stopped %.1f cm out' % near[0]
-        assert abs(near[1] - 57.0) < 0.5, 'it left its lane: %.1f' % near[1]
+        assert abs(near[1] - heard_bearing(57.0)) < 0.5, 'it left its lane: %.1f' % near[1]
         assert near[2] > far[2] * 4, 'it is barely louder close up'
     finally:
         w.close()
@@ -141,7 +142,7 @@ def test_a_zombie_on_top_of_you_is_close_and_loud():
 
 def test_a_zigzag_walker_sweeps_across_in_openal():
     """MovingType 11 swings between 185 and 120 degrees, one bearing a step, and
-    the source it plays on goes with it."""
+    the source it plays on goes with it, placed as ``sound_position`` hears it."""
     app, st = _new_stage()
     st.MonsterInit_(6)                      # type6: MovingType 11
     m = st.MonsterBuffer[0]
@@ -156,7 +157,8 @@ def test_a_zigzag_walker_sweeps_across_in_openal():
             m.MonsterMoving_(None)
             heard.append(round(w.read()[1]) % 360)
         assert w.restarts == 0
-        want = [a % 360 for a in ZIGZAG_ANGLE[11]]
+        want = [round(heard_bearing(a)) % 360 if a <= 180 else a % 360
+                for a in ZIGZAG_ANGLE[11]]
         assert heard == want, 'the source swept %r, the walk says %r' % (heard, want)
     finally:
         w.close()

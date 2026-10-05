@@ -52,7 +52,7 @@ import wave
 
 from .. import paths
 from ..platform import openal as al
-from ..platform import sound_trims, volume
+from ..platform import sound_position, sound_trims, volume
 from ..platform.music import MusicPlayer
 
 log = logging.getLogger('oal')
@@ -321,8 +321,8 @@ class OalPlayback:
         if inner_cone:
             A.alSourcef(sid, al.AL_CONE_INNER_ANGLE, 1.0)
         # AL_POSITION = (pos.x, (float)defaultZ, pos.y)
-        A.source_fv(sid, al.AL_POSITION,
-                    (float(sourcePos[0]), float(defaultZ), float(sourcePos[1])))
+        hx, hy = sound_position.heard(sourcePos)        # PORT ADDITION: nearer 12
+        A.source_fv(sid, al.AL_POSITION, (hx, float(defaultZ), hy))
         b = self._buffers[note] if note < MAX_BUFFERS else None
         A.alSourcei(sid, al.AL_BUFFER, 0)
         if b is not None and b.bufferId:
@@ -350,8 +350,8 @@ class OalPlayback:
         s.time = time.time()
         s.noteIndex = note
         s.sourcePos = (float(pos[0]), float(pos[1]))
-        self.al.source_fv(s.sourceId, al.AL_POSITION,
-                          (float(pos[0]), float(defaultZ), float(pos[1])))
+        hx, hy = sound_position.heard(pos)
+        self.al.source_fv(s.sourceId, al.AL_POSITION, (hx, float(defaultZ), hy))
         b = self._buffers[note] if note < MAX_BUFFERS else None
         self.al.alSourcei(s.sourceId, al.AL_BUFFER, 0)
         if b is not None and b.bufferId:
@@ -388,7 +388,8 @@ class OalPlayback:
         A.alSourcef(sid, al.AL_GAIN, self._gain(note, gain))
         A.alSourcef(sid, al.AL_CONE_OUTER_ANGLE, 1.0)
         A.alSourcef(sid, al.AL_CONE_INNER_ANGLE, 1.0)
-        A.source_fv(sid, al.AL_POSITION, (float(pos[0]), float(z), float(pos[1])))
+        hx, hy = sound_position.heard(pos)
+        A.source_fv(sid, al.AL_POSITION, (hx, float(z), hy))
         A.alSourcePlay(sid)
         A.alGetError()
 
@@ -420,8 +421,9 @@ class OalPlayback:
             return
         if s.isPlaying:
             s.sourcePos = (float(pos[0]), float(pos[1]))
+            hx, hy = sound_position.heard(pos)
             self.al.source_fv(s.sourceId, al.AL_POSITION,
-                              (float(pos[0]), 40.0, float(pos[1])))   # 0xe56a: 40.0
+                              (hx, 40.0, hy))   # 0xe56a: 40.0
             s.gain = gain
             self.al.alSourcef(s.sourceId, al.AL_GAIN, self._gain(note, gain))
             # 0xe59c..0xe5c0 then rebinds AL_BUFFER, which OpenAL refuses on a playing

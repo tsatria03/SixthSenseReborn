@@ -1,4 +1,5 @@
 unrelease:
+The zombies in the 10:30 and 1:30 lanes, and the shots and swings aimed there, are now heard closer to 12 o'clock, 20 degrees off centre instead of 33, so it is easier to tell which lane a zombie is in. Only where the sound is placed changes; the zombies, the lanes and the aiming stay as they were.
 The girl who heals you now says only "thank you". The kiss after it is cut off.
 The man who comes in the girl's place now vibrates a game controller when he hits you: a short wind-up, then one hard bash, like a blow with a stone.
 A game controller now gives a short bump, 75 milliseconds, when you kill a zombie, softer for the MG80, and one bump for a grenade however many it kills. The closer the zombie was, the heavier and longer the bump, up to a hard double thump when you kill one right in your face. A headshot keeps its own firmer vibration unless the zombie was that close.
