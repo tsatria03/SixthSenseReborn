@@ -321,8 +321,7 @@ def main(argv=None):
         clock.tick(60)
 
     obj.teardown()
-    # ...and every screen still stacked under it, or the menu under the shop would
-    # keep its coin timer running.
+    # ...and every screen still stacked under it.
     while stack:
         stack.pop()[1].teardown()
     pygame.quit()
@@ -332,7 +331,7 @@ def main(argv=None):
 def _menu_lines(menu):
     from sixthsense.game.main_controller import ROWS
     out = ['Sixth Sense Reborn   headphones recommended', '',
-           'coins %d      next coin in %s' % (menu.app.Coin, menu.coin_clock), '']
+           '']
     if getattr(menu, 'message', ''):
         out += [menu.message, '']
     for num, _flag, _sound, action in ROWS:

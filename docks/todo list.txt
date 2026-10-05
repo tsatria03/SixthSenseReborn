@@ -14,10 +14,10 @@ Remove the voice over row from the main menu, so the game is driven entirely by 
 Remove the recordings once everything they say is spoken through Prism.
 Make weapons upgradeable, so that they can do more damage.
 Move the zombies at 10:30 and 1:30 closer to 12 o'clock, so it is easier to tell which lane a zombie is in.
-Remove the coin limit, so you do not have to wait for coins to charge before you can play.
 Raise the gold you earn after a death a little, so weapons are a bit easier to get.
 
 ##Finished.
 
+Games are free, so there are no coins to wait for, and the coins row is gone from the main menu.
 A game controller plays the whole game: the stick and D-pad aim at the lanes, the buttons reload, change weapon, shake and pause, it vibrates for hits, and a menu row turns the vibration off.
 The MG80 fires continuously while its key is held, and the AK47 still fires one shot per press.

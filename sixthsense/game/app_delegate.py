@@ -45,7 +45,6 @@ from __future__ import annotations
 import logging
 import os
 import plistlib
-import time
 
 from .. import paths
 from ..platform import volume
@@ -57,26 +56,6 @@ from .sound_list_control import SoundListControl
 
 log = logging.getLogger('app')
 
-# -[AppDelegate readNumber:] 0x5d8c..0x5e5a - what follows the digits, by tts_type.
-TTS_HOURS = 335
-TTS_MINUTES = 336
-TTS_SECONDS = 337
-TTS_COIN_FULL = 338
-TTS_COIN_AFTER = 339
-#: How long after "after" (339) the minutes are read: 0x5e62..0x5e82, a double whose high
-#: word is 0x3ff4cccc - 1.3 s, a float widened to double.
-READ_MINUTES_DELAY = 1.3
-#: How long after "minutes" (336) the seconds are read: 0x5dbc..0x5dd6, high word
-#: 0x3fe99999 - 0.8 s.
-READ_SECONDS_DELAY = 0.8
-SOUND_NO_COIN = 358
-#: PORT ADDITION: measured - 358 says "no coin" in its first 0.85 s, then after a
-#: pause points to the coin store and the ranking page, which the port does not have.
-NO_COIN_WORDS_SECONDS = 0.95
-
-# -[MainController coinTiemrControlStart] 0xbe01 / coinUpTimer 0xc0b1
-COIN_INTERVAL = 1800.0     # seconds per coin - `rsb.w r2, r0, #0x708` at 0xc1ee
-COIN_MAX = 5               # 0xbff6: the timer stops once Coin reaches 5
 #: PORT ADDITION: the menu music, and the save key for its volume (change_menu_music_volume).
 MENU_MUSIC_TRACK = 'bgm_main_menu'
 MENU_MUSIC_KEY = volume.MENU_MUSIC_KEY
@@ -108,7 +87,6 @@ class AppDelegate:
         self.stage = 0
         self.aSoundBufControlData = []
         self.bDevice = False           # "does this device vibrate"
-        self.Coin = 0
         self.useWeapon = []
         self.CheckVoiceOver = False
         self.bCall = False
@@ -128,14 +106,7 @@ class AppDelegate:
         self.playback = OalPlayback()
         self.aSoundBufControlData = []
         d = UserDefaults.standardUserDefaults()
-        # 0x4268-0x430c: a save with no FIREST key is a first run, so grant the
-        # starting 10 coins once and mark it done.
-        if d.intForKey_('FIREST') == 0:
-            d.setObject_forKey_('10', 'COIN')
-            d.setObject_forKey_('1', 'FIREST')
-            d.synchronize()
         self.haveGold = d.intForKey_('GOLD')
-        self.Coin = d.intForKey_('COIN')
         self.stage = d.intForKey_('STAGE')
         self.mode = self.saved_mode()
         self.CheckVoiceOver = bool(self.mode)
@@ -291,17 +262,6 @@ class AppDelegate:
             self.playback.stopSound_(i)
         self.playback.MonsterQueueNote_gain_sourcePos_defaultZ_repeats_(i, gain, pos, z, False)
         self.playback.startSound_Postion_(i, pos)
-    def playNoCoin_(self, gain):
-        """DIVERGENCE: 358 is stopped in the pause after its first two words, so only
-        "no coin" is heard. The WAV itself is left whole."""
-        loop = RunLoop.main()
-        loop.cancelPerform(self, 'stopNoCoin')     # a replay must not be cut by the old stop
-        self.playSound_Gain_Pos_z_reprats_(SOUND_NO_COIN, gain, (0.0, 0.0), 0, False)
-        loop.perform(self, 'stopNoCoin', None, NO_COIN_WORDS_SECONDS)
-
-    def stopNoCoin(self, *_):
-        self.stopSoundBufNumber_(SOUND_NO_COIN)
-
     # ==================================================== spoken numbers (TTS)
     # -[AppDelegate TTSNumber:type:] 0x5590
     def TTSNumber_type_(self, number, type_):
@@ -340,18 +300,6 @@ class AppDelegate:
         if self.ttsTimer is not None and self.ttsTimer.isValid():
             self.ttsTimer.invalidate()
             self.ttsTimer = None
-            loop = RunLoop.main()
-            if self.tts_type == 4:
-                self.playSound_Gain_Pos_z_reprats_(TTS_MINUTES, 0.2, (0.0, 0.0), 0, False)
-                loop.perform(self, 'readTimeSec', None, READ_SECONDS_DELAY)
-            elif self.tts_type == 5:
-                self.playSound_Gain_Pos_z_reprats_(TTS_SECONDS, 0.2, (0.0, 0.0), 0, False)
-            elif self.tts_type == 3:
-                if self.Coin >= 5:
-                    self.playSound_Gain_Pos_z_reprats_(TTS_COIN_FULL, 0.2, (0.0, 0.0), 0, False)
-                else:
-                    self.playSound_Gain_Pos_z_reprats_(TTS_COIN_AFTER, 0.2, (0.0, 0.0), 0, False)
-                    loop.perform(self, 'readTimeMin', None, READ_MINUTES_DELAY)
         self.numberBackUp = []
 
     # -[AppDelegate readStop] 0x5ae8
@@ -362,38 +310,6 @@ class AppDelegate:
             self.ttsTimer.invalidate()
         self.ttsTimer = None
         self.numberBackUp = []
-        # PORT DIVERGENCE: the original (0x5ae8) stops only the digits, so the coin
-        # row's minutes and seconds, queued 1.3 s and 0.8 s behind "after" and "minutes",
-        # still came and were read over whatever row you had moved to.  They are
-        # cancelled here, and the words already playing are stopped with them.
-        loop = RunLoop.main()
-        loop.cancelPerform(self, 'readTimeMin')
-        loop.cancelPerform(self, 'readTimeSec')
-        for word in (TTS_MINUTES, TTS_SECONDS, TTS_COIN_FULL, TTS_COIN_AFTER):
-            self.stopSoundBufNumber_(word)
-
-    # -[AppDelegate readTimeMin] 0x5ec4 / -[AppDelegate readTimeSec] 0x604c
-    def readTimeMin(self, *_):
-        self.TTSNumber_type_(self._coin_timer_remaining() // 60, 4)
-
-    def readTimeSec(self, *_):
-        self.TTSNumber_type_(self._coin_timer_remaining() % 60, 5)
-
-    def _coin_timer_remaining(self):
-        """Seconds left until the next coin. ``COIN_TIMER`` holds a date string, not
-        a number, so it has to be parsed and measured against ``COIN_INTERVAL``
-        rather than read with ``intForKey_``."""
-        d = UserDefaults.standardUserDefaults()
-        if d.stringForKey_('COIN_TIMER_START') != '1':
-            return 0
-        started = d.stringForKey_('COIN_TIMER')
-        if not started:
-            return 0
-        try:
-            t0 = time.mktime(time.strptime(started, '%Y-%m-%d %H:%M:%S'))
-        except ValueError:
-            return 0
-        return max(0, int(COIN_INTERVAL - (time.time() - t0)))
 
     # ================================================================ weapons
     # -[AppDelegate weaponHave] 0x4ee8

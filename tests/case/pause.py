@@ -21,12 +21,10 @@ from sixthsense.platform import runloop                         # noqa: E402
 from sixthsense.platform.runloop import RunLoop                 # noqa: E402
 
 
-def _new_stage(coins=3):
+def _new_stage():
     S1E.LOADING_SECONDS = 0.0
     d = UserDefaults.standardUserDefaults()
-    d.setObject_forKey_('1', 'FIREST')          # past the first-launch ten coins
     d.setObject_forKey_('1', 'TUTORIAL')
-    d.setObject_forKey_(str(coins), 'COIN')
     d.removeObjectForKey_('TOPSCORE')
     d.removeObjectForKey_('TOPSCOREWEEK')
     d.removeObjectForKey_('NOWRANK')
@@ -34,7 +32,6 @@ def _new_stage(coins=3):
     app = AppDelegate.shared()
     if app.playback is None:
         app.didFinishLaunching()
-    app.Coin = coins
     RunLoop.main().reset()
     st = Stage_1_E()
     st.viewDidLoad()
@@ -299,11 +296,10 @@ def test_pausing_works_again_after_continue():
 
 
 def test_restart_clears_the_pause_too():
-    """gameReplayAction: clears bStop at 0x3310c, coin or no coin."""
+    """gameReplayAction: clears bStop at 0x3310c."""
     app, st = _new_stage()
     try:
         st.StopPlayAction_()
-        app.Coin = 0
         st.gameReplayAction_()
         assert st.bStop is False
     finally:
@@ -396,21 +392,8 @@ def test_restarting_while_the_level_changes_walks_at_one_speed():
     finally:
         st.teardown()
 
-def test_debug_mode_restarts_without_a_coin_and_spends_none():
-    for coins in (0, 2):
-        app, st = _new_stage(coins=coins)
-        app.debug = True
-        try:
-            st.StopPlayAction_()
-            assert st.gameReplayAction_() is True, 'debug mode refused to restart'
-            assert app.Coin == coins, 'debug mode spent a coin'
-            assert UserDefaults.standardUserDefaults().intForKey_('COIN') == coins
-        finally:
-            app.debug = False
-            st.teardown()
-
-def test_restart_costs_a_coin_and_resets_the_run():
-    app, st = _new_stage(coins=2)
+def test_restart_is_free_and_resets_the_run():
+    app, st = _new_stage()
     try:
         st.gamePlayer.killMonsterCount = 9
         st.gamePlayer.HeadShotCount = 4
@@ -418,8 +401,7 @@ def test_restart_costs_a_coin_and_resets_the_run():
         st.gamePlayer.HP = 1
         st.StopPlayAction_()
         assert st.gameReplayAction_() is True
-        assert app.Coin == 1, 'the coin was not spent'
-        assert UserDefaults.standardUserDefaults().intForKey_('COIN') == 1
+        assert not hasattr(app, 'Coin'), 'a coin was counted'
         assert st.gamePlayer.HP == 3
         assert st.gamePlayer.playerYplot == 680 and st.gamePlayer.playerXplot == 20
         assert st.gamePlayer.killMonsterCount == 0
@@ -431,15 +413,13 @@ def test_restart_costs_a_coin_and_resets_the_run():
         st.teardown()
 
 
-def test_restart_with_no_coin_says_so():
-    app, st = _new_stage(coins=0)
+def test_restart_always_works_however_many_times():
+    app, st = _new_stage()
     try:
-        st.StopPlayAction_()
-        before = st.gamePlayer.playerYplot
-        assert st.gameReplayAction_() is False
-        assert app.Coin == 0
-        assert st.gamePlayer.playerYplot == before, 'it restarted anyway'
-        assert st.gameState == 1, 'the panel went away'
+        for n in range(6):
+            st.StopPlayAction_()
+            assert st.gameReplayAction_() is True, 'restart %d was refused' % n
+            assert st.gameState == 0
     finally:
         st.teardown()
 
@@ -536,7 +516,7 @@ class _Recorder:
 
 def test_with_voice_over_off_the_panel_speaks_its_rows():
     """PORT ADDITION: mode 0 reads each row with its number, whole."""
-    app, st = _new_stage(coins=0)
+    app, st = _new_stage()
     st.speech = _Recorder()
     app.mode = 0
     try:
@@ -553,9 +533,6 @@ def test_with_voice_over_off_the_panel_speaks_its_rows():
         assert st.speech.said[-1] == 'Obtained gold, 1,266', 'the row was not reread'
         st.pause_select(6)
         assert st.speech.said[-1] == 'Continue, Button'
-        st.pause_select(7)
-        st.pause_activate()                                  # no coin
-        assert st.speech.said[-1] == 'No coin.'
         st.gameState = 3
         st.missionFailTell_()
         assert 'Game over.' in st.speech.said

@@ -3,10 +3,9 @@
 The keys are the ones the binary writes, with the classes that own them:
 
     TUTORIAL        int    ``-[Stage_1_E viewDidLoad]``     0 until the tutorial is finished
-    FIREST          int    ``-[AppDelegate didFinishLaunching]``  1 once the first 10 coins are given
-    GOLD / COIN     int    ``AppDelegate.haveGold``, ``.Coin``
-    COIN_TIMER      str    ``-[MainController coinTiemrControlStart]``  when the next coin started
-    COIN_TIMER_START  str  "1" while a coin is counting down
+    GOLD            int    ``AppDelegate.haveGold``
+    (FIREST, COIN, COIN_TIMER and COIN_TIMER_START belonged to the coins, which are gone:
+    games are free.  An old save may still hold them; nothing reads them.)
     GRENADECOUNT    int    ``-[Stage_1_E MovingShot:]``     grenades in hand
     STAGE           int    ``-[MainController ...]``        highest stage unlocked
     SHOTGUN, M4, AK47, MG80, JAPAN

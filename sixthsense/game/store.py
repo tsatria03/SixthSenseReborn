@@ -99,8 +99,7 @@ class MainStoreController(BlindScreen):
     ``coinShopAction:`` 0x1e9f0) sold coins, and restore purchases (370,
     ``restoreAction:`` 0x1eb78) restored what had been bought.  Both were Apple in-app
     purchases, which no longer exist, and there are no recordings for selling coins for
-    gold instead.  Coins come back on their own clock, as they did for a player who never
-    paid.
+    gold instead.  Coins are gone altogether: games are free.
     """
 
     ROWS = (1, 2, 4)                             # 3 is unreachable; 5 and 6 are left out

@@ -117,18 +117,14 @@ def _save(**keys):
 
 
 def test_closing_from_the_shop_quits_and_stops_the_menu_underneath():
-    """The menu under the shop used to live on with its coin timer after a second
-    menu was built; now closing quits and tears both down."""
-    import time
-    _save(COIN='2', TUTORIAL='1', COIN_TIMER_START='1',
-          COIN_TIMER=time.strftime('%Y-%m-%d %H:%M:%S'))
+    """The menu under the shop used to live on after a second menu was built; now
+    closing quits and tears both down."""
+    _save(TUTORIAL='1')
     run = Run({5: to('menu', 'store'), 15: close}).go()
     assert run.frames_run < LIMIT, 'closing the window did not quit'
     assert run.count('menu') == 1, 'closing built another menu'
     menu = run.last('menu')
     assert menu in run.torn, 'the menu under the shop was never torn down'
-    t = menu.coinTimer
-    assert not (t is not None and t.isValid()), "the old menu's coin timer runs on"
     assert run.last('store') in run.torn
 
 

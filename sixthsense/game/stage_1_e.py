@@ -50,7 +50,6 @@ from __future__ import annotations
 import logging
 import math
 import random
-import time
 
 from .. import paths
 from ..platform import volume
@@ -1522,7 +1521,7 @@ class Stage_1_E:
     #: PORT ADDITION: with voice over off, what the screen reader says in place of the
     #: panel's own voice lines.
     PANEL_MESSAGE_TEXT = {227: 'Mission success.', 229: 'Paused.',
-                          354: 'Game over.', 358: 'No coin.'}
+                          354: 'Game over.'}
 
     def _say(self, text):
         log.info('%s', text)
@@ -1824,23 +1823,12 @@ class Stage_1_E:
 
     # -[Stage_1_E gameReplayAction:] 0x330ed
     def gameReplayAction_(self, *_):
-        """Restart.  It costs a coin, the way starting a game from the menu does."""
+        """Restart.  PORT DIVERGENCE: it is free, like starting a game from the menu.  The
+        original spent a coin and said "no coin" when there were none (0x33128..0x33218);
+        aidocks/project_free_games_plan.md has why that is gone."""
         if not self.bStop:                                    # 0x33106
             return False
         self.bStop = False                                    # 0x3310c
-        if self.app.Coin <= 0 and not self.app.debug:         # 0x33128; --debug needs no coin
-            if self.app.screen_reader:
-                self._panel_voice(358)
-            else:
-                self.app.playNoCoin_(0.2)
-            self._reset_run_flags()                           # L_337b6 runs either way
-            return False
-        if not self.app.debug:                                # ...and spends none
-            self.app.Coin -= 1                                # 0x33146
-            d = UserDefaults.standardUserDefaults()
-            d.setObject_forKey_('%d' % self.app.Coin, 'COIN')  # 0x331bc
-            d.synchronize()
-            self._coin_timer_start()                          # 0x33218
         self.app.playSound_Gain_Pos_z_reprats_(10, 0.2, (0.0, 0.0), 0, False)
         self.blindModeOff()
         self.gameState = 0                                    # 0x3326c
@@ -1884,23 +1872,6 @@ class Stage_1_E:
         self.noAtt = False                                    # 0x338e6
         self.isShake = False                                  # 0x338f4
         self.shotFlag = False                                 # 0x33902
-
-    def _coin_timer_start(self):
-        """0x33218 posts ``coinTiemrControlStart``, which ``MainController`` observes
-        (0xbe01) while it sits under the stage in the navigation stack.  The port's
-        screen loop keeps one screen at a time, so there is no menu listening; what
-        the observer would have written is written here instead, and the menu picks
-        the clock up from the defaults when it comes back.
-        """
-        from .app_delegate import COIN_MAX
-        if self.app.Coin >= COIN_MAX:                         # 0xbff6
-            return
-        d = UserDefaults.standardUserDefaults()
-        if d.stringForKey_('COIN_TIMER_START') == '1':        # 0xbe3a: already
-            return                                             # counting down
-        d.setObject_forKey_('1', 'COIN_TIMER_START')
-        d.setObject_forKey_(time.strftime('%Y-%m-%d %H:%M:%S'), 'COIN_TIMER')
-        d.synchronize()
 
     # -[Stage_1_E GameEndAction:] 0x32fe1
     def GameEndAction_(self, *_):

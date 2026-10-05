@@ -170,7 +170,7 @@ class Stage_Tutorial(Stage_1_E):
 
     def __init__(self, first_run=False):
         super().__init__()
-        #: Reached from a first Start, which spent a coin: the ending counts down into
+        #: Reached from a first Start: the ending counts down into
         #: the real game.  From the Tutorial row it goes back to the menu.
         self.first_run = first_run
         self.ending = False                   # between P and the menu or the game

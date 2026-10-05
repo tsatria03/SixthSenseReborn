@@ -21,7 +21,7 @@ Up and Down move between them, and Enter or Escape goes on to the main menu.
 
 The main menu
 
-The main menu has seven rows: your coins, the title, Start Game, Tutorial, Store, vibration, and voice over.
+The main menu has six rows: the title, Start Game, Tutorial, Store, vibration, and voice over.
 Up and Down move between the rows, and each row reads itself aloud.
 Enter chooses the row you are on.
 The vibration row says "Vibration, currently on" or "off", and Enter on it switches the controller's vibration. The game remembers the setting.
@@ -31,12 +31,9 @@ It goes from silent to its full volume in steps of ten percent, and the game rem
 With voice over off, your screen reader says the new volume.
 The music during a game stays as it is.
 
-Coins
+Games are free
 
-Each game costs a coin.
-A new player starts with ten coins.
-A coin comes back every 30 minutes, up to five, even while the game is closed.
-The coins row says how many you have, and how long until the next one.
+Starting a game, and playing again from the pause panel, never costs anything, so there is nothing to wait for.
 
 The tutorial
 

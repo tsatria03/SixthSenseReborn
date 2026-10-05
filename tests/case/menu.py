@@ -1,18 +1,16 @@
-"""The main menu: the rows, the coin economy and the voice-over toggle."""
+"""The main menu: the rows, the free games and the voice-over toggle."""
 from __future__ import annotations
 
 import os
 import plistlib
 import sys
-import time
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 import _scratch_save                                             # noqa: E402,F401  never the real save
 
 from sixthsense import paths                                     # noqa: E402
 from sixthsense.game.app_delegate import AppDelegate             # noqa: E402
-from sixthsense.game.main_controller import (COIN_INTERVAL, COIN_MAX,  # noqa: E402
-                                             ROWS, MainController)
+from sixthsense.game.main_controller import ROWS, MainController  # noqa: E402
 from sixthsense.platform import openal as al                     # noqa: E402
 from sixthsense.platform import sound_trims, volume              # noqa: E402
 from sixthsense.platform.defaults import UserDefaults            # noqa: E402
@@ -33,15 +31,9 @@ class _Recorder:
         self.stopped += 1
 
 
-def _menu(coins=3):
+def _menu():
     d = UserDefaults.standardUserDefaults()
-    # simulate a save that is already past its first run, so didFinishLaunching's
-    # FIREST grant below never overwrites the COIN this helper is about to set.
-    d.setObject_forKey_('1', 'FIREST')
-    d.setObject_forKey_(str(coins), 'COIN')
     d.setObject_forKey_('1', 'TUTORIAL')
-    d.removeObjectForKey_('COIN_TIMER')
-    d.removeObjectForKey_('COIN_TIMER_START')
     d.synchronize()
     app = AppDelegate.shared()
     if app.playback is None:
@@ -54,12 +46,12 @@ def _menu(coins=3):
 
 def test_the_rows_are_the_originals():
     """The rows selectTapPointSoundStart (0x9825) claims, with their sounds and their
-    original numbers, less ranking (5) and Game Center (8), and the port's vibration row
-    (9), which has no recording."""
-    assert [r[0] for r in ROWS] == [1, 2, 3, 4, 6, 9, 7]
-    assert [r[3] for r in ROWS] == ['coin', 'title', 'start', 'tutorial',
+    original numbers, less the coins (1), ranking (5) and Game Center (8), and the port's
+    vibration row (9), which has no recording."""
+    assert [r[0] for r in ROWS] == [2, 3, 4, 6, 9, 7]
+    assert [r[3] for r in ROWS] == ['title', 'start', 'tutorial',
                                     'store', 'vibration', 'modechange']
-    assert [r[2] for r in ROWS] == [334, 16, 17, 23, 18, None, 331]
+    assert [r[2] for r in ROWS] == [16, 17, 23, 18, None, 331]
     # every one of them is a real entry with a WAV behind it
     sl = plistlib.load(open(paths.path_for_resource('SoundList', 'plist'), 'rb'))
     for _n, _f, sound, _a in ROWS:
@@ -205,25 +197,30 @@ def test_it_opens_on_the_title_and_wraps():
             m.move(1)
             seen.append(m._row()[3])
         assert seen == ['start', 'tutorial', 'store', 'vibration', 'modechange',
-                        'coin', 'title'], seen
-        m.selectMenu = 1
+                        'title'], seen
+        m.selectMenu = 2
         m.move(-1)
         assert m.selectMenu == 7, 'moving up off the top did not wrap'
     finally:
         m.teardown()
 
 
-def test_a_game_costs_a_coin_and_starts_the_clock():
-    """-[MainController StartGameAction:] 0xb2ed"""
-    m = _menu(coins=2)
+def test_a_game_is_free_and_there_are_no_coins():
+    """-[MainController StartGameAction:] 0xb2ed spent a coin; the port's games are free
+    (aidocks/project_free_games_plan.md), and nothing counts coins or recharges them."""
+    m = _menu()
     try:
         m.selectMenu = 3
         m.activate()
         assert m.next_screen == 'stage'
-        assert m.app.Coin == 1, 'the coin was not spent'
-        assert UserDefaults.standardUserDefaults().intForKey_('COIN') == 1
-        assert m.coin_clock == '30:00', m.coin_clock
-        assert m.coinTimer is not None, 'the recharge clock did not start'
+        for n in range(8):                           # as many starts as you like
+            m.next_screen = None
+            m.activate()
+            assert m.next_screen == 'stage', 'start %d was refused' % n
+        assert not hasattr(m.app, 'Coin') and not hasattr(m, 'coinTimer')
+        assert 'coin' not in [r[3] for r in ROWS]
+        d = UserDefaults.standardUserDefaults()
+        assert d.objectForKey_('COIN_TIMER') is None, 'a recharge clock was written'
     finally:
         m.teardown()
 
@@ -235,11 +232,7 @@ def test_the_menu_never_plays_the_earphone_warning():
     which repeated every time a game was started."""
     played = []
     d = UserDefaults.standardUserDefaults()
-    d.setObject_forKey_('1', 'FIREST')
-    d.setObject_forKey_('3', 'COIN')
     d.setObject_forKey_('1', 'TUTORIAL')
-    d.removeObjectForKey_('COIN_TIMER')
-    d.removeObjectForKey_('COIN_TIMER_START')
     d.synchronize()
     app = AppDelegate.shared()
     if app.playback is None:
@@ -260,11 +253,11 @@ def test_the_menu_never_plays_the_earphone_warning():
         m.teardown()
 
 
-def test_the_first_start_spends_a_coin_on_the_tutorial():
-    """0xb2ed never reads TUTORIAL: Start spends a coin and pushes Stage_1_E, which runs
-    the tutorial inline first.  The port sends the first run to Stage_Tutorial, told
-    to count down into the game when it ends."""
-    m = _menu(coins=2)
+def test_the_first_start_goes_to_the_tutorial():
+    """0xb2ed never reads TUTORIAL: Start pushes Stage_1_E, which runs the tutorial
+    inline first.  The port sends the first run to Stage_Tutorial, told to count down
+    into the game when it ends."""
+    m = _menu()
     d = UserDefaults.standardUserDefaults()
     d.setObject_forKey_('0', 'TUTORIAL')
     d.synchronize()
@@ -272,233 +265,6 @@ def test_the_first_start_spends_a_coin_on_the_tutorial():
         m.selectMenu = 3
         m.activate()
         assert m.next_screen == ('tutorial', True), m.next_screen
-        assert m.app.Coin == 1, 'the first game did not spend a coin'
-        assert m.coinTimer is not None
-    finally:
-        m.teardown()
-
-
-def test_the_first_start_with_no_coin_is_refused():
-    m = _menu(coins=0)
-    d = UserDefaults.standardUserDefaults()
-    d.setObject_forKey_('0', 'TUTORIAL')
-    d.synchronize()
-    try:
-        m.selectMenu = 3
-        m.activate()
-        assert m.next_screen is None, m.next_screen
-    finally:
-        m.teardown()
-
-
-def test_spending_a_coin_does_not_restart_a_running_clock():
-    """0xbe3a: coinTiemrControlStart returns at once while coinTimer already
-    exists, instead of rewriting COIN_TIMER and losing the elapsed progress."""
-    m = _menu(coins=3)
-    try:
-        m.selectMenu = 3
-        m.activate()
-        first_timer = m.coinTimer
-        d = UserDefaults.standardUserDefaults()
-        stamp = d.stringForKey_('COIN_TIMER')
-        m.selectMenu = 3
-        m.activate()
-        assert m.coinTimer is first_timer, 'a second coin restarted the clock'
-        assert d.stringForKey_('COIN_TIMER') == stamp, 'COIN_TIMER was rewritten'
-    finally:
-        m.teardown()
-
-
-def test_no_coin_means_no_game():
-    """0xb472-0xb5a0: the original only plays 358 and shows the sentence as text
-    on maskLabel1 - nothing about it is spoken."""
-    m = _menu(coins=0)
-    try:
-        m.selectMenu = 3
-        m.activate()
-        assert m.next_screen is None, 'it started a game with no coin'
-        assert 'No coin' in m.message
-        assert not m.speech.said, 'the recording should not be spoken over'
-    finally:
-        m.teardown()
-
-
-def test_no_coin_stops_after_its_first_two_words():
-    """DIVERGENCE: 358 goes on to the coin store and the ranking page, which are
-    gone, so it is stopped in the pause after "no coin"."""
-    from sixthsense.game.app_delegate import NO_COIN_WORDS_SECONDS
-    m = _menu(coins=0)
-    app = m.app
-    try:
-        m.selectMenu = 3
-        m.activate()
-        i = app.CheckSoundBuf_(358)
-        assert i != -1 and app.aSoundBufControlData[i].bIsPlaying, '358 never played'
-        loop = RunLoop.main()
-        t0 = time.monotonic()
-        while time.monotonic() - t0 < NO_COIN_WORDS_SECONDS - 0.3:
-            loop.pump()
-            time.sleep(0.004)
-        assert app.aSoundBufControlData[i].bIsPlaying, '358 stopped before "no coin"'
-        while time.monotonic() - t0 < NO_COIN_WORDS_SECONDS + 0.3:
-            loop.pump()
-            time.sleep(0.004)
-        assert not app.aSoundBufControlData[i].bIsPlaying, \
-            '358 went on to the coin store and the ranking page'
-    finally:
-        m.teardown()
-
-def test_debug_mode_starts_a_game_without_a_coin_and_spends_none():
-    for coins in (0, 3):
-        m = _menu(coins=coins)
-        m.app.debug = True
-        try:
-            d = UserDefaults.standardUserDefaults()
-            # The menu may already have its clock running (the safety net starts one
-            # whenever the coins are under the cap); Start must leave it as it was.
-            clock = (d.stringForKey_('COIN_TIMER_START'), d.stringForKey_('COIN_TIMER'))
-            m.selectMenu = 3
-            m.activate()
-            assert m.next_screen == 'stage', 'debug mode refused to start with %d coins' % coins
-            assert m.app.Coin == coins, 'debug mode spent a coin'
-            assert d.intForKey_('COIN') == coins
-            assert (d.stringForKey_('COIN_TIMER_START'), d.stringForKey_('COIN_TIMER')) \
-                == clock, 'debug mode changed the coin clock'
-        finally:
-            m.app.debug = False
-            m.teardown()
-
-def test_the_tutorial_row_needs_no_coin():
-    m = _menu(coins=0)
-    try:
-        m.selectMenu = 4
-        m.activate()
-        assert m.next_screen == 'tutorial'
-        assert m.app.Coin == 0
-    finally:
-        m.teardown()
-
-
-def test_a_coin_comes_back_after_thirty_minutes():
-    """coinTiemrControlStart (0xbe01) / coinUpTimer (0xc0b1): 1800 s, capped at 5."""
-    assert COIN_INTERVAL == 1800.0
-    assert COIN_MAX == 5
-    m = _menu(coins=1)
-    try:
-        m.coinTiemrControlStart()
-        assert m.coinTimer is not None
-        # wind the clock back past the interval
-        d = UserDefaults.standardUserDefaults()
-        past = time.strftime('%Y-%m-%d %H:%M:%S',
-                             time.localtime(time.time() - COIN_INTERVAL - 5))
-        d.setObject_forKey_(past, 'COIN_TIMER')
-        d.synchronize()
-        before = m.app.Coin
-        m.coinUpTimer(None)
-        assert m.app.Coin == before + 1, 'no coin was granted'
-        assert d.intForKey_('COIN') == before + 1
-    finally:
-        m.teardown()
-
-
-def test_the_clock_stops_at_five():
-    m = _menu(coins=COIN_MAX)
-    try:
-        m.coinTiemrControlStart()
-        assert m.coinTimer is None, 'the clock runs with a full purse'
-    finally:
-        m.teardown()
-
-
-def _menu_with_timer_state(coins, coin_timer_start, away_seconds):
-    """Like ``_menu`` but sets up a COIN_TIMER of its own, for the catch-up
-    tests (0x8aca-0x8b14), instead of clearing it."""
-    d = UserDefaults.standardUserDefaults()
-    d.setObject_forKey_('1', 'FIREST')
-    d.setObject_forKey_(str(coins), 'COIN')
-    d.setObject_forKey_('1', 'TUTORIAL')
-    d.setObject_forKey_(coin_timer_start, 'COIN_TIMER_START')
-    away = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time() - away_seconds))
-    d.setObject_forKey_(away, 'COIN_TIMER')
-    d.synchronize()
-    app = AppDelegate.shared()
-    if app.playback is None:
-        app.didFinishLaunching()
-    RunLoop.main().reset()
-    m = MainController(speech=_Recorder())
-    m.viewDidLoad()
-    return m
-
-
-def test_time_away_grants_a_coin_per_interval_and_keeps_the_leftover():
-    """0x8aca-0x8b14: two intervals and ten minutes away grants two coins, and
-    the clock keeps counting from the leftover ten minutes rather than
-    resetting to a fresh interval (0x8bd8-0x8cf6)."""
-    leftover = 600
-    m = _menu_with_timer_state(coins=1, coin_timer_start='1',
-                               away_seconds=COIN_INTERVAL * 2 + leftover)
-    try:
-        d = UserDefaults.standardUserDefaults()
-        assert m.app.Coin == 3, 'two intervals away should grant two coins'
-        assert d.intForKey_('COIN') == 3
-        assert d.stringForKey_('COIN_TIMER_START') == '1', 'still under the cap'
-        remaining = m.app._coin_timer_remaining()
-        expected = COIN_INTERVAL - leftover
-        assert abs(remaining - expected) <= 5, \
-            'the leftover progress was not kept: %r, expected close to %r' % (remaining, expected)
-    finally:
-        m.teardown()
-
-
-def test_time_away_caps_at_five_and_stops_the_clock():
-    """0x8b06-0x8b22: past the cap, Coin clamps to 5 and COIN_TIMER_START clears."""
-    m = _menu_with_timer_state(coins=4, coin_timer_start='1', away_seconds=COIN_INTERVAL * 5)
-    try:
-        d = UserDefaults.standardUserDefaults()
-        assert m.app.Coin == COIN_MAX
-        assert d.intForKey_('COIN') == COIN_MAX
-        assert d.stringForKey_('COIN_TIMER_START') == '0', 'the clock should have stopped'
-    finally:
-        m.teardown()
-
-
-def test_a_save_with_no_coins_and_no_clock_starts_the_clock():
-    """PORT ADDITION: a save at 0 coins with no clock, as a hand edit or an older
-    backup can leave it, used to stay at 0 for ever and read "0 minutes 0 seconds".
-    Opening the menu now starts the clock, and the coin row reads a real time."""
-    m = _menu(coins=0)
-    try:
-        d = UserDefaults.standardUserDefaults()
-        assert d.stringForKey_('COIN_TIMER_START') == '1', 'the clock did not start'
-        assert m.coinTimer is not None and m.coinTimer.isValid()
-        left = m.app._coin_timer_remaining()
-        assert COIN_INTERVAL - 5 <= left <= COIN_INTERVAL, 'the clock reads %r' % left
-        m.app.mode = 0
-        m.selectMenu = 1
-        assert '0 minutes 0 seconds' not in m.row_text(), m.row_text()
-    finally:
-        m.app.mode = 1
-        m.teardown()
-
-
-def test_a_full_purse_starts_no_clock():
-    """At the cap there is nothing to count down to, so no clock starts."""
-    m = _menu(coins=COIN_MAX)
-    try:
-        d = UserDefaults.standardUserDefaults()
-        assert d.stringForKey_('COIN_TIMER_START') != '1', 'a clock started at the cap'
-        assert m.coinTimer is None
-    finally:
-        m.teardown()
-
-
-def test_a_running_clock_is_left_alone():
-    """A clock already counting down keeps its time; the safety net does not restart
-    it (the same rule as 0xbe3a)."""
-    m = _menu_with_timer_state(coins=2, coin_timer_start='1', away_seconds=600)
-    try:
-        left = m.app._coin_timer_remaining()
-        assert abs(left - (COIN_INTERVAL - 600)) <= 5, 'the clock was restarted: %r' % left
     finally:
         m.teardown()
 
@@ -576,56 +342,20 @@ def test_the_voice_over_row_says_what_choosing_it_does():
         m.teardown()
 
 
-def test_moving_off_the_coin_row_stops_the_time_to_the_next_coin():
-    """The coin row reads the count, "after", then the minutes 1.3 s later and the
-    seconds after that.  Moving away once "after" has played used to leave the
-    minutes and seconds queued, and they were read over the next row."""
-    import time as _time
-    from sixthsense.game import app_delegate as A
-    m = _menu(coins=3)
-    app = m.app
-    app.mode = 1
-    played = []
-    real = app.playSound_Gain_Pos_z_reprats_
-    app.playSound_Gain_Pos_z_reprats_ = lambda n, *a: (played.append(n), real(n, *a))
-    loop = RunLoop.main()
-
-    def run(until, limit):
-        end = _time.monotonic() + limit
-        while _time.monotonic() < end and not until():
-            loop.pump()
-            _time.sleep(0.01)
-    try:
-        m.selectMenu = 1
-        m.blindModeSelectedMenu()
-        run(lambda: A.TTS_COIN_AFTER in played, 8.0)
-        assert A.TTS_COIN_AFTER in played, 'the coin row never said "after"'
-        played.clear()
-        m.move(1)                                       # on to the title row
-        run(lambda: False, 4.0)
-        late = [n for n in played if n in range(10) or n in (A.TTS_MINUTES, A.TTS_SECONDS)]
-        assert not late, 'the time to the next coin was read over the next row: %r' % played
-    finally:
-        del app.playSound_Gain_Pos_z_reprats_
-        m.teardown()
-
-
-def test_store_and_an_empty_start_click_first():
+def test_start_and_store_click_first():
     """tapCount sends StartGame: (0x9420) and Store: (0x9438), which click (10 at 0.2,
-    0xad32 and 0xb6a8) before StartGameAction: and StoreAction:.  So Start Game with no
-    coin clicks, then says "no coin" (358), and the Store row clicks.  The port clicked
-    only when a coin was spent, and never for the Store row."""
+    0xad32 and 0xb6a8) before StartGameAction: and StoreAction:.  The port clicked only
+    when a coin was spent, and never for the Store row."""
     from sixthsense.game import main_controller as MC
-    m = _menu(coins=0)
+    m = _menu()
     app = m.app
     app.mode = 1
     played = []
     app.playSound_Gain_Pos_z_reprats_ = lambda n, *a: played.append(n)
-    app.playNoCoin_ = lambda gain: played.append(358)
     try:
         m.selectMenu = next(n for n, _f, _s, a in MC.ROWS if a == 'start')
         m.activate()
-        assert played[:2] == [10, 358], played
+        assert played == [10], played
         m.selectMenu = next(n for n, _f, _s, a in MC.ROWS if a == 'store')
         played.clear()
         m.activate()
@@ -633,39 +363,6 @@ def test_store_and_an_empty_start_click_first():
         assert m.next_screen == 'store'
     finally:
         del app.playSound_Gain_Pos_z_reprats_
-        del app.playNoCoin_
-        m.teardown()
-
-
-def test_the_coin_row_keeps_the_originals_pauses():
-    """The count 1.6 s after "number of coins" (0x9bec..0x9c0c), the minutes 1.3 s after
-    "after" (0x5e62..0x5e82) and the seconds 0.8 s after "minutes" (0x5dbc..0x5dd6).
-    The port waited 1.5, 2.0 and 1.0."""
-    from sixthsense.game import app_delegate as A
-    from sixthsense.platform import runloop
-    m = _menu(coins=3)
-    app = m.app
-    app.mode = 1
-    loop = RunLoop.main()
-
-    def queued(selector):
-        now = runloop.clock()
-        return [round(p.due - now, 1) for _d, _s, p in loop._performs
-                if p.selector == selector and not p.cancelled]
-    try:
-        m.selectMenu = 1
-        m.blindModeSelectedMenu()
-        assert queued('readNumberOfCoin') == [1.6], queued('readNumberOfCoin')
-        for tts_type, selector, want in ((3, 'readTimeMin', 1.3), (4, 'readTimeSec', 0.8)):
-            loop.cancelPerform(app)
-            app.Coin = 3
-            app.tts_type = tts_type
-            app.ttsArrayCount = 0
-            app.ttsTimer = loop.scheduledTimer(60.0, app, 'readNumber_', None, True)
-            app.readNumber_()
-            assert queued(selector) == [want], (selector, queued(selector))
-    finally:
-        loop.cancelPerform(app)
         m.teardown()
 
 
@@ -690,9 +387,9 @@ def test_turning_voice_over_off_speaks_through_the_screen_reader():
         assert m.speech.said[-1] == 'Vibration, currently on.'
         m.move(-1)
         assert m.speech.said[-1] == 'Store, Button'
-        m.move(-4)                  # store, tutorial, start, title, coin
-        assert m.speech.said[-1].startswith('Number of coins, 3.'), m.speech.said[-1]
-        m.move(1)
+        m.move(-2)                  # tutorial, start
+        assert m.speech.said[-1] == 'Game start, Button', m.speech.said[-1]
+        m.move(-1)
         assert m.speech.said[-1] == 'Sixth Sense Reborn: The Zombies'
     finally:
         m.app.__dict__.pop('playSound_Gain_Pos_z_reprats_', None)
@@ -910,19 +607,6 @@ def test_left_and_right_move_like_voiceovers_flicks_in_the_screen_reader_mode():
     finally:
         m.app.mode = 1
         shop.teardown()
-        m.teardown()
-
-
-def test_no_coin_is_read_by_the_screen_reader_with_voice_over_off():
-    m = _menu(coins=0)
-    try:
-        m.app.mode = 0
-        m.selectMenu = 3
-        m.activate()
-        assert m.next_screen is None
-        assert m.speech.said[-1] == 'No coin.', m.speech.said
-    finally:
-        m.app.mode = 1
         m.teardown()
 
 

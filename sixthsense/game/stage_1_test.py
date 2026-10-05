@@ -23,8 +23,7 @@ the stage does.  Either way the panel says "game over" (354), and the gold for t
 is 12% of the score (0x46aa2: ``vldr d17, 0.12``), not the stage's twelve a kill.
 
 **The panel** has no rank and no top score, and nothing is written to either.  Its
-last row is "back" (13), and it goes back to the weapon's page.  Restarting costs no
-coin.  The tutorial is treated as finished (0x409c2: ``isTutorial = 1``), whatever the
+last row is "back" (13), and it goes back to the weapon's page.  The tutorial is treated as finished (0x409c2: ``isTutorial = 1``), whatever the
 save says, so the zombies hit and the rounds are spent.
 """
 from __future__ import annotations
@@ -303,7 +302,7 @@ class Stage_1_TEST(Stage_1_E):
 
     # -[Stage_1_TEST gameReplayAction:] 0x46d70
     def gameReplayAction_(self, *_):
-        """Restart.  Unlike the stage's, it costs no coin."""
+        """Restart."""
         if not self.bStop:
             return False
         self.bStop = False

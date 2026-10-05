@@ -26,7 +26,7 @@ The game plays the original's own 269 recorded WAVs, which `SoundList.plist` nam
 ## Layout
 
 - **`SixthSenseReborn.py`**: the entry point and screen loop (stands in for `UINavigationController`).
-- **`sixthsense/game/`**: one module per original class. `stage_1_e.py` is the core loop; the others include `monster_control.py`, `weapon_control.py`, `main_controller.py` (the menu and coin economy), `stage_tutorial.py`, `stage_1_test.py` (the weapon test range behind the shop's Try button, [[project_test_range]]), `debug.py` (the `--debug` keys), `store.py`, `inventory.py`, `intro.py`, `app_delegate.py` and `oal_playback.py`.
+- **`sixthsense/game/`**: one module per original class. `stage_1_e.py` is the core loop; the others include `monster_control.py`, `weapon_control.py`, `main_controller.py` (the menu), `stage_tutorial.py`, `stage_1_test.py` (the weapon test range behind the shop's Try button, [[project_test_range]]), `debug.py` (the `--debug` keys), `store.py`, `inventory.py`, `intro.py`, `app_delegate.py` and `oal_playback.py`.
 - **`sixthsense/platform/`**:
   - `openal.py`: a ctypes binding to OpenAL Soft, with HRTF off.
   - `runloop.py`: stands in for `NSTimer` and `performSelector:afterDelay:`.
@@ -61,7 +61,7 @@ The save lives in `%APPDATA%\SixthSenseReborn\` (on Linux `~/.local/share/SixthS
 - `--stage` and `--tutorial` start those directly.
 - `--skip-tutorial` writes `TUTORIAL=1`.
 - `--no-window` runs headless.
-- `--debug`: a zombie that reaches you just dies, nothing takes a heart, and no kill, headshot, score or gold counts. Tab reaches every weapon and nothing runs out. Starting or restarting needs no coin and spends none. It adds F2, Shift+F2, F5, Shift+F5, F6, F7, F8 (the sound trims off and on, [[project_sound_trims_plan]]) and F11 (`game/debug.py`), which the F1 screen lists only in debug mode.
+- `--debug`: a zombie that reaches you just dies, nothing takes a heart, and no kill, headshot, score or gold counts. Tab reaches every weapon and nothing runs out. It adds F2, Shift+F2, F5, Shift+F5, F6, F7, F8 (the sound trims off and on, [[project_sound_trims_plan]]) and F11 (`game/debug.py`), which the F1 screen lists only in debug mode.
 - `-v` gives verbose logging.
 
 This needs 64-bit Python 3.12 or newer, pygame and `prismatoid` (Prism). Without Prism the game still runs, but only NVDA speaks ([[project_prism_speech]]). `pip install -r requirements.txt` installs both.

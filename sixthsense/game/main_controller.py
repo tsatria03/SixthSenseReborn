@@ -49,12 +49,10 @@ coins for time spent away, at the same rate and cap (0x8aca-0x8b14).
 from __future__ import annotations
 
 import logging
-import time
 
 from ..platform.defaults import UserDefaults
 from ..platform.runloop import RunLoop
-from .app_delegate import AppDelegate, COIN_INTERVAL, COIN_MAX
-from .blind_screen import whole
+from .app_delegate import AppDelegate
 
 log = logging.getLogger('menu')
 
@@ -75,7 +73,6 @@ SOUND_RANKING_NOTICE = 364
 
 # selectMenu, flag, sound, what it does
 ROWS = (
-    (1, 'coin_flag', SOUND_COIN_COUNT, 'coin'),
     (2, 'main_title_flag', SOUND_TITLE, 'title'),
     (3, 'start_game_flag', SOUND_GAME_START, 'start'),
     (4, 'tutorial_flag', SOUND_TUTORIAL, 'tutorial'),
@@ -102,10 +99,6 @@ class MainController:
         self.app = AppDelegate.shared()
         self.selectMenu = 2                 # 0x85c1 viewDidLoad starts on the title
         self.tapCount = 0
-        self.coinTimer = None
-        self.coinTimeCounter = 0
-        self.min = 0
-        self.sec = 0
         self.next_screen = None             # 'stage' | 'tutorial' | None
         self.quit = False
         self.speech = speech
@@ -115,58 +108,11 @@ class MainController:
     # ================================================================ entry
     # -[MainController viewDidLoad] 0x85c1
     def viewDidLoad(self):
-        d = UserDefaults.standardUserDefaults()
-        self.app.Coin = d.intForKey_('COIN')
         # -[MainController checkVoiceOverApple] 0xc735 reads the saved mode
         self.app.mode = self.app.saved_mode()
         self.app.BGMusicStart()
         self.selectMenu = 2
         self.blindModeSelectedMenu()
-        self._coinCatchUp()
-        self._coinClockSafetyNet()
-
-    def _coinClockSafetyNet(self):
-        """PORT ADDITION: with fewer than COIN_MAX coins and no clock counting down,
-        start one.  The original only starts the clock when a coin is spent
-        (coinTiemrControlStart, 0xbe01), so a save that reached 0 coins without a
-        clock - edited by hand, or put back from an older backup after damage - never
-        got a coin again, and the coin row read "0 minutes 0 seconds".  In play there is
-        always a clock whenever the coins are under the cap, so this changes nothing
-        there."""
-        if self.app.Coin < COIN_MAX and self.coinTimer is None:
-            self.coinTiemrControlStart()
-
-    # -[MainController viewDidLoad] 0x8946-0x8d12 - grant coins for time spent
-    # away, at the recharge rate, capped at COIN_MAX (0x8aca-0x8b14).
-    def _coinCatchUp(self):
-        if self.app.Coin > COIN_MAX - 1:                  # 0x8952: cmp r0, 4
-            return
-        d = UserDefaults.standardUserDefaults()
-        if d.stringForKey_('COIN_TIMER_START') != '1':    # 0x89a8: nothing running
-            return
-        started = d.stringForKey_('COIN_TIMER')
-        try:
-            t0 = time.mktime(time.strptime(started, '%Y-%m-%d %H:%M:%S'))
-        except (ValueError, TypeError):
-            return
-        elapsed = int(time.time() - t0)
-        if elapsed <= COIN_INTERVAL:                       # 0x8aca
-            self.coinTiemrControlStartBackGroundRestart()
-            return
-        self.app.Coin += elapsed // int(COIN_INTERVAL)     # 0x8ad6-0x8afe
-        if self.app.Coin > COIN_MAX:                        # 0x8b0a: cmp r0, 6
-            self.app.Coin = COIN_MAX
-            d.setObject_forKey_('0', 'COIN_TIMER_START')
-        else:
-            # keep the leftover progress toward the next coin, rather than
-            # resetting the clock to now (0x8bd8-0x8cf6)
-            leftover = elapsed % int(COIN_INTERVAL)
-            d.setObject_forKey_(
-                time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time() - leftover)),
-                'COIN_TIMER')
-        d.setObject_forKey_(str(self.app.Coin), 'COIN')
-        d.synchronize()
-        self.coinTiemrControlStartBackGroundRestart()
 
     # -[MainController StopElseSpeak] 0x96e9 - silence every menu voice
     def StopElseSpeak(self):
@@ -202,13 +148,6 @@ class MainController:
     def row_text(self, n=None):
         """What the screen reader says for a row, with voice over off."""
         action = self._row(n)[3]
-        if action == 'coin':
-            text = 'Number of coins, %s.' % whole(self.app.Coin)
-            if self.app.Coin >= COIN_MAX:
-                return text + ' The coin is full.'
-            left = self.app._coin_timer_remaining()
-            return text + ' The coin is charged after %d minutes %d seconds.' % (
-                left // 60, left % 60)
         if action == 'modechange':
             return 'Voice over off, Button' if self.app.mode else 'Voice over on, Button'
         if action == 'vibration':
@@ -228,17 +167,7 @@ class MainController:
             return
         self.app.playSound_Gain_Pos_z_reprats_(
             self.row_sound(), 0.2, (0.0, 0.0), 0, False)
-        if action == 'coin':
-            # -[MainController readNumberOfCoin] 0x97ed reads the count after the name,
-            # 1.6 s later (0x9bec..0x9c0c: the double's high word is 0x3ff99999)
-            RunLoop.main().perform(self, 'readNumberOfCoin', None, READ_COIN_COUNT_DELAY)
         log.info('menu: %s', action)
-
-    # -[MainController readNumberOfCoin] 0x97ed
-    def readNumberOfCoin(self, *_):
-        # type 3 (0x9812): after the digits, say "coins are full" or say "after"
-        # and read the time to the next one.
-        self.app.TTSNumber_type_(self.app.Coin, 3)
 
     def move(self, delta):
         """Up and Down walk the rows in order and wrap, skipping the numbers the port
@@ -262,7 +191,7 @@ class MainController:
     # -[MainController tapCount] 0x9350 - a double tap runs the selected row
     def activate(self):
         action = self._row()[3]
-        if action in ('coin', 'title'):
+        if action == 'title':
             self.blindModeSelectedMenu()
             return
         # tapCount sends StartGame: (0x9420) and Store: (0x9438), the two wrappers that
@@ -313,37 +242,20 @@ class MainController:
 
     # -[MainController StartGameAction:] 0xb2ed
     def StartGameAction_(self, *_):
+        """Start a game.  PORT DIVERGENCE: it is free.  The original spent one of five
+        coins that came back every 30 minutes and said "no coin" when there were none
+        (0xb324..0xb5a0); aidocks/project_free_games_plan.md has why that is gone.
+
+        0xb3f8 always pushes Stage_1_E, whose MapInitInBundle (0x2e08e-0x2e0dc) runs the
+        tutorial inline while TUTORIAL is 0.  The port runs that tutorial in
+        Stage_Tutorial, which counts down into the game when it ends.  No click here:
+        the click is StartGame:'s, before it."""
         self.StopElseSpeak()
         d = UserDefaults.standardUserDefaults()
-        if self.app.Coin >= 1 or self.app.debug:     # 0xb324; --debug needs no coin
-            if not self.app.debug:                   # ...and spends none
-                self.app.Coin -= 1
-                d.setObject_forKey_(str(self.app.Coin), 'COIN')
-                d.synchronize()
-                self.coinTiemrControlStart()
-            # No click here: StartGameAction: plays only 358 (0xb5a0); the click is
-            # StartGame:'s, before it.
-            # 0xb3f8 always pushes Stage_1_E, whose MapInitInBundle (0x2e08e-0x2e0dc)
-            # runs the tutorial inline while TUTORIAL is 0, so the first game's coin
-            # pays for the tutorial too.  The port runs that tutorial in
-            # Stage_Tutorial, which counts down into the game when it ends.
-            if d.intForKey_('TUTORIAL') == 0:
-                self.next_screen = ('tutorial', True)
-            else:
-                self.next_screen = 'stage'
+        if d.intForKey_('TUTORIAL') == 0:
+            self.next_screen = ('tutorial', True)
         else:
-            # 0xb472-0xb5a0: the original puts the sentence on maskLabel1 and fades it
-            # over 7 s, and plays 358 - nothing about it is spoken. The port used to
-            # add its own spoken line on top of the recording; that was never here.
-            # With voice over off, the screen reader reads the sentence instead.
-            # DIVERGENCE: the original's sentence (0xb5ad6) goes on to "You can buy
-            # coin at the store or share with friends at the ranking page", and the
-            # port has neither, so only what the recording says is kept.
-            self.message = 'No coin.'
-            if self.app.screen_reader:
-                self._say(self.message)
-            else:
-                self.app.playNoCoin_(0.2)
+            self.next_screen = 'stage'
 
     # -[MainController TutorialAction:] 0xad5d
     def TutorialAction_(self, *_):
@@ -379,68 +291,7 @@ class MainController:
             0.2, (0.0, 0.0), 0, False)
         log.info('voice over %s', 'on' if self.app.mode else 'off')
 
-    # ================================================================ coins
-    # -[MainController coinTiemrControlStart] 0xbe01
-    def coinTiemrControlStart(self):
-        d = UserDefaults.standardUserDefaults()
-        if self.app.Coin >= COIN_MAX:                # 0xbff6
-            self.coinTiemrControlEnd()
-            return
-        if self.coinTimer is not None:               # 0xbe3a: a timer is already
-            return                                    # running - do not restart it
-        d.setObject_forKey_('1', 'COIN_TIMER_START')
-        d.setObject_forKey_(time.strftime('%Y-%m-%d %H:%M:%S'), 'COIN_TIMER')
-        d.synchronize()
-        self.min, self.sec = 30, 0
-        self.coinTimer = RunLoop.main().scheduledTimer(
-            1.0, self, 'coinUpTimer', None, True)
-
-    # -[MainController coinTiemrControlEnd] 0xc069
-    def coinTiemrControlEnd(self):
-        if self.coinTimer is not None and self.coinTimer.isValid():
-            self.coinTimer.invalidate()
-        self.coinTimer = None
-
-    # -[MainController coinTimerControlStartBackGroundRestart] 0xbcfd
-    def coinTiemrControlStartBackGroundRestart(self):
-        d = UserDefaults.standardUserDefaults()
-        if d.stringForKey_('COIN_TIMER_START') == '1' and self.app.Coin < COIN_MAX:
-            if self.coinTimer is None or not self.coinTimer.isValid():
-                self.coinTimer = RunLoop.main().scheduledTimer(
-                    1.0, self, 'coinUpTimer', None, True)
-
-    # -[MainController coinUpTimer] 0xc0b1
-    def coinUpTimer(self, timer=None):
-        d = UserDefaults.standardUserDefaults()
-        started = d.stringForKey_('COIN_TIMER')
-        if not started:
-            self.coinTiemrControlEnd()
-            return
-        try:
-            t0 = time.mktime(time.strptime(started, '%Y-%m-%d %H:%M:%S'))
-        except ValueError:
-            self.coinTiemrControlEnd()
-            return
-        left = COIN_INTERVAL - (time.time() - t0)
-        if left > 0:
-            self.min = int(left) // 60
-            self.sec = int(left) % 60
-            return
-        # the clock ran out: one coin, and go again while there is room
-        self.app.Coin += 1
-        d.setObject_forKey_(str(self.app.Coin), 'COIN')
-        d.setObject_forKey_('0', 'COIN_TIMER_START')
-        d.synchronize()
-        self.coinTiemrControlEnd()
-        if self.app.Coin <= COIN_MAX - 1:            # 0xc3ea: cmp r0, 4
-            self.coinTiemrControlStart()
-
-    @property
-    def coin_clock(self):
-        return '%02d:%02d' % (self.min, self.sec)
-
     # ================================================================= misc
     def teardown(self):
-        self.coinTiemrControlEnd()
         RunLoop.main().cancelPerform(self)
         self.StopElseSpeak()

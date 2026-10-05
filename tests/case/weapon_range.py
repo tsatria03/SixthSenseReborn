@@ -130,15 +130,13 @@ def test_the_panel_has_no_rank_and_its_last_row_is_back():
         _done(app, st)
 
 
-def test_restarting_costs_no_coin():
-    """0x46d70: the range's restart takes no coin and hands you the same weapon."""
+def test_restarting_hands_you_the_same_weapon():
+    """0x46d70: the range's restart hands you the same weapon."""
     app, st, _played = _range(5)
     try:
-        coins = app.Coin
         st.gamePlayer.killMonsterCount = 3
         st.bStop = True
         assert st.gameReplayAction_() is True
-        assert app.Coin == coins, 'the restart took a coin'
         assert st.gamePlayer.killMonsterCount == 0
         assert st.gamePlayer.useWepon == 5
         assert st.running
