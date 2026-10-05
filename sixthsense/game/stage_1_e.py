@@ -1061,6 +1061,7 @@ class Stage_1_E:
         once the tutorial is behind you, and is not counted (0x3a850..0x3a97a).
         ``tally`` is False for the grenade, which has tallied every monster it hit."""
         if m.monsterNumber == MONSTER_GIRL:
+            self.app.vibrate_effect('girl')                    # PORT ADDITION: that was a bad move
             RunLoop.main().perform(self, 'playerDamage_', None, 0.1)
             if self.isTutorial and not self.app.debug:
                 self.gamePlayer.HP -= 1
@@ -1206,6 +1207,7 @@ class Stage_1_E:
         """
         self.app.playSound_Gain_Pos_z_reprats_(
             SOUND_BGM_GAME_END, 1.0, (0.0, 0.0), 0, False)   # 0x3bcaa
+        self.app.vibrate_effect('death')     # PORT ADDITION: two hard seconds
         self.walkXFlag = True                                 # 0x3bcc6
         self.missionCompletSounding = True                    # 0x3bcd4
         if self.MotionSamplingTimer is not None and self.MotionSamplingTimer.isValid():
@@ -1466,6 +1468,7 @@ class Stage_1_E:
         with it; here the looping footsteps and the two players have to be stopped by
         hand, or they play on under the menu."""
         self.running = False
+        self.app.vibrate_stop()
         if self.app.playback is not None:
             self.app.playback.setGameplayGain_(False)   # the menus are as they were
         self._invalidate_shake_timer()
@@ -1726,6 +1729,7 @@ class Stage_1_E:
     def _pause(self):
         """What the stop button does once it has decided to pause."""
         self.app.playSound_Gain_Pos_z_reprats_(10, 0.2, (0.0, 0.0), 0, False)
+        self.app.vibrate_stop()
         self._pause_stop_sounds()
         self._pause_players()
         if self.MotionSamplingTimer is not None and self.MotionSamplingTimer.isValid():

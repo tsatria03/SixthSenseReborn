@@ -119,6 +119,9 @@ class AppDelegate:
         # Not in the original: --debug.  Nothing hurts you and nothing you kill
         # counts, so no score, gold or top score comes of it (Stage_1_E).
         self.debug = False
+        # PORT ADDITION: a controller's motors (ui/vibration.py).  The frame loop sets it;
+        # without one, which is every test, nothing vibrates.
+        self.vibration = None
 
     # -[AppDelegate application:didFinishLaunchingWithOptions:] 0x3f64
     def didFinishLaunching(self):
@@ -244,6 +247,23 @@ class AppDelegate:
         playing, for the MG80's burst (``OalPlayback.playOverlap_gain_pos_z_``)."""
         i = self.playSoundBufNumber_(num)
         self.playback.playOverlap_gain_pos_z_(i, gain, pos, z)
+
+    def vibrate_effect(self, name):
+        """PORT ADDITION: start a named effect on the controller, if there is one.  Not
+        ``vibrate``, the original's phone buzz when zombie 8 grabs you, which the port
+        leaves as it was."""
+        if self.vibration is not None:
+            self.vibration.play(name)
+
+    def vibrate_zombie(self, kind):
+        """PORT ADDITION: a zombie's blow on you, by its ``monsterNumber``."""
+        if self.vibration is not None:
+            self.vibration.play_zombie(kind)
+
+    def vibrate_stop(self):
+        """PORT ADDITION: silence the motors, for a pause or leaving a stage."""
+        if self.vibration is not None:
+            self.vibration.stop()
 
     def playHitSound_Gain_Pos_z_(self, num, gain, pos, z):
         """PORT DIVERGENCE (tunmi13productions, 2026-09-27): a weapon's hit on a monster, queued

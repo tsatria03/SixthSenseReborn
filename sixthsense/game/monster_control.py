@@ -440,6 +440,7 @@ class MonsterControl:
         # blow, or the girl's thank you (270); the port had played it at self.Pos.
         self.app.playSound_Gain_Pos_z_reprats_(
             self.playerHitSound, 1.0, (0.0, 0.0), 40, False)
+        self.app.vibrate_zombie(self.monsterNumber)     # PORT ADDITION, with the sound
         RunLoop.main().perform(self, 'MonsterHitAndDead', None, self.dieSoundTime)
 
     # -[MonsterControl MonsterHitAndDead] 0x11fec

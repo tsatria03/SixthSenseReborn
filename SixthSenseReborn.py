@@ -169,6 +169,8 @@ def main(argv=None):
     showing_bindings = False
     pad = Controllers(pygame, app)
     pad.announce_attached()
+    from sixthsense.ui.vibration import Vibration
+    app.vibration = Vibration(pad)
 
     if args.tutorial:
         kind, obj = 'tutorial', _new_tutorial()
@@ -248,6 +250,7 @@ def main(argv=None):
 
         if hasattr(inp, 'pump'):
             inp.pump()
+        app.vibration.tick()
         loop.pump()
 
         # ---- screen changes ---------------------------------------------

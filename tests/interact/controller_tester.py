@@ -17,6 +17,10 @@ Keyboard, in the window:
     3    both motors at full strength for one second
     4    a pattern: three short pulses
     5    both motors at half strength for three seconds
+    V    the game's next vibration, named: zombie 1's punch, zombie 2's scratching and so
+         on, then the girl; Shift+V goes back one
+    Z    turns the zombie's own hit sound with V on and off, so you can judge the timing of
+         a vibration against its sound; it starts on, and the girl has no sound
     S    stop the vibration
     C    the checklist: which buttons, sticks and triggers you have not used yet
     I    the pad's name and how many are attached
@@ -65,11 +69,24 @@ PULSES = ((1.0, 1.0, 150), 250)         # the pulse, and the time to each next o
 PULSE_COUNT = 3
 
 
+#: What V plays, in order: (what is said, the effect in ``ui/vibration.EFFECTS``).
+GAME_EFFECTS = (('Zombie 1, the punch', 'punch'), ('Zombie 2 and 4, scratching', 'scratch'),
+                ('Zombie 3, 5 and 7, mauling', 'maul'), ('Zombie 6, the pounce', 'pounce'),
+                ('Zombie 8, not shaken off', 'grab'), ('Zombie 9, the smash', 'smash'),
+                ('Zombie 10, the chainsaw', 'chainsaw'),
+                ('The girl, shot by mistake', 'girl'), ('Dying', 'death'))
+
+
 class Tester:
-    def __init__(self, pygame, controllers, say):
+    def __init__(self, pygame, controllers, say, vibration=None, play_sound=None):
         self.pg = pygame
         self.pads = controllers
         self.say = say
+        self.vibration = vibration
+        self.play_sound = play_sound        # name of an effect -> plays its hit sound, or None
+        self.stop_sound = None              # silence what play_sound started
+        self.with_sound = play_sound is not None
+        self._effect = -1                   # the last of GAME_EFFECTS played
         self.used = set()                   # spoken names of the controls used
         self._lean = {}                     # (instance id, axis) -> -1, 0, 1
         self._pulses = []                   # when the next pulses are due (ms ticks)
@@ -166,6 +183,10 @@ class Tester:
             self.buzz(*BUZZES[name])
         elif name == '4':
             self.pulse()
+        elif name == 'z':
+            self.toggle_sound()
+        elif name == 'v':
+            self.game_effect(-1 if e.mod & self.pg.KMOD_SHIFT else 1)
         elif name == 's':
             self.stop()
         elif name == 'c':
@@ -198,12 +219,36 @@ class Tester:
         else:
             self.say('This controller did not vibrate. It may not support it here.')
 
+    def game_effect(self, step):
+        """V: play the game's next vibration, or with Shift the one before."""
+        if self.vibration is None or not self.pads.pads:
+            self.say('No controller attached.')
+            return
+        self._effect = (self._effect + step) % len(GAME_EFFECTS)
+        said, name = GAME_EFFECTS[self._effect]
+        if self.with_sound and self.play_sound is not None:
+            self.play_sound(name)
+        self.vibration.play(name)
+        self.say('%s.' % said)
+
+    def toggle_sound(self):
+        """Z: V with the zombie's hit sound, or without it."""
+        if self.play_sound is None:
+            self.say('The game sounds are not available here.')
+            return
+        self.with_sound = not self.with_sound
+        self.say('The zombie sound with the vibration is %s.' % ('on' if self.with_sound else 'off'))
+
     def pulse(self):
         self._pulses = [self.pg.time.get_ticks() + i * PULSES[1] for i in range(PULSE_COUNT)]
         self.say('Three pulses.')
 
     def stop(self):
         self._pulses = []
+        if self.vibration is not None:
+            self.vibration.stop()
+        if self.stop_sound is not None:
+            self.stop_sound()
         for pad in self.pads.pads:
             try:
                 pad.stop_rumble()
@@ -213,6 +258,8 @@ class Tester:
 
     def tick(self):
         """Called every frame: fire the pulses that are due."""
+        if self.vibration is not None:
+            self.vibration.tick()
         now = self.pg.time.get_ticks()
         while self._pulses and now >= self._pulses[0]:
             self._pulses.pop(0)
@@ -238,9 +285,32 @@ def main():
     pygame.display.init()
     pygame.display.set_caption('Controller tester (Escape quits)')
     pygame.display.set_mode((480, 120))
-    tester = Tester(pygame, Controllers(pygame), say)
+    from sixthsense.ui.vibration import Vibration
+    pads = Controllers(pygame)
+    tester = Tester(pygame, pads, say, Vibration(pads))
+    try:
+        from sixthsense.game.app_delegate import AppDelegate
+        from sixthsense.game.stage_1_e import MONSTER_SOUNDS
+        from sixthsense.ui.vibration import ZOMBIE_EFFECTS
+        app = AppDelegate.shared()
+        app.didFinishLaunching()
+        # each effect's zombie, the lowest number first, and that zombie's hit sound
+        first = {}
+        for kind in sorted(ZOMBIE_EFFECTS):
+            first.setdefault(ZOMBIE_EFFECTS[kind], kind)
+        hit = {name: MONSTER_SOUNDS[kind][4][0] for name, kind in first.items()}
+
+        def play_sound(name):
+            if name in hit:                 # the girl's shot has no sound of its own here
+                app.stopSoundBufNumber_(hit[name])
+                app.playSound_Gain_Pos_z_reprats_(hit[name], 1.0, (0.0, 0.0), 40, False)
+
+        tester.play_sound, tester.with_sound = play_sound, True
+        tester.stop_sound = lambda: [app.stopSoundBufNumber_(n) for n in hit.values()]
+    except Exception as e:                  # no audio device: the vibrations still work
+        print('The game sounds are not available: %r' % (e,), flush=True)
     say('Controller tester. Press a button, lean a stick or squeeze a trigger. '
-        '1 to 5 vibrate, S stops, C is the checklist, I says what is attached, '
+        '1 to 5 and V vibrate, S stops, C is the checklist, I says what is attached, '
         'Escape quits. %s' % tester.info())
 
     clock = pygame.time.Clock()

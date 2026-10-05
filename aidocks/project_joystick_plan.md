@@ -42,6 +42,26 @@ metadata:
 ## Losing the pad pauses (2026-10-04, the dev)
 - A pad that was open going away pauses the stage (`StopPlayAction_`), through `Controllers.just_lost`, so you can plug it back in. A removal of something never opened does not pause, a stage already paused stays so, and the tutorial, which has no pause (`ESCAPE_LEAVES`), is left running.
 
+## Vibration (the dev's layout, 2026-10-04, built, not yet felt by the dev)
+Built in `ui/vibration.py` (the effects and the player), with hooks in `MonsterControl.hitPlayer`, `_monster_killed`, `_pause` and `teardown`, `AppDelegate.vibrate_effect`/`vibrate_zombie`/`vibrate_stop` (not `vibrate`, the original's phone buzz when zombie 8 grabs you, left as it was), and tests in `tests/case/vibration.py` (22).
+
+How it works: every blow on you goes through `MonsterControl.hitPlayer` (a zombie reaching you, or zombie 8 when you fail to shake it off), so one hook there gives every zombie its own effect, started with its hit sound; the girl's is in `_monster_killed`. An effect is a timeline of (start ms, low motor, high motor, ms), played by `ui/vibration.py` from the frame loop; pygame's `rumble` holds one setting at a time, so pulses and ramps are separate calls and a new effect replaces the one playing. Pausing, leaving the stage and losing the pad stop it. The tests never vibrate: `app.vibration` is None unless the game's frame loop sets it, and the player takes a fake clock and fake pads.
+
+The dev's layout, times from the start of the zombie's hit sound (its file length in brackets):
+- **Zombie 1** (1.536 s): wait 803 ms, then one light simple thump, a punch, nothing huge.
+- **Zombie 2** (3.593 s): scratching, so firm but not too hard pulses, spread out a bit, along the file.
+- **Zombie 3** (2.941 s): wait 454 ms, then a heavy but not too heavy, firm rumble to the end of the file (mauling).
+- **Zombie 4** is zombie 2's. **Zombies 5 and 7** are zombie 3's (they share those hit sounds in the original too, `MONSTER_SOUNDS`).
+- **Zombie 6** (1.466 s): wait 234 ms, then a quick firm pounce.
+- **Zombie 8**, the animal that grabs you: only when you fail to shake it off, a firm vibration of about 750 ms.
+- **Zombie 9** (0.937 s): from 227 ms, a hard, big, short smash, "whoa, that hurt".
+- **Zombie 10** (3.198 s), the chainsaw: soft at first, rising over about 405 ms, a solid rumble through the sawing, then at 2.219 s dropping away, revving down to the end.
+- **The girl:** if you shoot her by mistake, a long rumble: that was a bad move.
+- **Dying** (added 2026-10-04): two hard seconds (`death`), started with the game over music, 1.3 s after the lethal hit (`playerDie_`). It replaces whatever the killing zombie's effect is still doing, since only one effect plays at a time.
+- **Not in the layout, so no vibration:** the woman zombie, the bosses, zombies 11 and 12 (never spawned), the girl reaching you (her thank you), and gun fire. Ask the dev before adding any.
+- The numbers (motor strengths, pulse spacing, the ramp) are in `EFFECTS` in `vibration.py` for tuning by feel; the tester's V key plays each one in turn (Shift+V back), and Z (the dev's idea) turns the zombie's own hit sound with it on and off, to judge a vibration's timing against its sound; the girl has no sound there.
+- No menu switch for vibration yet.
+
 ## Afterwards
 - Vibration through `Controller.rumble`, if it is worth having.
 - Controller rebinding, if wanted.
