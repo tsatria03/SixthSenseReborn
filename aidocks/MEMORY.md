@@ -23,6 +23,7 @@ The `[[name]]` links in `CLAUDE.md` and across these memories resolve to `aidock
 - [Old NVGT remake](project_nvgt_remake_reference.md): the dev's NVGT prototype was deleted on 2026-09-21. Its only legacy is the folder layout of `game/sounds`.
 
 ## Current state
+- [Reborn identity plan](project_reborn_identity_plan.md): PLANNED 2026-10-04, not started. The name Sixth Sense Reborn, its own save folder copying the old save once, SixthSenseReborn builds and releases, the changelog's Sixth Sense history kept under a heading, and the docs saying Reborn instead of the custom branch.
 
 - [Tutorial ending plan](project_tutorial_ending_plan.md): FINISHED 2026-09-23, confirmed by the dev. From the binary: P (the three-finger double tap, beat Nine) ends the tutorial only after beats One to Eight; from the Tutorial row it returns to the menu, and on a first Start (which spends a coin) it counts 3, 2, 1 and starts the game. The beats also follow the original order, each action counting only after the beats before it.
 - [Tutorial tester plan](project_tutorial_tester_plan.md): FINISHED 2026-09-23, confirmed by the dev. tests/interact/tutorial_chooser.py (first built as tests/tutorial_tester.py), like the level chooser: its own save, asking the ending (Start's countdown or the Tutorial button's return to the menu), the lesson to start at, and voice over on or off.
