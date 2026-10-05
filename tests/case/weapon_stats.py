@@ -1,6 +1,6 @@
 """Each weapon's spoken stats in save.json: written, and never read back.
 
-A PORT ADDITION (tsatria03, 2026-09-25; aidocks/project_weapon_stats_in_save_plan.md).
+A PORT ADDITION (tsatria03, 2026-09-25; aidocks/completed/weapon_stats_in_save_plan.md).
 The four numbers a weapon's page reads aloud - ammo capacity, range, damage and price -
 are written into the save for every weapon owned or equipped: the grenade, the knife and
 the colt in a new save, a bought weapon after buying, an equipped one after equipping,

@@ -1,5 +1,5 @@
 ---
-name: project_release_tooling_plan
+name: release_tooling_plan
 description: "FINISHED 2026-09-23, confirmed by the dev, and used for every release since. compiler.py only builds, as a folder or with --embed as one exe holding the sounds and data; releaser.py sets the date version, files the changelog, runs the compiler, zips, commits, tags V<version> and uploads the zip to GitHub. Every decision the dev made, the plan change that moved the zip, and what was built."
 metadata:
   type: project
@@ -52,4 +52,4 @@ A numbered menu like the compiler's: "Full release", plus each step on its own. 
 
 **Changed 2026-10-05:** a tag now starts a GitHub Actions workflow that builds all four archives and publishes the release; "Prepare and tag" is the local half ([[project_release_workflow_plan]]).
 
-**Changed 2026-09-28:** one release carries the Windows build as a zip and the Linux build as a .tar.gz, each packed on its own system; the second adds its archive to the release ([[project_linux_release_plan]]).
+**Changed 2026-09-28:** one release carries the Windows build as a zip and the Linux build as a .tar.gz, each packed on its own system; the second adds its archive to the release ([[linux_release_plan]]).

@@ -209,7 +209,7 @@ def main(argv=None):
             keys = pad.feed(event)
             if keys is not None:
                 # a controller: the menus take it as keys, a stage reads it itself, and
-                # the bindings screen ignores it (aidocks/project_joystick_plan.md)
+                # the bindings screen ignores it (aidocks/completed/joystick_plan.md)
                 if showing_bindings:
                     pass
                 elif kind in STAGES:

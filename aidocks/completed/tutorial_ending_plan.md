@@ -1,5 +1,5 @@
 ---
-name: project_tutorial_ending_plan
+name: tutorial_ending_plan
 description: "FINISHED 2026-09-23, confirmed by the dev: how the tutorial ends, from the binary. P (the original's three-finger double tap, beat Nine) ends it once beats One to Eight are done; from the menu row it goes back to the menu, and on a first Start (a coin spent) it counts 3, 2, 1 and starts the real game."
 metadata:
   type: project

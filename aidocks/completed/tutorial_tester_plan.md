@@ -1,5 +1,5 @@
 ---
-name: project_tutorial_tester_plan
+name: tutorial_tester_plan
 description: "FINISHED 2026-09-23, confirmed by the dev: tests/interact/tutorial_chooser.py (built as tests/tutorial_tester.py), a by-ear tool like level_chooser.py that opens the real tutorial on its own save, asking which ending (Start's countdown into the game, or the Tutorial button's return to the menu), which lesson to start at, and voice over on or off."
 metadata:
   type: project
@@ -11,7 +11,7 @@ metadata:
 
 **Built as planned:** `tests/interact/tutorial_chooser.py` with `LESSONS`, `_own_save`, `_questions`, and a `LessonTutorial(Stage_Tutorial)` that marks the earlier beats done in `MapInitInBundle` and swaps the chosen beat in for the first `tutorial_beat` call (`_opened`). `new_tutorial` replaces `SixthSense._new_tutorial`, giving the first tutorial the asked-for ending and later ones their menu route's. `EYEMODE` is written "1" or "0" on the tester's save before the game starts.
 
-**What the dev asked for:** a tutorial tester to play by ear, not an automated test ("I meant the one I play by ear, not the other case test"). `tests/case/tutorial.py` already has the automated checks. Asked after tunmi13productions' tutorial ending work ([[project_tutorial_ending_plan]]), when the dev found the Start ending hard to reach without deleting their save.
+**What the dev asked for:** a tutorial tester to play by ear, not an automated test ("I meant the one I play by ear, not the other case test"). `tests/case/tutorial.py` already has the automated checks. Asked after tunmi13productions' tutorial ending work ([[tutorial_ending_plan]]), when the dev found the Start ending hard to reach without deleting their save.
 
 ## The dev's answers
 1. **It asks which ending, like the level tester asks for a level**: the Start ending (a first run: P counts 3, 2, 1 into the real game) or the Tutorial button ending (P goes back to the main menu).

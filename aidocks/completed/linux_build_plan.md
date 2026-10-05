@@ -1,5 +1,5 @@
 ---
-name: project_linux_build_plan
+name: linux_build_plan
 description: "FINISHED 2026-09-28, confirmed by tunmi13productions in WSL. The game runs and builds on Linux (the dev builds in WSL): OpenAL Soft from vendor/openal/libopenal.so.1, the save in ~/.local/share/SixthSense, and compiler.py building dist/SixthSense-Linux from a per-system table. The releaser stays Windows-only for now."
 metadata:
   type: project
@@ -22,4 +22,4 @@ metadata:
 5. **Not in this plan:** the releaser (its zip name `SixthSense-Win-<version>.zip`, the `gh.exe` path, the upload). It keeps working on Windows; a Linux release is its own step later.
 - **Tests:** `release.py` for the compiler table, `paths.py` for the save folder and the library, both by faking the system rather than running on Linux. **Docs:** README, CLAUDE.md, [[project_compiler_py]], and a changelog line.
 
-**Followed by** [[project_linux_release_plan]], 2026-09-28: the releaser releases the Linux build too.
+**Followed by** [[linux_release_plan]], 2026-09-28: the releaser releases the Linux build too.

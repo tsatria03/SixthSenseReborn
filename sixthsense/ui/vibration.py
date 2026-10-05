@@ -1,6 +1,6 @@
 """PORT ADDITION: what a game controller's motors do when something hits you.
 
-The dev laid the effects out (2026-10-04; aidocks/project_joystick_plan.md).  Each zombie
+The dev laid the effects out (2026-10-04; aidocks/completed/joystick_plan.md).  Each zombie
 has its own, started with its hit sound, so the times below are from the start of that
 sound.  An effect is a list of segments, ``(start_ms, low, high, ms)``: from ``start_ms``
 the low (heavy) motor runs at ``low`` and the high (light) motor at ``high``, each 0.0 to

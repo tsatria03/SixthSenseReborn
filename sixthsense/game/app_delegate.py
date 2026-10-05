@@ -113,7 +113,7 @@ class AppDelegate:
         self.stage = d.intForKey_('STAGE')
         # PORT ADDITION (2026-09-25): the volume settings, and settings.json written with
         # every one at its default, so a player sees what they can change
-        # (aidocks/project_volume_settings_plan.md)
+        # (aidocks/completed/volume_settings_plan.md)
         wrote = volume.load(d)
         if wrote:
             d.synchronize()
@@ -257,7 +257,7 @@ class AppDelegate:
         with the monster's own distances (``MonsterQueueNote:``, reference 100, maximum
         1600) instead of ``playSound:``'s 40 and 800, so it fades as the monster does
         rather than 2.5 times sooner.  The original plays every hit through
-        ``playSound:`` (0x6658); aidocks/project_sound_trims_plan.md has why."""
+        ``playSound:`` (0x6658); aidocks/completed/sound_trims_plan.md has why."""
         i = self.playSoundBufNumber_(num)
         if self.aSoundBufControlData[i].bIsPlaying:
             self.playback.stopSound_(i)
@@ -358,7 +358,7 @@ class AppDelegate:
     # PORT ADDITION (tsatria03, 2026-09-25): Page Up and Page Down on the menu screens set
     # the menu music's volume, 0 to 100% in steps of 10, saved as MENUMUSICVOLUME.  Only
     # the menu music: the level music, the ambience and the story's music keep the
-    # binary's gains.  aidocks/project_menu_music_volume_plan.md has the plan.
+    # binary's gains.  aidocks/completed/menu_music_volume_plan.md has the plan.
     @property
     def menu_music_volume(self):
         """The saved menu music volume, any whole percentage from 0 to 100 since it can be
@@ -391,7 +391,7 @@ class AppDelegate:
 
     # PORT ADDITION (tunmi13productions, 2026-09-26): during play Page Up and Page Down set the
     # gameplay gain, and with Shift or Alt the weapons or the player (Control set the
-    # entities until 2026-09-28).  aidocks/project_gameplay_gain_plan.md has the plan.
+    # entities until 2026-09-28).  aidocks/completed/gameplay_gain_plan.md has the plan.
     def change_gameplay_volume(self, key, step):
         """Step ``key`` (``volume.GAMEPLAY_GAIN_KEY`` or one of the two groups) up
         (+1) or down (-1), save it, and apply it at once to everything playing.

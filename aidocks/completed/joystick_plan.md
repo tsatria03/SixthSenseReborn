@@ -1,5 +1,5 @@
 ---
-name: project_joystick_plan
+name: joystick_plan
 description: "FINISHED 2026-10-04. Controller support for Sixth Sense Reborn through SDL's game controller layer (pygame._sdl2.controller), cross platform, never XInput: the menus, the stage (stick aims, D-pad, buttons), connect and disconnect sounds and a pause on losing the pad, per-zombie vibration, and a vibration menu row. The dev uses an Xbox One pad."
 metadata:
   type: project

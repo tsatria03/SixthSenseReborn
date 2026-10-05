@@ -1,5 +1,5 @@
 ---
-name: project_reborn_identity_plan
+name: reborn_identity_plan
 description: "FINISHED 2026-10-04, confirmed by the dev: give SixthSenseReborn its own identity apart from SixthSenseOriginal: the name Sixth Sense Reborn, its own save folder (copying the old save once), SixthSenseReborn builds and releases, a kept changelog history, and the docs saying Reborn instead of the custom branch."
 metadata:
   type: project

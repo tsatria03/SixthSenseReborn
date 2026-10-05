@@ -1,5 +1,5 @@
 ---
-name: project_menu_music_volume_plan
+name: menu_music_volume_plan
 description: "FINISHED 2026-09-25, confirmed by the dev. Page Up and Page Down make the menu music (bgm_main_menu) louder and quieter, 0 to 100% in steps of 10, 100% being today's -14 dB; only on the menu screens, never in a game; saved in defaults.json; spoken with voice over off only. The level music, the ambience and the story music stay as they are."
 metadata:
   type: project

@@ -7,9 +7,9 @@ metadata:
   originSessionId: 8a78e7c9-236d-421e-8e76-c11a2895c278
 ---
 
-`compiler.py` is the PyInstaller build script, with a numbered menu. Since 2026-09-23 it only builds; the changelog filing and the zip are `releaser.py`'s ([[project_release_tooling_plan]]). It was adapted from an earlier build script. A newer version of that script is kept for reference in the gitignored `user/` folder; read it there, but never edit it, and don't name it in writing ([[feedback_no_other_games]]). Never run `compiler.py`, not even `--dry-run`, without the dev's say-so; see [[feedback_dont_run_or_build]].
+`compiler.py` is the PyInstaller build script, with a numbered menu. Since 2026-09-23 it only builds; the changelog filing and the zip are `releaser.py`'s ([[release_tooling_plan]]). It was adapted from an earlier build script. A newer version of that script is kept for reference in the gitignored `user/` folder; read it there, but never edit it, and don't name it in writing ([[feedback_no_other_games]]). Never run `compiler.py`, not even `--dry-run`, without the dev's say-so; see [[feedback_dont_run_or_build]].
 
-**Changed 2026-09-23, and confirmed working by the dev the same day:** the changelog filing and the zip moved out to the new `releaser.py`, so the compiler only builds `dist\SixthSense` and never changes the repository, and it gained `--embed`, one exe with the sounds and data inside. The menu's first two choices are now "Folder build" and "Single exe". The menu is now: 1 Folder build, 2 Single exe (`--embed`), 3 Clean, 4 Console, 5 One-file, 6 Without the game's data, 7 Dry run. The history below mentions `package()` and the old menu numbers as they were then. See [[project_release_tooling_plan]].
+**Changed 2026-09-23, and confirmed working by the dev the same day:** the changelog filing and the zip moved out to the new `releaser.py`, so the compiler only builds `dist\SixthSense` and never changes the repository, and it gained `--embed`, one exe with the sounds and data inside. The menu's first two choices are now "Folder build" and "Single exe". The menu is now: 1 Folder build, 2 Single exe (`--embed`), 3 Clean, 4 Console, 5 One-file, 6 Without the game's data, 7 Dry run. The history below mentions `package()` and the old menu numbers as they were then. See [[release_tooling_plan]].
 
 ## Status
 
@@ -46,7 +46,7 @@ Adapted to Sixth Sense on 2026-09-21, with the dev's go-ahead.
   - The source comes from `sixthsense.paths.game()`, which honors `--game` and `SIXTHSENSE_GAME`. If the bundle is missing it catches the SystemExit and prints a message instead of crashing.
 - **`--test` was removed:** the flag, the menu entry, `test_build()` and `read_log()` are all gone. The menu then had 7 choices plus Quit, with Release build as number 1.
 - **readme.html generation was removed** (`GENERATED_PAGES` and `write_page()`). The reference script in `user/` has it, along with the `tools/md_to_html.py` converter it needs; bring both back once there's a real README.
-- **`FIRST_VERSION = '1.0.0-1'` became `first_version()`**, which returned `%y.%m.%d-1` to match the repo's date-scheme VERSION. It was removed on 2026-09-23; the releaser now sets VERSION ([[project_release_tooling_plan]]).
+- **`FIRST_VERSION = '1.0.0-1'` became `first_version()`**, which returned `%y.%m.%d-1` to match the repo's date-scheme VERSION. It was removed on 2026-09-23; the releaser now sets VERSION ([[release_tooling_plan]]).
 - **The docstrings and comments** no longer mention an updater, and they explain the missing `--test` and the silent windowed failure.
 
 ## Left out on purpose
@@ -75,11 +75,11 @@ Since 2026-09-23 no compiler build changes the repository, so any choice is safe
 - choice 4, `--console`, which shows start-up errors
 - choice 2, the single exe, to try what a release carries
 
-A release is made only with `releaser.py`, which runs the compiler itself after setting the version ([[project_release_tooling_plan]]).
+A release is made only with `releaser.py`, which runs the compiler itself after setting the version ([[release_tooling_plan]]).
 
 ## Fine as-is
 - `BINARIES`: the vendor DLLs go to `_MEIPASS/vendor/...`, which is where `sixthsense/paths.py` looks when frozen.
-- `SIDE_FILES`: `docks\readme.txt` (the player readme, [[project_player_readme_plan]]), `docks\changelog.txt` and `docks\todo list.txt` (the player documents folder since 2026-09-23, named by `DOCKS` and `CHANGELOG`), VERSION and LICENSE (shipped as license.txt). Since 2026-09-24 (the dev found it a bug that they sat at the top) the three documents land in a `docks\` folder in the build, as in the repository; VERSION and license.txt stay at the top, the license beside `licenses\`. `strip_shipped_changelog()` and the release warnings read `docks\changelog.txt` in the build. Never embedded. `releaser.py` reads the same `compiler.CHANGELOG`, and commits it as `CHANGELOG_GIT` (`docks/changelog.txt`).
+- `SIDE_FILES`: `docks\readme.txt` (the player readme, [[player_readme_plan]]), `docks\changelog.txt` and `docks\todo list.txt` (the player documents folder since 2026-09-23, named by `DOCKS` and `CHANGELOG`), VERSION and LICENSE (shipped as license.txt). Since 2026-09-24 (the dev found it a bug that they sat at the top) the three documents land in a `docks\` folder in the build, as in the repository; VERSION and license.txt stay at the top, the license beside `licenses\`. `strip_shipped_changelog()` and the release warnings read `docks\changelog.txt` in the build. Never embedded. `releaser.py` reads the same `compiler.CHANGELOG`, and commits it as `CHANGELOG_GIT` (`docks/changelog.txt`).
 - `.gitignore` covers `build/`, `dist/` and `*.spec`.
 - **The third-party licenses go inside the executable since 2026-09-25** (the dev: "I want the license files to be embedded into the exe. The MIT licence file can stay."). `stage_licenses()` gathers `license_files()` fresh into `build\embed\licenses` (`LICENSES_STAGE`) before PyInstaller runs, and `command()` adds that folder as `licenses` for every kind of build, so a one-file or `--embed` build carries it inside the exe and a folder build in `_internal\licenses`. `copy_licenses()` and the `licenses\` folder beside the exe are gone; `license.txt`, the port's own MIT license, stays beside it in `SIDE_FILES`. The player readme says the licenses are inside the game.
 - **The build folder is `dist\SixthSense-Windows` since 2026-09-25** (the dev: "it should create the folder SixthSense-Windows, not, SixthSense"). `FOLDER = NAME + '-Windows'`; `NAME` stays `SixthSense`, so the executable is still `SixthSense.exe` and the release is still "SixthSense V<version>" in `SixthSense-Win-<version>.zip`. `output_dir()` is the new folder, and the releaser's `BUILD_DIR` is `compiler.output_dir()`. A one-file or `--embed` build goes there directly through `--distpath`; a folder build's PyInstaller always names its folder after `--name`, so it lands in `dist\SixthSense` (`pyinstaller_dir()`) and `move_folder_build()` moves it. `clear_output()` empties both before a build. The releaser's zip puts everything under `SixthSense-Windows/`, so it extracts to that folder too. The older builds and notes below say `dist/SixthSense`.
@@ -92,4 +92,4 @@ A release is made only with `releaser.py`, which runs the compiler itself after 
 
 **How to apply:** Keep `compiler.py`'s structure and prose style (the menu, the flags, the spoken messages). Compare against the reference script in `user/` when bringing features across.
 
-**Changed 2026-09-28:** it also builds on Linux (the dev builds in WSL), into `dist/SixthSense-Linux`, from a table by system, `SYSTEMS` ([[project_linux_build_plan]]).
+**Changed 2026-09-28:** it also builds on Linux (the dev builds in WSL), into `dist/SixthSense-Linux`, from a table by system, `SYSTEMS` ([[linux_build_plan]]).

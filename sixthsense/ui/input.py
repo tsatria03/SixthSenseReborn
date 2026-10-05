@@ -54,7 +54,7 @@ LANE_ACTIONS = {'lane1': 1, 'lane2': 2, 'lane3': 3, 'lane4': 4, 'lane5': 5}
 
 #: PORT ADDITION (tunmi13productions, 2026-09-26): Page Up and Page Down during play, on their own
 #: for the gameplay gain and with a modifier for a group.  Fixed, like the menu's.
-#: aidocks/project_gameplay_gain_plan.md has the plan.
+#: aidocks/completed/gameplay_gain_plan.md has the plan.
 VOLUME_STEP_KEYS = {'page up': 1, 'page down': -1}
 #: (the pygame modifier, its setting, what is said), tried in this order.
 VOLUME_MODIFIERS = (('KMOD_SHIFT', volume.WEAPON_KEY, 'Weapons'),
@@ -144,7 +144,7 @@ class Input:
             return
         st.MovingShot_(LANE_ANGLE[self._auto_lane])
 
-    # ---- the controller (PORT ADDITION, aidocks/project_joystick_plan.md) -------
+    # ---- the controller (PORT ADDITION, aidocks/completed/joystick_plan.md) -------
     def controller(self, event, pygame, keys, lost=False):
         """A controller event, with the key events ``Controllers.feed`` made of it, and
         ``lost``: it took away a pad that was open.  The panels take those keys, as the

@@ -202,7 +202,7 @@ def test_sound_list_covers_the_wavs():
 
 def test_the_renamed_sounds_are_what_the_list_names():
     """tsatria03 renamed sounds found misnamed, and the list follows them
-    (aidocks/project_sound_rename_plan.md); every one names a file the game can play."""
+    (aidocks/completed/sound_rename_plan.md); every one names a file the game can play."""
     sl = _sound_list()
     want = {120: 'zombie_2_hit_player', 135: 'zombie_3_hit_player',
             205: 'zombie_9_damage', 208: 'zombie_9_die',

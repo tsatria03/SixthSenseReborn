@@ -58,7 +58,7 @@ NAME = 'SixthSenseReborn'
 ENTRY = 'SixthSenseReborn.py'
 
 #: What differs between the systems a build can be made on (tunmi13productions, 2026-09-28;
-#: aidocks/project_linux_build_plan.md).  PyInstaller only builds for the system it runs on, so a Windows
+#: aidocks/completed/linux_build_plan.md).  PyInstaller only builds for the system it runs on, so a Windows
 #: build is made on Windows and a Linux one on Linux, in WSL or not.  Each system has:
 #:     folder     what the build folder is called after SixthSenseReborn-, and so the one a release extracts to
 #:     exe        the executable's file name

@@ -1,5 +1,5 @@
 ---
-name: project_sound_rename_plan
+name: sound_rename_plan
 description: "FINISHED 2026-09-25, confirmed by the dev. The dev's third sound sort flattens the zombie, boss, monster and character folders and renames sounds they found misnamed (the 'woman' monster is a man; shared zombie sounds split per zombie). SoundList.plist entries are pointed at the new names, and a new entry 371 gives the bosses their own being-hurt sound. Recorded before any code."
 metadata:
   type: project

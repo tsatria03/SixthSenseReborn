@@ -11,7 +11,7 @@ metadata:
 
 ## The third sort, 2026-09-25 (commit `8fbf9fc`), and the renames
 - **One folder each** for the zombies (`sfx/zombies/normal`), the bosses (`sfx/zombies/bosses`), the monster (`sfx/monsters`) and the characters (`sfx/characters`), under `used/` and `unused/`, with one file per name: the `normalcave1..12` / `normalforest1..12`, `bosscave`/`bossforest`, `monstercave`/`monsterforest` and `charcave`/`charforest` folders are gone. `used/` has 195 files, `unused/` 101, and the blooper clip moved to `game/sounds/bloopers/`, which is outside `paths.SOUND_FOLDERS`, so builds no longer carry it. A build is 441 files: 296 sounds and 145 plists and map layers.
-- **The dev renamed sounds they found misnamed**, by ear, and `SoundList.plist` follows them, with entry 371 added for the bosses' own being-hurt sound: [[project_sound_rename_plan]] has the table. `stage_1_e.MONSTER_SOUNDS[KIND_BOSS]` uses 371 instead of zombie 9's 205.
+- **The dev renamed sounds they found misnamed**, by ear, and `SoundList.plist` follows them, with entry 371 added for the bosses' own being-hurt sound: [[sound_rename_plan]] has the table. `stage_1_e.MONSTER_SOUNDS[KIND_BOSS]` uses 371 instead of zombie 9's 205.
 - **Checking a sort: compare audio, not bytes.** On 2026-09-25 a byte check called 17 cave and forest pairs "different recordings" and "lost"; their samples were identical and only their WAV headers differed, and both matched the original's file in `user/SixthSenseSounds` (the dev's flat copy of the original 269, read-only) equally. Compare the samples, or against that folder, before calling a recording lost.
 - The dev made two tries at this sort the same day before this one; the notes about them in the session are superseded.
 

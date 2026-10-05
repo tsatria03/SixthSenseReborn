@@ -2,7 +2,7 @@
 
 Built on SDL's game controller layer (``pygame._sdl2.controller``), which gives every pad
 the same standard layout on Windows, Linux and macOS, never XInput or raw joystick button
-numbers.  aidocks/project_joystick_plan.md has the plan.
+numbers.  aidocks/completed/joystick_plan.md has the plan.
 
 Phase 1 is the menus and the screens that work like them.  A controller event becomes the
 keyboard event the screen already takes, so no screen changes:

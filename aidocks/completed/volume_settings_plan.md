@@ -1,11 +1,11 @@
 ---
-name: project_volume_settings_plan
-description: "FINISHED 2026-09-25, confirmed by the dev. settings.json gains MASTERVOLUME, LEVELMUSICVOLUME and AMBIENCEVOLUME beside MENUMUSICVOLUME: percentages 0 to 100, 100 the original's mix, set only by editing the file, read on start, written with every default on the first start. Needs [[project_save_split_plan]] first."
+name: volume_settings_plan
+description: "FINISHED 2026-09-25, confirmed by the dev. settings.json gains MASTERVOLUME, LEVELMUSICVOLUME and AMBIENCEVOLUME beside MENUMUSICVOLUME: percentages 0 to 100, 100 the original's mix, set only by editing the file, read on start, written with every default on the first start. Needs [[save_split_plan]] first."
 metadata:
   type: project
 ---
 
-**Status: FINISHED, 2026-09-25, confirmed by the dev ("Everything works!").** Agreed with the dev, recorded before any code ([[feedback_record_plans_first]]), and in the todo list as unfinished. Mark it finished only once the dev says it works. Built after [[project_save_split_plan]], since it lives in `settings.json`.
+**Status: FINISHED, 2026-09-25, confirmed by the dev ("Everything works!").** Agreed with the dev, recorded before any code ([[feedback_record_plans_first]]), and in the todo list as unfinished. Mark it finished only once the dev says it works. Built after [[save_split_plan]], since it lives in `settings.json`.
 
 **What was built:** `platform/volume.py`: `VOLUME_KEYS`, `percents` (what `load` last read, all 100 until then), `valid_percent`, `percent` (invalid means 100), `percent_gain` (squared) and `load(defaults)`, called from `AppDelegate.didFinishLaunching`, which writes missing volumes at 100 and `EYEMODE` at the current mode, so settings.json lists every setting. `master()`, `music()` and `ambience()` multiply by their setting; `menu_music(p)` uses `percent_gain`. `defaults.SETTINGS_KEYS` is now in the dev's order. `AppDelegate.menu_music_volume` takes any whole number, and Page Up and Page Down step to the next ten from it. `ChangeLevel:`'s 0.02 ambience note now goes through `volume.ambience`. The story row's music goes through `volume.music`, so the level music setting covers it too. Tests: five new in `tests/case/volume.py`; `menu_music.py`'s bad-value test updated (55 is valid now) and one new for stepping from 55. Built in the batch with the other two save plans; no test ran until all three were committed (2026-09-25).
 
@@ -14,7 +14,7 @@ metadata:
 ## The keys, all in `settings.json`, in this order
 The dev, 2026-09-25: "master volume should go before menu music volume", and the level music's key is named for the level music. `settings.json` is written in this fixed order, not sorted by name (the save's own `synchronize` sorts; this file does not):
 1. **`MASTERVOLUME`:** everything the game plays (`volume.MASTER_DB`'s group, applied in `oal_playback` on every `AL_GAIN`).
-2. **`MENUMUSICVOLUME`:** already there ([[project_menu_music_volume_plan]]), still set by Page Up and Page Down in the menus as well.
+2. **`MENUMUSICVOLUME`:** already there ([[menu_music_volume_plan]]), still set by Page Up and Page Down in the menus as well.
 3. **`LEVELMUSICVOLUME`:** the level music, `bgm_cave` and `bgm_forest`, on top of the binary's 0.02 (0x321d4). The other level's ambience note at 0.02 (0x32362) is ambience, not this.
 4. **`AMBIENCEVOLUME`:** the cave and forest ambience at 0.2 (0x2ddfa), the rain at 0.5 (0x2ddc8), the level change's 0.3 (0x31ce2) and the quiet loop at 0.02 (0x32362).
 5. **`EYEMODE`:** voice over, the one setting that is not a volume.

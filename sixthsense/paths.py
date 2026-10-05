@@ -68,7 +68,7 @@ GAME_ENV = 'SIXTHSENSE_GAME'
 # game.
 USER_DIR_ENV = 'SIXTHSENSE_USER_DIR'
 #: The save's folder under save_base(), and Sixth Sense's, whose save the first start
-#: copies (the dev, 2026-10-04: aidocks/project_reborn_identity_plan.md): SixthSenseOriginal
+#: copies (the dev, 2026-10-04: aidocks/completed/reborn_identity_plan.md): SixthSenseOriginal
 #: since that game renamed its folder the same day, or SixthSense where it has not run since.
 SAVE_FOLDER = 'SixthSenseReborn'
 OLD_SAVE_FOLDERS = ('SixthSenseOriginal', 'SixthSense')

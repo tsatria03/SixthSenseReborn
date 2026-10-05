@@ -21,7 +21,7 @@ sound effects, speech recordings and music alike.  The group knobs are applied w
 sound is started, because only the caller knows what kind of sound it is starting.
 
 The decibel knobs are constants.  On top of them sit the player's settings (tsatria03,
-2026-09-25; aidocks/project_volume_settings_plan.md), percentages kept in settings.json and
+2026-09-25; aidocks/completed/volume_settings_plan.md), percentages kept in settings.json and
 changed only by editing it:
 
     MASTERVOLUME       everything, with MASTER_DB
@@ -36,7 +36,7 @@ any that are missing, so settings.json shows every one; an edit takes effect on 
 start.
 
 During play there are three more (tunmi13productions, 2026-09-26;
-aidocks/project_gameplay_gain_plan.md), which Page Up and Page Down with a modifier set
+aidocks/completed/gameplay_gain_plan.md), which Page Up and Page Down with a modifier set
 in the stage, the tutorial and the test range, as well as by hand:
 
     GAMEPLAYGAIN       0 to 6 dB on OpenAL's listener, so every sound effect and the
@@ -48,7 +48,7 @@ in the stage, the tutorial and the test range, as well as by hand:
 The entities (the zombies, the bosses, the monster and the woman, and a weapon's hit on
 one) had a setting too, ENTITYVOLUME, until tunmi13productions removed it on 2026-09-28:
 they are what the player listens for, so they always play at full volume
-(aidocks/project_entity_full_volume_plan.md).
+(aidocks/completed/entity_full_volume_plan.md).
 
 The two groups are percentages like the rest and only turn down, since the settings'
 part of a source's gain is capped at 1.0 (``oal_playback._gain``) and a gunshot is there

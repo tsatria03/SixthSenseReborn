@@ -1,6 +1,6 @@
 """The menu music's volume: Page Up and Page Down on the menu screens.
 
-A PORT ADDITION (tsatria03, 2026-09-25; aidocks/project_menu_music_volume_plan.md).  The
+A PORT ADDITION (tsatria03, 2026-09-25; aidocks/completed/menu_music_volume_plan.md).  The
 menu music goes from 0 to 100% in steps of ten, 100% being MENU_MUSIC_DB as it always
 was; it is saved in settings.json as MENUMUSICVOLUME; the screen reader says the new
 volume only with voice over off; and nothing else the music player plays - a level's

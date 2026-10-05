@@ -1,6 +1,6 @@
 """A game controller on the menus: its events become the keys the screens already take.
 
-A PORT ADDITION (aidocks/project_joystick_plan.md, phase 1).  The events are made up
+A PORT ADDITION (aidocks/completed/joystick_plan.md, phase 1).  The events are made up
 here, so no pad need be attached; the SDL layer is opened on the dummy video driver.
 """
 from __future__ import annotations

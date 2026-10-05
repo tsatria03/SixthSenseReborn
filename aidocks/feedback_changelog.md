@@ -10,7 +10,7 @@ metadata:
 
 **Why:** On 2026-09-22 the dev pointed out that the changelog should have been updated with each bug fix and enhancement. It had been missed since the initial import, and the eleven changes from 2026-09-21 were then added in one go.
 
-Releases are made with `releaser.py` ([[project_release_tooling_plan]]). Before the first, on 2026-09-22, the dev had removed a `26.09.20: Initial release.` entry because no release had happened then. The releaser files `unrelease:` under each new version; the compiler never does.
+Releases are made with `releaser.py` ([[release_tooling_plan]]). Before the first, on 2026-09-22, the dev had removed a `26.09.20: Initial release.` entry because no release had happened then. The releaser files `unrelease:` under each new version; the compiler never does.
 
 **How to apply:**
 - **Format.** This is what `compiler.py`'s `_parse_changelog` reads:

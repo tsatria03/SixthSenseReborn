@@ -29,7 +29,7 @@ needs is there.  Nothing here ever moves or deletes a tag or a release that alre
 file already on one.
 
 One release carries the Windows and the Linux build (tunmi13productions, 2026-09-28;
-aidocks/project_linux_release_plan.md).  PyInstaller builds only for the system it runs on, so the full
+aidocks/completed/linux_release_plan.md).  PyInstaller builds only for the system it runs on, so the full
 release runs on one, and then "Add this system's build to the release" on the other builds, zips and adds
 its zip to the same release.  On Linux, WSL included, the GitHub CLI has to be installed and signed in
 there too.

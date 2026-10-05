@@ -522,7 +522,7 @@ class OalPlayback:
 
     def setGameplayGain_(self, on):
         """The stage, the tutorial and the test range turn the gameplay gain on as they
-        load and off as they are torn down (aidocks/project_gameplay_gain_plan.md)."""
+        load and off as they are torn down (aidocks/completed/gameplay_gain_plan.md)."""
         self.setListenerGain_(volume.gameplay_gain() if on else 1.0)
 
     def refreshGains(self):

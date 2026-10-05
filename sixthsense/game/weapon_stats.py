@@ -4,7 +4,7 @@ A weapon's page reads four numbers aloud: ammo capacity, effective range, damage
 price.  tsatria03 (2026-09-25) wanted them in the save too, so that a player who opens it
 and changes them finds they do nothing: the game keeps reading its own numbers
 (``store.SHOP``, ``inventory.SLOTS`` and the weapon plists), so a hand edit changes
-nothing it plays or says.  aidocks/project_weapon_stats_in_save_plan.md has the plan.
+nothing it plays or says.  aidocks/completed/weapon_stats_in_save_plan.md has the plan.
 
 The keys are the weapon's own save name - the one ``GRENADEUSE``, ``KNIFEUSE`` and the
 rest already use - and the stat, in the original's capitals: ``SHOTGUNAMMOCAPACITY``,

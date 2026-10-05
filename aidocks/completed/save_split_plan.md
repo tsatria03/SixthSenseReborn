@@ -1,6 +1,6 @@
 ---
-name: project_save_split_plan
-description: "FINISHED 2026-09-25, confirmed by the dev. defaults.json splits into save.json (progress) and settings.json (EYEMODE, MENUMUSICVOLUME), beside the keys.json that already exists, routed by key name inside UserDefaults; an existing defaults.json is split over by itself on the first start and kept as defaults.json.old. Comes before [[project_weapon_stats_in_save_plan]]."
+name: save_split_plan
+description: "FINISHED 2026-09-25, confirmed by the dev. defaults.json splits into save.json (progress) and settings.json (EYEMODE, MENUMUSICVOLUME), beside the keys.json that already exists, routed by key name inside UserDefaults; an existing defaults.json is split over by itself on the first start and kept as defaults.json.old. Comes before [[weapon_stats_in_save_plan]]."
 metadata:
   type: project
 ---
@@ -13,7 +13,7 @@ metadata:
 
 ## The three files, in `%APPDATA%\SixthSense`
 - **`save.json`:** progress. Every key not named as a setting: `TUTORIAL`, `FIREST`, `GOLD`, `COIN`, `COIN_TIMER`, `COIN_TIMER_START`, `GRENADECOUNT`, `STAGE`, the owned weapons (`SHOTGUN`, `M4`, `AK47`, `MG80`, `JAPAN`), the equipped ones (`*USE`), `TOPSCORE`, `TOPSCOREWEEK`, `WEEKTIME`, `NOWRANK`, `REVIEWCOUNT`, and any key added later. Progress is the safe default for a new key, as in the example.
-- **`settings.json`:** the player's preferences: `EYEMODE` (voice over) and `MENUMUSICVOLUME` (the menu music volume, [[project_menu_music_volume_plan]]). A `SETTINGS_KEYS` set in `platform/defaults.py` names them; a new setting is added there.
+- **`settings.json`:** the player's preferences: `EYEMODE` (voice over) and `MENUMUSICVOLUME` (the menu music volume, [[menu_music_volume_plan]]). A `SETTINGS_KEYS` set in `platform/defaults.py` names them; a new setting is added there.
 - **`keys.json`:** unchanged. `platform/keymap.py` already writes it on its own, with the defaults on the first start (2026-09-25).
 
 ## How

@@ -1,11 +1,11 @@
 ---
-name: project_entity_full_volume_plan
+name: entity_full_volume_plan
 description: "FINISHED 2026-09-28, confirmed by tunmi13productions. The zombies, bosses, monster and woman always play at full volume: the entity volume setting (Control+Page Up/Down, ENTITYVOLUME) is removed, and the sound trims never cut an entity sound, only boost."
 metadata:
   type: project
 ---
 
-**Status: FINISHED 2026-09-28, confirmed by tunmi13productions** ("they're good"). The tool now gives 176 trims, 3 cuts (the gun hit, the shotgun, the headshot call) and 173 boosts; the 16 entity cuts are gone. Tests pass: sound_trims 12, volume 14, gameplay_volume 8, save 12, input 27, window 10, monster_sound 9, gameplay 55. Follows [[project_sound_trims_plan]], [[project_boss_loudness_plan]] and [[project_gameplay_gain_plan]].
+**Status: FINISHED 2026-09-28, confirmed by tunmi13productions** ("they're good"). The tool now gives 176 trims, 3 cuts (the gun hit, the shotgun, the headshot call) and 173 boosts; the 16 entity cuts are gone. Tests pass: sound_trims 12, volume 14, gameplay_volume 8, save 12, input 27, window 10, monster_sound 9, gameplay 55. Follows [[sound_trims_plan]], [[boss_loudness_plan]] and [[gameplay_gain_plan]].
 
 **Changed 2026-09-28, after it was confirmed:** the woman who heals you is not boosted either. The dev: "I honeslty don't think we need to boost her. I noticed her thank you was a lot louder" (it was +11 dB). `BY_EAR` holds `woman_coming_cave`, `woman_die` and `woman_thank_u_kiss` at 0, so all four of her recordings play as recorded; the monster keeps its boosts. Tests: sound_trims 13 pass.
 
@@ -20,4 +20,4 @@ The entity setting already defaulted to 100 and only turned sounds down, so remo
 - **An old `ENTITYVOLUME` is dropped** from settings.json when the game starts (`defaults.RETIRED_KEYS`), so a lowered value from before can't linger in the file.
 - **The trims never cut an entity sound.** `tools/sound_trims.py` holds every file under `sfx/zombies`, `sfx/monsters` and `sfx/characters` at 0 where the level would cut it; boosts stay. The tool is rerun to rewrite `MEASURED`. The bosses' +3 dB in `BY_EAR` stays.
 - **Left alone:** the weapons' trims, the gun's hit on a zombie (-2.5), the headshot call (-4, played at 0.2), the master volume and the gameplay gain.
-- **Tests:** `gameplay_volume.py`, `volume.py`, `sound_trims.py` and `input.py` follow. **Docs:** `docks/readme.txt`, `README.md`, `aidocks/DIVERGENCES.md`, the volume docstring, [[project_gameplay_gain_plan]] and [[project_sound_trims_plan]] get a pointer, and two changelog lines.
+- **Tests:** `gameplay_volume.py`, `volume.py`, `sound_trims.py` and `input.py` follow. **Docs:** `docks/readme.txt`, `README.md`, `aidocks/DIVERGENCES.md`, the volume docstring, [[gameplay_gain_plan]] and [[sound_trims_plan]] get a pointer, and two changelog lines.

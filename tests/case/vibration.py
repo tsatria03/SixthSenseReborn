@@ -1,6 +1,6 @@
 """What the controller's motors do when something hits you.
 
-A PORT ADDITION (aidocks/project_joystick_plan.md).  The pads and the clock are fakes, so
+A PORT ADDITION (aidocks/completed/joystick_plan.md).  The pads and the clock are fakes, so
 nothing real ever vibrates and nothing waits.
 """
 from __future__ import annotations

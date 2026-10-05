@@ -32,7 +32,7 @@ port keeps it in two files, routed by key name, beside ``keys.json`` (``keymap.p
 Nothing that uses ``UserDefaults`` has to know which file a key lives in.  A
 ``defaults.json`` from before the split is moved over by itself the first time the game
 starts without a ``save.json``, and kept as ``defaults.json.old``
-(aidocks/project_save_split_plan.md).
+(aidocks/completed/save_split_plan.md).
 
 PORT ADDITION: a file that cannot be read is never written over.  It is kept as
 ``<file>.damaged``, and the game carries on from ``<file>.bak``, the copy before the last
@@ -61,7 +61,7 @@ SETTINGS_KEYS = ('MASTERVOLUME', 'MENUMUSICVOLUME', 'LEVELMUSICVOLUME', 'AMBIENC
                  'GAMEPLAYGAIN', 'WEAPONVOLUME', 'PLAYERVOLUME', 'VIBRATION')
 #: Keys the game no longer reads, dropped from both files when the save is opened, so an
 #: old value cannot linger there.  ENTITYVOLUME went on 2026-09-28: the zombies are always
-#: at full volume (aidocks/project_entity_full_volume_plan.md).  EYEMODE went on 2026-10-05
+#: at full volume (aidocks/completed/entity_full_volume_plan.md).  EYEMODE went on 2026-10-05
 #: with the voice over row (aidocks/project_screen_reader_only_plan.md).
 RETIRED_KEYS = ('ENTITYVOLUME', 'EYEMODE')
 

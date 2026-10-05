@@ -7,7 +7,7 @@ metadata:
 
 **SixthSenseReborn is where we make our own changes to the game, not faithful to the original.** The faithful port is the separate repository SixthSenseOriginal ([[project_two_repos]]).
 
-**History:** it began on 2026-10-04 as the `custom` branch of SixthSenseOriginal (then SixthSense-Windows), started from its `main` at `6d964dc`. tunmi13productions first named that branch `seventh-sense` and renamed the game Seventh Sense; tsatria03 renamed the branch `custom` and the game back to Sixth Sense the same day. Later that day the branch moved here with its full history (pushed as this repository's `main`, 237 commits, no tags) and was deleted from SixthSenseOriginal. The game then took its own name, Sixth Sense Reborn ([[project_reborn_identity_plan]]).
+**History:** it began on 2026-10-04 as the `custom` branch of SixthSenseOriginal (then SixthSense-Windows), started from its `main` at `6d964dc`. tunmi13productions first named that branch `seventh-sense` and renamed the game Seventh Sense; tsatria03 renamed the branch `custom` and the game back to Sixth Sense the same day. Later that day the branch moved here with its full history (pushed as this repository's `main`, 237 commits, no tags) and was deleted from SixthSenseOriginal. The game then took its own name, Sixth Sense Reborn ([[reborn_identity_plan]]).
 
 **Why:** The dev wants room to redesign, add and change things the original never did, without each change counting as a divergence from a binary that is meant to be matched.
 

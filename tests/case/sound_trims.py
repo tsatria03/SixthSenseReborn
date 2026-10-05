@@ -1,6 +1,6 @@
 """The per-file trims that even out the recordings (platform/sound_trims.py).
 
-A PORT ADDITION (tunmi13productions, 2026-09-27; aidocks/project_sound_trims_plan.md).  Every trim
+A PORT ADDITION (tunmi13productions, 2026-09-27; aidocks/completed/sound_trims_plan.md).  Every trim
 multiplies the sound's AL_GAIN, a boost past 1.0 since each source's AL_MAX_GAIN is
 raised; every file is brought to one level, the music and the ambience included, and loads
 bit for bit; F8 in debug mode turns them off and on.

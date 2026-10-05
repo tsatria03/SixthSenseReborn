@@ -7,7 +7,7 @@ loudness, -12 LUFS, as far as a 12 dB boost goes, except that the zombies, the b
 monster and the woman are never cut, only boosted, since the player listens for them
 (tunmi13productions, 2026-09-28); the binary's gains then set the mix on top, as they always
 have.  The files on disk are never changed.
-aidocks/project_sound_trims_plan.md has why.
+aidocks/completed/sound_trims_plan.md has why.
 
     MEASURED    written by tools/sound_trims.py, never by hand
     BY_EAR      written by hand after listening; one here wins over MEASURED
@@ -27,7 +27,7 @@ MAX_GAIN = 4.0
 #: The dev's own trims, by file name without ``.wav``.  These win over MEASURED.
 BY_EAR: dict[str, float] = {
     # The bosses' approach, the loudest loops, put back over the mix instead of cut 5 and
-    # 6 dB (tunmi13productions, 2026-09-28; aidocks/project_boss_loudness_plan.md).
+    # 6 dB (tunmi13productions, 2026-09-28; aidocks/completed/boss_loudness_plan.md).
     'zombies_boss_1_coming_cave': 3.0,
     'zombies_boss_3_coming_forest': 3.0,
     # The woman who heals you, as recorded: her thank you boosted 11 dB was far too loud

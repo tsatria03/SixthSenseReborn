@@ -1,11 +1,11 @@
 ---
-name: project_gameplay_gain_plan
+name: gameplay_gain_plan
 description: "FINISHED 2026-09-26, confirmed by tunmi13productions, who asked for it. A gameplay gain of 0 to 6 dB (listener gain up to 2.0) that raises every sound during play without changing the balance, plus weapons, entities and player volumes (0 to 100) to change the balance. Page Up and Page Down with modifiers during play, saved in settings.json, spoken in both modes."
 metadata:
   type: project
 ---
 
-**Status: FINISHED, 2026-09-26, confirmed by tunmi13productions ("sounds right").** Asked for and agreed by tunmi13productions (the "dev" quoted below), recorded before any code ([[feedback_record_plans_first]]). Builds on [[project_volume_knobs]] and [[project_volume_settings_plan]].
+**Status: FINISHED, 2026-09-26, confirmed by tunmi13productions ("sounds right").** Asked for and agreed by tunmi13productions (the "dev" quoted below), recorded before any code ([[feedback_record_plans_first]]). Builds on [[project_volume_knobs]] and [[volume_settings_plan]].
 
 **What was built:**
 - `platform/volume.py`: `GAMEPLAY_GAIN_KEY`, `WEAPON_KEY`, `ENTITY_KEY`, `PLAYER_KEY` (the three groups joined `VOLUME_KEYS`), `gameplay_gain_db`, `valid_gain_db`, `step_gain_db`, `step_percent` (now shared with the menu music), `group_of`, `group_gain`, `gameplay_gain`. `load` reads and writes `GAMEPLAYGAIN` too.
@@ -17,7 +17,7 @@ metadata:
 - Tests: new `tests/case/gameplay_volume.py` (7); `tests/case/volume.py` 14 (two new, two updated for the new keys). The covering files all passed on 2026-09-26: volume, gameplay_volume, menu_music, input, monster_sound, music_memory, audio_device, save, paths, weapon_range, gameplay, tutorial, pause, menu, intro, store, window, data, weapon_stats.
 - Docs: readme.txt ("Volume during a game", "Your save"), README.md, DIVERGENCES.md, changelog, todo list (unfinished).
 
-**Superseded on 2026-09-27:** the recordings, the guns' included, are now levelled to one loudness by [[project_sound_trims_plan]], a fixed table no player sees, so the guns are even without a per-gun setting. **Declined the same day:** a per-gun trim to even out the guns' recordings (the shotgun's fire is about 3 dB louder than the AK's, measured; every gun fires at the 1.0 cap, so only the loud ones could come down): "adding per gun volume would make things complex". Also not done: letting entities go to 150%.
+**Superseded on 2026-09-27:** the recordings, the guns' included, are now levelled to one loudness by [[sound_trims_plan]], a fixed table no player sees, so the guns are even without a per-gun setting. **Declined the same day:** a per-gun trim to even out the guns' recordings (the shotgun's fire is about 3 dB louder than the AK's, measured; every gun fires at the 1.0 cap, so only the loud ones could come down): "adding per gun volume would make things complex". Also not done: letting entities go to 150%.
 
 **The dev's request:** "is there possibly a way to increase game volume without affecting zombies overall? ... I could crank up, say, gameplay volume or something, so I can hear the zombies better. but without messing with zombie volumes and screwing them up. sort of like a gain knob". Then: "should we make individual volumes then? weapons volume, zombie volume, that sort?"
 
@@ -58,4 +58,4 @@ New keys after `AMBIENCEVOLUME` and before `EYEMODE`: `GAMEPLAYGAIN` (0 to 6, an
 - `tests/case/volume.py`: defaults leave every gain exactly the binary's; each group moves only its own sounds; the gain sets the listener and leaves music and ambience as they were; bad values fall back; the keys step, hold at the ends and save.
 - `docks/readme.txt` (the keys and the settings), `README.md`, `aidocks/DIVERGENCES.md` (the volume knobs entry), `project_volume_knobs.md`, the F1 screen's fixed keys, and a changelog line.
 
-**Changed 2026-09-28:** the entities' volume (`ENTITYVOLUME`, Control) was removed; they are always at full volume ([[project_entity_full_volume_plan]]).
+**Changed 2026-09-28:** the entities' volume (`ENTITYVOLUME`, Control) was removed; they are always at full volume ([[entity_full_volume_plan]]).

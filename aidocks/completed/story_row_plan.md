@@ -1,5 +1,5 @@
 ---
-name: project_story_row_plan
+name: story_row_plan
 description: "FINISHED 2026-09-23, confirmed by the dev: a third row on the opening screen that tells the game's story, \"As the ozone\" (15), which the original recorded but never plays, with the intro music (bgm_start_end at 0.05) under it in both speech modes. tunmi13productions' idea; the dev's answers to the three questions."
 metadata:
   type: project

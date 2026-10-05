@@ -5,7 +5,7 @@ K-weighted, 400 ms blocks, gated at -70 LUFS and 10 LU under the mean) and its s
 peak, and gives it the trim that brings it to ``TARGET_LUFS``, a boost no more than
 ``MAX_BOOST_DB``, and never a cut in ``NEVER_CUT``.  Then it rewrites the ``MEASURED`` block of
 ``sixthsense/platform/sound_trims.py``; ``BY_EAR`` is never touched.
-aidocks/project_sound_trims_plan.md has why.
+aidocks/completed/sound_trims_plan.md has why.
 
 It prints one line per file, folder by folder, and makes no sound.  Standard library
 only.
@@ -39,7 +39,7 @@ MAX_BOOST_DB = 12.0
 STEP_DB = 0.5
 #: The folders under used/ whose sounds are only ever boosted: the zombies, the bosses,
 #: the monster and the woman, which the player listens for (tunmi13productions, 2026-09-28;
-#: aidocks/project_entity_full_volume_plan.md).
+#: aidocks/completed/entity_full_volume_plan.md).
 NEVER_CUT = ('sfx/zombies', 'sfx/monsters', 'sfx/characters')
 
 

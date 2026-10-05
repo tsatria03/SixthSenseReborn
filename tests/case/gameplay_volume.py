@@ -1,6 +1,6 @@
 """The gameplay gain and the weapons, entities and player volumes, set in play.
 
-A PORT ADDITION (tunmi13productions, 2026-09-26; aidocks/project_gameplay_gain_plan.md).  The gain
+A PORT ADDITION (tunmi13productions, 2026-09-26; aidocks/completed/gameplay_gain_plan.md).  The gain
 is OpenAL's listener gain, 0 to 6 dB, heard only in play, and it leaves the music and the
 ambience where they were; the three groups are percentages that move only their own
 sounds; Page Up and Page Down step them, with Shift, Control or Alt for a group.
