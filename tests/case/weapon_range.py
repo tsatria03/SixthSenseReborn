@@ -25,7 +25,6 @@ def _range(slot=4):
     app = AppDelegate.shared()
     if app.playback is None:
         app.didFinishLaunching()
-    app.mode = 1                              # voice over on: the recordings play
     RunLoop.main().reset()
     played = []
     real = app.playSound_Gain_Pos_z_reprats_
@@ -92,8 +91,10 @@ def test_it_sends_tier_1_zombies_three_at_most():
 
 def test_five_kills_win_and_pay_twelve_percent_of_the_score():
     """0x45be6: five kills stop the clock and play bgm_game_complete (90); 8 s later
-    MissionSuccessTell pays int(score * 0.12) into GOLD and says game over (354)."""
+    MissionSuccessTell pays int(score * 0.12) into GOLD and says game over."""
     app, st, played = _range()
+    said = []
+    st._say = said.append
     try:
         p = st.gamePlayer
         p.killMonsterCount = 5
@@ -104,28 +105,36 @@ def test_five_kills_win_and_pay_twelve_percent_of_the_score():
         assert st.gameState == 2 and st.missionCompletSounding
         st.MissionSuccessTell()
         assert app.haveGold == gold0 + 90, (gold0, app.haveGold)
-        assert played[-1] == 354, played[-3:]
+        assert said[-1] == 'Game over.', said
         assert st.bStop
     finally:
         _done(app, st)
 
 
 def test_the_panel_has_no_rank_and_its_last_row_is_back():
-    """0x43c24: rows 1 to 8 only, in every state.  Row 1 is 227 after a win, 228 after a
-    death and 229 when paused; row 6 only speaks while paused (223); row 8 is back (13)."""
+    """0x43c24: rows 1 to 8 only, in every state.  Row 1 names the state, row 6 only
+    speaks while paused, and row 8 is back; all spoken through the screen reader."""
     app, st, played = _range()
+    said = []
+    st._say = said.append
     try:
         st.gameState = 2
         assert st.pause_rows() == (1, 2, 3, 4, 5, 6, 7, 8)
-        assert st.pause_select(1) == 227
-        assert st.pause_select(6) is None, 'row 6 spoke after a win'
-        assert st.pause_select(8) == 13
+        st.pause_select(1)
+        assert said[-1] == 'Mission success'
+        st.pause_select(6)
+        assert said[-1] == '', 'row 6 spoke after a win'
+        st.pause_select(8)
+        assert said[-1] == 'Back, Button'
         st.gameState = 3
-        assert st.pause_select(1) == 228
+        st.pause_select(1)
+        assert said[-1] == 'Mission fail'
         st.gameState = 1
         assert 6 in st.pause_rows()
-        assert st.pause_select(1) == 229
-        assert st.pause_select(6) == 223
+        st.pause_select(1)
+        assert said[-1] == 'Paused'
+        st.pause_select(6)
+        assert said[-1] == 'Continue, Button'
     finally:
         _done(app, st)
 

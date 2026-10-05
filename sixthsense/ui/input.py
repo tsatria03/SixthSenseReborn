@@ -164,6 +164,21 @@ class Input:
             for key in keys:
                 self.handle(key, pygame)
             return
+        if getattr(st, 'waiting', None) and event.type == pygame.CONTROLLERBUTTONDOWN:
+            # the tutorial is waiting: A goes on, Y says it again, B and Start still leave,
+            # and nothing else does anything
+            if event.button == pygame.CONTROLLER_BUTTON_A:
+                st.tutorial_advance()
+                return
+            if event.button == pygame.CONTROLLER_BUTTON_Y:
+                st.tutorial_repeat()
+                return
+            if event.button not in (pygame.CONTROLLER_BUTTON_B, pygame.CONTROLLER_BUTTON_START):
+                return
+        elif getattr(st, 'waiting', None):
+            self._aim_reset()
+            self._dpad_reset()
+            return
         way = {pygame.CONTROLLER_BUTTON_DPAD_UP: 'up', pygame.CONTROLLER_BUTTON_DPAD_DOWN: 'down',
                pygame.CONTROLLER_BUTTON_DPAD_LEFT: 'left',
                pygame.CONTROLLER_BUTTON_DPAD_RIGHT: 'right'}.get(getattr(event, 'button', None))
@@ -318,10 +333,10 @@ class Input:
                 st.pause_activate()
             else:
                 st.pause_move(1)          # nothing chosen yet: start at the top
-        elif name in ('home', 'end') and st.app.screen_reader:
+        elif name in ('home', 'end'):
             # the screen reader mode: the first row or the last, as its lists go
             st.pause_jump(last=(name == 'end'))
-        elif name in ('left', 'right') and st.app.screen_reader:
+        elif name in ('left', 'right'):
             # ...and Left and Right as VoiceOver's flicks: right is the next row
             st.pause_move(1 if name == 'right' else -1)
         else:
@@ -351,6 +366,14 @@ class Input:
                 self.open_bindings = True
                 return
             if gameplay_volume_key(name, getattr(event, 'mod', 0), self.stage, pygame):
+                return
+            if getattr(self.stage, 'waiting', None):
+                # the tutorial is waiting: Enter goes on, any other key says it again and
+                # does nothing else, so the player cannot shoot or reload past the lesson
+                if name in ('return', 'enter'):
+                    self.stage.tutorial_advance()
+                elif not name.endswith(('shift', 'ctrl', 'alt', 'meta', 'lock')):
+                    self.stage.tutorial_repeat()
                 return
             held_already = name in self.keymap.held
             action, pending = self.keymap.press(name)

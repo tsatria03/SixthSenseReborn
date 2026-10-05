@@ -47,9 +47,10 @@ def _run(loop, seconds, until=None):
     return False
 
 
-def test_the_level_waits_for_now_loading_to_finish():
+def test_the_level_waits_for_its_loading_delay():
     """0x2d45e: the level's own ambience and music used to start the instant
-    MapInitInBundle ran, talking over Now Loading (46) played just before it."""
+    MapInitInBundle ran.  The "Now loading" recording that played before it is gone
+    (2026-10-05), and nothing plays in its place."""
     S1E.LOADING_SECONDS = 0.3
     d = UserDefaults.standardUserDefaults()
     d.setObject_forKey_('1', 'TUTORIAL')
@@ -65,8 +66,8 @@ def test_the_level_waits_for_now_loading_to_finish():
     st = Stage_1_E()
     try:
         st.viewDidLoad()
-        assert 46 in played, 'Now Loading did not play'
-        assert st.stage is None, 'the level loaded before Now Loading had time to finish'
+        assert 46 not in played, 'Now Loading still plays'
+        assert st.stage is None, 'the level loaded before its loading delay'
         _run(RunLoop.main(), 0.15)
         assert st.stage is None, 'MapInitInBundle ran before LOADING_SECONDS was up'
         _run(RunLoop.main(), 0.3)
@@ -77,10 +78,10 @@ def test_the_level_waits_for_now_loading_to_finish():
         S1E.LOADING_SECONDS = _REAL_LOADING_SECONDS
 
 
-def test_the_menu_music_does_not_stop_before_now_loading_plays():
+def test_the_menu_music_does_not_stop_before_the_level_loads():
     """viewDidLoad used to call BGMusicStop before Now Loading ever played, so the
     menu music could cut to silence before the player heard anything.  It must
-    keep playing under Now Loading and only stop once MapInitInBundle runs."""
+    keep playing and only stop once MapInitInBundle runs."""
     S1E.LOADING_SECONDS = 0.3
     d = UserDefaults.standardUserDefaults()
     d.setObject_forKey_('1', 'TUTORIAL')
@@ -95,7 +96,7 @@ def test_the_menu_music_does_not_stop_before_now_loading_plays():
     st = Stage_1_E()
     try:
         st.viewDidLoad()
-        assert not stopped, 'the menu music stopped before Now Loading played'
+        assert not stopped, 'the menu music stopped before the level loaded'
         _run(RunLoop.main(), 0.5, until=lambda: stopped)
         assert stopped, 'the menu music never stopped'
     finally:

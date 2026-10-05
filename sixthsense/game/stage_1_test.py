@@ -35,7 +35,7 @@ from ..platform.defaults import UserDefaults
 from ..platform.runloop import RunLoop
 from .player_control import PlayerControl
 from . import stage_1_e
-from .stage_1_e import (MONSTER_ARRAY, SOUND_NOW_LOADING,
+from .stage_1_e import (MONSTER_ARRAY,
                         SOUND_PLAYER_DIE, SOUND_SWORD_START, Stage_1_E, arc4random)
 
 log = logging.getLogger('test')
@@ -79,8 +79,6 @@ class Stage_1_TEST(Stage_1_E):
     # -[Stage_1_TEST viewDidLoad] 0x40468
     def viewDidLoad(self):
         self._gameplay_gain_on()
-        self.app.playSound_Gain_Pos_z_reprats_(
-            SOUND_NOW_LOADING, 0.2, (0.0, 0.0), 0, False)          # 0x41082
         self.isTutorial = 1                                         # 0x409c2
         self._new_player()                                          # 0x409f4..0x40bf2
         self.MonsterBuffer = []                                     # 0x40d06
@@ -283,22 +281,6 @@ class Stage_1_TEST(Stage_1_E):
         if row == 8:
             return 'Back, Button'
         return super().pause_row_text(row)
-
-    def pause_select(self, row):
-        """-[Stage_1_TEST selectTapPointSoundStart] 0x43c24.  Rows 1 and 6 name
-        themselves by the state (0x4427c, 0x44688); the rest are the stage's."""
-        if row not in (1, 6) or self.app.screen_reader:
-            return super().pause_select(row)
-        self.selectMenu = row
-        self.StopElseSpeak()
-        if row == 1:
-            sound = {3: SOUND_MISSION_FAIL, 2: SOUND_MISSION_SUCCESS,
-                     1: SOUND_PAUSED}.get(self.gameState)            # 0x446e2, 0x4429a, 0x4470e
-        else:
-            sound = SOUND_CONTINUE if self.gameState == 1 else None  # 0x449fc
-        if sound is not None:
-            self.app.playSound_Gain_Pos_z_reprats_(sound, 0.2, (0.0, 0.0), 0, False)
-        return sound
 
     # -[Stage_1_TEST gameReplayAction:] 0x46d70
     def gameReplayAction_(self, *_):

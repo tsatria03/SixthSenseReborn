@@ -85,8 +85,7 @@ log = logging.getLogger('tutorial')
 # until these are done.  FiveHalf and Nine are not tested.
 STOP_NEEDS = ('One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight')
 ENDING_DELAY = 3.05                 # 0x83ab4: 0x4008666660000000
-COUNTDOWN = 321                     # 0x33c00: TTSNumber:321 type:1, "3, 2, 1"
-COUNTDOWN_SECONDS = 6.0             # 0x33c28: 0x4018000000000000
+COUNTDOWN_SECONDS = 4.0             # 0x33c28 waited 6.0 s for the digits, one a second
 
 # What each action needs done before it counts, from the guards in front of each
 # flag it sets.  A kill needs nothing: only the beat's own monster is ever out.
@@ -103,24 +102,28 @@ NEXT_DELAY = {'Seven': 1.5, 'Eight': 1.5}
 # not yet done; that only moves the hint finger, so no prompt is replayed by it.
 NAGGED = ('One', 'Two', 'Three', 'Four', 'Five', 'FiveHalf', 'Six')
 
-# name, prompt sound, seconds before SoundStop, the monster it spawns (or None)
+# name, what the screen reader says first, the monster it sends in (or None).
+# PORT DIVERGENCE (tunmi13productions, 2026-10-05; aidocks/project_screen_reader_only_plan.md):
+# the original played a recording (275..284, 361) and sent the monster in 9.5 s later (6.5
+# for Eight), the recording's length.  Here a beat that sends one in says its words, the keys
+# or the controller's buttons (KEY_HINTS, CONTROLLER_HINTS) and then waits for Enter (a pad's
+# A); the other beats only speak.
 BEATS = [
-    ('One', 275, 9.5, 1),
-    ('Two', 276, 9.5, 2),
-    ('Three', 277, 9.5, 3),
-    ('Four', 278, 9.5, 4),
-    ('Five', 279, 9.5, 5),
-    ('FiveHalf', 361, 9.5, 63),
-    ('Six', 280, 9.5, None),
-    ('Seven', 281, 9.5, None),
-    ('Eight', 282, 6.5, 73),
-    ('Nine', 284, 9.5, None),
+    ('One', "This game uses a clock face to decide where to shoot. Start with this zombie, which is coming from 9 o'clock.", 1),
+    ('Two', 'A zombie is coming from 10:30.', 2),
+    ('Three', "A zombie is coming from 12 o'clock.", 3),
+    ('Four', 'A zombie is coming from 1:30.', 4),
+    ('Five', "A zombie is coming from 3 o'clock.", 5),
+    ('FiveHalf', "Zombies get tougher as the game goes on, and some take more than one shot to kill. Here comes one from 12 o'clock. Tip: if you shoot a zombie while it is not breathing, you get a headshot, which is useful against zombies with lots of health.", 63),
+    ('Six', "Unlike in this tutorial, you will not have endless bullets in the real game, so let's practice reloading.", None),
+    ('Seven', 'You can change weapons at any time. You start with only a Colt and grenades, but you can buy more weapons later.', None),
+    ('Eight', "An animal zombie is coming. You can shoot it, but later on it may move too fast for you to get a shot in, so shaking it off is the best way to deal with it. Try it.", 73),
+    ('Nine', 'Congratulations! You are ready to play the game.', None),
 ]
 BEAT_NAMES = [b[0] for b in BEATS]
 
-#: PORT ADDITION: with voice over off, what the screen reader says once a beat's
-#: recording has finished, naming the player's own keys for the gesture it teaches.
-#: FiveHalf teaches no new gesture, so it has none.
+#: PORT ADDITION: what the screen reader says after a beat's words, naming the player's own
+#: keys for the gesture it teaches.  FiveHalf teaches no new gesture, so it has none.
 KEY_HINTS = {
     'One': ('lane1', "Press {} to shoot toward 9 o'clock."),
     'Two': ('lane2', 'Press {} to shoot toward 10:30.'),
@@ -174,8 +177,11 @@ def _merge_sides(bindings):
             for b in bindings]
 
 
-SOUND_TUTORIAL_SUCCESS = 327        # 'tutorial success'
-SOUND_ZOMBIES_COMING = 328          # 'zombies are coming'
+# PORT DIVERGENCE (2026-10-05): the recordings 'tutorial success' (327), '3, 2, 1' (321) and
+# 'zombies are coming' (328) are said by the screen reader.
+TEXT_TUTORIAL_SUCCESS = 'Tutorial success.'
+TEXT_COUNTDOWN = '3, 2, 1.'
+TEXT_ZOMBIES_COMING = 'Zombies are coming.'
 
 # -[Stage_Tutorial MonsterDamage] 0x8a250 - a kill in lane N finishes beat N.
 LANE_BEAT = {1: 'One', 2: 'Two', 3: 'Three', 4: 'Four', 5: 'Five'}
@@ -199,6 +205,11 @@ class Stage_Tutorial(Stage_1_E):
         self.beat_done = {n: False for n in BEAT_NAMES}
         self.beat_flag = {n: False for n in BEAT_NAMES}   # the oneFlag..nineFlag pair
         self.current_beat = None
+        #: the beat whose words are said and that waits for Enter before its zombie
+        #: comes in, or None
+        self.waiting = None
+        self.line = ''             # what it said, for repeating
+        self.told_repeat = False   # the first wait also says how to hear it again
         self.finished = False
         self.warn_if_not_walking = False      # standing still is the point here
 
@@ -234,37 +245,77 @@ class Stage_Tutorial(Stage_1_E):
     def _beat(self, name):
         return BEATS[BEAT_NAMES.index(name)]
 
-    # -[Stage_Tutorial tutorialN] - play the instruction, show the hint
-    def tutorial_beat(self, name):
-        _n, sound, delay, _spawn = self._beat(name)
+    # -[Stage_Tutorial tutorialN] - say the instruction, show the hint
+    def tutorial_beat(self, name, restart=False):
+        _n, text, spawn = self._beat(name)
         self.current_beat = name
-        self.beat_flag[name] = False           # the prompt is playing again
-        self.app.playSound_Gain_Pos_z_reprats_(sound, 0.2, (0.0, 0.0), 0, False)
+        self.beat_flag[name] = False           # the prompt is said again
         RunLoop.main().cancelPerform(self, 'tutorial_sound_stop')
-        RunLoop.main().perform(self, 'tutorial_sound_stop', name, delay)
+        # The animal zombie is already on you when its beat is said again (the grab
+        # landed), and the pad's A, which would continue, is what shakes it off.
+        waits = spawn is not None and not (restart and name == 'Eight')
+        parts = [text]
+        hint = self.callout(name)
+        if hint is not None:
+            parts.append(hint)
+        if waits:
+            parts.append(self.continue_prompt())
+        self.line = ' '.join(parts)
+        self.waiting = name if waits else None
+        self._say(self.line)
+        if not waits:
+            self.tutorial_sound_stop(name, send=False)
         self.tutorialHiddenView()
-        log.info('tutorial %s: %s', name, self.app.returnFileName_(sound))
+        log.info('tutorial %s: %s', name, self.line)
 
-    # -[Stage_Tutorial tutorialNSoundStop] - stop the prompt, send in the monster
-    def tutorial_sound_stop(self, name=None):
+    def continue_prompt(self):
+        """How to go on, and the first time how to hear the beat again."""
+        pad = self.app.controller_name()
+        if pad is not None:
+            names = button_names(pad)
+            prompt = 'Press %s to continue' % names['a']
+            again = ', or %s to hear this again.' % names['y']
+        else:
+            prompt = 'Press Enter to continue'
+            again = ', or any other key to hear this again.'
+        if self.told_repeat:
+            return prompt + '.'
+        self.told_repeat = True
+        return prompt + again
+
+    def tutorial_advance(self):
+        """Enter, or a pad's A, on a beat that waits: cut the speech and send its zombie."""
+        name = self.waiting
+        if name is None or self.finished:
+            return False
+        self.waiting = None
+        if self.speech is not None:
+            self.speech.stop()
+        self.tutorial_sound_stop(name)
+        return True
+
+    def tutorial_repeat(self):
+        """Any other key, or a pad's Y, on a beat that waits: say it again."""
+        if self.waiting is None or self.finished:
+            return False
+        self._say(self.line)
+        return True
+
+    # -[Stage_Tutorial tutorialNSoundStop] - send in the monster
+    def tutorial_sound_stop(self, name=None, send=True):
         name = name or self.current_beat
         if name is None:
             return
-        _n, sound, _delay, spawn = self._beat(name)
+        _n, _text, spawn = self._beat(name)
         if name == 'Eight':
             # 0x8e1a8: the animal zombie is not to be shot; it is there to grab you.
             self.noAtt = True
-        self.app.stopSoundBufNumber_(sound)
         self.beat_flag[name] = True            # PORT: the prompt has finished
-        hint = self.callout(name)
-        if hint is not None:
-            self._say(hint)
-        if spawn is not None:
+        if send and spawn is not None:
             self.MonsterInit_(spawn)
 
     def controller_hint(self, name):
-        """PORT ADDITION: this beat's gesture on the attached controller, in either voice
-        over mode, or None with no controller or for a beat that teaches nothing."""
+        """PORT ADDITION: this beat's gesture on the attached controller, or None with no controller or for a beat that teaches nothing."""
         pad = self.app.controller_name()
         if pad is None or name not in CONTROLLER_HINTS:
             return None
@@ -273,15 +324,14 @@ class Stage_Tutorial(Stage_1_E):
         return CONTROLLER_HINTS[name].format(**button_names(pad))
 
     def callout(self, name):
-        """What is said after a beat's recording: the controller's way when one is attached,
-        otherwise the keys, with voice over off."""
+        """What is said after a beat's words: the controller's way when one is attached,
+        otherwise the keys."""
         hint = self.controller_hint(name)
         return hint if hint is not None else self.key_hint(name)
 
     def key_hint(self, name):
-        """PORT ADDITION: the keys for this beat's gesture, with voice over off.  Every
-        recording ends before its SoundStop, so the hint never talks over it."""
-        if not self.app.screen_reader or name not in KEY_HINTS:
+        """PORT ADDITION: the keys for this beat's gesture."""
+        if name not in KEY_HINTS:
             return None
         action, text = KEY_HINTS[name]
         keys = []
@@ -324,7 +374,7 @@ class Stage_Tutorial(Stage_1_E):
     # -[Stage_Tutorial tutorialNRestart] - the prompt again, and its monster after it
     def tutorial_restart(self, name):
         if not self.finished and not self.beat_done[name]:
-            self.tutorial_beat(name)
+            self.tutorial_beat(name, restart=True)
 
     # -[Stage_Tutorial MonsterAttPlayer] 0x8a908, the tail at 0x3b3b2: no heart is
     # lost; the beat for the monster's lane starts again.
@@ -365,11 +415,8 @@ class Stage_Tutorial(Stage_1_E):
     def NextTutorial(self, *_):
         if self.finished:
             return
-        if self.current_beat is not None:
-            _n, sound, _delay, _spawn = self._beat(self.current_beat)
-            self.app.stopSoundBufNumber_(sound)                # tutorialSoundStop
         if self.speech is not None:
-            self.speech.stop()                                 # ...and its key hint
+            self.speech.stop()                                 # tutorialSoundStop
         for name in BEAT_NAMES:
             if not self.beat_done[name]:
                 self.tutorial_beat(name)
@@ -421,23 +468,19 @@ class Stage_Tutorial(Stage_1_E):
         if self.finished or not all(self.beat_done[n] for n in STOP_NEEDS):
             return
         self.finished = True
+        self.waiting = None
         self.ending = True
         self.beat_done['Nine'] = True
         if self.checkTutorialTimer is not None and self.checkTutorialTimer.isValid():
             self.checkTutorialTimer.invalidate()
         self.checkTutorialTimer = None
-        RunLoop.main().cancelPerform(self, 'tutorial_sound_stop')
         RunLoop.main().cancelPerform(self, 'NextTutorial')
-        if self.current_beat is not None:
-            _n, sound, _delay, _spawn = self._beat(self.current_beat)
-            self.app.stopSoundBufNumber_(sound)
         if self.speech is not None:
             self.speech.stop()
         d = UserDefaults.standardUserDefaults()
         d.setObject_forKey_('1', 'TUTORIAL')                   # 0x839d4
         d.synchronize()
-        self.app.playSound_Gain_Pos_z_reprats_(
-            SOUND_TUTORIAL_SUCCESS, 0.2, (0.0, 0.0), 0, False)   # 0x83a92
+        self._say(TEXT_TUTORIAL_SUCCESS)                       # 0x83a92
         RunLoop.main().perform(self, 'tutorialEnd_', None, ENDING_DELAY)
         log.info('tutorial finished; TUTORIAL = 1')
 
@@ -449,7 +492,7 @@ class Stage_Tutorial(Stage_1_E):
             self.ending = False
             self.GameEndAction_()                              # back to the menu
             return
-        self.app.TTSNumber_type_(COUNTDOWN, 1)                 # 0x33c0e: 3, 2, 1
+        self._say(TEXT_COUNTDOWN)                              # 0x33c0e: 3, 2, 1
         RunLoop.main().perform(self, 'tutorialEndGameStart_', None, COUNTDOWN_SECONDS)
 
     # -[Stage_1_E tutorialEndGameStart:] 0x33d40, the same as Stage_Tutorial's own
@@ -459,8 +502,7 @@ class Stage_Tutorial(Stage_1_E):
         self.noAtt = False                     # 0x83774
         self.shotFlag = False                  # 0x83782
         self.isTutorial = 1                    # 0x83786
-        self.app.playSound_Gain_Pos_z_reprats_(
-            SOUND_ZOMBIES_COMING, 0.2, (0.0, 0.0), 0, False)   # 0x837ae
+        self._say(TEXT_ZOMBIES_COMING)                         # 0x837ae
         self.MotionSamplingTimer = RunLoop.main().scheduledTimer(
             1.0, self, 'MainControl', None, True)              # 0x837ea
 
@@ -468,13 +510,8 @@ class Stage_Tutorial(Stage_1_E):
         if self.checkTutorialTimer is not None and self.checkTutorialTimer.isValid():
             self.checkTutorialTimer.invalidate()
         self.checkTutorialTimer = None
-        # Escape (or any other way out) used to leave whatever beat's prompt was
-        # still playing to run out on its own, right over the menu.
-        if self.current_beat is not None:
-            _n, sound, _delay, _spawn = self._beat(self.current_beat)
-            self.app.stopSoundBufNumber_(sound)
-        if self.speech is not None:            # ...and its key hint
+        # Escape (or any other way out) must not leave a beat's words to run out on
+        # their own, right over the menu.
+        if self.speech is not None:
             self.speech.stop()
-        if self.ending:
-            self.app.readStop()                # the 3, 2, 1
         super().teardown()

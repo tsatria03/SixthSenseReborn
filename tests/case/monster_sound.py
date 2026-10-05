@@ -206,11 +206,12 @@ def test_the_bullet_hit_is_heard_where_the_zombie_is():
         st.teardown()
 
 
-def test_the_headshot_announcement_is_centred():
-    """headshot_4 (330) is stereo, and OpenAL never places a stereo sound, so the
-    announcement is heard in the centre wherever the zombie is, at 0.2, level with every
-    spoken row (a PORT DIVERGENCE of 2026-09-27; the binary's 0.1 is at 0x3a24a)."""
+def test_a_headshot_is_announced_by_the_screen_reader():
+    """A headshot is announced by the screen reader, not the headshot_4 recording
+    (330; a PORT DIVERGENCE of 2026-10-05), and the gun's hit still fades with the zombie."""
     app, st = _new_stage()
+    said = []
+    st._say = said.append
     loop = RunLoop.main()
     st.MonsterInit_(1)                      # lane 1, hard left, far out
     m = st.MonsterBuffer[0]
@@ -231,15 +232,9 @@ def test_the_headshot_announcement_is_centred():
             loop.pump()
             time.sleep(0.004)
         assert st.gamePlayer.HeadShotCount == 1, 'it was not a headshot'
-        note = app.CheckSoundBuf_(330)
+        assert said == ['Headshot!'], said
+        assert app.CheckSoundBuf_(330) == -1, 'the recording still played'
         pb = app.playback
-        sid = pb._sources[note].sourceId
-        assert pb._buffers[note].channels == 2, 'the announcement was made mono'
-        gain = pb.al.source_float(sid, al.AL_GAIN)
-        # 0.2, times the file's own trim (platform/sound_trims.py)
-        want = S1E.HEADSHOT_CALL_GAIN * sound_trims.gain('headshot_4')
-        assert S1E.HEADSHOT_CALL_GAIN == 0.2
-        assert abs(gain - want) < 1e-6, 'the announcement is at %.3f, not %.3f' % (gain, want)
         # the gun's hit fades as the zombie does (a PORT DIVERGENCE of 2026-09-27):
         # the zombie's own 100 and 1600, not playSound:'s 40 and 800
         hit = pb._sources[app.CheckSoundBuf_(56)].sourceId

@@ -1,6 +1,7 @@
 """The ten tutorial beats, and the handoff into the real game.
 
-Shortens the 9.5 s prompts so the whole run fits in a test; nothing else is changed.
+A beat that sends in a zombie waits for Enter; ``_tutorial`` presses it for the test after a
+short pause (``_AUTO``), so the whole run fits, unless it is given ``prompt=None``.
 """
 from __future__ import annotations
 
@@ -21,11 +22,24 @@ from sixthsense.platform.runloop import RunLoop                  # noqa: E402
 LANE = {1: 180.0, 2: 123.0, 3: 90.0, 4: 57.0, 5: 0.0}
 _REAL_BEATS = list(T.BEATS)
 _REAL_LOADING_SECONDS = S1E.LOADING_SECONDS
+_AUTO = [0.4]                  # seconds before Enter is pressed for a waiting beat; None: never
+
+_real_beat = Stage_Tutorial.tutorial_beat
+
+
+def _beat_then_enter(self, name, restart=False):
+    _real_beat(self, name, restart)
+    if _AUTO[0] and self.waiting:
+        RunLoop.main().perform(self, 'tutorial_advance', None, _AUTO[0])
+
+
+Stage_Tutorial.tutorial_beat = _beat_then_enter
 
 
 def _tutorial(prompt=0.4, first_run=False):
-    """A tutorial with short prompts, and TUTORIAL cleared as on a fresh install."""
-    T.BEATS[:] = [(n, s, prompt, sp) for (n, s, _d, sp) in _REAL_BEATS]
+    """A tutorial that goes on by itself ``prompt`` seconds after each wait, and TUTORIAL
+    cleared as on a fresh install."""
+    _AUTO[0] = prompt
     S1E.LOADING_SECONDS = 0.0
     d = UserDefaults.standardUserDefaults()
     d.setObject_forKey_('0', 'TUTORIAL')
@@ -60,20 +74,15 @@ def _pump(loop, seconds, until=None):
 def test_the_beats_are_the_original_ten():
     assert BEAT_NAMES == ['One', 'Two', 'Three', 'Four', 'Five', 'FiveHalf',
                           'Six', 'Seven', 'Eight', 'Nine']
-    prompts = {n: s for n, s, _d, _sp in _REAL_BEATS}
-    # the instruction sounds, from each tutorialN (0x8ca6a and friends)
-    assert prompts == {'One': 275, 'Two': 276, 'Three': 277, 'Four': 278, 'Five': 279,
-                       'FiveHalf': 361, 'Six': 280, 'Seven': 281, 'Eight': 282,
-                       'Nine': 284}
+    # the words said for each beat, which replaced the recordings 275..284 and 361
+    # (2026-10-05); every beat has some
+    prompts = {n: s for n, s, _sp in _REAL_BEATS}
+    assert all(isinstance(t, str) and t for t in prompts.values()), prompts
     # what each beat sends in, from tutorialNSoundStop
-    spawns = {n: sp for n, _s, _d, sp in _REAL_BEATS}
+    spawns = {n: sp for n, _s, sp in _REAL_BEATS}
     assert spawns == {'One': 1, 'Two': 2, 'Three': 3, 'Four': 4, 'Five': 5,
                       'FiveHalf': 63, 'Six': None, 'Seven': None, 'Eight': 73,
                       'Nine': None}
-    # 9.5 s before the prompt is cut off, except beat eight at 6.5 (0x8ca84)
-    delays = {n: d for n, _s, d, _sp in _REAL_BEATS}
-    assert set(delays.values()) == {9.5, 6.5}
-    assert delays['Eight'] == 6.5
 
 
 def test_the_tutorial_does_not_walk():
@@ -97,7 +106,7 @@ def test_replaying_the_tutorial_does_not_read_it_as_finished():
     start the walk timer immediately, and made P run the ordinary in-game pause
     instead of tutorial_skip, since isTutorial is what StopPlayAction_ branches
     on."""
-    T.BEATS[:] = [(n, s, 0.4, sp) for (n, s, _d, sp) in _REAL_BEATS]
+    _AUTO[0] = 0.4
     S1E.LOADING_SECONDS = 0.0
     d = UserDefaults.standardUserDefaults()
     d.setObject_forKey_('1', 'TUTORIAL')          # already finished once before
@@ -124,11 +133,9 @@ def test_replaying_the_tutorial_does_not_read_it_as_finished():
         _restore()
 
 
-def test_the_first_prompt_waits_for_now_loading_to_finish():
-    """0x7d6a2: beat One's prompt used to start the instant MapInitInBundle ran,
-    talking over Now Loading (46, played just before it in -[Stage_1_E
-    viewDidLoad]).  It must wait LOADING_SECONDS first."""
-    T.BEATS[:] = [(n, s, 0.4, sp) for (n, s, _d, sp) in _REAL_BEATS]
+def test_the_first_prompt_waits_for_its_loading_delay():
+    """0x7d6a2: beat One's words must wait LOADING_SECONDS after the stage loads."""
+    _AUTO[0] = 0.4
     S1E.LOADING_SECONDS = 0.3
     d = UserDefaults.standardUserDefaults()
     d.setObject_forKey_('0', 'TUTORIAL')
@@ -137,39 +144,40 @@ def test_the_first_prompt_waits_for_now_loading_to_finish():
     if app.playback is None:
         app.didFinishLaunching()
     RunLoop.main().reset()
-    played = []
-    real_play = app.playSound_Gain_Pos_z_reprats_
-    app.playSound_Gain_Pos_z_reprats_ = \
-        lambda num, *a, **k: (played.append(num), real_play(num, *a, **k))[-1]
+    said = []
     st = Stage_Tutorial()
+    st._say = said.append
     try:
         st.viewDidLoad()
-        assert 46 in played, 'Now Loading did not play'
-        assert 275 not in played, 'beat One spoke before Now Loading had time to finish'
+        assert not said, 'beat One spoke before the loading delay'
         _pump(RunLoop.main(), 0.15)
-        assert 275 not in played, 'beat One started before LOADING_SECONDS was up'
+        assert not said, 'beat One started before LOADING_SECONDS was up'
         _pump(RunLoop.main(), 0.3)
-        assert 275 in played, 'beat One never started'
+        assert said and said[0].startswith(T.BEATS[0][1]), 'beat One never started'
     finally:
-        app.playSound_Gain_Pos_z_reprats_ = real_play
         st.teardown()
         _restore()
 
 
 def test_leaving_the_tutorial_stops_the_current_prompt():
-    """teardown() invalidated checkTutorialTimer but never stopped whatever beat's
-    prompt was still playing, so it kept going right over the menu."""
+    """teardown() must silence whatever beat is still being spoken, so it does not run
+    on over the menu."""
     st = _tutorial(prompt=0.4)
-    real_stop = st.app.stopSoundBufNumber_
+
+    class _Speech:
+        stopped = 0
+
+        def speak(self, text, interrupt=True):
+            return True
+
+        def stop(self):
+            _Speech.stopped += 1
+    st.speech = _Speech()
     try:
         assert st.current_beat == 'One'
-        stopped = []
-        st.app.stopSoundBufNumber_ = \
-            lambda num: (stopped.append(num), real_stop(num))[-1]
         st.teardown()
-        assert 275 in stopped, "beat One's own prompt was not stopped"
+        assert _Speech.stopped, "beat One's words were not stopped"
     finally:
-        st.app.stopSoundBufNumber_ = real_stop
         _restore()
 
 
@@ -188,20 +196,19 @@ def test_a_beat_prompts_then_sends_its_monster():
         _restore()
 
 
-def test_voice_over_off_adds_the_keys_after_the_prompt():
-    """PORT ADDITION: with voice over off, the key hint follows the recording, and
-    names the player's own bindings."""
+def test_a_beat_says_its_words_then_the_keys():
+    """PORT ADDITION: each beat says its words and then the player's own bindings, in one
+    line, whatever voice over says."""
     from sixthsense.platform.keymap import KeyMap
     st = _tutorial(prompt=0.4)
     app = st.app
     km = KeyMap.shared()
-    saved_mode, saved_bindings = app.mode, dict(km.bindings)
+    saved_bindings = dict(km.bindings)
+    saved_pads = app.controllers
     said = []
     st._say = said.append
     try:
-        app.mode = 1
-        assert st.key_hint('One') is None, 'voice over on should stay recordings only'
-        app.mode = 0
+        app.controllers = None
         km.bindings = {a: list(b) for a, b in km.bindings.items()}
         km.bindings['lane1'] = [('a',), ('left',)]
         km.bindings['reload'] = [('s',), ('r',), ('down',)]
@@ -219,12 +226,18 @@ def test_voice_over_off_adds_the_keys_after_the_prompt():
         km.bindings['lane1'] = []
         assert st.key_hint('One') is None, 'an unbound action should say nothing'
         km.bindings['lane1'] = [('a',), ('left',)]
-        assert not said, 'the hint was spoken over the recording'
-        _pump(RunLoop.main(), 3.0, until=lambda: bool(said))
-        assert said == ["Press A or Left Arrow to shoot toward 9 o'clock."], said
+        st.tutorial_beat('One')
+        assert said == [_REAL_BEATS[0][1] + " Press A or Left Arrow to shoot toward 9 o'clock."
+                        ' Press Enter to continue.'], said
+        said.clear()
+        st.tutorial_beat('FiveHalf')
+        assert said == [_REAL_BEATS[5][1] + ' Press Enter to continue.'], said
+        said.clear()
+        _pump(RunLoop.main(), 3.0, until=lambda: bool(st.MonsterBuffer))
+        assert len(said) == 0, 'the monster coming in said something more: %r' % said
     finally:
-        app.mode = saved_mode
         km.bindings = saved_bindings
+        app.controllers = saved_pads
         st.teardown()
         _restore()
 
@@ -239,12 +252,12 @@ class _Pads:
         self.pads = [_Pad(n) for n in names]
 
 
-def test_a_controller_gets_its_own_callouts_in_either_voice_over_mode():
+def test_a_controller_gets_its_own_callouts():
     """tunmi13productions, 2026-10-05: with a pad attached the tutorial says the controller's way,
-    stick first and the D-pad as the alternative, whether voice over is on or off."""
+    stick first and the D-pad as the alternative."""
     st = _tutorial(prompt=0.4)
     app = st.app
-    saved_mode, saved_pads = app.mode, app.controllers
+    saved_pads = app.controllers
     said = []
     st._say = said.append
     try:
@@ -262,17 +275,14 @@ def test_a_controller_gets_its_own_callouts_in_either_voice_over_mode():
             'Eight': 'Press A a few times to shake the zombie off.',
             'Nine': 'Press B or Start to end the tutorial.',
         }
-        for mode in (1, 0):                              # voice over on, then off
-            app.mode = mode
-            for name, text in want.items():
-                assert st.callout(name) == text, (mode, name, st.callout(name))
-            assert st.callout('FiveHalf') is None, 'FiveHalf teaches nothing new'
-        app.mode = 1
-        assert not said
-        _pump(RunLoop.main(), 3.0, until=lambda: bool(said))
-        assert said == [want['One']], said
+        for name, text in want.items():
+            assert st.callout(name) == text, (name, st.callout(name))
+        assert st.callout('FiveHalf') is None, 'FiveHalf teaches nothing new'
+        said.clear()
+        st.tutorial_beat('One')
+        assert said == [_REAL_BEATS[0][1] + ' ' + want['One'] + ' Press A to continue.'], said
     finally:
-        app.mode, app.controllers = saved_mode, saved_pads
+        app.controllers = saved_pads
         st.teardown()
         _restore()
 
@@ -297,19 +307,16 @@ def test_a_playstation_pad_hears_playstation_button_names():
 def test_without_a_controller_the_keyboard_hints_stand_as_they_were():
     st = _tutorial(prompt=0.4)
     app = st.app
-    saved_mode, saved_pads = app.mode, app.controllers
+    saved_pads = app.controllers
     try:
         app.controllers = None
         assert app.controller_name() is None
         app.controllers = _Pads()
         assert app.controller_name() is None, 'a controller list with nothing in it'
-        app.mode = 1
-        assert st.callout('One') is None, 'voice over on, no pad: recordings only'
-        app.mode = 0
         assert st.callout('One') == st.key_hint('One') and st.callout('One') is not None
         assert 'stick' not in st.callout('One')
     finally:
-        app.mode, app.controllers = saved_mode, saved_pads
+        app.controllers = saved_pads
         st.teardown()
         _restore()
 
@@ -325,9 +332,8 @@ def test_the_shake_is_only_offered_when_the_pad_can_sense_one():
             return self.can
     st = _tutorial(prompt=0.4)
     app = st.app
-    saved = (app.controllers, app.shake, app.mode)
+    saved = (app.controllers, app.shake)
     try:
-        app.mode = 1
         app.controllers = _Pads('Xbox One Controller')
         app.shake = _CanShake(False)
         assert st.callout('Eight') == 'Press A a few times to shake the zombie off.'
@@ -339,10 +345,9 @@ def test_the_shake_is_only_offered_when_the_pad_can_sense_one():
                                        'to shake the zombie off.')
         assert st.callout('One') == "Push the left stick left to shoot toward 9 o'clock, or press D-pad left."
         app.controllers = None
-        app.mode = 0
         assert 'shake the controller' not in (st.callout('Eight') or ''), 'no pad, no shaking offered'
     finally:
-        app.controllers, app.shake, app.mode = saved
+        app.controllers, app.shake = saved
         st.teardown()
         _restore()
 
@@ -426,30 +431,27 @@ def test_p_ends_the_tutorial_row_back_at_the_menu():
     tutorialEnd:] (0x83738) is GameEndAction:."""
     st = _tutorial(prompt=0.4)
     loop = RunLoop.main()
-    played = []
-    real_play = st.app.playSound_Gain_Pos_z_reprats_
-    st.app.playSound_Gain_Pos_z_reprats_ = \
-        lambda num, *a, **k: (played.append(num), real_play(num, *a, **k))[-1]
+    said = []
+    st._say = said.append
     try:
         calls = []
         real_beat = st.tutorial_beat
-        st.tutorial_beat = lambda name: (calls.append(name), real_beat(name))[-1]
+        st.tutorial_beat = lambda name, **k: (calls.append(name), real_beat(name, **k))[-1]
         for n in T.STOP_NEEDS:
             st.beat_done[n] = True
         st.StopPlayAction_()
         assert st.beat_done['Nine'] and st.finished
         assert st.checkTutorialTimer is None, 'CheckTutorial is still running'
         assert UserDefaults.standardUserDefaults().intForKey_('TUTORIAL') == 1
-        assert T.SOUND_TUTORIAL_SUCCESS in played
+        assert T.TEXT_TUTORIAL_SUCCESS in said
         st.StopPlayAction_()                   # a second P while it ends
         assert st.gameState == 0, 'P paused the ending'
         assert st.running
         assert _pump(loop, 4.0, until=lambda: not st.running), 'never went back to the menu'
         assert not calls, 'a prompt restarted after the tutorial ended'
-        assert T.SOUND_ZOMBIES_COMING not in played
+        assert T.TEXT_ZOMBIES_COMING not in said
         assert st.MotionSamplingTimer is None, 'the tutorial row started the game'
     finally:
-        st.app.playSound_Gain_Pos_z_reprats_ = real_play
         st.teardown()
         _restore()
 
@@ -463,7 +465,7 @@ def test_the_once_a_second_check_never_replays_a_prompt():
     try:
         calls = []
         real_beat = st.tutorial_beat
-        st.tutorial_beat = lambda name: (calls.append(name), real_beat(name))[-1]
+        st.tutorial_beat = lambda name, **k: (calls.append(name), real_beat(name, **k))[-1]
 
         st.current_beat = 'Six'
         st.tutorial_sound_stop('Six')          # the prompt has finished playing
@@ -547,7 +549,7 @@ def test_a_zombie_that_reaches_you_restarts_its_beat():
     try:
         calls = []
         real_beat = st.tutorial_beat
-        st.tutorial_beat = lambda name: (calls.append(name), real_beat(name))[-1]
+        st.tutorial_beat = lambda name, **k: (calls.append(name), real_beat(name, **k))[-1]
         st.MonsterInit_(2)                     # beat Two's zombie
         st.MonsterBuffer[0].monsterRange = 10.0
         hp0 = st.gamePlayer.HP
@@ -632,12 +634,11 @@ def test_the_whole_tutorial_plays_in_order():
 
 def test_the_first_run_counts_down_into_the_real_game():
     """-[Stage_1_E tutorialEnd:] 0x33bec reads 3, 2, 1, then tutorialEndGameStart:
-    (0x33d40) 6.0 s later plays zombies are coming and starts the walk."""
+    (0x33d40) 6.0 s later says zombies are coming and starts the walk."""
     st = _tutorial(prompt=0.4, first_run=True)
     loop = RunLoop.main()
-    read = []
-    real_tts = st.app.TTSNumber_type_
-    st.app.TTSNumber_type_ = lambda n, t: (read.append((n, t)), real_tts(n, t))[-1]
+    said = []
+    st._say = said.append
     T.ENDING_DELAY, T.COUNTDOWN_SECONDS = 0.2, 0.3
     try:
         for n in T.STOP_NEEDS:
@@ -646,7 +647,7 @@ def test_the_first_run_counts_down_into_the_real_game():
         assert st.MotionSamplingTimer is None, 'the game started before the countdown'
         assert _pump(loop, 2.0, until=lambda: st.MotionSamplingTimer is not None), \
             'the walk never started'
-        assert read == [(321, 1)], read
+        assert said[-2:] == [T.TEXT_COUNTDOWN, T.TEXT_ZOMBIES_COMING], said
         assert st.running, 'the first run went back to the menu'
         assert st.isTutorial == 1, 'isTutorial was not set'          # 0x83786
         assert st.noAtt is False                                     # 0x83774
@@ -656,8 +657,231 @@ def test_the_first_run_counts_down_into_the_real_game():
         st.StopPlayAction_()
         assert st.gameState == 1, 'P no longer pauses the real game'
     finally:
-        T.ENDING_DELAY, T.COUNTDOWN_SECONDS = 3.05, 6.0
-        st.app.TTSNumber_type_ = real_tts
+        T.ENDING_DELAY, T.COUNTDOWN_SECONDS = 3.05, 4.0
+        st.teardown()
+        _restore()
+
+
+def test_a_waiting_beat_goes_on_with_enter_and_not_before():
+    """PORT ADDITION (tunmi13productions, 2026-10-05): a beat that sends in a zombie says its
+    words and waits for Enter instead of a timer; Enter cuts the speech and sends it."""
+    st = _tutorial(prompt=None)
+    said = []
+    st._say = said.append
+    stopped = []
+    st.speech = type('S', (), {'speak': lambda *a, **k: True, 'stop': lambda self: stopped.append(1)})()
+    try:
+        assert st.waiting == 'One'
+        _pump(RunLoop.main(), 1.0)
+        assert not st.MonsterBuffer, 'the zombie came in without Enter'
+        assert st.tutorial_advance() is True
+        assert st.waiting is None and stopped, 'Enter did not cut the speech'
+        assert len(st.MonsterBuffer) == 1 and st.MonsterBuffer[0].MovingType == 1
+        assert st.tutorial_advance() is False, 'a second Enter sent another'
+        assert len(st.MonsterBuffer) == 1
+    finally:
+        st.teardown()
+        _restore()
+
+
+def test_beats_without_a_zombie_do_not_wait():
+    """Six, Seven and Nine only speak: no continue prompt, nothing to press."""
+    st = _tutorial(prompt=None)
+    said = []
+    st._say = said.append
+    try:
+        for name in ('Six', 'Seven', 'Nine'):
+            said.clear()
+            st.tutorial_beat(name)
+            assert st.waiting is None, name
+            assert 'continue' not in said[0], said
+        assert st.tutorial_repeat() is False
+    finally:
+        st.teardown()
+        _restore()
+
+
+def test_any_other_key_repeats_a_waiting_beat_and_enter_goes_on():
+    """Through the keyboard handler: Enter goes on, any other key says it again, Escape
+    still leaves the tutorial, and a lone modifier does not repeat."""
+    from sixthsense.ui.input import Input
+
+    class _Pygame:
+        KEYDOWN, KEYUP, QUIT = 1, 2, 3
+
+        class key:
+            @staticmethod
+            def name(k):
+                return k
+
+    class _Key:
+        type = _Pygame.KEYDOWN
+
+        def __init__(self, name):
+            self.key = name
+            self.mod = 0
+
+    st = _tutorial(prompt=None)
+    said = []
+    st._say = said.append
+    keys = Input(st)
+    try:
+        keys.handle(_Key('h'), _Pygame)
+        assert said == [st.line], said
+        keys.handle(_Key('left shift'), _Pygame)
+        assert len(said) == 1, 'a modifier repeated it'
+        assert st.waiting == 'One'
+        keys.handle(_Key('return'), _Pygame)
+        assert st.waiting is None and len(st.MonsterBuffer) == 1
+        said.clear()
+        keys.handle(_Key('h'), _Pygame)
+        assert not said, 'it repeated with nothing waiting'
+        st.tutorial_beat('Two')
+        said.clear()
+        keys.handle(_Key('escape'), _Pygame)
+        assert not said and st.waiting == 'Two', 'Escape did not behave as Escape'
+        assert keys.quit, 'Escape did not leave the tutorial'
+    finally:
+        st.teardown()
+        _restore()
+
+
+def test_a_pad_goes_on_with_a_and_repeats_with_y():
+    from sixthsense.ui.input import Input
+
+    class _Pygame:
+        CONTROLLERBUTTONDOWN = 10
+        CONTROLLERBUTTONUP = 11
+        CONTROLLERAXISMOTION = 12
+        CONTROLLERDEVICEREMOVED = 13
+        CONTROLLER_BUTTON_A, CONTROLLER_BUTTON_Y = 0, 3
+        CONTROLLER_BUTTON_DPAD_UP, CONTROLLER_BUTTON_DPAD_DOWN = 11, 12
+        CONTROLLER_BUTTON_DPAD_LEFT, CONTROLLER_BUTTON_DPAD_RIGHT = 13, 14
+        CONTROLLER_BUTTON_X, CONTROLLER_BUTTON_B, CONTROLLER_BUTTON_START = 2, 1, 6
+        CONTROLLER_BUTTON_RIGHTSHOULDER, CONTROLLER_BUTTON_LEFTSHOULDER = 10, 9
+        CONTROLLER_AXIS_LEFTX, CONTROLLER_AXIS_LEFTY = 0, 1
+
+    class _Ev:
+        type = _Pygame.CONTROLLERBUTTONDOWN
+
+        def __init__(self, button):
+            self.button = button
+
+    st = _tutorial(prompt=None)
+    said = []
+    st._say = said.append
+    keys = Input(st)
+    try:
+        keys.controller(_Ev(_Pygame.CONTROLLER_BUTTON_Y), _Pygame, [])
+        assert said == [st.line], said
+        assert st.waiting == 'One'
+        keys.controller(_Ev(_Pygame.CONTROLLER_BUTTON_A), _Pygame, [])
+        assert st.waiting is None and len(st.MonsterBuffer) == 1
+    finally:
+        st.teardown()
+        _restore()
+
+
+def test_the_prompt_says_how_to_hear_it_again_only_the_first_time():
+    st = _tutorial(prompt=None)
+    app = st.app
+    saved = app.controllers
+    try:
+        app.controllers = None
+        st.told_repeat = False
+        assert st.continue_prompt() == 'Press Enter to continue, or any other key to hear this again.'
+        assert st.continue_prompt() == 'Press Enter to continue.'
+        app.controllers = _Pads('PS5 Controller')
+        st.told_repeat = False
+        assert st.continue_prompt() == 'Press Cross to continue, or Triangle to hear this again.'
+        app.controllers = _Pads('Xbox One Controller')
+        assert st.continue_prompt() == 'Press A to continue.'
+    finally:
+        app.controllers = saved
+        st.teardown()
+        _restore()
+
+
+def test_the_animal_zombie_on_you_is_not_waited_for_or_sent_twice():
+    """When the grab lands beat Eight is said again for the shake, but A is the shake
+    button and the zombie is already on you, so it neither waits nor sends a second."""
+    st = _tutorial(prompt=None)
+    said = []
+    st._say = said.append
+    try:
+        st.tutorial_beat('Eight')
+        assert st.waiting == 'Eight'
+        st.tutorial_advance()
+        n = len(st.MonsterBuffer)
+        assert n == 1
+        st.tutorial_restart('Eight')
+        assert st.waiting is None, 'the grab waited for a key that shakes'
+        assert 'continue' not in said[-1], said[-1]
+        assert len(st.MonsterBuffer) == n, 'a second animal zombie came in'
+    finally:
+        st.teardown()
+        _restore()
+
+
+def test_nothing_else_works_while_a_lesson_waits():
+    """The player must not shoot, reload or change weapon past a lesson that is waiting:
+    every key but Enter, Escape and F1 only says it again, and a pad's buttons other than
+    A, Y, B and Start do nothing."""
+    from sixthsense.ui.input import Input
+
+    class _Pygame:
+        KEYDOWN, KEYUP, QUIT = 1, 2, 3
+        CONTROLLERBUTTONDOWN, CONTROLLERBUTTONUP = 10, 11
+        CONTROLLERAXISMOTION, CONTROLLERDEVICEREMOVED = 12, 13
+        CONTROLLER_BUTTON_A, CONTROLLER_BUTTON_Y, CONTROLLER_BUTTON_X = 0, 3, 2
+        CONTROLLER_BUTTON_B, CONTROLLER_BUTTON_START = 1, 6
+        CONTROLLER_BUTTON_DPAD_UP, CONTROLLER_BUTTON_DPAD_DOWN = 11, 12
+        CONTROLLER_BUTTON_DPAD_LEFT, CONTROLLER_BUTTON_DPAD_RIGHT = 13, 14
+        CONTROLLER_BUTTON_RIGHTSHOULDER, CONTROLLER_BUTTON_LEFTSHOULDER = 10, 9
+        CONTROLLER_AXIS_LEFTX, CONTROLLER_AXIS_LEFTY = 0, 1
+
+        class key:
+            @staticmethod
+            def name(k):
+                return k
+
+    class _Key:
+        type = _Pygame.KEYDOWN
+
+        def __init__(self, name):
+            self.key = name
+            self.mod = 0
+
+    class _Pad:
+        def __init__(self, button=None, kind=_Pygame.CONTROLLERBUTTONDOWN, axis=None, value=0.0):
+            self.type, self.button, self.axis, self.value = kind, button, axis, value
+
+    st = _tutorial(prompt=None)
+    st._say = lambda text: None
+    keys = Input(st)
+    done = []
+    keys.perform = done.append
+    keys.attack_lane = lambda lane: done.append(lane)
+    try:
+        assert st.waiting == 'One'
+        for name in ('a', 'left', 'tab', 'r', 's', 'space', 'up', 'down', 'right'):
+            keys.handle(_Key(name), _Pygame)
+        assert not done, 'a key did something while the lesson waited: %r' % done
+        for b in (_Pygame.CONTROLLER_BUTTON_X, _Pygame.CONTROLLER_BUTTON_DPAD_LEFT,
+                  _Pygame.CONTROLLER_BUTTON_RIGHTSHOULDER):
+            keys.controller(_Pad(b), _Pygame, [])
+            keys.controller(_Pad(b, _Pygame.CONTROLLERBUTTONUP), _Pygame, [])
+        keys.controller(_Pad(None, _Pygame.CONTROLLERAXISMOTION, 0, -1.0), _Pygame, [])
+        assert not done and not st.MonsterBuffer, 'a pad did something: %r' % done
+        keys.controller(_Pad(_Pygame.CONTROLLER_BUTTON_B), _Pygame, [])
+        assert keys.quit, 'B did not leave'
+        keys.quit = False
+        keys.controller(_Pad(_Pygame.CONTROLLER_BUTTON_START), _Pygame, [])
+        assert keys.quit, 'Start did not leave'
+        st.tutorial_advance()
+        keys.handle(_Key('r'), _Pygame)
+        assert done, 'keys stayed blocked once the lesson was over'
+    finally:
         st.teardown()
         _restore()
 

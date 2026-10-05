@@ -164,17 +164,14 @@ MONSTER_SOUNDS = {
 # zombie_8 is the one that grabs you; it needs two more (0x36e96 / 0x36ec4).
 SHAKE_SOUNDS = {8: ([197, 323, 324], [198, 325, 326])}
 
-SOUND_HEADSHOT = 330        # headshot_4
-#: PORT DIVERGENCE (tunmi13productions, 2026-09-27): the headshot call at 0.2, level with every
-#: spoken row; the binary plays it at 0.1 (0x3a24a).
-HEADSHOT_CALL_GAIN = 0.2
+#: PORT ADDITION: what the screen reader says for the recording the stage still played in play.
+HEADSHOT_TEXT = 'Headshot!'
 #: 0x3a83a plays this on a gun's hit that kills, headshot or not (0x3a7fc: only when
 #: HP is 0 or less).  The original names it weapon_head_shot; what it marks is the
 #: kill, and tsatria03 renamed it weapon_gun_att2 (2026-09-25).
 SOUND_KILL = 79
 SOUND_PLAYER_DAMAGE = 83
 SOUND_PLAYER_DIE = 84
-SOUND_ZOMBIES_COMING = 328
 SOUND_WARNING = 285
 SOUND_NO_BULLETS = 78
 SOUND_GAME_OVER = 354
@@ -315,11 +312,9 @@ class Stage_1_E:
     # -[Stage_1_E viewDidLoad] 0x2c784
     def viewDidLoad(self):
         self._gameplay_gain_on()
-        # Now Loading always plays first, blocking - nothing else here touches
-        # audio, including cutting the menu music, until MapInitInBundle actually
-        # runs (below), well after Now Loading has had time to finish.
-        self.app.playSound_Gain_Pos_z_reprats_(
-            SOUND_NOW_LOADING, 0.2, (0.0, 0.0), 0, False)
+        # PORT DIVERGENCE (tunmi13productions, 2026-10-05): the "Now loading" recording
+        # (46) that played here is gone.  Nothing here touches audio, including cutting
+        # the menu music, until MapInitInBundle runs (below).
         d = UserDefaults.standardUserDefaults()
         self.app.weaponHave()
         self.weaponInit()
@@ -1024,12 +1019,9 @@ class Stage_1_E:
                 m.HP -= weapon.Damage * 2                       # 0x3a1dc
                 if not self.app.debug:
                     self.gamePlayer.HeadShotCount += 1
-                # 0x3a24a: 0.1 at the monster's Pos, z 40.  headshot_4 is stereo, and
-                # OpenAL never places a stereo sound, so the announcement is heard
-                # in the centre, however far off the zombie is.  PORT DIVERGENCE
-                # (tunmi13productions, 2026-09-27): at 0.2, level with every spoken row.
-                self.app.playSound_Gain_Pos_z_reprats_(
-                    SOUND_HEADSHOT, HEADSHOT_CALL_GAIN, m.Pos, 40, False)
+                # 0x3a24a played headshot_4 (330) at 0.1 here.  PORT DIVERGENCE
+                # (2026-10-05): the screen reader says it instead.
+                self._say(HEADSHOT_TEXT)
                 self.app.vibrate_headshot(m.monsterRange)      # PORT ADDITION: a firm thump
             else:
                 m.HP -= weapon.Damage                           # 0x3a796
@@ -1546,8 +1538,9 @@ class Stage_1_E:
         self.speech.speak(text)
 
     def _panel_voice(self, sound, gain=0.2):
-        """One of the panel's voice lines, or its words with voice over off."""
-        if self.app.screen_reader and sound in self.PANEL_MESSAGE_TEXT:
+        """One of the panel's voice lines, spoken through the screen reader (2026-10-05,
+        aidocks/project_screen_reader_only_plan.md)."""
+        if sound in self.PANEL_MESSAGE_TEXT:
             self._say(self.PANEL_MESSAGE_TEXT[sound])
         else:
             self.app.playSound_Gain_Pos_z_reprats_(sound, gain, (0.0, 0.0), 0, False)
@@ -1623,33 +1616,8 @@ class Stage_1_E:
         """
         self.selectMenu = row
         self.StopElseSpeak()
-        if self.app.screen_reader:
-            self._say(self.pause_row_text(row))
-            return None
-
-        if row == 1:                                          # 0x308b6
-            if self.gameState == 3:
-                sound = 354                                   # game over
-            elif self.gameState == 1:
-                sound = 229                                   # paused
-            else:
-                sound = None                                  # silent after a success
-        elif row == 6:                                        # 0x30ede
-            if self.gameState == 2:
-                sound = 226                                   # next stage button
-            elif self.gameState == 1:
-                sound = 223                                   # continue button
-            else:
-                sound = None
-        else:
-            sound = self.PAUSE_ROW_SOUND.get(row)
-
-        if sound is not None:
-            self.app.playSound_Gain_Pos_z_reprats_(sound, 0.2, (0.0, 0.0), 0, False)
-        reader = self.PAUSE_ROW_READER.get(row)
-        if reader is not None:
-            RunLoop.main().perform(self, reader, None, self.READ_DELAY)
-        return sound
+        self._say(self.pause_row_text(row))
+        return None
 
     def pause_jump(self, last=False):
         """PORT ADDITION: Home and End on the panel in the screen reader mode, the first
@@ -1693,7 +1661,7 @@ class Stage_1_E:
         """
         self.StopElseSpeak()
         row = self.selectMenu
-        if self.app.screen_reader and row in (1, 2, 3, 4, 5, 9, 10):
+        if row in (1, 2, 3, 4, 5, 9, 10):
             self._say(self.pause_row_text(row))
         elif row == 1:
             self.pause_select(1)                              # 229 in the original
@@ -1786,7 +1754,7 @@ class Stage_1_E:
         d.setObject_forKey_('1', 'TUTORIAL')                  # 0x33fc8
         d.synchronize()
         RunLoop.main().cancelPerform(self)                    # tutorialTimer, 0x33ff4
-        self.app.playSound_Gain_Pos_z_reprats_(327, 0.2, (0.0, 0.0), 0, False)
+        self._say('Tutorial success.')
 
     # -[Stage_1_E continueAction:] 0x33941
     def continueAction_(self, *_):

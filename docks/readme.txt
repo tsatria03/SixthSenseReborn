@@ -123,7 +123,7 @@ Voice over
 
 With voice over on, the game speaks through its own recordings, and needs no screen reader.
 With voice over off, your screen reader reads the menus, the shop, the inventory, the opening screen and the result panel instead.
-With voice over off, the tutorial also names the keys to press after each instruction.
+The tutorial is spoken by the screen reader. Each lesson says what to do and which keys to press. The lessons with a zombie wait: press Enter, or A on a controller, to send it in. Any other key says the lesson again, or Y on a controller, and does nothing else while the lesson waits. Escape still leaves.
 With a game controller attached, the tutorial says how to do each lesson on the controller instead, with voice over on or off.
 With voice over off, Left and Right also move between rows, and Home and End go to the first and the last row.
 Choose the voice over row in the main menu to turn it on or off.

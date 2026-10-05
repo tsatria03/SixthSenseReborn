@@ -11,8 +11,8 @@ from __future__ import annotations
 PLAYSTATION_WORDS = ('ps3', 'ps4', 'ps5', 'dualshock', 'dualsense', 'playstation', 'sony')
 
 #: What each button is called, by the SDL name the game uses for it.
-XBOX = {'a': 'A', 'b': 'B', 'x': 'X', 'start': 'Start', 'rb': 'the right bumper'}
-PLAYSTATION = {'a': 'Cross', 'b': 'Circle', 'x': 'Square', 'start': 'Options', 'rb': 'R1'}
+XBOX = {'a': 'A', 'b': 'B', 'x': 'X', 'y': 'Y', 'start': 'Start', 'rb': 'the right bumper'}
+PLAYSTATION = {'a': 'Cross', 'b': 'Circle', 'x': 'Square', 'y': 'Triangle', 'start': 'Options', 'rb': 'R1'}
 
 
 def is_playstation(name) -> bool:

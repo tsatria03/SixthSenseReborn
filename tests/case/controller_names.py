@@ -27,13 +27,13 @@ def test_other_pads_and_no_name_are_not():
 
 def test_an_xbox_pad_hears_the_xbox_names():
     names = button_names('Xbox One Controller')
-    assert names == {'a': 'A', 'b': 'B', 'x': 'X', 'start': 'Start', 'rb': 'the right bumper'}
+    assert names == {'a': 'A', 'b': 'B', 'x': 'X', 'y': 'Y', 'start': 'Start', 'rb': 'the right bumper'}
     assert button_names(None) == names, 'an unnamed pad is the layout the game was made on'
 
 
 def test_a_playstation_pad_hears_the_printed_names():
     names = button_names('PS5 Controller')
-    assert names == {'a': 'Cross', 'b': 'Circle', 'x': 'Square', 'start': 'Options', 'rb': 'R1'}
+    assert names == {'a': 'Cross', 'b': 'Circle', 'x': 'Square', 'y': 'Triangle', 'start': 'Options', 'rb': 'R1'}
 
 
 def test_the_caller_cannot_change_the_tables():

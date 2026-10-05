@@ -51,17 +51,24 @@ def test_the_rows_are_the_bands_of_the_panel():
 
 
 def test_the_header_and_the_first_button_follow_the_state():
-    """0x308e4 and 0x30efc: the two rows whose label depends on gameState."""
+    """0x308e4 and 0x30efc: the two rows whose label depends on gameState, now spoken
+    through the screen reader (2026-10-05)."""
     _app, st = _new_stage()
+    st.speech = _Recorder()
     try:
         st.gameState = 1
-        assert st.pause_select(1) == 229          # paused
-        assert st.pause_select(6) == 223          # continue button
+        st.pause_select(1)
+        assert st.speech.said[-1] == 'Paused'
+        st.pause_select(6)
+        assert st.speech.said[-1] == 'Continue, Button'
         st.gameState = 2
-        assert st.pause_select(1) is None         # silent after a success
-        assert st.pause_select(6) == 226          # next stage button
+        st.pause_select(1)
+        assert st.speech.said[-1] == 'Mission success'
+        st.pause_select(6)
+        assert st.speech.said[-1] == 'Next stage, Button'
         st.gameState = 3
-        assert st.pause_select(1) == 354          # game over
+        st.pause_select(1)
+        assert st.speech.said[-1] == 'Game over'
     finally:
         st.teardown()
 
@@ -91,10 +98,9 @@ def test_up_and_down_walk_the_rows_and_wrap():
         st.teardown()
 
 
-def test_home_and_end_on_the_panel_in_the_screen_reader_mode():
-    """With voice over off, Home and End go to the panel's first row and its last, and
-    Left and Right to the previous row and the next; with voice over on, End and Right
-    stay where they were."""
+def test_home_end_left_and_right_walk_the_panel():
+    """Home and End go to the panel's first row and its last, and Left and Right to the
+    previous row and the next."""
     from sixthsense.ui.input import Input
 
     class _Pygame:
@@ -118,161 +124,106 @@ def test_home_and_end_on_the_panel_in_the_screen_reader_mode():
         st.gameState = 1
         rows = st.pause_rows()
         keys = Input(st)
-        app.mode = 0
         keys.handle(_Key('end'), _Pygame)
         assert st.selectMenu == rows[-1], 'End went to row %d' % st.selectMenu
         assert said, 'End did not read the row'
         keys.handle(_Key('home'), _Pygame)
         assert st.selectMenu == rows[0], 'Home went to row %d' % st.selectMenu
-        app.mode = 1
-        st.selectMenu = rows[2]
-        keys.handle(_Key('end'), _Pygame)
-        assert st.selectMenu == rows[2], 'End jumped with voice over on'
-
-        # Left and Right, as VoiceOver's flicks: with voice over off only.
         keys.handle(_Key('right'), _Pygame)
-        assert st.selectMenu == rows[2], 'Right moved with voice over on'
-        app.mode = 0
+        assert st.selectMenu == rows[1], 'Right went to row %d' % st.selectMenu
         keys.handle(_Key('right'), _Pygame)
-        assert st.selectMenu == rows[3], 'Right went to row %d' % st.selectMenu
-        keys.handle(_Key('left'), _Pygame)
         keys.handle(_Key('left'), _Pygame)
         assert st.selectMenu == rows[1], 'Left went to row %d' % st.selectMenu
     finally:
-        app.mode = 1
         st.teardown()
 
 
-def test_selecting_a_readout_queues_its_number():
-    """Each band plays its label and schedules its reader 2 s behind it (0x3097c)."""
+def test_selecting_a_readout_speaks_label_and_number_together():
+    """The original played a row's label and read its number 2 s behind it; the port
+    says both as one line and queues no reader."""
     _app, st = _new_stage()
+    st.speech = _Recorder()
     loop = RunLoop.main()
     try:
         st.gameState = 2
         st.gamePlayer.killMonsterCount = 7
         st.pause_select(2)
-        assert Stage_1_E.READ_DELAY == 2.0
-        queued = [q for _d, _s, q in loop._performs
-                  if q.selector == 'ReadNumberOfZombies']
-        assert queued, 'the reader was not queued'
-        st.ReadNumberOfZombies()
-        assert st.killZombiesLabel == '7'
+        assert st.speech.said[-1] == 'Number of killed zombies, 7'
+        assert not [q for _d, _s, q in loop._performs
+                    if q.selector == 'ReadNumberOfZombies'], 'a reader was queued'
     finally:
         st.teardown()
 
 
 def test_the_score_row_reads_the_score_aloud():
-    """-[Stage_1_E ReadScore] 0x3bf38 ends with [app TTSNumber:score type:1] (0x3c1f2,
-    0x3c1fa): landing on the score row reads the score digit by digit, 2 s behind its
-    label, as the other result rows read theirs.  Working the score out anywhere else
-    says nothing."""
-    app, st = _new_stage()
-    loop = RunLoop.main()
-    spoken = []
-    real = app.TTSNumber_type_
-    app.TTSNumber_type_ = lambda n, t: spoken.append((n, t))
+    """Landing on the score row says "Score, " and the whole number, and working the
+    score out anywhere else says nothing."""
+    _app, st = _new_stage()
+    st.speech = _Recorder()
     try:
         st.gameState = 2
         p = st.gamePlayer
         p.killMonster1count, p.killMonster9count = 2, 1        # 300 + 300
-        assert st.score_now() == 600 and spoken == [], 'working it out spoke'
+        assert st.score_now() == 600 and st.speech.said == [], 'working it out spoke'
         st.pause_select(4)
-        queued = [q for _d, _s, q in loop._performs if q.selector == 'ReadScore']
-        assert queued, 'the score row did not queue its reader'
-        st.ReadScore()
-        assert spoken == [(600, 1)], 'the score was not read: %r' % spoken
-        assert st.ScoreLabel == '600'
+        assert st.speech.said == ['Score, 600'], st.speech.said
     finally:
-        del app.TTSNumber_type_
-        assert app.TTSNumber_type_ == real
         st.teardown()
 
 
 def test_choosing_a_result_row_rereads_that_row():
     """The original's ``tbb`` at 0x2ff32 (04 25 61 30 3b 4b 51 57) left row 3 silent,
     had row 4 read the headshots and could not reach the top score.  The port rereads
-    the row chosen, with voice over on as it already did with voice over off."""
-    app, st = _new_stage()
-    spoken = []
-    app.TTSNumber_type_ = lambda n, t: spoken.append(n)
+    the row chosen."""
+    _app, st = _new_stage()
+    st.speech = _Recorder()
     try:
         st.gameState = 2
         p = st.gamePlayer
         p.killMonsterCount, p.HeadShotCount = 5, 2
-        p.killMonster1count = 4                             # 600, x1.02 for 2 headshots
+        p.killMonster1count = 4
         score = st.score_now()
         d = UserDefaults.standardUserDefaults()
         d.setObject_forKey_('9000', 'TOPSCORE')
-
-        for row, number in ((2, 5), (3, 2), (4, score), (10, 9000)):
-            spoken.clear()
+        for row, text in ((2, 'Number of killed zombies, 5'), (3, 'Headshots, 2'),
+                          (4, 'Score, %s' % S1E.whole(score)), (10, 'Top score, 9,000')):
             st.selectMenu = row
             st.pause_activate()
-            assert spoken == [number], 'row %d read %r, not %r' % (row, spoken, number)
-
-        st.selectMenu = 9            # the rank row is left out, and reads nothing
-        spoken.clear()
-        st.pause_activate()
-        assert spoken == []
+            assert st.speech.said[-1] == text, 'row %d said %r' % (row, st.speech.said[-1])
     finally:
-        del app.TTSNumber_type_
         UserDefaults.standardUserDefaults().removeObjectForKey_('TOPSCORE')
         st.teardown()
 
 
 def test_choosing_the_first_row_says_its_own_state():
-    """Row 1 is "paused", "mission success" (silent) or "game over" by the state; the
-    original replayed 229, "paused", whatever the state.  Choosing it now says the row's
-    own label again."""
-    app, st = _new_stage()
-    played = []
-    real = app.playSound_Gain_Pos_z_reprats_
-    app.playSound_Gain_Pos_z_reprats_ = lambda n, *a: played.append(n)
+    """Row 1 is "paused", "mission success" or "game over" by the state; the original
+    replayed 229, "paused", whatever the state."""
+    _app, st = _new_stage()
+    st.speech = _Recorder()
     try:
-        for state, sound in ((1, 229), (3, 354)):
+        for state, text in ((1, 'Paused'), (2, 'Mission success'), (3, 'Game over')):
             st.gameState = state
             st.selectMenu = 1
-            played.clear()
             st.pause_activate()
-            assert played == [sound], 'state %d played %r' % (state, played)
+            assert st.speech.said[-1] == text, 'state %d said %r' % (state, st.speech.said)
     finally:
-        app.playSound_Gain_Pos_z_reprats_ = real
-        del app.playSound_Gain_Pos_z_reprats_
         st.teardown()
 
 
 def test_pausing_says_paused_half_a_second_after_the_click():
-    """0x34710..0x34732: StopPlayAction: sends spaekMenu 0.5 s later, and it plays 229,
-    "paused", at 0.2.  The port played only the click."""
-    app, st = _new_stage()
-    played = []
-    real = app.playSound_Gain_Pos_z_reprats_
-    app.playSound_Gain_Pos_z_reprats_ = lambda n, gain, *a: played.append((n, gain))
+    """0x34710..0x34732: StopPlayAction: sends spaekMenu 0.5 s later, which now says
+    "Paused." through the screen reader."""
+    _app, st = _new_stage()
+    st.speech = _Recorder()
     try:
         start = runloop.clock()
         assert st.StopPlayAction_() is True
-        assert (10, 0.2) in played and not any(n == 229 for n, _g in played)
+        assert 'Paused.' not in st.speech.said
         RunLoop.main().pump(now=start + S1E.PAUSED_VOICE_DELAY - 0.1)
-        assert not any(n == 229 for n, _g in played), 'paused came before half a second'
-        RunLoop.main().pump(now=start + S1E.PAUSED_VOICE_DELAY + 0.1)
-        assert (229, 0.2) in played, played
-    finally:
-        app.playSound_Gain_Pos_z_reprats_ = real
-        del app.playSound_Gain_Pos_z_reprats_
-        st.teardown()
-
-
-def test_with_voice_over_off_pausing_says_paused_through_the_screen_reader():
-    app, st = _new_stage()
-    st.speech = _Recorder()
-    app.mode = 0
-    try:
-        start = runloop.clock()
-        st.StopPlayAction_()
+        assert 'Paused.' not in st.speech.said, 'paused came before half a second'
         RunLoop.main().pump(now=start + S1E.PAUSED_VOICE_DELAY + 0.1)
         assert st.speech.said[-1] == 'Paused.', st.speech.said
     finally:
-        app.mode = 1
         st.teardown()
 
 
@@ -514,11 +465,10 @@ class _Recorder:
         pass
 
 
-def test_with_voice_over_off_the_panel_speaks_its_rows():
-    """PORT ADDITION: mode 0 reads each row with its number, whole."""
-    app, st = _new_stage()
+def test_the_panel_speaks_its_rows():
+    """PORT ADDITION: each row is read with its number, whole."""
+    _app, st = _new_stage()
     st.speech = _Recorder()
-    app.mode = 0
     try:
         st.gamePlayer.killMonsterCount = 105
         st.gamePlayer.HeadShotCount = 3
@@ -537,7 +487,6 @@ def test_with_voice_over_off_the_panel_speaks_its_rows():
         st.missionFailTell_()
         assert 'Game over.' in st.speech.said
     finally:
-        app.mode = 1
         st.teardown()
 
 
