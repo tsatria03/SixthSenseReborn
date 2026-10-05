@@ -1,4 +1,5 @@
 unrelease:
+In the weapon test range, two zombies that reach you at once on your last heart no longer leave you below zero hearts without dying. You die as soon as you are at zero or below.
 A volume or the gameplay gain in settings.json written with an unusual digit, such as a superscript two, no longer stops the game from starting. It counts as 100, or 0 for the gain, like any other bad value, and the file is left as you wrote it.
 A zombie that has grabbed you no longer takes a heart while the game is paused, and its grab no longer carries on after a restart. The pause holds the grab and continuing gives back the time you had left to shake it off.
 Pausing just as you die no longer lets the death go ahead under the pause or end the game you restart into. The pause holds the death, and continuing lets it go on.

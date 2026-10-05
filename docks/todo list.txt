@@ -1,11 +1,11 @@
 ##Unfinished.
 
-In the weapon test range, two zombies that reach you at once on your last heart leave you below zero hearts, and you never die.
 Make weapons upgradeable, so that they can do more damage.
 Raise the gold you earn after a death a little, so weapons are a bit easier to get.
 
 ##Finished.
 
+In the weapon test range, two zombies that reach you at once on your last heart kill you instead of leaving you below zero hearts.
 A volume in settings.json written with an unusual digit, such as a superscript two, no longer stops the game from starting.
 The game no longer plays its recorded voice, because everything it said is spoken by the screen reader, and the recordings are kept out of play in an unused folder.
 A zombie that has grabbed you no longer takes a heart while the game is paused, and its grab does not carry on after a restart.

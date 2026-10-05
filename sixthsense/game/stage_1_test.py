@@ -177,7 +177,10 @@ class Stage_1_TEST(Stage_1_E):
         self.walkXFlag = True                                       # 0x45f6a
         RunLoop.main().perform(self, 'timerLeft', None, 0.6)        # 0x45f7a
 
-        if p.HP == 0 and not self.DieFlag:                          # 0x45f92
+        if p.HP <= 0 and not self.DieFlag:                          # 0x45f92
+            # PORT DIVERGENCE: the original tests for exactly 0, so two zombies that landed in
+            # one step on your last heart took it to -1 and the run never ended; below zero
+            # counts as dead here too.
             # 0x4e838 in MonsterAttPlayer (0x4e438) does the same the moment a hit leaves you at
             # 0; the flag keeps it to one death however the last heart went.
             self.DieFlag = True

@@ -159,7 +159,8 @@ def test_pausing_just_before_you_die_and_restarting_does_not_end_the_new_range()
         assert st.StopPlayAction_() is True
         assert st.continueAction_() is True
         RunLoop.main().pump(now=start + 60.0)
-        assert st.gameState == 0 and st.missionCompletSounding is False,             'the old death came back after a pause and continue'
+        assert st.gameState == 0 and st.missionCompletSounding is False, \
+            'the old death came back after a pause and continue'
     finally:
         _done(app, st)
 
@@ -185,6 +186,25 @@ def test_losing_the_last_heart_ends_it_once():
         st.gamePlayer.HP = 0
         _tick(st)
         _tick(st)
+        assert played.count(S1E.SOUND_PLAYER_DIE) == 1, played
+    finally:
+        _done(app, st)
+
+
+def test_two_zombies_reaching_you_at_once_on_your_last_heart_kill_you():
+    """The range only checked for exactly 0 hearts, so two hits in one step took the last
+    heart to -1 and the run never ended."""
+    app, st, played = _range()
+    try:
+        st.gamePlayer.HP = 1
+        st.MonsterBuffer = []
+        for _ in range(2):
+            st.MonsterInit_(1)
+        for m in st.MonsterBuffer:
+            m.monsterRange = 10.0
+        _tick(st)
+        assert st.gamePlayer.HP < 0, 'both zombies did not land: %d' % st.gamePlayer.HP
+        assert st.DieFlag, 'below zero hearts and still alive'
         assert played.count(S1E.SOUND_PLAYER_DIE) == 1, played
     finally:
         _done(app, st)
