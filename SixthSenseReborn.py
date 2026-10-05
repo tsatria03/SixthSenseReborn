@@ -208,7 +208,7 @@ def main(argv=None):
                 if showing_bindings:
                     pass
                 elif kind in STAGES:
-                    inp.controller(event, pygame, keys)
+                    inp.controller(event, pygame, keys, pad.just_lost)
                 else:
                     for key_event in keys:
                         inp.handle(key_event, pygame)

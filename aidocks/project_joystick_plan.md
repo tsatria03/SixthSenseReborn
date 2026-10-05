@@ -39,6 +39,9 @@ metadata:
 - `Controllers` takes the controller module as `sdl`, so the tests pass a stand-in and never open or buzz a real pad. The dev's Xbox pad is attached to the dev machine, and an early test run did open it.
 - Not trimmed: the new files have no entry in `sound_trims.py`; `tools/sound_trims.py` writes MEASURED, and the dev runs it.
 
+## Losing the pad pauses (2026-10-04, the dev)
+- A pad that was open going away pauses the stage (`StopPlayAction_`), through `Controllers.just_lost`, so you can plug it back in. A removal of something never opened does not pause, a stage already paused stays so, and the tutorial, which has no pause (`ESCAPE_LEAVES`), is left running.
+
 ## Afterwards
 - Vibration through `Controller.rumble`, if it is worth having.
 - Controller rebinding, if wanted.

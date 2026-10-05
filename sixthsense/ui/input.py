@@ -145,15 +145,19 @@ class Input:
         st.MovingShot_(LANE_ANGLE[self._auto_lane])
 
     # ---- the controller (PORT ADDITION, aidocks/project_joystick_plan.md) -------
-    def controller(self, event, pygame, keys):
-        """A controller event, with the key events ``Controllers.feed`` made of it.  The
-        panels take those keys, as the menus do.  In play the left stick aims like the
-        swipe, and the buttons are reload, weapon change, shake and pause."""
+    def controller(self, event, pygame, keys, lost=False):
+        """A controller event, with the key events ``Controllers.feed`` made of it, and
+        ``lost``: it took away a pad that was open.  The panels take those keys, as the
+        menus do.  In play the left stick aims like the swipe, and the buttons are reload,
+        weapon change, shake and pause; losing the pad pauses, so nothing happens to you
+        while you plug it back in.  The tutorial has no pause and is left running."""
         st = self.stage
         if event.type == pygame.CONTROLLERDEVICEREMOVED:
             self._stick = {}
             self._aim_reset()
             self._dpad_reset()
+            if lost and st.gameState == 0 and not getattr(st, 'ESCAPE_LEAVES', False):
+                st.StopPlayAction_()
         if st.gameState != 0:
             self._aim_reset()
             self._dpad_reset()

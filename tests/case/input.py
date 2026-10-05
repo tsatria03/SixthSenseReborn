@@ -433,7 +433,8 @@ def _pad_event(kind, **kw):
 
 def _pad(inp, event):
     """What the frame loop does with a controller event over a stage."""
-    inp.controller(event, pygame, _PAD.feed(event))
+    keys = _PAD.feed(event)
+    inp.controller(event, pygame, keys, _PAD.just_lost)
 
 
 def _lean(inp, x, y):
@@ -677,6 +678,35 @@ def test_b_pauses_and_resumes_and_the_panel_takes_the_menu_keys():
         assert st.selectMenu, 'the D-pad did not move through the panel'
         _pad(inp, _pad_event(pygame.CONTROLLERBUTTONDOWN, button=b))
         assert st.gameState == 0, 'B did not resume'
+    finally:
+        st.teardown()
+
+
+def test_losing_the_pad_pauses_the_game():
+    st, inp = _stage()
+    try:
+        inp.controller(_pad_event(pygame.CONTROLLERDEVICEREMOVED), pygame, [], lost=True)
+        assert st.gameState == 1, 'the game was not paused'
+    finally:
+        st.teardown()
+
+
+def test_losing_something_that_was_not_a_pad_does_not_pause():
+    st, inp = _stage()
+    try:
+        _pad(inp, _pad_event(pygame.CONTROLLERDEVICEREMOVED))      # never opened
+        assert st.gameState == 0, 'it paused for a pad that was never open'
+    finally:
+        st.teardown()
+
+
+def test_losing_the_pad_while_already_paused_changes_nothing():
+    st, inp = _stage()
+    try:
+        st.StopPlayAction_()
+        assert st.gameState == 1
+        inp.controller(_pad_event(pygame.CONTROLLERDEVICEREMOVED), pygame, [], lost=True)
+        assert st.gameState == 1
     finally:
         st.teardown()
 

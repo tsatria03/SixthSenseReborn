@@ -210,7 +210,17 @@ def test_losing_a_controller_plays_the_other_sound():
 def test_losing_something_that_was_never_found_plays_nothing():
     c, app = _with()
     _removed(c, 9)
-    assert app.played == []
+    assert app.played == [] and not c.just_lost
+
+
+def test_just_lost_is_true_only_for_the_event_that_lost_a_pad():
+    c, _app = _with(_FakePad(3))
+    _added(c, 0)
+    assert not c.just_lost
+    _removed(c, 3)
+    assert c.just_lost
+    c.feed(pygame.event.Event(pygame.CONTROLLERBUTTONUP, button=0, instance_id=0))
+    assert not c.just_lost
 
 
 def test_the_pads_attached_at_start_are_announced_once():

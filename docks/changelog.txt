@@ -1,5 +1,5 @@
 unrelease:
-A sound and a short vibration tell you when a game controller is found, and another sound when it is disconnected. Nothing plays when no controller is found.
+A sound and a short vibration tell you when a game controller is found, and another sound when it is disconnected, which also pauses the game. Nothing plays when no controller is found.
 A game controller can now play the game. The left stick aims like a swipe: up is 12 o'clock, left 9, right 3, the diagonals 10:30 and 1:30, and down reloads. One lean is one shot, and the MG80 keeps firing while the stick is held. The D-pad works like the arrow keys: left, up and right fire at 9, 12 and 3, left and up together at 10:30, right and up together at 1:30, and down reloads. X reloads, the bumpers change weapon, A shakes off a zombie, and B or Start pauses and resumes.
 A game controller now works on the menus and the shop: the D-pad or left stick moves, A selects and B goes back. It uses the same standard layout on Windows, Linux and macOS.
 The MG80 now keeps firing while you hold its lane key, like a machine gun. Every other weapon still fires once per press.

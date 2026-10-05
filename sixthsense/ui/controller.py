@@ -65,6 +65,7 @@ class Controllers:
         self._buttons = {getattr(pygame, b): getattr(pygame, k) for b, k in _BUTTON_KEYS}
         self._axes = {getattr(pygame, a): (getattr(pygame, n), getattr(pygame, p))
                       for a, n, p in _STICK_AXES}
+        self.just_lost = False          # the last event took away a pad that was open
         self._sdl = None
         try:
             controller = sdl
@@ -121,6 +122,7 @@ class Controllers:
 
     def _close(self, instance_id):
         if self._pads.pop(instance_id, None) is not None:
+            self.just_lost = True
             self._play(SOUND_NOT_DETECTED)
         for key in [k for k in self._lean if k[0] == instance_id]:
             del self._lean[key]
@@ -137,6 +139,7 @@ class Controllers:
         it stands for (possibly none).  Device changes are handled here."""
         pg = self.pygame
         t = event.type
+        self.just_lost = False
         if t == pg.CONTROLLERDEVICEADDED:
             if self._sdl is not None and getattr(event, 'device_index', None) is not None:
                 self._open(event.device_index)
