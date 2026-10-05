@@ -1030,7 +1030,7 @@ class Stage_1_E:
                 # (tunmi13productions, 2026-09-27): at 0.2, level with every spoken row.
                 self.app.playSound_Gain_Pos_z_reprats_(
                     SOUND_HEADSHOT, HEADSHOT_CALL_GAIN, m.Pos, 40, False)
-                self.app.vibrate_effect('headshot')            # PORT ADDITION: a firm thump
+                self.app.vibrate_headshot(m.monsterRange)      # PORT ADDITION: a firm thump
             else:
                 m.HP -= weapon.Damage                           # 0x3a796
             self.gamePlayer.gunEggCountShot += 1                # 0x3a7cc
@@ -1040,8 +1040,8 @@ class Stage_1_E:
                 # weapon_gun_att2 (the original's weapon_head_shot): the kill, headshot or
                 # not - the headshot's own sound (330) went out above.
                 self.app.playHitSound_Gain_Pos_z_(SOUND_KILL, 1.0, m.Pos, 40)
-                # PORT ADDITION: a headshot's thump is kept unless the kill was very close
-                bump = ('headshot' if headshot else
+                # PORT ADDITION: a headshot's thump above already outweighs the kill's bump
+                bump = (None if headshot else
                         'kill_soft' if self.gamePlayer.useWepon == MG80_SLOT else 'kill')
                 self._monster_killed(m, bump=bump)
         else:
@@ -1070,8 +1070,8 @@ class Stage_1_E:
         0x39b12).  Killing the girl who heals you is not a kill: it costs you a heart,
         once the tutorial is behind you, and is not counted (0x3a850..0x3a97a).
         ``tally`` is False for the grenade, which has tallied every monster it hit.
-        ``bump`` is the PORT ADDITION vibration for a zombie's death ('kill', 'kill_soft' or
-        'headshot', felt by how close it was), or None for none."""
+        ``bump`` is the PORT ADDITION vibration for a zombie's death ('kill' or 'kill_soft',
+        felt by how close it was), or None for none."""
         if m.monsterNumber == MONSTER_GIRL:
             self.app.vibrate_effect('girl')                    # PORT ADDITION: that was a bad move
             RunLoop.main().perform(self, 'playerDamage_', None, 0.1)

@@ -79,7 +79,9 @@ GAME_EFFECTS = (('Zombie 1, the punch', 'punch'), ('Zombie 2 and 4, scratching',
                 ('A zombie killed a metre away, heavier', 'kill_mid'),
                 ('A zombie killed right in your face, the heaviest', 'kill_near'),
                 ('A zombie killed by the MG80, the soft bump', 'kill_soft'),
-                ('A headshot, the thump', 'headshot'),
+                ('A headshot far off, the thump', 'headshot'),
+                ('A headshot a metre away, stronger', 'headshot_mid'),
+                ('A headshot right in your face, the strongest', 'headshot_near'),
                 ('The girl, shot by mistake', 'girl'), ('Dying', 'death'))
 
 

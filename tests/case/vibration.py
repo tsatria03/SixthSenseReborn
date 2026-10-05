@@ -20,7 +20,7 @@ from sixthsense.game.stage_1_e import Stage_1_E                  # noqa: E402
 from sixthsense.platform.defaults import UserDefaults            # noqa: E402
 from sixthsense.platform.runloop import RunLoop                  # noqa: E402
 from sixthsense.ui.vibration import (CLOSE_FAR, CLOSE_NEAR, EFFECTS, ZOMBIE_EFFECTS,  # noqa: E402
-                                     Vibration, closeness, kill_effect)
+                                     Vibration, closeness, headshot_effect, kill_effect)
 
 
 class _Pad:
@@ -240,9 +240,27 @@ def test_play_kill_by_distance_and_a_headshots_thump():
     _run(vib, clock, 400)
     assert _rumbles(pad)[0][1] < 0.4 and _rumbles(pad)[1][1] > 0.9, _rumbles(pad)
     vib, pad, clock = _vib()
-    assert vib.play_kill(400, 'headshot') is False, 'a far headshot keeps its thump'
-    assert vib.play_kill(100, 'headshot') is True, 'a close headshot kill is heavier'
-    assert vib.play_kill(30, 'headshot') is True
+    assert vib.play_headshot(400) and vib.play_headshot(CLOSE_NEAR)
+    _run(vib, clock, 600)
+    assert _rumbles(pad)[0][1] == 0.6 and _rumbles(pad)[1][1] == 1.0, _rumbles(pad)
+
+
+def test_a_headshot_grows_stronger_the_closer_the_zombie_was():
+    assert headshot_effect(CLOSE_FAR) == EFFECTS['headshot'] == [(0, 0.6, 0.6, 250)]
+    last = None
+    for d in (300, 250, 200, 150, 100, 60, 25):
+        (_s, low, high, ms) = headshot_effect(d)[0]
+        if last:
+            assert low >= last[0] and high >= last[1] and ms >= last[2], d
+        last = (low, high, ms)
+    assert last[0] == 1.0 and last[1] == 1.0 and last[2] >= 400, last
+    assert len(headshot_effect(CLOSE_NEAR)) == 2 and len(headshot_effect(CLOSE_FAR)) == 1
+
+
+def test_a_headshot_is_never_weaker_than_a_kill_at_the_same_distance():
+    for d in (400, 300, 250, 200, 150, 100, 60, 25, 10):
+        h, k = headshot_effect(d)[0], kill_effect(d)[0]
+        assert h[1] >= k[1] and h[2] >= k[2] and h[3] >= k[3], (d, h, k)
 
 
 def test_a_new_effect_replaces_the_one_playing():
@@ -313,6 +331,9 @@ class _Recorder:
 
     def play_kill(self, distance, kind='kill'):
         self.played.append(('kill', distance, kind))
+
+    def play_headshot(self, distance):
+        self.played.append(('headshot', distance))
 
     def stop(self):
         self.stopped += 1
@@ -440,11 +461,13 @@ def test_a_gun_kill_bumps_softer_for_the_mg80():
         st.teardown()
 
 
-def test_a_headshot_thumps_and_leaves_the_bump_to_the_distance():
+def test_a_headshot_is_felt_by_its_distance_and_adds_no_kill_bump():
     st, app = _stage()
     try:
-        assert _shoot(st, app, 1, True) == [('effect', 'headshot'), ('kill', 500.0, 'headshot')]
-        assert _shoot(st, app, 1, True, kill=False) == [('effect', 'headshot')]
+        assert _shoot(st, app, 1, True) == [('headshot', 500.0)]
+        assert _shoot(st, app, S1E.MG80_SLOT, True) == [('headshot', 500.0)]
+        assert _shoot(st, app, 1, True, kill=False) == [('headshot', 500.0)]
+        assert _shoot(st, app, 1, True, ranges=[40.0]) == [('headshot', 40.0)]
     finally:
         app.vibration = None
         st.teardown()

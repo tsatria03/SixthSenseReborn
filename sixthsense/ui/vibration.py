@@ -51,8 +51,9 @@ CLOSE_NEAR, CLOSE_FAR = 25.0, 300.0
 KILL_BASE = {'kill': (0.35, 0.20), 'kill_soft': (0.20, 0.10)}      # at a distance
 KILL_PEAK = {'kill': (1.00, 0.85), 'kill_soft': (0.80, 0.60)}      # in your face
 KILL_MS = (75, 260)
-#: A headshot's own thump is kept unless the zombie was at least this close (``closeness``).
-HEADSHOT_YIELDS_AT = 0.5
+#: A headshot's thump grows the same way, always above the kill's at the same distance.
+HEADSHOT_BASE, HEADSHOT_PEAK = (0.60, 0.60), (1.00, 1.00)
+HEADSHOT_MS = (250, 420)
 
 
 def closeness(distance):
@@ -72,6 +73,19 @@ def kill_effect(distance, kind='kill'):
     out = [(0, low, high, ms)]
     if t >= 0.6:                        # a close one rings on a little
         out.append((ms, round(low * 0.5, 3), round(high * 0.4, 3), 140))
+    return out
+
+
+def headshot_effect(distance):
+    """Segments for a headshot on a zombie ``distance`` cm away: the firm 250 ms thump from
+    far off, up to a long, full-strength one with a tail when it is in your face."""
+    t = closeness(distance)
+    low = round(HEADSHOT_BASE[0] + (HEADSHOT_PEAK[0] - HEADSHOT_BASE[0]) * t, 3)
+    high = round(HEADSHOT_BASE[1] + (HEADSHOT_PEAK[1] - HEADSHOT_BASE[1]) * t, 3)
+    ms = round(HEADSHOT_MS[0] + (HEADSHOT_MS[1] - HEADSHOT_MS[0]) * t)
+    out = [(0, low, high, ms)]
+    if t >= 0.6:
+        out.append((ms, round(low * 0.5, 3), round(high * 0.4, 3), 160))
     return out
 
 
@@ -97,8 +111,10 @@ EFFECTS = {
     'stone': [(113, 0.90, 0.60, 100)],
     # the girl who heals you, shot by mistake: a long rumble, that was a bad move
     'girl': [(0, 0.60, 0.35, 1600)],
-    # a headshot: a firm, short thump
-    'headshot': [(0, 0.60, 0.60, 250)],
+    # a headshot: a firm, short thump from far off, heavier the closer the zombie was
+    'headshot': headshot_effect(CLOSE_FAR),
+    'headshot_mid': headshot_effect(100.0),
+    'headshot_near': headshot_effect(CLOSE_NEAR),
     # a zombie killed far off: a short bump, softer for the MG80's rapid fire; closer kills
     # are heavier, and these two stand for the least and a sample of the most
     'kill': kill_effect(CLOSE_FAR),
@@ -132,14 +148,13 @@ class Vibration:
         return self._start(EFFECTS.get(name))
 
     def play_kill(self, distance, kind='kill'):
-        """A zombie's death at ``distance`` cm, by how close it was.  ``kind`` is 'kill',
-        'kill_soft' (the MG80) or 'headshot', whose thump already played with the hit and
-        is kept unless the zombie was close enough for the heavier bump to take over."""
-        if kind == 'headshot':
-            if closeness(distance) < HEADSHOT_YIELDS_AT:
-                return False
-            kind = 'kill'
+        """A zombie's death at ``distance`` cm, by how close it was.  ``kind`` is 'kill' or
+        'kill_soft' (the MG80)."""
         return self._start(kill_effect(distance, kind))
+
+    def play_headshot(self, distance):
+        """A headshot on a zombie ``distance`` cm away, by how close it was."""
+        return self._start(headshot_effect(distance))
 
     def _start(self, segments):
         pads = self.controllers.pads
