@@ -170,7 +170,7 @@ def main(argv=None):
     pad = Controllers(pygame, app)
     pad.announce_attached()
     from sixthsense.ui.vibration import Vibration
-    app.vibration = Vibration(pad)
+    app.vibration = Vibration(pad, enabled=lambda: app.vibration_on)
 
     if args.tutorial:
         kind, obj = 'tutorial', _new_tutorial()

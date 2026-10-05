@@ -164,6 +164,21 @@ class AppDelegate:
             return 1
         return 1 if d.intForKey_('EYEMODE') == 1 else 0
 
+    # ================================================================ vibration
+    @property
+    def vibration_on(self):
+        """PORT ADDITION: ``VIBRATION`` in settings.json, '1' or '0'; a save that has
+        never set it vibrates."""
+        return UserDefaults.standardUserDefaults().stringForKey_('VIBRATION') != '0'
+
+    def set_vibration(self, on):
+        """Save the setting; turning it off silences the motors at once."""
+        d = UserDefaults.standardUserDefaults()
+        d.setObject_forKey_('1' if on else '0', 'VIBRATION')
+        d.synchronize()
+        if not on:
+            self.vibrate_stop()
+
     @property
     def screen_reader(self):
         """Voice over is off, so the menus speak through the screen reader."""

@@ -59,7 +59,7 @@ OLD_KEPT = OLD_FILE + '.old'
 #: The keys that are settings rather than progress, in the order settings.json lists them
 #: (tsatria03, 2026-09-25).  A setting added later goes where it belongs in this list.
 SETTINGS_KEYS = ('MASTERVOLUME', 'MENUMUSICVOLUME', 'LEVELMUSICVOLUME', 'AMBIENCEVOLUME',
-                 'GAMEPLAYGAIN', 'WEAPONVOLUME', 'PLAYERVOLUME', 'EYEMODE')
+                 'GAMEPLAYGAIN', 'WEAPONVOLUME', 'PLAYERVOLUME', 'VIBRATION', 'EYEMODE')
 #: Keys the game no longer reads, dropped from both files when the save is opened, so an
 #: old value cannot linger there.  ENTITYVOLUME went on 2026-09-28: the zombies are always
 #: at full volume (aidocks/project_entity_full_volume_plan.md).

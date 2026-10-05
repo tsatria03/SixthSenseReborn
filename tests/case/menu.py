@@ -54,15 +54,17 @@ def _menu(coins=3):
 
 def test_the_rows_are_the_originals():
     """The rows selectTapPointSoundStart (0x9825) claims, with their sounds and their
-    original numbers, less ranking (5) and Game Center (8)."""
-    assert [r[0] for r in ROWS] == [1, 2, 3, 4, 6, 7]
+    original numbers, less ranking (5) and Game Center (8), and the port's vibration row
+    (9), which has no recording."""
+    assert [r[0] for r in ROWS] == [1, 2, 3, 4, 6, 9, 7]
     assert [r[3] for r in ROWS] == ['coin', 'title', 'start', 'tutorial',
-                                    'store', 'modechange']
-    assert [r[2] for r in ROWS] == [334, 16, 17, 23, 18, 331]
+                                    'store', 'vibration', 'modechange']
+    assert [r[2] for r in ROWS] == [334, 16, 17, 23, 18, None, 331]
     # every one of them is a real entry with a WAV behind it
     sl = plistlib.load(open(paths.path_for_resource('SoundList', 'plist'), 'rb'))
     for _n, _f, sound, _a in ROWS:
-        assert paths.path_for_resource(sl[sound], 'wav'), sound
+        if sound is not None:                  # the vibration row has no recording
+            assert paths.path_for_resource(sl[sound], 'wav'), sound
 
 
 def test_the_menu_music_plays_under_the_rows():
@@ -202,7 +204,7 @@ def test_it_opens_on_the_title_and_wraps():
         for _ in range(len(ROWS)):
             m.move(1)
             seen.append(m._row()[3])
-        assert seen == ['start', 'tutorial', 'store', 'modechange',
+        assert seen == ['start', 'tutorial', 'store', 'vibration', 'modechange',
                         'coin', 'title'], seen
         m.selectMenu = 1
         m.move(-1)
@@ -685,6 +687,8 @@ def test_turning_voice_over_off_speaks_through_the_screen_reader():
         assert len(m.speech.said) == said, 'the screen reader spoke the toggle'
         m.app.__dict__.pop('playSound_Gain_Pos_z_reprats_', None)
         m.move(-1)
+        assert m.speech.said[-1] == 'Vibration, currently on.'
+        m.move(-1)
         assert m.speech.said[-1] == 'Store, Button'
         m.move(-4)                  # store, tutorial, start, title, coin
         assert m.speech.said[-1].startswith('Number of coins, 3.'), m.speech.said[-1]
@@ -712,6 +716,116 @@ class _Key:
     def __init__(self, name):
         self.type = _Pygame.KEYDOWN
         self.key = name
+
+
+class _Buzzer:
+    def __init__(self):
+        self.played, self.stopped = [], 0
+
+    def play(self, name):
+        self.played.append(name)
+
+    def play_zombie(self, kind):
+        pass
+
+    def stop(self):
+        self.stopped += 1
+
+
+def _vibration_row(m):
+    m.selectMenu = next(n for n, _f, _s, a in ROWS if a == 'vibration')
+
+
+def test_the_vibration_row_says_its_setting_in_both_modes():
+    d = UserDefaults.standardUserDefaults()
+    m = _menu()
+    try:
+        for mode in (1, 0):                    # voice over on, then off
+            m.app.mode = mode
+            d.removeObjectForKey_('VIBRATION')
+            _vibration_row(m)
+            said = len(m.speech.said)
+            m.blindModeSelectedMenu()
+            assert m.speech.said[said:] == ['Vibration, currently on.'], (mode, m.speech.said)
+            d.setObject_forKey_('0', 'VIBRATION')
+            m.blindModeSelectedMenu()
+            assert m.speech.said[-1] == 'Vibration, currently off.', mode
+    finally:
+        m.app.mode = 1
+        d.removeObjectForKey_('VIBRATION')
+        m.teardown()
+
+
+def test_activating_the_vibration_row_flips_and_saves_it():
+    d = UserDefaults.standardUserDefaults()
+    m = _menu()
+    buzz = _Buzzer()
+    m.app.vibration = buzz
+    played = []
+    real = m.app.playSound_Gain_Pos_z_reprats_
+    m.app.playSound_Gain_Pos_z_reprats_ = lambda n, *a: (played.append(n), real(n, *a))
+    try:
+        d.removeObjectForKey_('VIBRATION')
+        _vibration_row(m)
+        m.activate()
+        assert d.stringForKey_('VIBRATION') == '0' and not m.app.vibration_on
+        assert m.speech.said[-1] == 'Vibration, currently off.'
+        assert buzz.stopped >= 1, 'turning it off did not silence the motors'
+        assert buzz.played == [] and 10 in played, (buzz.played, played)
+        m.activate()
+        assert d.stringForKey_('VIBRATION') == '1' and m.app.vibration_on
+        assert m.speech.said[-1] == 'Vibration, currently on.'
+        assert buzz.played == ['confirm'], 'turning it on should buzz once to show it'
+    finally:
+        m.app.__dict__.pop('playSound_Gain_Pos_z_reprats_', None)
+        m.app.vibration = None
+        d.removeObjectForKey_('VIBRATION')
+        m.teardown()
+
+
+def test_vibration_off_stops_the_effects_and_the_connect_buzz():
+    import pygame
+
+    from sixthsense.ui.controller import Controllers
+    from sixthsense.ui.vibration import Vibration
+
+    class _Pad:
+        def __init__(self):
+            self.calls = []
+            self.id, self.name = 1, 'pad'
+
+        def rumble(self, *a):
+            self.calls.append(a)
+
+        def stop_rumble(self):
+            pass
+
+    class _Sdl:
+        def init(self):
+            pass
+
+        def get_count(self):
+            return 0
+
+    d = UserDefaults.standardUserDefaults()
+    m = _menu()
+    try:
+        pads = Controllers(pygame, m.app, sdl=_Sdl())
+        pad = _Pad()
+        pads._pads[1] = pad
+        vib = Vibration(pads, enabled=lambda: m.app.vibration_on)
+        d.setObject_forKey_('0', 'VIBRATION')
+        assert vib.play('girl') is False and pad.calls == []
+        pads._found(pad)
+        assert pad.calls == [], 'the connect buzz ignored the setting'
+        d.setObject_forKey_('1', 'VIBRATION')
+        assert vib.play('girl') is True and pad.calls
+        pad.calls.clear()
+        pads._found(pad)
+        assert pad.calls, 'the connect buzz should play with vibration on'
+    finally:
+        d.removeObjectForKey_('VIBRATION')
+        m.teardown()
 
 
 def test_home_and_end_in_the_screen_reader_mode():

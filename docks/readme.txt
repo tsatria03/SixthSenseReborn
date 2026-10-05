@@ -21,9 +21,10 @@ Up and Down move between them, and Enter or Escape goes on to the main menu.
 
 The main menu
 
-The main menu has six rows: your coins, the title, Start Game, Tutorial, Store, and voice over.
+The main menu has seven rows: your coins, the title, Start Game, Tutorial, Store, vibration, and voice over.
 Up and Down move between the rows, and each row reads itself aloud.
 Enter chooses the row you are on.
+The vibration row says "Vibration, currently on" or "off", and Enter on it switches the controller's vibration. The game remembers the setting.
 Escape in the main menu quits the game.
 Page Up makes the menu music louder, and Page Down makes it quieter, in the main menu, the shop and the inventory.
 It goes from silent to its full volume in steps of ten percent, and the game remembers where you left it.
@@ -59,6 +60,20 @@ P pauses the game.
 Escape pauses the game too, and in the tutorial it goes back to the main menu.
 F1 opens the key bindings.
 Switching away from the game window pauses the game as well.
+
+Game controller
+
+Any controller your computer recognizes works, an Xbox, PlayStation or Switch one, on Windows, Linux and macOS.
+A sound and a short buzz tell you when one is found, and another sound when it is lost.
+Losing it in a game pauses the game, and plugging it back in does not resume it.
+In the menus, the D-pad or the left stick moves, A chooses and B goes back.
+In a game, the left stick aims like a swipe: up is 12 o'clock, left 9, right 3, the diagonals 10:30 and 1:30, and down reloads.
+Lean the stick for one shot, and bring it back to the middle before the next. The MG80 keeps firing while the stick is held.
+The D-pad does the same as the arrow keys: left, up and right, left and up together, right and up together, and down to reload.
+X reloads, the right bumper changes to the next weapon, and the left bumper to the previous one.
+A shakes you free when the animal zombie grabs you.
+B or Start pauses the game, and resumes it.
+The controller vibrates when a zombie hits you, in its own way for each zombie, when you shoot the girl by mistake, and when you die.
 
 Volume during a game
 

@@ -80,6 +80,9 @@ ROWS = (
     (3, 'start_game_flag', SOUND_GAME_START, 'start'),
     (4, 'tutorial_flag', SOUND_TUTORIAL, 'tutorial'),
     (6, 'store_flag', SOUND_STORE, 'store'),
+    # PORT ADDITION: the vibration row.  No recording names it, so it has no sound and is
+    # always spoken through the screen reader.
+    (9, 'vibration_flag', None, 'vibration'),
     (7, 'modechange_flag', SOUND_VOICEOVER_ON_BUTTON, 'modechange'),
 )
 #: PORT ADDITION: what the screen reader says for each row with voice over off.
@@ -168,7 +171,8 @@ class MainController:
     # -[MainController StopElseSpeak] 0x96e9 - silence every menu voice
     def StopElseSpeak(self):
         for _n, _f, sound, _a in ROWS:
-            self.app.stopSoundBufNumber_(sound)
+            if sound is not None:
+                self.app.stopSoundBufNumber_(sound)
         for sound in (SOUND_VOICEOVER_ON_BUTTON, SOUND_VOICEOVER_OFF_BUTTON,
                       SOUND_NO_COIN, SOUND_RANKING_NOTICE):
             self.app.stopSoundBufNumber_(sound)
@@ -207,6 +211,8 @@ class MainController:
                 left // 60, left % 60)
         if action == 'modechange':
             return 'Voice over off, Button' if self.app.mode else 'Voice over on, Button'
+        if action == 'vibration':
+            return 'Vibration, currently %s.' % ('on' if self.app.vibration_on else 'off')
         return ROW_TEXT[action]
 
     # -[MainController blindModeSelectedMenu] 0x90d0 - highlight the row and say it
@@ -216,7 +222,7 @@ class MainController:
             self._flags[f] = False
         self.StopElseSpeak()
         self._flags[flag] = True
-        if self.app.screen_reader:
+        if self.app.screen_reader or action == 'vibration':
             self._say(self.row_text())
             log.info('menu: %s', action)
             return
@@ -267,6 +273,8 @@ class MainController:
             self.TutorialAction_(None)
         elif action == 'modechange':
             self.ModeChageAction_(None)
+        elif action == 'vibration':
+            self.VibrationAction_(None)
         elif action == 'store':
             self.Store_(None)
 
@@ -343,6 +351,18 @@ class MainController:
         self.app.playSound_Gain_Pos_z_reprats_(
             SOUND_UI_SELECT, 0.2, (0.0, 0.0), 0, False)
         self.next_screen = 'tutorial'
+
+    def VibrationAction_(self, *_):
+        """PORT ADDITION: flip vibration, click, and say the new state.  Turning it on
+        gives a short buzz to show it; turning it off has already silenced the motors."""
+        self.StopElseSpeak()
+        on = not self.app.vibration_on
+        self.app.set_vibration(on)
+        self.app.playSound_Gain_Pos_z_reprats_(SOUND_UI_SELECT, 0.2, (0.0, 0.0), 0, False)
+        self._say(self.row_text())
+        if on:
+            self.app.vibrate_effect('confirm')
+        log.info('vibration %s', 'on' if on else 'off')
 
     # -[MainController ModeChageAction:] 0xb831
     def ModeChageAction_(self, *_):

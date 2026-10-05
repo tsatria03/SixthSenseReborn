@@ -63,6 +63,8 @@ EFFECTS = {
                  + _ramp(2219, 3198, (0.70, 0.0), (0.40, 0.0))),
     # the girl who heals you, shot by mistake: a long rumble, that was a bad move
     'girl': [(0, 0.60, 0.35, 1600)],
+    # the menu row turned on: a short buzz to say so
+    'confirm': [(0, 0.50, 0.50, 150)],
     # you die: two hard seconds, from the moment the game over music starts
     'death': [(0, 1.0, 0.80, 2000)],
 }
@@ -74,9 +76,11 @@ ZOMBIE_EFFECTS = {1: 'punch', 2: 'scratch', 3: 'maul', 4: 'scratch', 5: 'maul',
 
 
 class Vibration:
-    def __init__(self, controllers, clock=time.monotonic):
+    def __init__(self, controllers, clock=time.monotonic, enabled=lambda: True):
+        """``enabled`` says whether the player has vibration on; off, nothing plays."""
         self.controllers = controllers
         self.clock = clock
+        self.enabled = enabled
         self._queue = []                    # (due time, low, high, ms), soonest first
 
     def play(self, name):
@@ -84,7 +88,7 @@ class Vibration:
         pad or for a name that has no effect."""
         segments = EFFECTS.get(name)
         pads = self.controllers.pads
-        if not segments or not pads:
+        if not segments or not pads or not self.enabled():
             return False
         self.stop()
         now = self.clock()

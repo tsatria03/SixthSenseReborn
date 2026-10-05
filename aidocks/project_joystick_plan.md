@@ -1,11 +1,11 @@
 ---
 name: project_joystick_plan
-description: "Phase 1 (menus) finished 2026-10-04; phase 2 (the stage: stick aims, buttons) being built. Controller support for Sixth Sense Reborn through SDL's game controller layer (pygame._sdl2.controller), cross platform, never XInput. Phase 1 is the menus, phase 2 the stage, vibration after. The dev has an Xbox One pad."
+description: "FINISHED 2026-10-04. Controller support for Sixth Sense Reborn through SDL's game controller layer (pygame._sdl2.controller), cross platform, never XInput: the menus, the stage (stick aims, D-pad, buttons), connect and disconnect sounds and a pause on losing the pad, per-zombie vibration, and a vibration menu row. The dev uses an Xbox One pad."
 metadata:
   type: project
 ---
 
-**Status: phase 1 built and confirmed 2026-10-04 (`c11c16c`); phase 2 building, not yet confirmed.** Phase 1 is `sixthsense/ui/controller.py` (`Controllers.feed`, used by the frame loop in `SixthSenseReborn.py`) and `tests/case/controller.py`. It translates only while no stage and no bindings screen is up. The todo list's joystick lines stay in Unfinished until the dev confirms it works ([[feedback_todo_list_format]]).
+**Status: FINISHED 2026-10-04, confirmed by the dev** ("I think we have controller support finished"). Built in nine commits' worth of steps: the menus, the stage (stick, D-pad, buttons), the found and lost sounds with the pause on losing the pad, the vibrations, and the menu row. Phase 1 is `sixthsense/ui/controller.py` (`Controllers.feed`, used by the frame loop in `SixthSenseReborn.py`) and `tests/case/controller.py`. It translates only while no stage and no bindings screen is up. The todo list's joystick lines stay in Unfinished until the dev confirms it works ([[feedback_todo_list_format]]).
 
 ## Decisions
 - **SDL's game controller layer, never XInput** (the dev, 2026-10-04: there is a Linux build, and a macOS one, so XInput is a bad idea). pygame 2.6.1 wraps it as `pygame._sdl2.controller`: `CONTROLLERBUTTONDOWN/UP`, `CONTROLLERAXISMOTION`, `CONTROLLERDEVICEADDED/REMOVED`, the standard `CONTROLLER_BUTTON_*` and `CONTROLLER_AXIS_*` names, and `Controller.rumble`. Checked present on 2026-10-04.
@@ -61,6 +61,13 @@ The dev's layout, times from the start of the zombie's hit sound (its file lengt
 - **Not in the layout, so no vibration:** the woman zombie, the bosses, zombies 11 and 12 (never spawned), the girl reaching you (her thank you), and gun fire. Ask the dev before adding any.
 - The numbers (motor strengths, pulse spacing, the ramp) are in `EFFECTS` in `vibration.py` for tuning by feel; the tester's V key plays each one in turn (Shift+V back), and Z (the dev's idea) turns the zombie's own hit sound with it on and off, to judge a vibration's timing against its sound; the girl has no sound there.
 - No menu switch for vibration yet.
+
+## The vibration row (the dev's request, 2026-10-04, built, not yet confirmed)
+Built in `main_controller.py` (the row, `VibrationAction_`), `app_delegate.py` (`vibration_on`, `set_vibration`), `vibration.py` (`enabled`, `confirm`), `controller.py` (the connect buzz), with tests in `menu.py` (3 new) and the readme's new controller section.
+- A new main menu row between Store and the voice over row: it says "Vibration, currently on." or "Vibration, currently off.", and activating it flips the setting, clicks, and says the new state. Turning it on gives a short confirming buzz; turning it off silences the motors.
+- Saved as `VIBRATION` ('1' or '0'; absent means on) in settings.json, in `SETTINGS_KEYS` before `EYEMODE`. `AppDelegate.vibration_on` reads it and `set_vibration` writes it.
+- Off stops every effect in play, the connect buzz and the confirming buzz; the connect and disconnect sounds stay, since they are sounds, not vibration.
+- There is no recording for the row, so it is spoken through the screen reader in both modes, as the other lines the bundle has no recording for are. It is row number 9 in `ROWS` (5 and 8 are the original's left-out ranking and Game Center rows); the order, not the number, is what moves.
 
 ## Afterwards
 - Vibration through `Controller.rumble`, if it is worth having.

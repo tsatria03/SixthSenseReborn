@@ -95,6 +95,8 @@ class Controllers:
     def _found(self, pad):
         """A controller was found and opened: its sound, then a short buzz."""
         self._play(SOUND_DETECTED)
+        if self.app is not None and not getattr(self.app, 'vibration_on', True):
+            return                      # the player has vibration off
         try:
             pad.rumble(*CONNECT_BUZZ)
         except Exception:

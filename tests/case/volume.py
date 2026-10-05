@@ -164,7 +164,7 @@ def test_settings_json_lists_them_in_the_devs_order():
     from sixthsense.platform.defaults import SETTINGS_KEYS
     assert SETTINGS_KEYS == ('MASTERVOLUME', 'MENUMUSICVOLUME', 'LEVELMUSICVOLUME',
                              'AMBIENCEVOLUME', 'GAMEPLAYGAIN', 'WEAPONVOLUME',
-                             'PLAYERVOLUME', 'EYEMODE')
+                             'PLAYERVOLUME', 'VIBRATION', 'EYEMODE')
 
 
 def test_the_gameplay_gain_is_whole_decibels_from_0_to_6():
