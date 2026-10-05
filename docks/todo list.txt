@@ -1,17 +1,17 @@
 ##Unfinished.
 
-Restarting from the result panel after your first game, the one that follows the tutorial, puts you back in the tutorial's first lesson, where you cannot walk and P does nothing.
-Pausing just before you die and then restarting still ends the new game with a game over a moment later.
 In the weapon test range, two zombies that reach you at once on your last heart leave you below zero hearts, and you never die.
-In your first game after the tutorial, Escape goes back to the menu instead of pausing.
-A zombie that has grabbed you can still take a heart while the game is paused, and its grab carries on after a restart.
 A volume in settings.json written with an unusual digit, such as a superscript two, stops the game from starting.
-Remove the recordings once everything they say is spoken through Prism.
 Make weapons upgradeable, so that they can do more damage.
 Raise the gold you earn after a death a little, so weapons are a bit easier to get.
 
 ##Finished.
 
+The game no longer plays its recorded voice, because everything it said is spoken by the screen reader, and the recordings are kept out of play in an unused folder.
+A zombie that has grabbed you no longer takes a heart while the game is paused, and its grab does not carry on after a restart.
+Pausing just before you die holds the death, so restarting no longer ends the new game with a game over.
+Escape pauses in your first game after the tutorial instead of going back to the menu.
+Restarting from the result panel after your first game starts the game again, where you can walk and pause with P, instead of putting you back in the tutorial's first lesson.
 The voice over row is gone from the main menu, so the game is driven entirely by the screen reader.
 A purchase is no longer announced twice at the same time, because the recording is gone and only the screen reader says "Purchase has been completed".
 The tutorial is spoken by the screen reader, with the keys or controller buttons for each lesson, and a lesson that sends in a zombie waits for Enter instead of a timer.

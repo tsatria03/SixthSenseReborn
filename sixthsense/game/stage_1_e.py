@@ -54,6 +54,7 @@ import random
 from .. import paths
 from ..platform import volume
 from ..platform.defaults import UserDefaults
+from ..platform import runloop as _runloop
 from ..platform.runloop import RunLoop
 from .app_delegate import AppDelegate
 from .blind_screen import whole
@@ -294,6 +295,9 @@ class Stage_1_E:
         self.isTutorialEnd = 0
         self.GirlMonsterNumber = 0
         self.DieFlag = False
+        self.deathHeld = False      # PORT ADDITION: paused in the 1.3 s before the death went ahead
+        self.grabDue = 0.0          # PORT ADDITION: when a grab lands, for a pause to hold
+        self.grabHeld = None        # ...and the time it had left when the game was paused
         self.monstersFrozen = False     # --debug, sixthsense/game/debug.py
         self.debugSpawn = 0
         self.debugHits = False          # --debug's F7: zombies hit you, for no heart
@@ -811,6 +815,7 @@ class Stage_1_E:
         self.shakeMonsterTimer = loop.scheduledTimer(
             0.1, self, 'shakingFind', None, True)      # 0x3b656: 0.1 s, repeating
         loop.perform(self, 'NonShaking', None, m.shakeMonsterApproachTime)
+        self.grabDue = _runloop.clock() + m.shakeMonsterApproachTime
 
     def _held_monster(self):
         """The monster holding you.  The original reads it back by index; the port
@@ -1686,6 +1691,19 @@ class Stage_1_E:
         # the walk under the panel, and continue or restart starts a second walk
         # timer beside it: double speed.  Here the pause holds the level change.
         RunLoop.main().cancelPerform(self, 'ChangeLevel_')
+        # DIVERGENCE: the original leaves a death that is a moment off alone, so it goes
+        # ahead under the panel, or after a restart over the new game.  Here the pause holds
+        # it and continue lets it go on, while a restart, which needs the pause, never lets it go.
+        RunLoop.main().cancelPerform(self, 'playerDie_')
+        self.deathHeld = self.DieFlag
+        # DIVERGENCE: a grab's poll and its landing ran on under the panel, so the zombie
+        # took a heart while paused, and its landing came after a restart.  The pause holds
+        # the grab and continue gives back the time it had left.
+        self.grabHeld = None
+        if self.isShake:
+            RunLoop.main().cancelPerform(self, 'NonShaking')
+            self._invalidate_shake_timer()
+            self.grabHeld = max(0.0, self.grabDue - _runloop.clock())
         self.gameState = 1                                    # 0x34168
         self.walkXFlag = True                                 # 0x34296
         self.brearhFlag = True                                # 0x342a4
@@ -1741,6 +1759,15 @@ class Stage_1_E:
             # 0x33a3a schedules the stage's own inline tutorial check.  Stage_Tutorial
             # carries the tutorial in this port, so there is nothing to restart.
             self.checkTutorialTimer = None
+        if self.deathHeld:
+            self.deathHeld = False
+            RunLoop.main().perform(self, 'playerDie_', None, 1.3)
+        if self.grabHeld is not None:
+            left, self.grabHeld = self.grabHeld, None
+            self.shakeMonsterTimer = RunLoop.main().scheduledTimer(
+                0.1, self, 'shakingFind', None, True)
+            RunLoop.main().perform(self, 'NonShaking', None, left)
+            self.grabDue = _runloop.clock() + left
         self.gameState = 0                                    # 0x33a7c
         self.walkXFlag = False                                # 0x33a8c
         self.brearhFlag = False                               # 0x33a9a

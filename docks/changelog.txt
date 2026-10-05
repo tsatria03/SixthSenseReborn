@@ -1,4 +1,6 @@
 unrelease:
+A zombie that has grabbed you no longer takes a heart while the game is paused, and its grab no longer carries on after a restart. The pause holds the grab and continuing gives back the time you had left to shake it off.
+Pausing just as you die no longer lets the death go ahead under the pause or end the game you restart into. The pause holds the death, and continuing lets it go on.
 In your first game after the tutorial, Escape now pauses the game instead of going back to the menu, and restarting from the result panel starts the game again instead of the tutorial's first lesson, where you could not walk and P did nothing.
 Two new rows in the main menu: "Spoken headshot" turns the "Headshot!" call on or off, and "Headshot beep" turns on a beep that plays where the zombie is on every headshot, even when it survives the shot. The call starts on and the beep off, and the game remembers both in settings.json as HEADSHOTSPEECH and HEADSHOTBEEP.
 The voice over row is gone from the main menu, and with it the recorded voice: the game is always read by your screen reader. A save that had voice over on or off is not affected, and its old setting is dropped from settings.json. The opening screen's welcome now says the game is read by your screen reader and to use stereo headphones.

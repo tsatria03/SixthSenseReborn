@@ -139,6 +139,31 @@ def test_the_panel_has_no_rank_and_its_last_row_is_back():
         _done(app, st)
 
 
+def test_pausing_just_before_you_die_and_restarting_does_not_end_the_new_range():
+    """The range's restart dropped nothing of a death that was a moment off, so it ended
+    the new run with a game over."""
+    from sixthsense.platform import runloop
+    app, st, _played = _range(4)
+    said = []
+    st._say = said.append
+    try:
+        st.gamePlayer.HP = 0
+        _tick(st)
+        assert st.DieFlag, 'the range did not notice the death'
+        assert st.StopPlayAction_() is True
+        start = runloop.clock()
+        assert st.gameReplayAction_() is True
+        RunLoop.main().pump(now=start + 30.0)
+        assert st.gameState == 0 and st.missionCompletSounding is False
+        assert 'Game over.' not in said and 'Mission fail.' not in said, said
+        assert st.StopPlayAction_() is True
+        assert st.continueAction_() is True
+        RunLoop.main().pump(now=start + 60.0)
+        assert st.gameState == 0 and st.missionCompletSounding is False,             'the old death came back after a pause and continue'
+    finally:
+        _done(app, st)
+
+
 def test_restarting_hands_you_the_same_weapon():
     """0x46d70: the range's restart hands you the same weapon."""
     app, st, _played = _range(5)

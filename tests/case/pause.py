@@ -420,6 +420,132 @@ def test_a_death_shows_the_panel_eleven_seconds_later():
         st.teardown()
 
 
+def _grabbed(st, approach=0.5):
+    """A zombie that has just taken hold of the player, with ``approach`` seconds to shake
+    free; returns it."""
+    st.MonsterInit_(71)
+    g = st.MonsterBuffer[0]
+    g.shakeMonsterApproachTime = approach
+    g.monsterRange = 10.0
+    st.MonsterAttPlayer()
+    assert st.isShake, 'the zombie did not grab'
+    return g
+
+
+def test_a_grab_waits_while_the_game_is_paused_and_lands_after_continue():
+    """The grab's 0.1 s poll and its landing ran on under the panel, so a zombie that had
+    grabbed you took a heart while the game was paused.  The pause holds the grab and
+    continue gives back the time that was left."""
+    _app, st = _new_stage()
+    try:
+        g = _grabbed(st)
+        hp0 = st.gamePlayer.HP
+        start = runloop.clock()
+        assert st.StopPlayAction_() is True
+        RunLoop.main().pump(now=start + 10.0)
+        assert st.gamePlayer.HP == hp0, 'the grab took a heart under the pause'
+        assert st.isShake and g in st.MonsterBuffer, 'the grab let go under the pause'
+        assert st.continueAction_() is True
+        RunLoop.main().pump()
+        assert st.gamePlayer.HP == hp0, 'the grab landed at once instead of giving the time back'
+        RunLoop.main().pump(now=runloop.clock() + 1.5)
+        assert st.gamePlayer.HP == hp0 - 1 and not st.isShake, 'the grab never landed'
+    finally:
+        st.teardown()
+
+
+def test_a_grab_can_still_be_shaken_off_after_continue():
+    _app, st = _new_stage()
+    try:
+        g = _grabbed(st, approach=5.0)
+        assert st.StopPlayAction_() is True
+        assert st.continueAction_() is True
+        st.shakeFlag = 0                    # the shakes the player needed, done
+        RunLoop.main().pump(now=runloop.clock() + 0.5)
+        assert not st.isShake and g not in st.MonsterBuffer, 'the shake did not free the player'
+        assert st.gamePlayer.HP == 3
+    finally:
+        st.teardown()
+
+
+def test_a_grab_does_not_carry_on_into_a_restarted_game():
+    """Restarting from the panel left the grab's timers running, so the old grab landed on
+    the new game."""
+    _app, st = _new_stage()
+    try:
+        _grabbed(st)
+        start = runloop.clock()
+        assert st.StopPlayAction_() is True
+        assert st.gameReplayAction_() is True
+        assert not st.isShake
+        st.MonsterInit_(1)                  # a zombie of the new game, first in the list
+        fresh = st.MonsterBuffer[0]
+        RunLoop.main().pump(now=start + 30.0)
+        assert st.gamePlayer.HP == 3, 'the old grab took a heart in the new game'
+        assert not st.isShake
+        assert fresh in st.MonsterBuffer, 'the old grab landed on a zombie of the new game'
+        # and pausing and continuing the new game does not bring it back
+        assert st.StopPlayAction_() is True
+        assert st.continueAction_() is True
+        RunLoop.main().pump(now=runloop.clock() + 30.0)
+        assert st.gamePlayer.HP == 3 and not st.isShake
+    finally:
+        st.teardown()
+
+
+def _die_while_paused(st):
+    """Take the player's last heart so the stage notices it, then pause in the 1.3 s before
+    the death is carried out; returns the time the pause was made."""
+    st.gamePlayer.HP = 0
+    st.walkXFlag = False
+    st.MainControl()
+    assert st.DieFlag, 'the stage did not notice the death'
+    assert st.StopPlayAction_() is True, 'the game could not be paused as the player died'
+    assert st.gameState == 1
+    return runloop.clock()
+
+
+def test_pausing_just_before_you_die_and_restarting_does_not_end_the_new_game():
+    """Pausing in the 1.3 s before the death was carried out left it queued, so it ran
+    after a restart, played the end music and 11 s later put the game over panel over
+    the new game."""
+    _app, st = _new_stage()
+    st.speech = _Recorder()
+    try:
+        start = _die_while_paused(st)
+        assert st.gameReplayAction_() is True
+        assert st.DieFlag is False
+        RunLoop.main().pump(now=start + 30.0)
+        assert st.gameState == 0, 'the old death put the panel over the new game'
+        assert st.missionCompletSounding is False, 'the old death started the end music'
+        assert 'Game over.' not in st.speech.said, st.speech.said
+        assert st.gamePlayer.HP == 3
+        # ...and the held death is gone for good: pausing and continuing the new game
+        # must not bring it back
+        assert st.StopPlayAction_() is True
+        assert st.continueAction_() is True
+        RunLoop.main().pump(now=start + 60.0)
+        assert st.gameState == 0 and st.missionCompletSounding is False,             'the old death came back after a pause and continue'
+    finally:
+        st.teardown()
+
+
+def test_pausing_just_before_you_die_and_continuing_still_ends_the_game():
+    """The pause holds the death, and continuing lets it go on, so the game is not won by
+    pausing at the last moment."""
+    _app, st = _new_stage()
+    st.speech = _Recorder()
+    try:
+        start = _die_while_paused(st)
+        RunLoop.main().pump(now=start + 30.0)
+        assert st.gameState == 1 and 'Game over.' not in st.speech.said,             'the death went ahead under the pause'
+        assert st.continueAction_() is True
+        RunLoop.main().pump(now=start + 30.0 + 1.3 + 11.0 + 1.0)
+        assert st.gameState == 3, 'continuing did not carry the death out'
+    finally:
+        st.teardown()
+
+
 def test_a_run_that_beats_the_stored_best_saves_it():
     """0x34c56 / 0x34cc0 - TOPSCORE and TOPSCOREWEEK."""
     _app, st = _new_stage()
