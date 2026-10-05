@@ -13,7 +13,7 @@ metadata:
 1. **The name players see is "Sixth Sense Reborn".**
 2. **Its own save folder, `SixthSenseReborn`, which copies an existing Sixth Sense save once on the first start.**
 3. **The executable and builds use the new name:** `SixthSenseReborn.exe` (`SixthSenseReborn` on Linux and macOS).
-4. **The changelog keeps the 8 released Sixth Sense sections,** under a heading that says they are from Sixth Sense before Reborn. Reborn's own releases go above them, and its version numbering restarts.
+4. **The changelog keeps the 8 released Sixth Sense sections,** under a heading that says they are from Sixth Sense before Reborn. Reborn's own releases go above them, and its version numbering restarts. **Changed later on 2026-10-04 by the dev:** they removed the old sections and the `SixthSense:` heading by hand, so Reborn's changelog holds only its own changes; Sixth Sense's history stays in SixthSenseOriginal's changelog. The test that pinned the heading was removed with it.
 
 ## What changes
 - **Save folder** (`sixthsense/paths.py` `user_dir`): `%APPDATA%\SixthSenseReborn`, `~/.local/share/SixthSenseReborn`, `~/Library/Application Support/SixthSenseReborn`. Comments and docstrings that name the folder (`paths.py`, `platform/defaults.py`, `platform/keymap.py`, `tests/case/_scratch_save.py`) follow.
