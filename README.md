@@ -243,6 +243,7 @@ tests/interact/          level_chooser.py and tutorial_chooser.py, which start t
                          game at any level, or the tutorial at any lesson, to play
 compiler.py              builds the game with PyInstaller
 releaser.py              sets the version, files the changelog, builds, zips, tags and uploads a release
+.github/workflows/       release.yml: builds and publishes a release when a V<version> tag is pushed
 requirements.txt         the two packages it needs
 ```
 
@@ -394,6 +395,26 @@ the full release, then on the other choose **Add this system's build to the rele
 it builds, zips and adds that zip to the same release, and files, commits and tags
 nothing. On Linux, WSL included, install the GitHub CLI there too (`sudo apt install gh`)
 and sign it in with `gh auth login`.
+
+### Releasing through GitHub
+
+Pushing a tag `V<version>` makes GitHub build and publish the release itself, with
+`.github/workflows/release.yml`. On your side there is one choice in `releaser.py`,
+**Prepare and tag**: it checks everything, sets `VERSION`, files the changelog, commits
+and pushes "Release <version>", then tags it and pushes the tag. It builds, zips and
+uploads nothing.
+
+The tag starts one build per system on GitHub's own machines: Windows and Linux as a
+single executable (`compiler.py --embed`), and the Mac as its app, once for Apple Silicon
+and once for Intel. Each build is packed by the releaser's own `package()`, so the names
+and the folders inside are the ones above, with `SixthSenseReborn-macOS-arm64-<version>.tar.gz`
+and `SixthSenseReborn-macOS-x86_64-<version>.tar.gz` added. When all four are built, the
+release "SixthSenseReborn V<version>" is created with that version's changelog lines as
+its notes. A build that fails publishes nothing: re-run the failed job under Actions
+and the release follows. A tag whose `VERSION` is not the tag's builds nothing, and
+nothing on a release is ever replaced. The Mac builds are not signed.
+
+The full release and the other menu steps still work, for building on your own machine.
 
 ### Starting at any level
 

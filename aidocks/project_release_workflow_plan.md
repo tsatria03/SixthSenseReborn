@@ -5,7 +5,7 @@ metadata:
   type: project
 ---
 
-**Status: planned 2026-10-05, not built.** Asked for by tunmi13productions: a workflow based on `releaser.py` and `compiler.py` so a release needs only a script that files the changelog, gets everything ready and tags it; the workflow then compiles and publishes, "compiling it into the files they already work like", macOS included. Builds on [[project_release_tooling_plan]], [[project_linux_release_plan]] and [[project_macos_build_plan]].
+**Status: built 2026-10-05, not yet confirmed.** `releaser.py` has "Prepare and tag", `--ci-build` and `--ci-release`; `.github/workflows/release.yml` and eight new tests in `tests/case/release.py` (47 pass) are in. The workflow itself has never run: it is proved only by the first release made through it, and the runner names and the macOS minimum below are unchecked. Asked for by tunmi13productions: a workflow based on `releaser.py` and `compiler.py` so a release needs only a script that files the changelog, gets everything ready and tags it; the workflow then compiles and publishes, "compiling it into the files they already work like", macOS included. Builds on [[project_release_tooling_plan]], [[project_linux_release_plan]] and [[project_macos_build_plan]].
 
 ## Decisions (tunmi13productions, 2026-10-05)
 - **macOS is built for both architectures**, Apple Silicon and Intel, as two archives. The names already carry it (`compiler.SYSTEMS['darwin']['zip']` is `macOS-<machine>`).

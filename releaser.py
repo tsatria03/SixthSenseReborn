@@ -33,6 +33,12 @@ aidocks/project_linux_release_plan.md).  PyInstaller builds only for the system 
 release runs on one, and then "Add this system's build to the release" on the other builds, zips and adds
 its zip to the same release.  On Linux, WSL included, the GitHub CLI has to be installed and signed in
 there too.
+
+Or let GitHub do the building (tunmi13productions, 2026-10-05; aidocks/project_release_workflow_plan.md):
+"Prepare and tag" does the check, the version and changelog, the commit and the tag, and nothing else.
+The tag starts .github/workflows/release.yml, which builds on Windows, Linux and both kinds of Mac, packs
+each build with package() below, and publishes the release with all four archives.  The workflow calls
+this file with --ci-build and --ci-release; they are not for typing.
 """
 from __future__ import annotations
 
@@ -69,6 +75,13 @@ MIN_ENTRIES = 5
 GH_FALLBACK = r'C:\Program Files\GitHub CLI\gh.exe'
 #: The dev's shared tools file, which may name gh.
 TOOLS_INI = os.path.join(os.path.expanduser('~'), '.game_tools', 'tools.ini')
+
+#: The archives one release carries, by the system's name in them (compiler.SYSTEMS 'zip') and the kind of
+#: archive: what the workflow builds, and what it requires before it publishes.  The Mac's name carries its
+#: processor, so there is one for Apple Silicon and one for Intel.
+RELEASE_ARCHIVES = (('Win', 'zip'), ('Linux', 'tar.gz'), ('macOS-arm64', 'tar.gz'), ('macOS-x86_64', 'tar.gz'))
+#: A release tag: V, then the version.
+TAG_PATTERN = re.compile(r'^%s(\d\d\.\d\d\.\d\d-\d+)$' % re.escape(TAG_PREFIX))
 
 VERSION_FILE = os.path.join(HERE, 'VERSION')
 CHANGELOG = os.path.join(HERE, compiler.CHANGELOG)
@@ -110,6 +123,17 @@ def tag_for(version: str) -> str:
 
 def title_for(version: str) -> str:
     return TITLE_PREFIX + version
+
+
+def version_from_tag(tag: str):
+    """'V26.09.23-1' -> '26.09.23-1'; None for a tag that is not a release's."""
+    found = TAG_PATTERN.match((tag or '').strip())
+    return found.group(1) if found else None
+
+
+def release_archive_names(version: str) -> list:
+    """The file names a complete release carries, in RELEASE_ARCHIVES' order."""
+    return ['%s-%s-%s.%s' % (NAME, system, version, kind) for system, kind in RELEASE_ARCHIVES]
 
 
 def read_version() -> str:
@@ -616,6 +640,32 @@ def step_upload(version: str) -> bool:
     return True
 
 
+def prepare_and_tag() -> None:
+    """Everything a release needs from here, and nothing that needs another machine: the check, the version
+    and the changelog, the commit and push, the tag and its push.  The tag starts the workflow on GitHub,
+    which builds every system's archive and publishes the release.  If the commit is not made, VERSION and
+    the changelog go back as they were."""
+    if not step_check():
+        return
+    say()
+    saved = step_prepare(forced=True)
+    if not saved:
+        return
+    version = saved[0]
+    say()
+    if not step_commit(version):
+        ok, out = git('status', '--porcelain', '--', 'VERSION', CHANGELOG_GIT)
+        if out:                                         # declined, or failed before committing
+            restore(saved)
+        return
+    say()
+    if step_tag(version):
+        say()
+        say('the workflow on GitHub now builds %s and publishes the release %s.'
+            % (', '.join(system for system, _kind in RELEASE_ARCHIVES), title_for(version)))
+        say('follow it under Actions on the repository; nothing more is needed here.')
+
+
 def step_add_build() -> None:
     """The second system's half of a release: build, zip and add this system's zip to the release already
     made for VERSION.  It files nothing, commits nothing and tags nothing, so it needs the tag and the
@@ -683,7 +733,9 @@ def full_release() -> None:
 # --- the menu ---------------------------------------------------------------------------------------
 
 MENU = (
-    ('Full release: every step below, in order', full_release),
+    ('Prepare and tag: file the changelog, commit and tag, and GitHub builds and publishes the release',
+     prepare_and_tag),
+    ('Full release on this system: every step below, in order, building here', full_release),
     ('Check that everything is ready', step_check),
     ("Set the version and file the changelog", lambda: step_prepare()),
     ('Build', lambda: step_build()),
@@ -720,6 +772,106 @@ def menu() -> None:
         say('There is no choice "%s". Type a number from 0 to %d.' % (choice, len(MENU)))
 
 
+# --- the workflow's half (--ci-build, --ci-release) -----------------------------------------------------
+# .github/workflows/release.yml calls these, one build job per system and one release job.  Nothing is
+# asked: a problem is said and the exit code is 1, which stops the workflow, so nothing half-made goes out.
+
+def ci_build(tag: str) -> int:
+    """Build this system's game for the release ``tag`` and pack it under dist/.  The VERSION the checkout
+    carries has to be the tag's, so a tag can never publish a build of another version."""
+    version = version_from_tag(tag)
+    if version is None:
+        say('"%s" is not a release tag, which is V and then a version such as V26.09.23-1.' % tag)
+        return 1
+    if read_version() != version:
+        say('VERSION is %s, and the tag %s is for %s. Nothing was built.'
+            % (read_version() or 'missing', tag, version))
+        return 1
+    # the single executable on Windows and Linux; the Mac builds its app, which holds everything itself
+    flags = [] if compiler.system_key() == 'darwin' else ['--embed']
+    say('building %s for %s.' % (compiler.SYSTEM['folder'], title_for(version)))
+    if compiler.main(flags) != 0:
+        say('the build failed.')
+        return 1
+    os.chdir(HERE)
+    if not os.path.isdir(BUILD_DIR):
+        say('the build left no folder at %s.' % BUILD_DIR)
+        return 1
+    try:
+        archive = package(BUILD_DIR, version)
+    except OSError as error:
+        say('the archive could not be written: %s' % error)
+        return 1
+    say('made %s.' % archive)
+    return 0
+
+
+def ci_release(tag: str, folder: str) -> int:
+    """Publish the release ``tag`` from the archives the build jobs left in ``folder`` (any depth), once
+    every archive a release carries is there.  A release already on GitHub only gets the archives it lacks;
+    nothing on it is replaced."""
+    version = version_from_tag(tag)
+    if version is None:
+        say('"%s" is not a release tag, which is V and then a version such as V26.09.23-1.' % tag)
+        return 1
+    found = {}
+    for dirpath, _dirs, names in os.walk(folder):
+        for name in names:
+            found[name] = os.path.join(dirpath, name)
+    wanted = release_archive_names(version)
+    missing = [name for name in wanted if name not in found]
+    if missing:
+        say('nothing was published: %d of the %d archives are missing:' % (len(missing), len(wanted)))
+        for name in missing:
+            say('  ' + name)
+        return 1
+    paths = [found[name] for name in wanted]
+    ok, _out = gh('release', 'view', tag)
+    if ok:
+        on_release = release_assets(tag)
+        if on_release is None:
+            say('the files on the release %s could not be read.' % tag)
+            return 1
+        for name in wanted:
+            if name in on_release:
+                say('%s is already on the release %s, so it is left as it is.' % (name, tag))
+                continue
+            ok, _out = gh('release', 'upload', tag, found[name], capture=False)
+            if not ok:
+                say('the upload of %s failed.' % name)
+                return 1
+            say('%s is on the release %s.' % (name, tag))
+        return 0
+    notes = release_notes(read_changelog(), version)
+    if not notes:
+        say('the changelog has nothing under %s, so the release notes are empty.' % changelog_heading(version))
+    handle, notes_file = tempfile.mkstemp(suffix='.txt', prefix='release-notes-')
+    try:
+        with os.fdopen(handle, 'w', encoding='utf-8') as fh:
+            fh.write(notes + '\n')
+        ok, _out = gh('release', 'create', tag, *paths, '--title', title_for(version),
+                      '--notes-file', notes_file, '--verify-tag', capture=False)
+    finally:
+        os.remove(notes_file)
+    if not ok:
+        say('the release could not be created. What gh said is above.')
+        return 1
+    say('the release %s is on GitHub with %d archives.' % (title_for(version), len(paths)))
+    return 0
+
+
+def cli(argv) -> int | None:
+    """--ci-build TAG and --ci-release TAG FOLDER, for the workflow; None for anything else, which opens the
+    menu."""
+    if argv[:1] == ['--ci-build'] and len(argv) == 2:
+        os.chdir(HERE)
+        return ci_build(argv[1])
+    if argv[:1] == ['--ci-release'] and len(argv) == 3:
+        os.chdir(HERE)
+        return ci_release(argv[1], argv[2])
+    return None
+
+
 def run() -> int:
     os.chdir(HERE)
     try:
@@ -734,4 +886,5 @@ def run() -> int:
 
 
 if __name__ == '__main__':
-    sys.exit(run())
+    code = cli(sys.argv[1:])
+    sys.exit(run() if code is None else code)

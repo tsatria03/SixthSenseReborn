@@ -571,6 +571,158 @@ def test_the_stage_holds_only_what_the_game_reads():
                                       's_CH1_E.txt'])
 
 
+# --- the workflow (tunmi13productions, 2026-10-05) --------------------------------------------------------
+
+def test_a_release_tag_gives_its_version():
+    assert releaser.version_from_tag('V26.10.05-1') == '26.10.05-1'
+    assert releaser.version_from_tag('V26.10.05-12') == '26.10.05-12'
+    for bad in ('26.10.05-1', 'V26.10.05', 'v26.10.05-1', 'V26.10.05-x', 'V26.10.5-1', 'main', '', None):
+        assert releaser.version_from_tag(bad) is None, bad
+
+
+def test_a_release_carries_the_four_archives():
+    assert releaser.release_archive_names('26.10.05-1') == [
+        'SixthSenseReborn-Win-26.10.05-1.zip', 'SixthSenseReborn-Linux-26.10.05-1.tar.gz',
+        'SixthSenseReborn-macOS-arm64-26.10.05-1.tar.gz', 'SixthSenseReborn-macOS-x86_64-26.10.05-1.tar.gz']
+    wanted = releaser.release_archive_names('26.10.05-1')
+    for key in ('win32', 'linux'):                      # what each system names its own is among them
+        assert releaser.zip_name('26.10.05-1', compiler.SYSTEMS[key]) in wanted
+    assert releaser.zip_name('26.10.05-1', compiler.SYSTEMS['darwin']) in wanted \
+        or compiler.platform.machine() not in ('arm64', 'x86_64')
+
+
+class _Publishing:
+    """Stands in for gh while the workflow's release job runs: what it was asked, and what is on GitHub."""
+
+    def __init__(self, assets=None, exists=False, ok=True):
+        self.assets, self.exists, self.ok = assets or [], exists, ok
+        self.calls = []
+        self.saved = (releaser.gh, releaser.release_assets)
+
+    def __enter__(self):
+        def gh(*args, capture=True):
+            self.calls.append(args)
+            if args[:2] == ('release', 'view'):
+                return self.exists, ''
+            assert '--clobber' not in args, args
+            return self.ok, ''
+        releaser.gh = gh
+        releaser.release_assets = lambda tag: list(self.assets)
+        return self
+
+    def __exit__(self, *exc):
+        releaser.gh, releaser.release_assets = self.saved
+        return False
+
+    def made(self, verb):
+        return [c for c in self.calls if c[:2] == ('release', verb)]
+
+
+def _archives(folder, version, names=None):
+    names = releaser.release_archive_names(version) if names is None else names
+    for name in names:
+        os.makedirs(os.path.join(folder, 'archive-x'), exist_ok=True)
+        open(os.path.join(folder, 'archive-x', name), 'wb').close()
+
+
+def test_the_workflow_publishes_nothing_while_an_archive_is_missing():
+    with tempfile.TemporaryDirectory() as folder:
+        names = releaser.release_archive_names('26.10.05-1')
+        _archives(folder, '26.10.05-1', names[:3])
+        with _Publishing() as g:
+            assert releaser.ci_release('V26.10.05-1', folder) == 1
+        assert g.calls == [], 'it reached GitHub with a release that was not whole'
+
+
+def test_the_workflow_creates_the_release_with_all_four_archives_and_the_notes():
+    def test(_folder):
+        with open(releaser.CHANGELOG, 'w', encoding='utf-8', newline='\n') as fh:
+            fh.write(releaser.plan_changelog(FIVE, '26.10.05-1')[0])
+        with tempfile.TemporaryDirectory() as folder:
+            _archives(folder, '26.10.05-1')
+            with _Publishing() as g:
+                assert releaser.ci_release('V26.10.05-1', folder) == 0
+        (create,) = g.made('create')
+        assert [os.path.basename(a) for a in create[3:7]] == releaser.release_archive_names('26.10.05-1'), create
+        assert '--verify-tag' in create and '--clobber' not in create
+        assert create[create.index('--title') + 1] == 'SixthSenseReborn V26.10.05-1'
+        assert g.made('upload') == []
+    _with_temp_files(test)
+
+
+def test_the_workflow_only_adds_what_a_release_already_made_lacks():
+    with tempfile.TemporaryDirectory() as folder:
+        _archives(folder, '26.10.05-1')
+        names = releaser.release_archive_names('26.10.05-1')
+        with _Publishing(assets=names[:2], exists=True) as g:
+            assert releaser.ci_release('V26.10.05-1', folder) == 0
+        assert g.made('create') == []
+        assert [os.path.basename(c[3]) for c in g.made('upload')] == names[2:]
+        with _Publishing(assets=names, exists=True) as g:
+            assert releaser.ci_release('V26.10.05-1', folder) == 0
+        assert g.made('upload') == [], 'an archive already on the release was uploaded again'
+
+
+def test_a_failed_upload_is_a_failed_workflow():
+    with tempfile.TemporaryDirectory() as folder:
+        _archives(folder, '26.10.05-1')
+        with _Publishing(ok=False):
+            assert releaser.ci_release('V26.10.05-1', folder) == 1
+
+
+def test_the_workflow_refuses_a_version_that_is_not_the_tag():
+    def test(_folder):
+        built = []
+        saved = (compiler.main, releaser.read_version)
+        compiler.main = lambda flags: built.append(flags) or 0
+        releaser.read_version = lambda: '26.10.04-1'
+        try:
+            assert releaser.ci_build('V26.10.05-1') == 1
+            assert releaser.ci_build('main') == 1
+        finally:
+            compiler.main, releaser.read_version = saved
+        assert built == [], 'it built something the tag does not name'
+    _with_temp_files(test)
+
+
+def test_the_workflow_builds_a_single_exe_but_the_mac_builds_its_app():
+    def test(_folder):
+        got = []
+        saved = (compiler.main, releaser.package, releaser.BUILD_DIR, releaser.read_version)
+        with tempfile.TemporaryDirectory() as folder:
+            compiler.main = lambda flags: got.append(flags) or 0
+            releaser.package = lambda build, version: os.path.join(folder, 'x')
+            releaser.BUILD_DIR = folder
+            releaser.read_version = lambda: '26.10.05-1'
+            try:
+                assert releaser.ci_build('V26.10.05-1') == 0
+            finally:
+                compiler.main, releaser.package, releaser.BUILD_DIR, releaser.read_version = saved
+        assert got == [[] if compiler.system_key() == 'darwin' else ['--embed']], got
+    _with_temp_files(test)
+
+
+def test_prepare_and_tag_builds_zips_and_uploads_nothing():
+    assert releaser.MENU[0][1] is releaser.prepare_and_tag
+    src = open(os.path.join(ROOT, 'releaser.py'), encoding='utf-8').read()
+    body = src[src.index('def prepare_and_tag'):src.index('def step_add_build')]
+    for step in ('step_build', 'step_package', 'step_upload', 'compiler.main'):
+        assert step not in body, step
+    for step in ('step_check', 'step_prepare', 'step_commit', 'step_tag'):
+        assert step in body, step
+    assert any(text.startswith('Full release') for text, _action in releaser.MENU), 'the full release stays'
+
+
+def test_the_workflow_file_names_the_same_calls():
+    text = open(os.path.join(ROOT, '.github', 'workflows', 'release.yml'), encoding='utf-8').read()
+    assert "tags: ['V*']" in text
+    assert 'releaser.py --ci-build' in text and 'releaser.py --ci-release' in text
+    assert 'needs: build' in text and 'contents: write' in text
+    for system in ('windows-latest', 'ubuntu-latest', 'macos-15', 'macos-15-intel'):
+        assert system in text, system
+    assert releaser.cli(['--ci-build']) is None and releaser.cli([]) is None, 'a bare flag opens the menu'
+
+
 if __name__ == '__main__':
     fns = [v for k, v in sorted(globals().items()) if k.startswith('test_')]
     bad = 0
