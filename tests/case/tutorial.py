@@ -314,6 +314,39 @@ def test_without_a_controller_the_keyboard_hints_stand_as_they_were():
         _restore()
 
 
+def test_the_shake_is_only_offered_when_the_pad_can_sense_one():
+    """tunmi13productions, 2026-10-05: lesson Eight offers shaking the controller only to a pad
+    that can be shaken, a DualSense; an Xbox pad is told about A alone."""
+    class _CanShake:
+        def __init__(self, can):
+            self.can = can
+
+        def capable(self):
+            return self.can
+    st = _tutorial(prompt=0.4)
+    app = st.app
+    saved = (app.controllers, app.shake, app.mode)
+    try:
+        app.mode = 1
+        app.controllers = _Pads('Xbox One Controller')
+        app.shake = _CanShake(False)
+        assert st.callout('Eight') == 'Press A a few times to shake the zombie off.'
+        app.shake = None
+        assert st.callout('Eight') == 'Press A a few times to shake the zombie off.'
+        app.controllers = _Pads('PS5 Controller')
+        app.shake = _CanShake(True)
+        assert st.callout('Eight') == ('Press Cross a few times, or give the controller a shake, '
+                                       'to shake the zombie off.')
+        assert st.callout('One') == "Push the left stick left to shoot toward 9 o'clock, or press D-pad left."
+        app.controllers = None
+        app.mode = 0
+        assert 'shake the controller' not in (st.callout('Eight') or ''), 'no pad, no shaking offered'
+    finally:
+        app.controllers, app.shake, app.mode = saved
+        st.teardown()
+        _restore()
+
+
 def test_killing_in_the_taught_lane_finishes_the_beat():
     st = _tutorial(prompt=0.4)
     loop = RunLoop.main()

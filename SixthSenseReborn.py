@@ -172,6 +172,8 @@ def main(argv=None):
     app.controllers = pad
     from sixthsense.ui.vibration import Vibration
     app.vibration = Vibration(pad, enabled=lambda: app.vibration_on)
+    from sixthsense.ui.shake import Shake
+    app.shake = Shake(pad)
 
     if args.tutorial:
         kind, obj = 'tutorial', _new_tutorial()
@@ -252,6 +254,10 @@ def main(argv=None):
         if hasattr(inp, 'pump'):
             inp.pump()
         app.vibration.tick()
+        # a pad that can sense it can be shaken to shake the animal zombie off, as A does
+        app.shake.tick(kind in STAGES and bool(getattr(obj, 'isShake', False))
+                       and getattr(obj, 'gameState', 0) == 0,
+                       lambda: inp.perform('shake'))
         loop.pump()
 
         # ---- screen changes ---------------------------------------------

@@ -69,6 +69,8 @@ Lean the stick for one shot, and bring it back to the middle before the next. Th
 The D-pad does the same as the arrow keys: left, up and right, left and up together, right and up together, and down to reload.
 X reloads, the right bumper changes to the next weapon, and the left bumper to the previous one.
 A shakes you free when the animal zombie grabs you.
+A controller that can sense motion, such as a PlayStation DualSense, can also be shaken for the same thing.
+An Xbox controller has no motion sensor, so it only has the button.
 B or Start pauses the game, and resumes it.
 The controller vibrates when a zombie hits you, in its own way for each zombie, when you shoot the girl by mistake, and when you die.
 

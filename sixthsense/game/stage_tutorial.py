@@ -148,6 +148,7 @@ CONTROLLER_HINTS = {
     'Six': 'Pull the left stick down, or press {x}, to reload.',
     'Seven': 'Press {rb} to change to the next weapon.',
     'Eight': 'Press {a} a few times to shake the zombie off.',
+    'EightShake': 'Press {a} a few times, or give the controller a shake, to shake the zombie off.',
     'Nine': 'Press {b} or {start} to end the tutorial.',
 }
 
@@ -267,6 +268,8 @@ class Stage_Tutorial(Stage_1_E):
         pad = self.app.controller_name()
         if pad is None or name not in CONTROLLER_HINTS:
             return None
+        if name == 'Eight' and self.app.can_shake():
+            name = 'EightShake'                 # only offered when the pad can sense it
         return CONTROLLER_HINTS[name].format(**button_names(pad))
 
     def callout(self, name):

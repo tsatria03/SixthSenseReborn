@@ -5,7 +5,7 @@ metadata:
   type: project
 ---
 
-**Status: planned 2026-10-05, building.** Asked for by tunmi13productions, after asking whether Xbox or DualSense pads can detect shaking: "I'd say support both. but only offer shaking if the controller is capable". Support both means A and a shake both work where the pad can sense one; Xbox pads keep only A. Builds on [[project_joystick_plan]] and [[project_tutorial_controller_callouts_plan]].
+**Status: built 2026-10-05, not yet confirmed.** `platform/motion.py`, `ui/shake.py`, `AppDelegate.shake` and `can_shake()`, the frame loop's `shake.tick`, and lesson Eight's `EightShake` callout. Tests: shake 10, tutorial 23. The real SDL library loads here and a missing pad is quietly nothing; no real DualSense was available, so the threshold and the sensor on a real pad, and the library lookup in the frozen Linux and macOS builds, are untried. Asked for by tunmi13productions, after asking whether Xbox or DualSense pads can detect shaking: "I'd say support both. but only offer shaking if the controller is capable". Support both means A and a shake both work where the pad can sense one; Xbox pads keep only A. Builds on [[project_joystick_plan]] and [[project_tutorial_controller_callouts_plan]].
 
 ## What the original did, and what is chosen
 - The original shook the phone: `-[Stage_1_E accelerometer:didAccelerate:]` (0x3c84c) counts shakes, ten of them (`shake_step`). The port counts 1 to 5 presses of the shake key per grab (`shakesNeeded`). A controller shake is one more way to make one press: it calls `shake_step()` once per detected shake, so the count, the timing and the grab itself are untouched.
