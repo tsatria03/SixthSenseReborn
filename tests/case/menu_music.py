@@ -71,23 +71,19 @@ def _set_saved(value):
     d.synchronize()
 
 
-def _menu(saved=None, voice_over=True):
+def _menu(saved=None):
     """The main menu, with its music playing, at the saved volume ``saved``."""
     _set_saved(saved)
     d = UserDefaults.standardUserDefaults()
-    # the menu reads voice over back from EYEMODE as it opens, so it goes in the save
-    for key, value in (('FIREST', '1'), ('COIN', '3'), ('TUTORIAL', '1'),
-                       ('EYEMODE', '1' if voice_over else '0')):
+    for key, value in (('FIREST', '1'), ('COIN', '3'), ('TUTORIAL', '1')):
         d.setObject_forKey_(value, key)
     d.synchronize()
     app = AppDelegate.shared()
     if app.playback is None:
         app.didFinishLaunching()
-    app.mode = 1 if voice_over else 0
     RunLoop.main().reset()
     m = MainController(speech=_Recorder())
     m.viewDidLoad()
-    app.mode = 1 if voice_over else 0
     app.BGMusicStart()
     return m
 
@@ -104,13 +100,9 @@ def _press(handler, *names):
 
 
 def _done(m):
-    m.app.mode = 1
     m.app.playback.backgroundSoundStop()
     m.teardown()
     _set_saved(None)
-    d = UserDefaults.standardUserDefaults()
-    d.setObject_forKey_('1', 'EYEMODE')
-    d.synchronize()
 
 
 def test_the_steps_and_the_curve():
@@ -220,19 +212,11 @@ def test_page_up_and_down_step_to_the_next_ten_from_a_hand_set_value():
         _done(m)
 
 
-def test_spoken_only_with_voice_over_off():
-    m = _menu(saved=None, voice_over=False)
+def test_the_new_volume_is_spoken():
+    m = _menu(saved=None)
     try:
         _press(MenuInput(m), 'page down')
         assert m.speech.said[-1] == 'Music volume 90%', m.speech.said
-    finally:
-        _done(m)
-    m = _menu(saved=None, voice_over=True)
-    try:
-        before = list(m.speech.said)
-        _press(MenuInput(m), 'page down')
-        assert m.app.menu_music_volume == 90, 'the volume did not change with voice over on'
-        assert m.speech.said == before, 'something was spoken with voice over on'
     finally:
         _done(m)
 
@@ -240,7 +224,7 @@ def test_spoken_only_with_voice_over_off():
 def test_the_shop_and_the_inventory_take_the_keys_too():
     from sixthsense.game.inventory import InventoryController
     from sixthsense.game.store import MainStoreController
-    m = _menu(saved=None, voice_over=False)
+    m = _menu(saved=None)
     shop = MainStoreController(speech=_Recorder())
     inv = InventoryController(speech=_Recorder())
     try:
@@ -259,7 +243,7 @@ def test_the_shop_and_the_inventory_take_the_keys_too():
 def test_a_levels_music_and_the_storys_are_never_touched():
     """The music player also plays the level music and the opening screen's story music;
     the keys leave both alone, and save nothing."""
-    m = _menu(saved=None, voice_over=False)
+    m = _menu(saved=None)
     pb = m.app.playback
     try:
         for track, gain in (('bgm_cave', 0.02), ('bgm_start_end', 0.05)):
@@ -277,7 +261,7 @@ def test_a_levels_music_and_the_storys_are_never_touched():
 
 def test_the_opening_screen_leaves_the_keys_alone():
     from sixthsense.game.intro import StartIntroPage
-    m = _menu(saved=None, voice_over=False)
+    m = _menu(saved=None)
     m.app.playback.backgroundSoundStop()
     page = StartIntroPage(speech=_Recorder())
     try:

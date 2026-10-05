@@ -12,7 +12,7 @@ The keys are the ones the binary writes, with the classes that own them:
                     int    owned weapons, ``-[AppDelegate weaponHave]``
     GRENADEUSE, KNIFEUSE, COLTUSE, SHOTGUNUSE, M4USE, AK47USE, MG80USE, JAPANUSE
                     int    equipped weapons
-    EYEMODE         int    ``AppDelegate.mode``, the voice-over row (DEFAULTEYEMODE when unset)
+    (EYEMODE, the voice-over row, is gone: the game is always read by the screen reader.)
     TOPSCORE, TOPSCOREWEEK, WEEKTIME, NOWRANK, REVIEWCOUNT
                            the result panel's records, ``-[Stage_1_E SuccessOrFailMission]``
 
@@ -58,11 +58,12 @@ OLD_KEPT = OLD_FILE + '.old'
 #: The keys that are settings rather than progress, in the order settings.json lists them
 #: (tsatria03, 2026-09-25).  A setting added later goes where it belongs in this list.
 SETTINGS_KEYS = ('MASTERVOLUME', 'MENUMUSICVOLUME', 'LEVELMUSICVOLUME', 'AMBIENCEVOLUME',
-                 'GAMEPLAYGAIN', 'WEAPONVOLUME', 'PLAYERVOLUME', 'VIBRATION', 'EYEMODE')
+                 'GAMEPLAYGAIN', 'WEAPONVOLUME', 'PLAYERVOLUME', 'VIBRATION')
 #: Keys the game no longer reads, dropped from both files when the save is opened, so an
 #: old value cannot linger there.  ENTITYVOLUME went on 2026-09-28: the zombies are always
-#: at full volume (aidocks/project_entity_full_volume_plan.md).
-RETIRED_KEYS = ('ENTITYVOLUME',)
+#: at full volume (aidocks/project_entity_full_volume_plan.md).  EYEMODE went on 2026-10-05
+#: with the voice over row (aidocks/project_screen_reader_only_plan.md).
+RETIRED_KEYS = ('ENTITYVOLUME', 'EYEMODE')
 
 
 def _read(path):

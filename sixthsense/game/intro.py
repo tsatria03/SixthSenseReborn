@@ -69,9 +69,9 @@ class StartIntroPage(BlindScreen):
     **PORT ADDITION (2026-09-23):** a third row, the story.  The original recorded it,
     *As the ozone* (15), for ``intro2storyPage``, whose first row played it with
     ``bgm_start_end`` under it at 0.05 (``shakeDevice``), but nothing ever creates that
-    screen, so it was never heard.  Here landing on row 3 plays it, or with voice over
-    off the screen reader reads ``STORY_TEXT``, which is the recording word for word,
-    with the music under it in both modes; leaving the row stops both.
+    screen, so it was never heard.  Here landing on row 3 has the screen reader read
+    ``STORY_TEXT``, which is the recording word for word, with the music under it;
+    leaving the row stops both.
     tunmi13productions' idea, at tsatria03's decision.
     """
 
@@ -173,15 +173,10 @@ class StartIntroPage(BlindScreen):
         """The splash comes down, the saved game is read, and the warning plays."""
         self.splash = False                                   # 0x1781c
         d = UserDefaults.standardUserDefaults()
-        self.app.mode = self.app.saved_mode()                 # 0x17890
         self.app.haveGold = d.intForKey_('GOLD')              # 0x178e4
         self.app.stage = d.intForKey_('STAGE')                # 0x17918
         self.text = WELCOME_TEXT
         self.select(1)                                        # 0x17ada, 0x17b32
-        if not self.screen_reader:
-            # Only behind this first reading: the welcome text already says to use
-            # earphones, so a reread or the screen reader mode gets no reminder.
-            RunLoop.main().perform(self, 'sound_earphone', None, WELCOME_SECONDS)
 
     def move(self, step):
         """Nothing to move between while the logo is up: on the phone there was no
@@ -199,12 +194,7 @@ class StartIntroPage(BlindScreen):
         """Moving rows also stops the earphone reminder, or cancels its wait, and the
         story's music."""
         BlindScreen.StopElseSpeak(self)
-        self.app.stopSoundBufNumber_(SOUND_EARPHONE)
-        RunLoop.main().cancelPerform(self, 'sound_earphone')
         self._stop_story_music()
-
-    def sound_earphone(self, *_):
-        self.play(SOUND_EARPHONE)
 
     # -[startIntroPage shakeDevice] 0x17178
     def shakeDevice(self):
@@ -240,7 +230,6 @@ class StartIntroPage(BlindScreen):
                     SOUND_DOUBLE_TAP, SOUND_EARPHONE, SOUND_LOGO):
             self.app.stopSoundBufNumber_(num)
         RunLoop.main().cancelPerform(self, 'shakeDevice')
-        RunLoop.main().cancelPerform(self, 'sound_earphone')
         RunLoop.main().cancelPerform(self, 'play_logo')
         RunLoop.main().cancelPerform(self, 'realStartIntro')
         RunLoop.main().cancelPerform(self, 'startIntro1')
@@ -262,10 +251,9 @@ class StartIntroPage(BlindScreen):
 #: 0x17a9e, set on ``explainLabel`` behind sound 14.  The original's own wording, with
 #: its layout whitespace collapsed.
 WELCOME_TEXT = (
-    'Welcome to [Sixth Sense : The zombie]. This game provides itself Voice Over '
-    'function. Please turn off the Voice Over function for normal game progress. '
-    '[Sixth Sense : The zombie] is a shooting game conducted by voice. You must use '
-    'earphone supporting stereo before playing the game. Warning! It may be hard to '
+    'Welcome to Sixth Sense Reborn: The Zombies. This game is read aloud by your '
+    'screen reader. Sixth Sense Reborn is a shooting game conducted by sound. You '
+    'must use stereo headphones before playing the game. Warning! It may be hard to '
     'play the game normally in a noisy environment. Also the old, weak or the '
     'pregnant should abstain from playing this game.'
 )

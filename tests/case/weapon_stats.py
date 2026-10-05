@@ -54,7 +54,6 @@ class _NewSave:
         self.app = AppDelegate.shared()
         if self.app.playback is None:
             self.app.didFinishLaunching()
-        self.app.mode = 1
         RunLoop.main().reset()
         return self
 

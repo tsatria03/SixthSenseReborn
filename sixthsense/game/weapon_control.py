@@ -49,6 +49,9 @@ MG80_SHOT_TIME = 0.085
 WEAPON_FILES = ['Grenage', 'Knife', 'Colt', 'Shotgun', 'M4A1', 'AK47', 'MG80',
                 'Japanese', 'powersaw']
 WEAPON_SLOTS = 8                      # Stage_1_E.weaponSource[8]
+#: PORT ADDITION: what the screen reader says for each slot when it is chosen in play.
+WEAPON_NAMES = ('Grenade', 'Knife', 'Colt', 'Shotgun', 'M4A1', 'AK47', 'MG80',
+                'Japanese sword')
 
 
 def obj_float(v):

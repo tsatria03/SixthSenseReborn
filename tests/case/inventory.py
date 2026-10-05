@@ -35,7 +35,6 @@ def _everything_owned_and_equipped():
     app = AppDelegate.shared()
     if app.playback is None:
         app.didFinishLaunching()
-    app.mode = 1
     app.weaponHave()
     RunLoop.main().reset()
     return app, d

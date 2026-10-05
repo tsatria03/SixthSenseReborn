@@ -25,7 +25,7 @@ def menu_music_key(name, app, say):
     if name not in MENU_MUSIC_KEYS:
         return False
     percent = app.change_menu_music_volume(MENU_MUSIC_KEYS[name])
-    if percent is not None and app.screen_reader:
+    if percent is not None:
         say('Music volume %d%%' % percent)
     return True
 
@@ -55,15 +55,12 @@ class MenuInput:
             self.menu.move(1)
         elif name in ('return', 'enter', 'space'):
             self.menu.activate()
-        elif name in ('home', 'end') and self.menu.app.screen_reader:
-            # the screen reader mode: the first row or the last, as its lists go
+        elif name in ('home', 'end'):
+            # the first row or the last, as a screen reader's own lists go
             self.menu.jump(last=(name == 'end'))
-        elif name in ('left', 'right') and self.menu.app.screen_reader:
+        elif name in ('left', 'right'):
             # ...and Left and Right as VoiceOver's flicks: right is the next row
             self.menu.move(1 if name == 'right' else -1)
-        elif name == 'home':
-            self.menu.selectMenu = 1
-            self.menu.blindModeSelectedMenu()
         else:
             # anything else just repeats where you are, as the original does when a
             # finger lands back on the same row

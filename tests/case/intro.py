@@ -1,6 +1,6 @@
 """The opening screen: the splash, the welcome message and the earphone reminder.
 
-Shortens WELCOME_SECONDS so the whole run fits in a test; nothing else is changed.
+The earphone reminder recording (234) is gone since 2026-10-05: the welcome text says it.
 """
 from __future__ import annotations
 
@@ -53,97 +53,6 @@ def _spy(app):
     return played, real_play
 
 
-def _earphone_playing(app):
-    """234's slot outlives the test that played it, so its being there says nothing."""
-    i = app.CheckSoundBuf_(234)
-    return i != -1 and app.aSoundBufControlData[i].bIsPlaying
-
-
-def test_the_earphone_reminder_waits_for_the_welcome_message():
-    """PORT ADDITION: the original never plays 234 here at all - it only plays it
-    from MainController's StartGameAction:, which used to collide with the
-    menu's own title read every time the menu came up. Saying it once, after
-    the welcome message, keeps the reminder without that collision."""
-    page = _page(welcome=0.3)
-    app = page.app
-    played, real_play = _spy(app)
-    try:
-        assert 234 not in played, 'the earphone reminder started too early'
-        got = _pump(RunLoop.main(), 1.0, until=lambda: 234 in played)
-        assert got, 'the earphone reminder never played'
-    finally:
-        app.playSound_Gain_Pos_z_reprats_ = real_play
-        page.teardown()
-        _restore()
-
-
-def test_skipping_the_intro_cancels_the_earphone_reminder():
-    """A player who skips never hears it, the same way skipping cuts off the
-    welcome message itself."""
-    page = _page(welcome=0.3)
-    app = page.app
-    played, real_play = _spy(app)
-    try:
-        page.skipAction()
-        _pump(RunLoop.main(), 1.0)
-        assert 234 not in played, 'the earphone reminder played after skipping'
-    finally:
-        app.playSound_Gain_Pos_z_reprats_ = real_play
-        page.teardown()
-        _restore()
-
-
-def test_skipping_after_it_already_started_stops_it():
-    page = _page(welcome=0.2)
-    app = page.app
-    try:
-        got = _pump(RunLoop.main(), 1.0, until=lambda: _earphone_playing(app))
-        assert got, 'the earphone reminder never started playing'
-        i = app.CheckSoundBuf_(234)
-        page.skipAction()
-        assert not app.aSoundBufControlData[i].bIsPlaying, \
-            'the earphone reminder kept playing after skipping'
-    finally:
-        page.teardown()
-        _restore()
-
-
-
-def test_moving_off_the_welcome_row_cancels_the_earphone_reminder():
-    """Row 2 never hears the reminder, and coming back to row 1 reads the welcome
-    message alone, since it already says to use earphones."""
-    page = _page(welcome=0.3)
-    app = page.app
-    played, real_play = _spy(app)
-    try:
-        page.move(1)
-        _pump(RunLoop.main(), 0.6)
-        assert 234 not in played, 'the earphone reminder played over row 2'
-        page.move(-1)
-        assert page.selectMenu == 1
-        assert 14 in played, 'coming back to row 1 did not read the welcome message'
-        _pump(RunLoop.main(), 0.6)
-        assert 234 not in played, 'the earphone reminder followed the reread welcome'
-    finally:
-        app.playSound_Gain_Pos_z_reprats_ = real_play
-        page.teardown()
-        _restore()
-
-
-def test_moving_rows_after_it_already_started_stops_it():
-    page = _page(welcome=0.2)
-    app = page.app
-    try:
-        got = _pump(RunLoop.main(), 1.0, until=lambda: _earphone_playing(app))
-        assert got, 'the earphone reminder never started playing'
-        i = app.CheckSoundBuf_(234)
-        page.move(1)
-        assert not app.aSoundBufControlData[i].bIsPlaying, \
-            'the earphone reminder kept playing over row 2'
-    finally:
-        page.teardown()
-        _restore()
-
 class _Pygame:
     KEYDOWN, KEYUP, QUIT = 1, 2, 3
 
@@ -188,13 +97,15 @@ def test_the_logo_sound_waits_a_moment_and_the_welcome_waits_for_it():
     assert 0.5 <= _REAL[0] <= 1.0, 'the wait before the logo is %r' % _REAL[0]
     page, app = _launch()
     played, real_play = _spy(app)
+    said = []
+    page.say = lambda text, interrupt=True: said.append(text)
     try:
         page.viewDidLoad()
         assert played == [], 'something played the instant the game opened: %r' % played
         got = _pump(RunLoop.main(), 1.0, until=lambda: 340 in played)
         assert got and played[0] == 340, 'the logo did not come first: %r' % played
-        assert 14 not in played, 'the welcome came during the logo'
-        got = _pump(RunLoop.main(), 1.5, until=lambda: 14 in played)
+        assert I.WELCOME_TEXT not in said, 'the welcome came during the logo'
+        got = _pump(RunLoop.main(), 1.5, until=lambda: I.WELCOME_TEXT in said)
         assert got, 'the welcome never came after the logo and the splash'
         assert not page.logo and not page.splash
     finally:
@@ -209,6 +120,8 @@ def test_enter_skips_the_logo_to_the_opening_screen():
     from sixthsense.ui.screen_input import ScreenInput
     page, app = _launch(logo=5.0)
     played, real_play = _spy(app)
+    said = []
+    page.say = lambda text, interrupt=True: said.append(text)
     try:
         page.viewDidLoad()
         _pump(RunLoop.main(), 1.0, until=lambda: 340 in played)
@@ -217,7 +130,7 @@ def test_enter_skips_the_logo_to_the_opening_screen():
         assert not page.logo, 'Enter did not skip the logo'
         assert page.next_screen is None, 'Enter left the opening screen'
         assert not app.aSoundBufControlData[i].bIsPlaying, 'the logo sound kept playing'
-        got = _pump(RunLoop.main(), 1.0, until=lambda: 14 in played)
+        got = _pump(RunLoop.main(), 1.0, until=lambda: I.WELCOME_TEXT in said)
         assert got, 'the welcome did not follow the skipped logo'
     finally:
         app.playSound_Gain_Pos_z_reprats_ = real_play
@@ -290,10 +203,12 @@ def _music_spy(app):
 
 
 def test_the_story_row_plays_the_story_with_its_music():
-    """PORT ADDITION: row 3 plays As the ozone (15), which the original recorded for
+    """PORT ADDITION: row 3 reads the story, which the original recorded (15) for
     intro2storyPage but never played, with bgm_start_end at 0.05 under it (0x17224)."""
     page = _page(welcome=5.0)
     app = page.app
+    said = []
+    page.say = lambda text, interrupt=True: said.append(text)
     played, real_play = _spy(app)
     music, undo = _music_spy(app)
     try:
@@ -301,7 +216,8 @@ def test_the_story_row_plays_the_story_with_its_music():
         page.move(1)
         page.move(1)
         assert page.selectMenu == 3
-        assert 15 in played, 'the story did not play'
+        assert said[-1] == I.STORY_TEXT, 'the story was not read'
+        assert 15 not in played, 'the recording played'
         assert music == [('play', 'bgm_start_end', 0.05, True)], music
         assert page.text == I.STORY_TEXT
     finally:
@@ -349,8 +265,8 @@ def test_enter_on_the_story_row_skips_to_the_menu_and_stops_it():
 
 
 def test_the_screen_reader_reads_the_story_with_its_music():
-    """With voice over off, the screen reader reads STORY_TEXT, which is the recording
-    word for word, and the music plays under it all the same."""
+    """The screen reader reads STORY_TEXT, which is the recording word for word, and the
+    music plays under it."""
     page = _page(welcome=5.0)
     app = page.app
     said = []
@@ -358,7 +274,6 @@ def test_the_screen_reader_reads_the_story_with_its_music():
     played, real_play = _spy(app)
     music, undo = _music_spy(app)
     try:
-        app.mode = 0
         page.select(3)
         assert said and said[-1] == I.STORY_TEXT, said[-1:] if said else said
         assert said[-1].startswith('As the ozone layer has disappeared')
@@ -368,7 +283,6 @@ def test_the_screen_reader_reads_the_story_with_its_music():
         page.jump(last=True)
         assert page.selectMenu == 3, 'End did not reach the story row'
     finally:
-        app.mode = 1
         app.playSound_Gain_Pos_z_reprats_ = real_play
         undo()
         page.teardown()

@@ -52,7 +52,7 @@ def _own_save():
                         'SixthSenseReborn')
     mine = os.path.join(real, 'level_chooser')
     os.makedirs(os.path.join(mine, 'SixthSenseReborn'), exist_ok=True)
-    # your key bindings and your settings (voice over, the volumes), but never your save
+    # your key bindings and your settings (the volumes), but never your save
     for name in ('keys.json', 'settings.json'):
         yours = os.path.join(real, name)
         if os.path.exists(yours):

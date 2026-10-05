@@ -1003,6 +1003,24 @@ def test_the_sword_is_drawn_with_its_own_sound():
         st.teardown()
 
 
+def test_changing_weapon_says_its_name():
+    """PORT ADDITION (2026-10-05): the screen reader names the weapon you change to."""
+    _app, st = _new_stage()
+    said = []
+    st._say = said.append
+    try:
+        _app.useWeapon = ['1', '1', '1', '1', '0', '0', '0', '1']
+        st.gamePlayer.useWepon = 2
+        st.gunChangeAction_(1)
+        assert said == ['Shotgun'], said
+        st.gunChangeAction_(1)
+        assert said[-1] == 'Japanese sword', said
+        st.gunChangeAction_(-1)
+        assert said[-1] == 'Shotgun', said
+    finally:
+        st.teardown()
+
+
 def test_the_weapon_change_sound_is_quiet_and_the_old_one_stops():
     """gunChangeAction: stops the old weapon's change sound (0x35c72..0x35c88), then plays
     the new one's at a hard-coded 0.2, z 40 (0x35e80..0x35e9e), not the plist's 1.0."""

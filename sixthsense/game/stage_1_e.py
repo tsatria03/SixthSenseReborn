@@ -61,7 +61,7 @@ from .make_maps import MakeMaps
 from .monster_control import MonsterControl, lane_bearing
 from .moving_accelerometer import MovingAccelerometer
 from .player_control import PlayerControl
-from .weapon_control import WeaponControl, WEAPON_FILES, WEAPON_SLOTS
+from .weapon_control import WeaponControl, WEAPON_FILES, WEAPON_NAMES, WEAPON_SLOTS
 
 log = logging.getLogger('stage')
 
@@ -268,7 +268,7 @@ class Stage_1_E:
         self.levelChanging = False  # PORT ADDITION: ChangeLevel: is due, see _pause
         self.pausedPlayers = []     # PORT ADDITION: see _pause_players
         self.selectMenu = 0
-        self.speech = None          # the screen reader, for the panel with voice over off
+        self.speech = None          # the screen reader
         self.checkTutorialTimer = None
         self.killZombiesLabel = '0'
         self.HeadShotLabel = '0'
@@ -1328,6 +1328,9 @@ class Stage_1_E:
                     SOUND_SWORD_START, 1.0, (0.0, 0.0), 40, False)
             else:
                 self.app.stopSoundBufNumber_(SOUND_SWORD_START)
+            # PORT ADDITION (tunmi13productions, 2026-10-05): the weapon's name, said by
+            # the screen reader now that the speech recordings are going.
+            self._say(WEAPON_NAMES[w])
 
     def doubleTapChangeWeapon_(self, *_):
         self.gunChangeAction_(1)
@@ -1525,7 +1528,7 @@ class Stage_1_E:
     #: 0x3097c, ``mov.w r6, #0x40000000`` - the high half of 2.0.
     READ_DELAY = 2.0
 
-    #: PORT ADDITION: with voice over off, what the screen reader says in place of the
+    #: PORT ADDITION: what the screen reader says in place of the
     #: panel's own voice lines.
     PANEL_MESSAGE_TEXT = {227: 'Mission success.', 229: 'Paused.',
                           354: 'Game over.'}

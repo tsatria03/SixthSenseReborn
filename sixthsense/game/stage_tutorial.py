@@ -138,7 +138,7 @@ KEY_HINTS = {
 
 #: PORT ADDITION (tunmi13productions, 2026-10-05; aidocks/project_tutorial_controller_callouts_plan.md):
 #: with a game controller attached, what the screen reader says after a beat's recording, in
-#: either voice over mode, in place of the keyboard's hint.  {x}, {a}, {b}, {start} and {rb} are
+#: in place of the keyboard's hint.  {x}, {a}, {b}, {start} and {rb} are
 #: the pad's own names for those buttons (platform/controller_names.py).
 CONTROLLER_HINTS = {
     'One': "Push the left stick left to shoot toward 9 o'clock, or press D-pad left.",

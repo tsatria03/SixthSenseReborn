@@ -1,12 +1,11 @@
 #!/usr/bin/env python
 """PORT ADDITION, for testing by ear: start the tutorial at any lesson, with either of its
-endings, and voice over on or off.  Not a test, and not part of the game: the tests are in
+endings.  Not a test, and not part of the game: the tests are in
 ``tests\\case``, and this is one of the tools in ``tests\\interact`` that you play.
 
     python tests\\interact\\tutorial_chooser.py --lesson 9                  the animal zombie
     python tests\\interact\\tutorial_chooser.py --ending start --lesson 10  P, then 3, 2, 1 into the game
-    python tests\\interact\\tutorial_chooser.py --voice off                 with the key hints
-    python tests\\interact\\tutorial_chooser.py                             asks for all three
+    python tests\\interact\\tutorial_chooser.py                             asks for both
 
 The two endings, from the binary (see ``stage_tutorial.py``):
 
@@ -25,9 +24,6 @@ The ten lessons, in the order the tutorial teaches them:
 Starting at a lesson counts every lesson before it as done, so the tutorial goes on from
 there exactly as it would have, and lesson One is never heard.
 
-Voice over is the main menu's voice over row.  The recorded instructions play either way;
-with it off, the screen reader also names the keys to press for each one.
-
 **Your save is never touched.**  It plays on its own save in
 ``%APPDATA%\\SixthSenseReborn\\tutorial_chooser``, and takes a fresh copy of your key bindings
 each time it starts.  Choosing Tutorial from its main menu starts the chosen lesson again.
@@ -43,7 +39,6 @@ ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 sys.path.insert(0, ROOT)
 
 ENDINGS = ('start', 'menu')
-VOICES = ('on', 'off')
 
 #: The lessons as the chooser numbers them, and the beat each one is in the tutorial's
 #: own table (stage_tutorial.BEATS).
@@ -67,8 +62,7 @@ def _own_save():
                         'SixthSenseReborn')
     mine = os.path.join(real, 'tutorial_chooser')
     os.makedirs(os.path.join(mine, 'SixthSenseReborn'), exist_ok=True)
-    # your key bindings and your settings (the volumes), but never your save; the voice
-    # over question below then sets voice over in the chooser's own settings
+    # your key bindings and your settings (the volumes), but never your save
     for name in ('keys.json', 'settings.json'):
         yours = os.path.join(real, name)
         if os.path.exists(yours):
@@ -106,10 +100,6 @@ def _questions():
                   (a if a.isdigit() and 1 <= int(a) <= len(LESSONS) else None))
     if lesson:
         argv += ['--lesson', lesson]
-    voice = _ask('Voice over: on, or off for the key hints too (Enter for on):',
-                 lambda a: a if a in ('',) + VOICES else None)
-    if voice:
-        argv += ['--voice', voice]
     return argv
 
 
@@ -125,9 +115,6 @@ def main(argv=None):
                     help='the lesson to start at, 1 to %d (default 1): %s'
                          % (len(LESSONS), ', '.join('%d %s' % (n, name) for n, (_b, name)
                                                      in enumerate(LESSONS, 1))))
-    ap.add_argument('--voice', choices=VOICES, default='on',
-                    help='voice over on, or off, where the screen reader also names the '
-                         'keys for each lesson (default on)')
     ap.add_argument('-v', '--verbose', action='store_true')
     args = ap.parse_args(argv)
     if not 1 <= args.lesson <= len(LESSONS):
@@ -138,11 +125,6 @@ def main(argv=None):
 
     import SixthSenseReborn
     from sixthsense.game.stage_tutorial import BEAT_NAMES, Stage_Tutorial
-    from sixthsense.platform.defaults import UserDefaults
-
-    d = UserDefaults.standardUserDefaults()
-    d.setObject_forKey_('1' if args.voice == 'on' else '0', 'EYEMODE')
-    d.synchronize()
 
     class LessonTutorial(Stage_Tutorial):
         """The tutorial, starting at the lesson the chooser was asked for."""
@@ -158,13 +140,13 @@ def main(argv=None):
                 self.beat_done[name] = True
             super().MapInitInBundle()
 
-        def tutorial_beat(self, name):
+        def tutorial_beat(self, name, restart=False):
             # MapInitInBundle opens with lesson One (0x7e2fa); the chosen lesson plays in
             # its place, so nothing of lesson One is heard.
             if not self._opened:
                 self._opened = True
                 name = first_beat
-            super().tutorial_beat(name)
+            super().tutorial_beat(name, restart)
 
     launched = []
 
@@ -179,10 +161,10 @@ def main(argv=None):
         return st
 
     SixthSenseReborn._new_tutorial = new_tutorial
-    print('The tutorial from lesson %d, %s, with the %s ending, voice over %s.  '
+    print('The tutorial from lesson %d, %s, with the %s ending.  '
           'Your own save is not used.'
           % (args.lesson, lesson_name,
-             'Start' if args.ending == 'start' else 'Tutorial button', args.voice))
+             'Start' if args.ending == 'start' else 'Tutorial button'))
     return SixthSenseReborn.main(['--tutorial'] + (['-v'] if args.verbose else []))
 
 

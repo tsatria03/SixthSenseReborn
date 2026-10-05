@@ -79,7 +79,6 @@ class AppDelegate:
         self.ttsTimer = None
         self.ttsArrayCount = 0
         self.tts_type = 0
-        self.mode = 1                  # voice over on, see saved_mode
         self.playback = None
         self.numberBackUp = []
         self.haveGold = 0
@@ -88,7 +87,6 @@ class AppDelegate:
         self.aSoundBufControlData = []
         self.bDevice = False           # "does this device vibrate"
         self.useWeapon = []
-        self.CheckVoiceOver = False
         self.bCall = False
         self.bPriceCheck = False
         self.iPodIsPlaying = False
@@ -113,32 +111,14 @@ class AppDelegate:
         d = UserDefaults.standardUserDefaults()
         self.haveGold = d.intForKey_('GOLD')
         self.stage = d.intForKey_('STAGE')
-        self.mode = self.saved_mode()
-        self.CheckVoiceOver = bool(self.mode)
         # PORT ADDITION (2026-09-25): the volume settings, and settings.json written with
-        # every one at its default, voice over included, so a player sees what they can
-        # change (aidocks/project_volume_settings_plan.md)
+        # every one at its default, so a player sees what they can change
+        # (aidocks/project_volume_settings_plan.md)
         wrote = volume.load(d)
-        if d.objectForKey_('EYEMODE') is None:
-            d.setObject_forKey_(str(self.mode), 'EYEMODE')
-            wrote = True
         if wrote:
             d.synchronize()
         self.weaponHave()
         return True
-
-    # ================================================================== mode
-    def saved_mode(self):
-        """``EYEMODE``: 1 is voice over on, the game's own recordings, and 0 is voice
-        over off, where the menus speak through the screen reader instead.
-
-        **DIVERGENCE:** a save that has never set it starts with voice over on.  The
-        original fell back to ``DEFAULTEYEMODE``, which nothing writes, so a new player
-        got mode 0, the standard screens the iPhone's VoiceOver read."""
-        d = UserDefaults.standardUserDefaults()
-        if d.objectForKey_('EYEMODE') is None:
-            return 1
-        return 1 if d.intForKey_('EYEMODE') == 1 else 0
 
     # ================================================================ vibration
     @property
@@ -154,11 +134,6 @@ class AppDelegate:
         d.synchronize()
         if not on:
             self.vibrate_stop()
-
-    @property
-    def screen_reader(self):
-        """Voice over is off, so the menus speak through the screen reader."""
-        return self.mode == 0
 
     # ================================================================ sounds
     @property

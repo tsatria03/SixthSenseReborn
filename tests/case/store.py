@@ -99,9 +99,8 @@ def test_the_shop_menu_pushes_the_two_screens_that_work():
 
 def test_moving_away_from_a_spoken_row_stops_its_speech():
     """StopElseSpeak must cut the sentence off, or it talks over whatever row the
-    player moves to next.  With voice over off, the gold row says the gold."""
+    player moves to next.  The gold row says the gold."""
     app = _app(gold=1250)
-    app.mode = 0
     s = StoreController(speech=_Recorder())
     try:
         s.select(2)
@@ -111,7 +110,6 @@ def test_moving_away_from_a_spoken_row_stops_its_speech():
         assert s.speech.stopped > before, 'moving away did not stop the speech'
     finally:
         s.teardown()
-        app.mode = 1
 
 
 def test_there_are_no_in_app_purchase_rows_in_the_shop():
@@ -325,44 +323,29 @@ def test_a_weapon_you_have_not_bought_cannot_be_equipped():
 def test_a_screen_says_which_one_it_is():
     """DIVERGENCE.  The original's startRead plays sound 13 and nothing else
     (-[mainStoreController startRead] 0x1d124 is three lines long), so four screens in a
-    row opened by saying "back button".  Each one now names itself out of the original's
-    own recordings first, and reads row 1 behind it; moving cancels that wait."""
-    app = _app()
-    loop = RunLoop.main()
-    played = []
-    app.playSound_Gain_Pos_z_reprats_ = lambda n, g, p, z, r: played.append(n)
-    try:
-        for cls, title in ((MainStoreController, 18),        # Store Button
-                           (StoreController, 235),           # Weapon shop Button
-                           (InventoryController, 237)):      # Inventory Button
-            scr = cls()
-            scr.TITLE_DELAY = 0.0
-            played.clear()
-            try:
-                assert scr.startRead() == title, '%s opened with %r' % (cls.__name__, played)
-                assert played == [title], played
-                loop.pump()
-                assert played == [title, 13], 'row 1 did not follow the name: %r' % played
-
-                played.clear()                                # moving cancels the wait
-                scr.startRead()
-                scr.move(1)
-                loop.pump()
-                assert 13 not in played[1:], 'the name was read over: %r' % played
-            finally:
-                scr.teardown()
-
-        # a weapon's page names the weapon
-        p = DetailStoreController(2)                          # M4A1
-        p.TITLE_DELAY = 0.0
-        played.clear()
+    row opened by saying "back button".  Each one now says its own name through the
+    screen reader first, then row 1 behind it."""
+    _app()
+    for cls, title in ((MainStoreController, 'Store.'),
+                       (StoreController, 'Weapon shop.'),
+                       (InventoryController, 'Inventory.')):
+        rec = _Recorder()
+        scr = cls(speech=rec)
         try:
-            assert p.startRead() == SHOP[2]['image']
+            scr.startRead()
+            assert rec.said[0] == title, '%s opened with %r' % (cls.__name__, rec.said)
+            assert rec.said[1] == scr.row_text(scr.ROWS[0]), rec.said
         finally:
-            p.teardown()
+            scr.teardown()
+
+    # a weapon's page names the weapon
+    rec = _Recorder()
+    p = DetailStoreController(2, speech=rec)                  # M4A1
+    try:
+        p.startRead()
+        assert rec.said[0] == 'M4A1.', rec.said
     finally:
-        del app.playSound_Gain_Pos_z_reprats_
-        loop.reset()
+        p.teardown()
 
 
 def test_the_inventory_and_the_shop_disagree_about_prices():
@@ -388,11 +371,10 @@ def test_escape_backs_out_of_every_screen():
             screen.teardown()
 
 
-def test_with_voice_over_off_the_screens_speak_their_rows():
-    """PORT ADDITION: mode 0 hands each row to the screen reader, a button as
-    "<name>, Button" and a number read whole with its label."""
-    app = _app(gold=1250)
-    app.mode = 0
+def test_the_screens_speak_their_rows():
+    """PORT ADDITION: each row goes to the screen reader, a button as "<name>, Button"
+    and a number read whole with its label."""
+    _app(gold=1250)
     try:
         m = MainStoreController(speech=_Recorder())
         m.startRead()
@@ -432,7 +414,7 @@ def test_with_voice_over_off_the_screens_speak_their_rows():
         assert v.speech.said[-1] == 'Grenade, Button'
         v.teardown()
     finally:
-        app.mode = 1
+        pass
 
 
 if __name__ == '__main__':

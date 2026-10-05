@@ -94,7 +94,7 @@ def test_every_sound_is_brought_to_one_level():
     assert tool.trim_for(-50.0) == 12.0           # the first breath, as far as it goes
     assert tool.trim_for(-12.2) == 0.0 and tool.trim_for(float('-inf')) == 0.0
     for name in ('player_breath_1', 'player_die', 'bgm_main_menu', 'bgm_cave_amb',
-                 'effect_forest_rainng', 'bitbee_1', 'weapon_gun_att1', 'five'):
+                 'effect_forest_rainng', 'bitbee_1', 'weapon_gun_att1'):
         assert name in sound_trims.MEASURED, '%s is not levelled' % name
 
 def test_the_bosses_approach_stands_out():

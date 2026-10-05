@@ -40,7 +40,7 @@ SOUND_UI_SELECT = 10
 READ_DELAY = 2.0
 
 #: PORT ADDITION: what the screen reader says in place of the recordings these screens
-#: play after a choice, with voice over off.  The rows' own words are each screen's
+#: play after a choice.  The rows' own words are each screen's
 #: ``ROW_TEXT``.
 MESSAGE_TEXT = {
     259: 'Gold is lacking.',
@@ -73,7 +73,7 @@ class BlindScreen:
     #: how long the name is given before row 1 is read behind it.  The naming recordings
     #: run about a second; moving cancels the wait, so it is only ever heard alone.
     TITLE_DELAY = 1.5
-    #: PORT ADDITION: with voice over off, row -> what the screen reader says for it,
+    #: PORT ADDITION: row -> what the screen reader says for it,
     #: "<name>, Button" for a button.  Overridden by ``row_text`` where it changes.
     ROW_TEXT = {}
     #: and the screen's own name, said before its first row
@@ -89,12 +89,8 @@ class BlindScreen:
         self.running = True
 
     # ---- the sound the screen makes --------------------------------------
-    @property
-    def screen_reader(self):
-        return self.app.screen_reader
-
     def play(self, sound, gain=UI_GAIN):
-        if self.screen_reader and sound in MESSAGE_TEXT:
+        if sound in MESSAGE_TEXT:
             self.say(MESSAGE_TEXT[sound])
             return
         self.app.playSound_Gain_Pos_z_reprats_(sound, gain, (0.0, 0.0), 0, False)
@@ -105,7 +101,7 @@ class BlindScreen:
     def say(self, text, interrupt=True):
         """For a row the port cannot carry out - the two in-app-purchase screens, the
         publisher's server and the weapon test range - and for everything these
-        screens say with voice over off."""
+        screens say."""
         log.info('%s', text)
         if self.speech is None:
             from ..platform.speech import Speech
@@ -131,7 +127,6 @@ class BlindScreen:
         loop = RunLoop.main()
         for sel in set(self.ROW_READER.values()):
             loop.cancelPerform(self, sel)
-        loop.cancelPerform(self, 'read_first_row')      # the name this screen opened with
 
     # ---- the rows --------------------------------------------------------
     def rows(self):
@@ -150,17 +145,9 @@ class BlindScreen:
     def select(self, row):
         self.selectMenu = row
         self.StopElseSpeak()
-        if self.screen_reader:
-            # The label and its number in one line, with no reader queued behind it.
-            self.say(self.row_text(row))
-            return self.row_sound(row)
-        sound = self.row_sound(row)
-        if sound:
-            self.play(sound)
-        reader = self.ROW_READER.get(row)
-        if reader is not None:
-            RunLoop.main().perform(self, reader, None, READ_DELAY)
-        return sound
+        # The label and its number in one line, with no reader queued behind it.
+        self.say(self.row_text(row))
+        return self.row_sound(row)
 
     def title_sound(self):
         """Which recording names this screen, or None.  Overridden per screen."""
@@ -186,26 +173,13 @@ class BlindScreen:
         or choosing anything cancels the wait, so it never talks over the player.
         """
         first = self.ROWS[0] if self.ROWS else 0
-        if self.screen_reader:
-            self.selectMenu = first
-            self.StopElseSpeak()
-            title = self.title_text()
-            if title:
-                self.say(title)
-            self.say(self.row_text(first), interrupt=not title)
-            return self.title_sound()
-        title = self.title_sound()
-        if not title:
-            return self.select(first)
         self.selectMenu = first
         self.StopElseSpeak()
-        self.play(title)
-        RunLoop.main().perform(self, 'read_first_row', None, self.TITLE_DELAY)
-        return title
-
-    def read_first_row(self, *_):
-        """Row 1, a moment behind the screen's name."""
-        self.select(self.ROWS[0] if self.ROWS else 0)
+        title = self.title_text()
+        if title:
+            self.say(title)
+        self.say(self.row_text(first), interrupt=not title)
+        return self.title_sound()
 
     def jump(self, last=False):
         """PORT ADDITION: Home and End in the screen reader mode, the first row or the

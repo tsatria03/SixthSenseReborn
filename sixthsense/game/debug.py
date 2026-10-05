@@ -17,7 +17,7 @@ out by ear.  They are keymap actions, so the F1 screen lists and rebinds them:
 Debug mode also hands you every weapon on Tab and Shift+Tab, bought or not, and no
 shot, no grenade and no magazine ever runs out (``Stage_1_E``).
 
-Everything here speaks through the screen reader, whatever the voice over row says:
+Everything here speaks through the screen reader:
 the game has no recordings for any of it.  They do nothing in the tutorial, which
 runs on its own script, and F2 and Shift+F2 do nothing in the weapon test range,
 where you never walk.

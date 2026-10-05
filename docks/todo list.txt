@@ -5,11 +5,7 @@ Pausing just before you die and then restarting still ends the new game with a g
 In the weapon test range, two zombies that reach you at once on your last heart leave you below zero hearts, and you never die.
 In your first game after the tutorial, Escape goes back to the menu instead of pausing.
 A zombie that has grabbed you can still take a heart while the game is paused, and its grab carries on after a restart.
-On the result panel, moving off the top score row within two seconds reads the top score over the next row.
 A volume in settings.json written with an unusual digit, such as a superscript two, stops the game from starting.
-After a purchase the window says "Purchase has completed" while the screen reader says "Purchase has been completed".
-Speak all of the game's speech through Prism instead of the recordings.
-Make the tutorial screen reader friendly, so it can be followed without the recordings.
 Remove the voice over row from the main menu, so the game is driven entirely by the screen reader.
 Remove the recordings once everything they say is spoken through Prism.
 Make weapons upgradeable, so that they can do more damage.
@@ -17,6 +13,10 @@ Raise the gold you earn after a death a little, so weapons are a bit easier to g
 
 ##Finished.
 
+A purchase is no longer announced twice at the same time, because the recording is gone and only the screen reader says "Purchase has been completed".
+The tutorial is spoken by the screen reader, with the keys or controller buttons for each lesson, and a lesson that sends in a zombie waits for Enter instead of a timer.
+All of the game's speech goes through the screen reader instead of the recordings, and changing weapon says the weapon's name.
+The result panel no longer reads a number over the next row, because the screen reader says each row and its number in one go and stops when you move, so there are no recordings left to overlap.
 The zombies at 10:30 and 1:30 are heard closer to 12 o'clock, so it is easier to tell which lane a zombie is in.
 Games are free, so there are no coins to wait for, and the coins row is gone from the main menu.
 A game controller plays the whole game: the stick and D-pad aim at the lanes, the buttons reload, change weapon, shake and pause, it vibrates for hits, and a menu row turns the vibration off.

@@ -108,13 +108,13 @@ def test_a_deleted_save_starts_over():
 
 def test_progress_goes_to_save_json_and_settings_to_settings_json():
     with _Folder() as f:
-        _save(GOLD='5000', SHOTGUN='1', EYEMODE='0', MENUMUSICVOLUME=70)
+        _save(GOLD='5000', SHOTGUN='1', VIBRATION='0', MENUMUSICVOLUME=70)
         save, settings = f.read(), f.read('settings.json')
         assert save == {'GOLD': '5000', 'SHOTGUN': '1'}, save
-        assert settings == {'MENUMUSICVOLUME': 70, 'EYEMODE': '0'}, settings
+        assert settings == {'MENUMUSICVOLUME': 70, 'VIBRATION': '0'}, settings
         assert not os.path.exists(f.file('defaults.json')), 'the old file was written'
         d = UserDefaults()
-        assert d.intForKey_('GOLD') == 5000 and d.intForKey_('EYEMODE') == 0
+        assert d.intForKey_('GOLD') == 5000 and d.intForKey_('VIBRATION') == 0
         assert d.objectForKey_('MENUMUSICVOLUME') == 70
 
 
@@ -130,7 +130,7 @@ def test_settings_json_is_written_in_its_own_order():
     """Not sorted by name: the order SETTINGS_KEYS gives."""
     from sixthsense.platform.defaults import SETTINGS_KEYS
     with _Folder() as f:
-        _save(EYEMODE='1', MENUMUSICVOLUME=100)
+        _save(VIBRATION='1', MENUMUSICVOLUME=100)
         with open(f.file('settings.json'), encoding='utf-8') as fh:
             text = fh.read()
         order = [k for k in SETTINGS_KEYS if k in text]
@@ -149,15 +149,26 @@ def test_the_old_entity_volume_is_dropped():
         assert f.read() == {'GOLD': '7'}
 
 
+def test_the_old_voice_over_setting_is_dropped():
+    """EYEMODE went on 2026-10-05 with the voice over row; a saved one from before is
+    taken out of settings.json, and the settings beside it are kept."""
+    with _Folder() as f:
+        f.write('save.json', json.dumps({'GOLD': '7'}))
+        f.write('settings.json', json.dumps({'MASTERVOLUME': 80, 'EYEMODE': '0'}))
+        d = UserDefaults()
+        assert d.objectForKey_('EYEMODE') is None
+        assert f.read('settings.json') == {'MASTERVOLUME': 80}
+
+
 def test_an_old_defaults_json_is_moved_over_and_kept():
     with _Folder() as f:
         f.write('defaults.json', json.dumps({'GOLD': '7000', 'COIN': '3', 'M4': '1',
-                                              'EYEMODE': '0', 'MENUMUSICVOLUME': 40}))
+                                              'VIBRATION': '0', 'MENUMUSICVOLUME': 40}))
         d = UserDefaults()
         assert d.intForKey_('GOLD') == 7000 and d.intForKey_('M4') == 1
-        assert d.intForKey_('EYEMODE') == 0 and d.objectForKey_('MENUMUSICVOLUME') == 40
+        assert d.intForKey_('VIBRATION') == 0 and d.objectForKey_('MENUMUSICVOLUME') == 40
         assert f.read() == {'COIN': '3', 'GOLD': '7000', 'M4': '1'}
-        assert f.read('settings.json') == {'MENUMUSICVOLUME': 40, 'EYEMODE': '0'}
+        assert f.read('settings.json') == {'MENUMUSICVOLUME': 40, 'VIBRATION': '0'}
         assert not os.path.exists(f.file('defaults.json')), 'the old file was left in place'
         assert json.loads(open(f.file('defaults.json.old'), encoding='utf-8').read())['GOLD'] \
             == '7000', 'the old file was not kept'
@@ -168,10 +179,10 @@ def test_an_old_defaults_json_is_moved_over_and_kept():
 def test_a_damaged_old_defaults_json_moves_its_backup_over():
     with _Folder() as f:
         f.write('defaults.json', '{"GOLD": "70')
-        f.write('defaults.json.bak', json.dumps({'GOLD': '6500', 'EYEMODE': '0'}))
+        f.write('defaults.json.bak', json.dumps({'GOLD': '6500', 'VIBRATION': '0'}))
         d = UserDefaults()
         assert d.intForKey_('GOLD') == 6500, 'the old backup was not used'
-        assert d.intForKey_('EYEMODE') == 0
+        assert d.intForKey_('VIBRATION') == 0
         with open(f.file('defaults.json.damaged'), encoding='utf-8') as fh:
             assert fh.read() == '{"GOLD": "70', 'the damaged old save was not kept'
         assert f.read()['GOLD'] == '6500'
@@ -187,11 +198,11 @@ def test_an_old_defaults_json_beside_a_save_is_left_alone():
 
 def test_a_damaged_settings_json_carries_on_from_its_backup():
     with _Folder() as f:
-        _save(EYEMODE='0')
-        _save(EYEMODE='1')
+        _save(VIBRATION='0')
+        _save(VIBRATION='1')
         f.write('settings.json', '{"EYEMO')
         d = UserDefaults()
-        assert d.intForKey_('EYEMODE') == 0, 'the settings backup was not loaded'
+        assert d.intForKey_('VIBRATION') == 0, 'the settings backup was not loaded'
         with open(f.file('settings.json.damaged'), encoding='utf-8') as fh:
             assert fh.read() == '{"EYEMO'
 

@@ -18,6 +18,8 @@ The eight rows, in screen order, with the flag and sound each one owns:
      5          ranking_flag      333  "ranking button"
      6          store_flag         18  "Store Button"
      7          modechange_flag   331  "voice over on button" / 332 "...off button"
+         (the port has no such row since 2026-10-05: the game is always read by the
+         screen reader, so the row that switched the recordings on is gone)
      8          gamecenter_flag   367  "game center button10"
 
 **DIVERGENCE:** rows 5 and 8, ranking and Game Center, are left out.  Both opened
@@ -61,10 +63,6 @@ SOUND_TITLE = 16
 SOUND_GAME_START = 17
 SOUND_STORE = 18
 SOUND_TUTORIAL = 23
-SOUND_VOICEOVER_ON = 21
-SOUND_VOICEOVER_OFF = 22
-SOUND_VOICEOVER_ON_BUTTON = 331
-SOUND_VOICEOVER_OFF_BUTTON = 332
 SOUND_COIN_COUNT = 334
 #: How long after "number of coins" the count is read (0x9bec..0x9c0c): 1.6 s.
 READ_COIN_COUNT_DELAY = 1.6
@@ -80,10 +78,9 @@ ROWS = (
     # PORT ADDITION: the vibration row.  No recording names it, so it has no sound and is
     # always spoken through the screen reader.
     (9, 'vibration_flag', None, 'vibration'),
-    (7, 'modechange_flag', SOUND_VOICEOVER_ON_BUTTON, 'modechange'),
 )
-#: PORT ADDITION: what the screen reader says for each row with voice over off.
-#: The coin row and the voice over row are made in ``row_text``.
+#: PORT ADDITION: what the screen reader says for each row.  The vibration row is made in
+#: ``row_text``.
 ROW_TEXT = {
     'title': 'Sixth Sense Reborn: The Zombies',
     'start': 'Game start, Button',
@@ -108,8 +105,6 @@ class MainController:
     # ================================================================ entry
     # -[MainController viewDidLoad] 0x85c1
     def viewDidLoad(self):
-        # -[MainController checkVoiceOverApple] 0xc735 reads the saved mode
-        self.app.mode = self.app.saved_mode()
         self.app.BGMusicStart()
         self.selectMenu = 2
         self.blindModeSelectedMenu()
@@ -119,8 +114,7 @@ class MainController:
         for _n, _f, sound, _a in ROWS:
             if sound is not None:
                 self.app.stopSoundBufNumber_(sound)
-        for sound in (SOUND_VOICEOVER_ON_BUTTON, SOUND_VOICEOVER_OFF_BUTTON,
-                      SOUND_NO_COIN, SOUND_RANKING_NOTICE):
+        for sound in (SOUND_NO_COIN, SOUND_RANKING_NOTICE):
             self.app.stopSoundBufNumber_(sound)
         self.app.readStop()
         if self.speech is not None:
@@ -138,18 +132,11 @@ class MainController:
         return ROWS[0]
 
     def row_sound(self, n=None):
-        num, _flag, sound, action = self._row(n)
-        if action == 'modechange':
-            # 0xa2b8: the row names what choosing it does, 332 "voice over off button"
-            # while voice over is on and 331 "voice over on button" while it is off.
-            return SOUND_VOICEOVER_OFF_BUTTON if self.app.mode else SOUND_VOICEOVER_ON_BUTTON
-        return sound
+        return self._row(n)[2]
 
     def row_text(self, n=None):
-        """What the screen reader says for a row, with voice over off."""
+        """What the screen reader says for a row."""
         action = self._row(n)[3]
-        if action == 'modechange':
-            return 'Voice over off, Button' if self.app.mode else 'Voice over on, Button'
         if action == 'vibration':
             return 'Vibration, currently %s.' % ('on' if self.app.vibration_on else 'off')
         return ROW_TEXT[action]
@@ -161,12 +148,7 @@ class MainController:
             self._flags[f] = False
         self.StopElseSpeak()
         self._flags[flag] = True
-        if self.app.screen_reader or action == 'vibration':
-            self._say(self.row_text())
-            log.info('menu: %s', action)
-            return
-        self.app.playSound_Gain_Pos_z_reprats_(
-            self.row_sound(), 0.2, (0.0, 0.0), 0, False)
+        self._say(self.row_text())
         log.info('menu: %s', action)
 
     def move(self, delta):
@@ -200,8 +182,6 @@ class MainController:
             self.StartGame_(None)
         elif action == 'tutorial':
             self.TutorialAction_(None)
-        elif action == 'modechange':
-            self.ModeChageAction_(None)
         elif action == 'vibration':
             self.VibrationAction_(None)
         elif action == 'store':
@@ -275,21 +255,6 @@ class MainController:
         if on:
             self.app.vibrate_effect('confirm')
         log.info('vibration %s', 'on' if on else 'off')
-
-    # -[MainController ModeChageAction:] 0xb831
-    def ModeChageAction_(self, *_):
-        d = UserDefaults.standardUserDefaults()
-        self.app.mode = 0 if self.app.mode else 1
-        d.setObject_forKey_(str(self.app.mode), 'EYEMODE')
-        d.synchronize()
-        self.StopElseSpeak()
-        # 0xb982 / 0xbb5e: the recording of the mode you switched to, 22 "voice over
-        # off" or 21 "voice over on" - the last recording before the screen reader
-        # takes over, or the first after it hands back.
-        self.app.playSound_Gain_Pos_z_reprats_(
-            SOUND_VOICEOVER_OFF if self.app.screen_reader else SOUND_VOICEOVER_ON,
-            0.2, (0.0, 0.0), 0, False)
-        log.info('voice over %s', 'on' if self.app.mode else 'off')
 
     # ================================================================= misc
     def teardown(self):

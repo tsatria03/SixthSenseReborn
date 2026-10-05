@@ -212,10 +212,7 @@ class StoreController(BlindScreen):
 
     # -[StoreController readgold] 0x15720
     def readgold(self, *_):
-        if self.screen_reader:
-            self.say(self.row_text(2))
-        else:
-            self.app.TTSNumber_type_(self.app.haveGold, 1)
+        self.say(self.row_text(2))
         return self.app.haveGold
 
     # -[StoreController reloadGold] 0x13640 - the label, which there is none of here.
@@ -334,8 +331,7 @@ class DetailStoreController(BlindScreen):
             return False
 
         if self.app.haveGold < self.price:                            # 0x1bbd4
-            # 0x1bbee: only the self-voiced mode plays it.  With voice over off the
-            # original left VoiceOver to read the label, so the screen reader says it.
+            # 0x1bbee: only the self-voiced mode played it; the screen reader says it now.
             self.play(SOUND_GOLD_LACKING)
             self.message = 'Gold is lacking.'
             return False

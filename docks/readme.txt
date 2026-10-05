@@ -21,14 +21,14 @@ Up and Down move between them, and Enter or Escape goes on to the main menu.
 
 The main menu
 
-The main menu has six rows: the title, Start Game, Tutorial, Store, vibration, and voice over.
+The main menu has five rows: the title, Start Game, Tutorial, Store, and vibration.
 Up and Down move between the rows, and each row reads itself aloud.
 Enter chooses the row you are on.
 The vibration row says "Vibration, currently on" or "off", and Enter on it switches the controller's vibration. The game remembers the setting.
 Escape in the main menu quits the game.
 Page Up makes the menu music louder, and Page Down makes it quieter, in the main menu, the shop and the inventory.
 It goes from silent to its full volume in steps of ten percent, and the game remembers where you left it.
-With voice over off, your screen reader says the new volume.
+Your screen reader says the new volume.
 The music during a game stays as it is.
 
 Games are free
@@ -119,18 +119,17 @@ Buy a weapon with gold, or choose Try to test it first on a practice range.
 In the inventory you choose which weapons you take into a game.
 Each game pays 12 gold for every kill and 2 more for every headshot.
 
-Voice over
+Screen reader
 
-With voice over on, the game speaks through its own recordings, and needs no screen reader.
-With voice over off, your screen reader reads the menus, the shop, the inventory, the opening screen and the result panel instead.
+The game speaks through your screen reader: the menus, the shop, the inventory, the opening screen, the tutorial and the result panel. It no longer plays its own recorded voice.
+Changing weapon in a game says the weapon's name.
 The tutorial is spoken by the screen reader. Each lesson says what to do and which keys to press. The lessons with a zombie wait: press Enter, or A on a controller, to send it in. Any other key says the lesson again, or Y on a controller, and does nothing else while the lesson waits. Escape still leaves.
-With a game controller attached, the tutorial says how to do each lesson on the controller instead, with voice over on or off.
-With voice over off, Left and Right also move between rows, and Home and End go to the first and the last row.
-Choose the voice over row in the main menu to turn it on or off.
+With a game controller attached, the tutorial says how to do each lesson on the controller instead.
+Left and Right also move between rows, and Home and End go to the first and the last row.
 
 Your save
 
-Your progress is saved in save.json, your settings, such as voice over and the menu music volume, in settings.json, and your keys in keys.json.
+Your progress is saved in save.json, your settings, such as the menu music volume, in settings.json, and your keys in keys.json.
 On Windows, all three are in the SixthSenseReborn folder in your AppData Roaming folder, which you can open by typing %APPDATA%\SixthSenseReborn into the Windows Run box.
 On Linux, they are in ~/.local/share/SixthSenseReborn, or $XDG_DATA_HOME/SixthSenseReborn when set.
 On macOS, they are in ~/Library/Application Support/SixthSenseReborn.

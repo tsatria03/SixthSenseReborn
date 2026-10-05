@@ -47,11 +47,12 @@ def _menu():
 def test_the_rows_are_the_originals():
     """The rows selectTapPointSoundStart (0x9825) claims, with their sounds and their
     original numbers, less the coins (1), ranking (5) and Game Center (8), and the port's
-    vibration row (9), which has no recording."""
-    assert [r[0] for r in ROWS] == [2, 3, 4, 6, 9, 7]
+    vibration row (9), which has no recording, and the voice over row (7), which went on
+    2026-10-05 with the recorded voice."""
+    assert [r[0] for r in ROWS] == [2, 3, 4, 6, 9]
     assert [r[3] for r in ROWS] == ['title', 'start', 'tutorial',
-                                    'store', 'vibration', 'modechange']
-    assert [r[2] for r in ROWS] == [16, 17, 23, 18, None, 331]
+                                    'store', 'vibration']
+    assert [r[2] for r in ROWS] == [16, 17, 23, 18, None]
     # every one of them is a real entry with a WAV behind it
     sl = plistlib.load(open(paths.path_for_resource('SoundList', 'plist'), 'rb'))
     for _n, _f, sound, _a in ROWS:
@@ -196,11 +197,10 @@ def test_it_opens_on_the_title_and_wraps():
         for _ in range(len(ROWS)):
             m.move(1)
             seen.append(m._row()[3])
-        assert seen == ['start', 'tutorial', 'store', 'vibration', 'modechange',
-                        'title'], seen
+        assert seen == ['start', 'tutorial', 'store', 'vibration', 'title'], seen
         m.selectMenu = 2
         m.move(-1)
-        assert m.selectMenu == 7, 'moving up off the top did not wrap'
+        assert m.selectMenu == 9, 'moving up off the top did not wrap'
     finally:
         m.teardown()
 
@@ -269,20 +269,13 @@ def test_the_first_start_goes_to_the_tutorial():
         m.teardown()
 
 
-def test_mode_change_toggles_voice_over():
-    """-[MainController ModeChageAction:] 0xb831"""
-    m = _menu()
-    try:
-        d = UserDefaults.standardUserDefaults()
-        before = m.app.mode
-        m.selectMenu = 7
-        m.activate()
-        assert m.app.mode != before
-        assert d.intForKey_('EYEMODE') == m.app.mode, 'EYEMODE was not saved'
-        m.activate()
-        assert m.app.mode == before, 'it did not toggle back'
-    finally:
-        m.teardown()
+def test_there_is_no_voice_over_row():
+    """The game is always read by the screen reader since 2026-10-05, so the row that
+    switched the recorded voice on is gone, with its sounds and its saved setting."""
+    from sixthsense.game import main_controller as MC
+    assert 'modechange' not in [r[3] for r in MC.ROWS]
+    assert not hasattr(MC.MainController, 'ModeChageAction_')
+    assert not hasattr(AppDelegate.shared(), 'mode')
 
 
 def test_there_is_no_ranking_or_game_center_row():
@@ -314,34 +307,6 @@ def test_the_store_row_opens_the_shop():
         m.teardown()
 
 
-def test_a_new_save_starts_with_voice_over_on():
-    """DIVERGENCE: a save with no EYEMODE is self-voiced, not the original's mode 0."""
-    d = UserDefaults.standardUserDefaults()
-    d.removeObjectForKey_('EYEMODE')
-    d.synchronize()
-    m = _menu()
-    try:
-        assert m.app.mode == 1
-        assert not m.app.screen_reader
-    finally:
-        m.teardown()
-
-
-def test_the_voice_over_row_says_what_choosing_it_does():
-    """0xa2b8: while voice over is on the row is 332, "voice over off button", and
-    while it is off it is 331, "voice over on button" - what choosing it does."""
-    m = _menu()
-    try:
-        m.app.mode = 1
-        assert m.row_sound(7) == 332                    # voice over off button
-        m.app.mode = 0
-        assert m.row_sound(7) == 331                    # voice over on button
-        assert m.row_text(7) == 'Voice over on, Button'
-    finally:
-        m.app.mode = 1
-        m.teardown()
-
-
 def test_start_and_store_click_first():
     """tapCount sends StartGame: (0x9420) and Store: (0x9438), which click (10 at 0.2,
     0xad32 and 0xb6a8) before StartGameAction: and StoreAction:.  The port clicked only
@@ -349,7 +314,6 @@ def test_start_and_store_click_first():
     from sixthsense.game import main_controller as MC
     m = _menu()
     app = m.app
-    app.mode = 1
     played = []
     app.playSound_Gain_Pos_z_reprats_ = lambda n, *a: played.append(n)
     try:
@@ -366,23 +330,11 @@ def test_start_and_store_click_first():
         m.teardown()
 
 
-def test_turning_voice_over_off_speaks_through_the_screen_reader():
-    """0xb982: turning it off plays the recording 22, "voice over off", as the
-    original does; from then on the rows speak through the screen reader."""
+def test_the_rows_speak_through_the_screen_reader():
+    """The menu says each row as the player moves, whatever an old save says."""
     d = UserDefaults.standardUserDefaults()
     m = _menu()
-    played = []
-    real = m.app.playSound_Gain_Pos_z_reprats_
-    m.app.playSound_Gain_Pos_z_reprats_ = lambda n, *a: (played.append(n), real(n, *a))
     try:
-        m.app.mode = 1
-        m.selectMenu = 7
-        said = len(m.speech.said)
-        m.activate()
-        assert m.app.mode == 0
-        assert played[-1] == 22, played
-        assert len(m.speech.said) == said, 'the screen reader spoke the toggle'
-        m.app.__dict__.pop('playSound_Gain_Pos_z_reprats_', None)
         m.move(-1)
         assert m.speech.said[-1] == 'Vibration, currently on.'
         m.move(-1)
@@ -392,10 +344,6 @@ def test_turning_voice_over_off_speaks_through_the_screen_reader():
         m.move(-1)
         assert m.speech.said[-1] == 'Sixth Sense Reborn: The Zombies'
     finally:
-        m.app.__dict__.pop('playSound_Gain_Pos_z_reprats_', None)
-        m.app.mode = 1
-        d.setObject_forKey_('1', 'EYEMODE')
-        d.synchronize()
         m.teardown()
 
 
@@ -433,22 +381,19 @@ def _vibration_row(m):
     m.selectMenu = next(n for n, _f, _s, a in ROWS if a == 'vibration')
 
 
-def test_the_vibration_row_says_its_setting_in_both_modes():
+def test_the_vibration_row_says_its_setting():
     d = UserDefaults.standardUserDefaults()
     m = _menu()
     try:
-        for mode in (1, 0):                    # voice over on, then off
-            m.app.mode = mode
-            d.removeObjectForKey_('VIBRATION')
-            _vibration_row(m)
-            said = len(m.speech.said)
-            m.blindModeSelectedMenu()
-            assert m.speech.said[said:] == ['Vibration, currently on.'], (mode, m.speech.said)
-            d.setObject_forKey_('0', 'VIBRATION')
-            m.blindModeSelectedMenu()
-            assert m.speech.said[-1] == 'Vibration, currently off.', mode
+        d.removeObjectForKey_('VIBRATION')
+        _vibration_row(m)
+        said = len(m.speech.said)
+        m.blindModeSelectedMenu()
+        assert m.speech.said[said:] == ['Vibration, currently on.'], m.speech.said
+        d.setObject_forKey_('0', 'VIBRATION')
+        m.blindModeSelectedMenu()
+        assert m.speech.said[-1] == 'Vibration, currently off.'
     finally:
-        m.app.mode = 1
         d.removeObjectForKey_('VIBRATION')
         m.teardown()
 
@@ -526,9 +471,8 @@ def test_vibration_off_stops_the_effects_and_the_connect_buzz():
 
 
 def test_home_and_end_in_the_screen_reader_mode():
-    """With voice over off, Home and End go to the first row and the last, in the main
-    menu and in the shop, as a screen reader's own lists do.  With voice over on, End
-    stays where it was."""
+    """Home and End go to the first row and the last, in the main menu and in the shop,
+    as a screen reader's own lists do."""
     from sixthsense.game.main_controller import ROWS
     from sixthsense.game.store import MainStoreController
     from sixthsense.ui.menu_input import MenuInput
@@ -536,7 +480,6 @@ def test_home_and_end_in_the_screen_reader_mode():
     m = _menu()
     shop = MainStoreController(speech=_Recorder())
     try:
-        m.app.mode = 0
         keys = MenuInput(m)
         keys.handle(_Key('end'), _Pygame)
         assert m.selectMenu == ROWS[-1][0], 'End went to row %d' % m.selectMenu
@@ -550,24 +493,14 @@ def test_home_and_end_in_the_screen_reader_mode():
         assert shop.speech.said, 'End did not read the row'
         keys.handle(_Key('home'), _Pygame)
         assert shop.selectMenu == rows[0], 'Home went to row %d' % shop.selectMenu
-
-        m.app.mode = 1
-        m.selectMenu = 3
-        MenuInput(m).handle(_Key('end'), _Pygame)
-        assert m.selectMenu == 3, 'End jumped with voice over on'
-        shop.selectMenu = rows[1]
-        ScreenInput(shop).handle(_Key('end'), _Pygame)
-        assert shop.selectMenu == rows[1], 'End jumped in the shop with voice over on'
     finally:
-        m.app.mode = 1
         shop.teardown()
         m.teardown()
 
 
 def test_left_and_right_move_like_voiceovers_flicks_in_the_screen_reader_mode():
-    """With voice over off, Right goes to the next row and Left to the previous one, in
-    the main menu and in the shop, as VoiceOver's flicks did.  With voice over on, Left
-    and Right only repeat the row in the main menu, and do nothing in the shop."""
+    """Right goes to the next row and Left to the previous one, in the main menu and in
+    the shop, as VoiceOver's flicks did."""
     from sixthsense.game.main_controller import ROWS
     from sixthsense.game.store import MainStoreController
     from sixthsense.ui.menu_input import MenuInput
@@ -576,7 +509,6 @@ def test_left_and_right_move_like_voiceovers_flicks_in_the_screen_reader_mode():
     shop = MainStoreController(speech=_Recorder())
     nums = [r[0] for r in ROWS]
     try:
-        m.app.mode = 0
         keys = MenuInput(m)
         m.selectMenu = nums[1]
         keys.handle(_Key('right'), _Pygame)
@@ -596,16 +528,7 @@ def test_left_and_right_move_like_voiceovers_flicks_in_the_screen_reader_mode():
         assert shop.speech.said, 'Right did not read the row'
         keys.handle(_Key('left'), _Pygame)
         assert shop.selectMenu == rows[0], 'Left went to row %d' % shop.selectMenu
-
-        m.app.mode = 1
-        m.selectMenu = nums[2]
-        MenuInput(m).handle(_Key('right'), _Pygame)
-        assert m.selectMenu == nums[2], 'Right moved with voice over on'
-        shop.selectMenu = rows[1]
-        ScreenInput(shop).handle(_Key('left'), _Pygame)
-        assert shop.selectMenu == rows[1], 'Left moved in the shop with voice over on'
     finally:
-        m.app.mode = 1
         shop.teardown()
         m.teardown()
 
