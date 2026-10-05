@@ -39,6 +39,7 @@ from __future__ import annotations
 import logging
 import time
 
+from ..game.weapon_control import MG80_NUMBER
 from ..platform import volume
 from ..platform.keymap import CHORD_WINDOW, KeyMap
 
@@ -92,6 +93,7 @@ class Input:
         self.open_bindings = False        # the frame loop watches this for F1
         self._pending_at = None           # when the chord window closes
         self.last_lane = 3                # where --debug's F5 spawns
+        self._auto_lane = None            # the lane a held key keeps firing down
         # The keymap is shared, and a key that was down when the last screen went away
         # never had its key-up delivered here.  Left held, it makes the next stage read
         # chords nobody is pressing.
@@ -103,7 +105,20 @@ class Input:
         of the lane, which is the band the original would have quantised to."""
         if lane in LANE_ANGLE:
             self.last_lane = lane
+            self._auto_lane = lane
             self.stage.MovingShot_(LANE_ANGLE[lane])
+
+    def _auto_fire(self):
+        """PORT ADDITION: the MG80 keeps firing down the lane while its key is held.
+        ``MovingShot_`` ignores a press while ``shotFlag`` is up, so asking every frame
+        fires at the weapon's ``ShotTime``.  Every other weapon stays one shot per press."""
+        st = self.stage
+        weapon = st.weaponSource[st.gamePlayer.useWepon]
+        if (weapon is None or weapon.WeaponNumber != MG80_NUMBER
+                or (weapon.BulletCount <= 0 and not st.app.debug)):
+            self._auto_lane = None      # empty: no click on every frame
+            return
+        st.MovingShot_(LANE_ANGLE[self._auto_lane])
 
     def perform(self, action):
         if action is None:
@@ -220,16 +235,21 @@ class Input:
                 self._pending_at = None
                 self.perform(action)
             self.keymap.release(name)
+            self._auto_lane = None      # any key up ends the burst; press again to resume
 
     def pump(self):
-        """Called once a frame, to close an open chord window."""
+        """Called once a frame, to close an open chord window and keep a held MG80 firing."""
         if self.stage.gameState != 0:
             self._pending_at = None
+            self._auto_lane = None
             return
         if self._pending_at is not None and time.monotonic() >= self._pending_at:
             self._pending_at = None
             self.perform(self.keymap.settle())
+        elif self._auto_lane is not None:
+            self._auto_fire()
 
     def reset(self):
         self._pending_at = None
+        self._auto_lane = None
         self.keymap.clear_held()

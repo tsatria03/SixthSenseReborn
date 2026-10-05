@@ -190,6 +190,7 @@ SOUND_NOW_LOADING = 46
 #: tunmi13productions on 2026-09-22; 0.0 would have shots land instantly again, and
 #: nothing else would need to change.
 SHOT_TRAVEL = 0.5
+MG80_SLOT = 6               # its place in weaponSource, and its WeaponNumber
 
 #: 0x31964: how long ``brearhFlag`` stays up after a breath.
 BREATH_HOLD = 3.0
@@ -866,7 +867,8 @@ class Stage_1_E:
 
         w = self.gamePlayer.useWepon
         weapon = self.weaponSource[w]
-        self.app.stopSoundBufNumber_(weapon.ShotSoundNumber)   # 0x2f130
+        if w != MG80_SLOT:                  # the MG80's shots overlap instead
+            self.app.stopSoundBufNumber_(weapon.ShotSoundNumber)   # 0x2f130
 
         if w == 0:
             self._throw_grenade(weapon)
@@ -910,9 +912,11 @@ class Stage_1_E:
         # the plists' malformed "0.2f", which left every gunshot 14 dB down.
         # PORT DIVERGENCE: the shot goes off down the lane it is aimed at, in line with
         # the zombies there, not at the original's point for the lane (GUN_SHOT_POS).
-        self.app.playSound_Gain_Pos_z_reprats_(
-            weapon.ShotSoundNumber, weapon.ReloadSoundGain,
-            self._lane_pos(lane), 0, False)
+        # PORT DIVERGENCE: the MG80's shots overlap, so a burst is not cut off.
+        play = (self.app.playOverlapSound_Gain_Pos_z_ if w == MG80_SLOT
+                else self.app.playSound_Gain_Pos_z_reprats_)
+        play(weapon.ShotSoundNumber, weapon.ReloadSoundGain,
+             self._lane_pos(lane), 0, *(() if w == MG80_SLOT else (False,)))
         # 0x2fc0e..0x2fc48: whether it is a headshot is decided now, by the breathing
         # gap at the moment of the shot, and carried to the hit on isHeadShot.
         target = self.monsterHitHeadFind()

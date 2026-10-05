@@ -59,6 +59,7 @@ log = logging.getLogger('oal')
 
 MAX_BUFFERS = 128       # oalPlayback._buffers[128]
 MAX_SOURCES = 122       # oalPlayback._sources[122]
+OVERLAP_VOICES = 6      # PORT ADDITION: spare sources per overlapping sound
 
 
 class _Buffer:
@@ -139,6 +140,7 @@ class OalPlayback:
         self._buffers = [_Buffer() for _ in range(MAX_BUFFERS)]
         self._sources = [_Source() for _ in range(MAX_SOURCES)]
         self._initialized = False
+        self._overlap = {}                  # note -> spare source ids (playOverlap...)
         self._numBuffers = 0
         self.sourceNumber = 0
         self.listenerPos = (0.0, 0.0)
@@ -245,6 +247,9 @@ class OalPlayback:
         """-[oalPlayback freeSourceOne:] 0xde78"""
         if not (0 <= index < MAX_SOURCES):
             return
+        for sid in self._overlap.pop(index, ()):
+            self.al.alSourceStop(sid)
+            self.al.delete_source(sid)
         s = self._sources[index]
         if s.sourceId:
             self.al.alSourceStop(s.sourceId)
@@ -352,6 +357,41 @@ class OalPlayback:
         if b is not None and b.bufferId:
             self.al.alSourcei(s.sourceId, al.AL_BUFFER, b.bufferId)
 
+    def playOverlap_gain_pos_z_(self, note, gain, pos, z):
+        """PORT ADDITION: play ``note`` on a spare source that shares its buffer, so a
+        second play starts beside the first instead of restarting it.  The MG80's shots
+        come faster than its sound ends and would otherwise cut each other off.  Placed
+        like ``queueNote:`` (reference 40, maximum 800).  Past ``OVERLAP_VOICES`` the
+        oldest voice is reused."""
+        if not self._initialized or not (0 <= note < MAX_BUFFERS):
+            return
+        b = self._buffers[note]
+        if not b.bufferId:
+            return
+        A = self.al
+        pool = self._overlap.setdefault(note, [])
+        sid = next((p for p in pool if A.source_state(p) != al.AL_PLAYING), None)
+        if sid is None:
+            if len(pool) < OVERLAP_VOICES:
+                sid = A.gen_source()
+                A.alSourcef(sid, al.AL_MAX_GAIN, sound_trims.MAX_GAIN)
+            else:
+                sid = pool.pop(0)
+                A.alSourceStop(sid)
+            pool.append(sid)
+        A.alGetError()
+        A.alSourcei(sid, al.AL_BUFFER, 0)
+        A.alSourcei(sid, al.AL_BUFFER, b.bufferId)
+        A.alSourcei(sid, al.AL_LOOPING, 0)
+        A.alSourcef(sid, al.AL_REFERENCE_DISTANCE, 40.0)
+        A.alSourcef(sid, al.AL_MAX_DISTANCE, 800.0)
+        A.alSourcef(sid, al.AL_GAIN, self._gain(note, gain))
+        A.alSourcef(sid, al.AL_CONE_OUTER_ANGLE, 1.0)
+        A.alSourcef(sid, al.AL_CONE_INNER_ANGLE, 1.0)
+        A.source_fv(sid, al.AL_POSITION, (float(pos[0]), float(z), float(pos[1])))
+        A.alSourcePlay(sid)
+        A.alGetError()
+
     def startSound_Postion_(self, note, pos):
         """-[oalPlayback startSound:Postion:] 0xe49c"""
         if not (0 <= note < MAX_SOURCES):
@@ -439,6 +479,9 @@ class OalPlayback:
                 self.al.alSourceStop(s.sourceId)
                 s.isPlaying = False
                 s.queued = False
+        for pool in self._overlap.values():
+            for sid in pool:
+                self.al.alSourceStop(sid)
 
     def is_note_playing(self, note):
         """Not in the original; the port uses it where the original relied on a timer

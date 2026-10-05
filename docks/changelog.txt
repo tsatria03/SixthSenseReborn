@@ -1,4 +1,6 @@
 unrelease:
+The MG80 now keeps firing while you hold its lane key, like a machine gun. Every other weapon still fires once per press.
+The MG80 can now fire again after 0.085 seconds instead of 0.4, and its shots overlap instead of cutting each other off.
 The game is now called Sixth Sense Reborn: the window and the main menu say so, the game is SixthSenseReborn.exe, and its download is SixthSenseReborn-Win-<version>.zip.
 Sixth Sense Reborn keeps its own save, in a SixthSenseReborn folder, so it never changes your Sixth Sense save. The first time it starts, it copies your Sixth Sense progress, settings and keys.
 Added macOS support with a copyable app and VoiceOver or native speech; targets macOS 11 or newer.

@@ -38,6 +38,11 @@ from .. import paths
 
 log = logging.getLogger('weapon')
 
+#: PORT DIVERGENCE: the MG80 can fire again this many seconds after a shot, where its
+#: plist says 0.4.  Chosen from the shot sound, by tunmi13productions.
+MG80_NUMBER = 6
+MG80_SHOT_TIME = 0.085
+
 # -[Stage_1_E weaponInit] 0x35008 builds this array and loads the first eight.
 # 'powersaw' is the ninth entry of the array the original builds but its loop runs
 # `cmp r4, 8` - so the saw is never loaded into weaponSource.  Kept as written.
@@ -133,6 +138,8 @@ class WeaponControl:
         self.ReloadSoundnumber = obj_int(a[15])
         self.ReloadSoundGain = obj_float(a[17])
         self.ShotTime = obj_float(a[19])
+        if self.WeaponNumber == MG80_NUMBER:
+            self.ShotTime = MG80_SHOT_TIME
         self.ReloadTime = obj_float(a[21])
         # 0x2235a: floatValue then vcvt.s32.f32 - read as float, stored as int.
         self.weaponChangeSoundNumber = int(obj_float(a[23]))

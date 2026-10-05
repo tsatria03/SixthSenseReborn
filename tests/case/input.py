@@ -368,6 +368,47 @@ def test_holding_the_shake_key_is_one_shake():
         st.teardown()
 
 
+def _held_shots(slot, frames=4, ammo=None):
+    """Hold Up with weapon ``slot`` equipped, pump ``frames`` frames with the weapon ready
+    each time, and return how many shots were asked for."""
+    st, inp = _stage()
+    try:
+        st.gamePlayer.useWepon = slot
+        if ammo is not None:
+            st.weaponSource[slot].BulletCount = ammo
+        shots = []
+        real = st.MovingShot_
+        st.MovingShot_ = lambda angle: (shots.append(angle), real(angle))[1]
+        st.shotFlag = False
+        _down(inp, 'up')
+        _settle(inp)
+        for _ in range(frames):
+            st.shotFlag = False
+            inp.pump()
+        n = len(shots)
+        _up(inp, 'up')
+        for _ in range(frames):
+            st.shotFlag = False
+            inp.pump()
+        assert len(shots) == n, 'it kept firing after the key came up'
+        return n
+    finally:
+        st.teardown()
+
+
+def test_holding_a_key_keeps_the_mg80_firing():
+    assert _held_shots(6) > 2
+
+
+def test_other_weapons_fire_once_per_press():
+    for slot in (2, 3, 4, 5):
+        assert _held_shots(slot) == 1, 'weapon %d repeated' % slot
+
+
+def test_an_empty_mg80_does_not_click_on_every_frame():
+    assert _held_shots(6, ammo=0) == 1
+
+
 def test_bindings_survive_a_round_trip():
     path = os.path.join(tempfile.mkdtemp(), 'keys.json')
     a = KeyMap(path=path)

@@ -239,6 +239,12 @@ class AppDelegate:
         self.playback.queueNote_gain_sourcePos_defaultZ_repeats_(i, gain, pos, z, repeats)
         self.playback.startSound_Postion_(i, pos)
 
+    def playOverlapSound_Gain_Pos_z_(self, num, gain, pos, z):
+        """PORT ADDITION: ``playSound:`` that does not restart the sound if it is still
+        playing, for the MG80's burst (``OalPlayback.playOverlap_gain_pos_z_``)."""
+        i = self.playSoundBufNumber_(num)
+        self.playback.playOverlap_gain_pos_z_(i, gain, pos, z)
+
     def playHitSound_Gain_Pos_z_(self, num, gain, pos, z):
         """PORT DIVERGENCE (tunmi13productions, 2026-09-27): a weapon's hit on a monster, queued
         with the monster's own distances (``MonsterQueueNote:``, reference 100, maximum
