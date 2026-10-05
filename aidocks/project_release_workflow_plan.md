@@ -25,7 +25,11 @@ metadata:
 - A run not started by a tag also refuses a real `--ci-release` (`GITHUB_REF_TYPE` is not `tag`), so a mistake in the workflow file cannot publish from a test run.
 - `releaser.py` menu entry 2, "Test the workflow", checks that the branch is pushed, asks, and runs `gh workflow run release.yml --ref <branch>`. GitHub only lists a workflow to dispatch once its file is on the default branch, so the first test run needs the push.
 
-## Not verified yet
+## Test run, 2026-10-05
+- The first test run from GitHub passed: all four builds, the four archives, and the dry-run release check; no tag or release was made. The runner names `macos-15` and `macos-15-intel` and Python 3.12 (Windows, Linux) and 3.13 (Macs) worked. GitHub warned that the `actions/*@v4` steps run on Node 24 anyway (newer versions to be taken later) and that `ubuntu-latest` moves to Ubuntu 26 on 2026-10-19.
+- Still unproven: the real tag path (`gh release create` from the release job), the Mac archives on a Mac, and the macOS 11 minimum. The status stays "built, not yet confirmed" until the dev says it works.
+
+## Not verified yet (before the test run above)
 - The names of GitHub's macOS runner images for Apple Silicon and Intel in 2026. They sit in one matrix table in the workflow, to be corrected on the first run.
 - The macOS 11 minimum: the README builds with uv-managed Python 3.13; the workflow uses `actions/setup-python` 3.13, and the minimum the result keeps is to be checked on a Mac.
 - Nothing runs until a real tag is pushed, so the workflow is only proved by the first release made through it. The macOS archives are unsigned, as the compiler leaves them.
