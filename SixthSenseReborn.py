@@ -150,6 +150,7 @@ def main(argv=None):
         return 0
 
     import pygame
+    from sixthsense.ui.controller import Controllers
     from sixthsense.ui.focus import focus_lost, interrupt_stop
     from sixthsense.ui.input import Input
     from sixthsense.ui.keybind_screen import KeyBindScreen
@@ -166,6 +167,7 @@ def main(argv=None):
     clock = pygame.time.Clock()
     bindings = KeyBindScreen()
     showing_bindings = False
+    pad = Controllers(pygame)
 
     if args.tutorial:
         kind, obj = 'tutorial', _new_tutorial()
@@ -198,6 +200,14 @@ def main(argv=None):
                 interrupt_stop(obj)         # losing focus is pressing P (ui/focus.py)
             if event.type == getattr(pygame, 'WINDOWFOCUSGAINED', None):
                 next_device_check = 0.0     # coming back checks the device at once
+            keys = pad.feed(event)
+            if keys is not None:
+                # a controller: the menus take it as keys; the bindings screen and the
+                # stage do not yet (aidocks/project_joystick_plan.md, phase 2)
+                if not showing_bindings and kind not in STAGES:
+                    for key_event in keys:
+                        inp.handle(key_event, pygame)
+                continue
             if showing_bindings:
                 bindings.handle(event, pygame)
             else:

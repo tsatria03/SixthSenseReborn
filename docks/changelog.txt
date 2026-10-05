@@ -1,4 +1,5 @@
 unrelease:
+A game controller now works on the menus and the shop: the D-pad or left stick moves, A selects and B goes back. It uses the same standard layout on Windows, Linux and macOS. It does not play the game yet.
 The MG80 now keeps firing while you hold its lane key, like a machine gun. Every other weapon still fires once per press.
 The MG80 can now fire again after 0.085 seconds instead of 0.4, and its shots overlap instead of cutting each other off.
 The game is now called Sixth Sense Reborn: the window and the main menu say so, the game is SixthSenseReborn.exe, and its download is SixthSenseReborn-Win-<version>.zip.
