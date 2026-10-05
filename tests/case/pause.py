@@ -149,8 +149,7 @@ def test_selecting_a_readout_speaks_label_and_number_together():
         st.gamePlayer.killMonsterCount = 7
         st.pause_select(2)
         assert st.speech.said[-1] == 'Number of killed zombies, 7'
-        assert not [q for _d, _s, q in loop._performs
-                    if q.selector == 'ReadNumberOfZombies'], 'a reader was queued'
+        assert not loop._performs, 'something was queued behind the row'
     finally:
         st.teardown()
 
@@ -395,7 +394,7 @@ def test_gold_is_twelve_a_kill_and_two_a_headshot():
         p.killMonsterCount, p.HeadShotCount = 10, 3
         p.killMonster9count = 100          # dead weight in the original too
         assert st.ObtainedGold() == 12 * 10 + 2 * 3
-        st.ReadObtainedGold()
+        st._fill_result_labels()
         assert st.GoldLabel == '126'
     finally:
         st.teardown()

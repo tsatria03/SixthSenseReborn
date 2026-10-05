@@ -103,11 +103,9 @@ class MainStoreController(BlindScreen):
     """
 
     ROWS = (1, 2, 4)                             # 3 is unreachable; 5 and 6 are left out
-    TITLE_SOUND = 18                             # "Store Button", as the menu row said
     ROW_SOUND = {1: SOUND_BACK,                  # 0x1dffa back button
                  2: 235,                         # 0x1e276 Weapon shop Button
                  4: 237}                         # 0x1e33c Inventory Button
-    STOP_SOUNDS = (13, 18, 235, 236, 237)               # 0x1dc88, plus the title
     TITLE_TEXT = 'Store.'
     ROW_TEXT = {1: BACK_TEXT,
                 2: 'Weapon shop, Button',
@@ -170,7 +168,6 @@ class StoreController(BlindScreen):
     """
 
     ROWS = (1, 2, 3, 4, 5, 6, 7, 8)     # 9 is left out
-    TITLE_SOUND = 235                # "Weapon shop Button"
     ROW_SOUND = {1: SOUND_BACK,      # 0x159a8 back button
                  2: 233,             # obtained gold
                  3: 241,             # shotgun button
@@ -179,8 +176,6 @@ class StoreController(BlindScreen):
                  6: 244,             # MG80 button
                  7: 245,             # japanese sword button
                  8: 348}             # Grenade button
-    ROW_READER = {2: 'readgold'}
-    STOP_SOUNDS = (13, 233, 235, 241, 242, 243, 244, 245, 246, 261, 10, 348)
     TITLE_TEXT = 'Weapon shop.'
     ROW_TEXT = {1: BACK_TEXT,
                 3: 'Shotgun, Button',
@@ -236,11 +231,6 @@ class DetailStoreController(BlindScreen):
 
     ROWS = (1, 2, 3, 4, 5, 6, 7, 8)
     ROW_SOUND = {1: SOUND_BACK, 7: SOUND_BUY_BUTTON, 8: SOUND_TRY_BUTTON}
-    ROW_READER = {3: 'nameAmmocapacity', 4: 'nameEffectiverange',
-                  5: 'nameDamage', 6: 'namePrice'}
-    STOP_SOUNDS = (13, 238, 260, 259, 362, 369,
-                   255, 256, 257, 258,
-                   47, 249, 250, 251, 252, 253)
 
     def __init__(self, weaponType=1, speech=None):
         BlindScreen.__init__(self, speech=speech)
@@ -265,10 +255,6 @@ class DetailStoreController(BlindScreen):
         self.type_price = SOUND_PRICE                         # 0x19b44
         self.selectMenu = 1                                   # 0x19b90
         self.message = ''                                     # maskLabel
-
-    def title_sound(self):
-        """A weapon's page names the weapon as it opens."""
-        return self.type_image_sound
 
     def title_text(self):
         return '%s.' % SHOP[self.weaponType]['name']
@@ -306,19 +292,6 @@ class DetailStoreController(BlindScreen):
         elif row == 8:
             self.testAction_()
         return row
-
-    # the four number readers, 0x1b8c8..0x1b988
-    def nameAmmocapacity(self, *_):
-        self.app.TTSNumber_type_(self.ammocapacity, 1)
-
-    def nameEffectiverange(self, *_):
-        self.app.TTSNumber_type_(self.effetiverange, 1)
-
-    def nameDamage(self, *_):
-        self.app.TTSNumber_type_(self.power, 1)
-
-    def namePrice(self, *_):
-        self.app.TTSNumber_type_(self.price, 1)
 
     # -[DetailStoreController buyAction:] 0x1b9e4
     def buyAction_(self, *_):

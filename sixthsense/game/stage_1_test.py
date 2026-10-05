@@ -64,8 +64,6 @@ class Stage_1_TEST(Stage_1_E):
     #: The panel's rows, in order: no rank (9) and no top score (10).
     PAUSE_ROWS = (1, 2, 3, 4, 5, 6, 7, 8)
     PAUSE_ROW_SOUND = {2: 230, 3: 231, 4: 232, 5: 233, 7: 224, 8: SOUND_BACK}
-    PAUSE_ROW_READER = {2: 'ReadNumberOfZombies', 3: 'ReadNumberOfHeadshot',
-                        4: 'ReadScore', 5: 'ReadObtainedGold'}
     PANEL_MESSAGE_TEXT = dict(Stage_1_E.PANEL_MESSAGE_TEXT)
 
     #: F2 and Shift+F2 of --debug have no corridor to move along here.

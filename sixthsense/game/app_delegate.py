@@ -37,8 +37,8 @@ Two monsters given the same ``comingSound`` share a source and cut each other of
 is why ``SoundList.plist`` lists each zombie sample three times (93, 94, 95 are all
 ``zombie_1_coming_cave``) and ``-[Stage_1_E MonsterInit:]`` hands out one of the three.
 
-Numbers are spoken digit by digit from the ``zero``..``nine`` WAVs, one per second, by
-``TTSNumber:type:`` (0x5590) feeding ``readNumber:`` (0x5cbc) off ``ttsTimer``.
+(The original read numbers digit by digit from the ``zero``..``nine`` WAVs with ``TTSNumber:type:``
+and ``readNumber:``; the screen reader says them whole now, and that code is gone.)
 """
 from __future__ import annotations
 
@@ -76,11 +76,7 @@ class AppDelegate:
 
     def __init__(self):
         AppDelegate._instance = self
-        self.ttsTimer = None
-        self.ttsArrayCount = 0
-        self.tts_type = 0
         self.playback = None
-        self.numberBackUp = []
         self.haveGold = 0
         self.haveWeapon = []
         self.stage = 0
@@ -263,55 +259,6 @@ class AppDelegate:
             self.playback.stopSound_(i)
         self.playback.MonsterQueueNote_gain_sourcePos_defaultZ_repeats_(i, gain, pos, z, False)
         self.playback.startSound_Postion_(i, pos)
-    # ==================================================== spoken numbers (TTS)
-    # -[AppDelegate TTSNumber:type:] 0x5590
-    def TTSNumber_type_(self, number, type_):
-        """Queue ``number`` to be read out one digit per second, then the unit word."""
-        self.tts_type = type_
-        s = '%d' % number
-        self.numberBackUp = []
-        n = number
-        # readNumber_ (0x5cbc) decrements ttsArrayCount and reads
-        # numberBackUp[ttsArrayCount], so the first digit spoken is the one at the
-        # *last* index. Build the array least-significant-digit first, so that
-        # last index holds the most significant digit and it is spoken first
-        # (10 must read "one, zero", not "zero, one").
-        if n == 0:
-            self.numberBackUp.append('0')
-        while n > 0:
-            self.numberBackUp.append(str(n % 10))
-            n //= 10
-        self.ttsArrayCount = len(self.numberBackUp)
-        if self.ttsTimer is None or not self.ttsTimer.isValid():
-            self.ttsTimer = RunLoop.main().scheduledTimer(
-                1.0, self, 'readNumber_', None, True)
-        return s
-
-    # -[AppDelegate TTSNumber:type2:] 0x583c - the same, feeding readTimeSec instead.
-    def TTSNumber_type2_(self, number, type_):
-        return self.TTSNumber_type_(number, type_)
-
-    # -[AppDelegate readNumber:] 0x5cbc
-    def readNumber_(self, timer=None):
-        if self.ttsArrayCount >= 1:
-            self.ttsArrayCount -= 1
-            digit = int(self.numberBackUp[self.ttsArrayCount])
-            self.playSound_Gain_Pos_z_reprats_(digit, 0.2, (0.0, 0.0), 0, False)
-            return
-        if self.ttsTimer is not None and self.ttsTimer.isValid():
-            self.ttsTimer.invalidate()
-            self.ttsTimer = None
-        self.numberBackUp = []
-
-    # -[AppDelegate readStop] 0x5ae8
-    def readStop(self):
-        for digit in range(10):
-            self.playback.stopSound_(self.playSoundBufNumber_(digit))
-        if self.ttsTimer is not None and self.ttsTimer.isValid():
-            self.ttsTimer.invalidate()
-        self.ttsTimer = None
-        self.numberBackUp = []
-
     # ================================================================ weapons
     # -[AppDelegate weaponHave] 0x4ee8
     def weaponHave(self):

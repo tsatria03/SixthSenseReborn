@@ -35,10 +35,6 @@ UI_GAIN = 0.2
 #: ui_select, the click every button makes.
 SOUND_UI_SELECT = 10
 
-#: How far behind a label its number is read.  0x3097c in Stage_1_E, and the same
-#: constant in every other screen's selectTapPointSoundStart.
-READ_DELAY = 2.0
-
 #: PORT ADDITION: what the screen reader says in place of the recordings these screens
 #: play after a choice.  The rows' own words are each screen's
 #: ``ROW_TEXT``.
@@ -63,16 +59,6 @@ class BlindScreen:
     ROWS = ()
     #: row -> the SoundList entry that names it
     ROW_SOUND = {}
-    #: row -> the method to run READ_DELAY behind the label
-    ROW_READER = {}
-    #: everything StopElseSpeak silences
-    STOP_SOUNDS = ()
-    #: PORT ADDITION: the recording that names this screen, played as it opens so the
-    #: player knows which one they are on.  None keeps the original's silence.
-    TITLE_SOUND = None
-    #: how long the name is given before row 1 is read behind it.  The naming recordings
-    #: run about a second; moving cancels the wait, so it is only ever heard alone.
-    TITLE_DELAY = 1.5
     #: PORT ADDITION: row -> what the screen reader says for it,
     #: "<name>, Button" for a button.  Overridden by ``row_text`` where it changes.
     ROW_TEXT = {}
@@ -110,23 +96,10 @@ class BlindScreen:
 
     # -[X StopElseSpeak]
     def StopElseSpeak(self):
-        # Every row's own name WAV, stopped unconditionally rather than by a
-        # hand-kept list, the way MainController stops all of ROWS - so a row
-        # whose sound a STOP_SOUNDS tuple leaves out (as row 6's did here) can
-        # never again keep talking over whatever the player moves to next.
-        for row in self.rows():
-            sound = self.row_sound(row)
-            if sound:
-                self.app.stopSoundBufNumber_(sound)
-        for num in self.STOP_SOUNDS:
-            if num:
-                self.app.stopSoundBufNumber_(num)
-        self.app.readStop()
+        """Cut off what the screen reader is saying, so it never talks over the row the
+        player has moved to."""
         if self.speech is not None:
             self.speech.stop()
-        loop = RunLoop.main()
-        for sel in set(self.ROW_READER.values()):
-            loop.cancelPerform(self, sel)
 
     # ---- the rows --------------------------------------------------------
     def rows(self):
@@ -148,10 +121,6 @@ class BlindScreen:
         # The label and its number in one line, with no reader queued behind it.
         self.say(self.row_text(row))
         return self.row_sound(row)
-
-    def title_sound(self):
-        """Which recording names this screen, or None.  Overridden per screen."""
-        return self.TITLE_SOUND
 
     def title_text(self):
         """The screen's name for the screen reader, or None."""
@@ -179,7 +148,6 @@ class BlindScreen:
         if title:
             self.say(title)
         self.say(self.row_text(first), interrupt=not title)
-        return self.title_sound()
 
     def jump(self, last=False):
         """PORT ADDITION: Home and End in the screen reader mode, the first row or the

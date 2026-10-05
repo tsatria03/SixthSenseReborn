@@ -116,7 +116,6 @@ class MainController:
                 self.app.stopSoundBufNumber_(sound)
         for sound in (SOUND_NO_COIN, SOUND_RANKING_NOTICE):
             self.app.stopSoundBufNumber_(sound)
-        self.app.readStop()
         if self.speech is not None:
             self.speech.stop()
         # 0x97e2: also cancel a pending readNumberOfCoin, or it fires over

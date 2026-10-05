@@ -1154,18 +1154,10 @@ class Stage_1_E:
     #       else      : @"1.0%d" % hs
     #
     #   so 5 headshots is x1.05, 42 is x1.42, 150 is x2.50.  Then it shows the score on
-    #   ScoreLabel and reads it aloud, [app TTSNumber:score type:1] (0x3c1f2: mov r2, r4;
-    #   the send at 0x3c1fa), digit by digit.  Its only caller is the panel: the score row
-    #   queues it 2 s behind its label (selectTapPointSoundStart), and StopElseSpeak
-    #   cancels it.
-    def ReadScore(self, *_):
-        score = self.score_now()
-        self.ScoreLabel = '%d' % score
-        self.app.TTSNumber_type_(score, 1)
-        return score
-
+    #   ScoreLabel and read it aloud digit by digit (0x3c1f2); the screen reader says the
+    #   whole number now.
     def score_now(self):
-        """The score, worked out as ReadScore does, without saying it."""
+        """The score, worked out as the original's ReadScore does."""
         p = self.gamePlayer
         score = (p.killMonster5000count * 2000
                  + (p.killMonster9count + p.killMonster10count) * 300
@@ -1513,14 +1505,6 @@ class Stage_1_E:
     PAUSE_ROW_SOUND = {2: 230, 3: 231, 4: 232, 5: 233, 9: 357, 10: 356,
                        7: 224, 8: 355}
 
-    #: ...and the reader each one schedules behind its label.
-    PAUSE_ROW_READER = {2: 'ReadNumberOfZombies', 3: 'ReadNumberOfHeadshot',
-                        4: 'ReadScore', 5: 'ReadObtainedGold',
-                        9: 'ReadRank', 10: 'ReadTopScore'}
-
-    #: 0x3097c, ``mov.w r6, #0x40000000`` - the high half of 2.0.
-    READ_DELAY = 2.0
-
     #: PORT ADDITION: what the screen reader says in place of the
     #: panel's own voice lines.
     PANEL_MESSAGE_TEXT = {227: 'Mission success.', 229: 'Paused.',
@@ -1571,18 +1555,9 @@ class Stage_1_E:
 
     # -[Stage_1_E StopElseSpeak] 0x30018
     def StopElseSpeak(self):
-        """Silence the panel: every label it can speak, the number reader, and any
-        reader still queued behind a label."""
-        for num in (229, 230, 231, 232, 233, 223, 224, 225, 227, 228, 226,
-                    354, 355, 356, 357):
-            self.app.stopSoundBufNumber_(num)
-        self.app.readStop()
+        """Silence the panel's speech, so it never talks over the row moved to."""
         if self.speech is not None:
             self.speech.stop()
-        loop = RunLoop.main()
-        for sel in ('ReadNumberOfZombies', 'ReadNumberOfHeadshot',
-                    'ReadScore', 'ReadObtainedGold'):
-            loop.cancelPerform(self, sel)
 
     # -[Stage_1_E blindModeOff] / -[Stage_1_E blindModeSelectedMenu] 0x2d9e0
     # Both are UIKit: one clears every button's highlight, the other rounds the
@@ -1639,10 +1614,10 @@ class Stage_1_E:
         the binary byte for byte (04 25 61 30 3b 4b 51 57):
 
             selectMenu  1 -> 0x2ff3a   play 229 again
-                        2 -> 0x2ff7c   ReadNumberOfZombies
+                        2 -> 0x2ff7c   read the kills
                         3 -> 0x2fff4   nothing
-                        4 -> 0x2ff92   ReadNumberOfHeadshot
-                        5 -> 0x2ffa8   ReadObtainedGold
+                        4 -> 0x2ff92   read the headshots
+                        5 -> 0x2ffa8   read the gold
                         6 -> 0x2ffc8   continueAction:
                         7 -> 0x2ffd4   gameReplayAction:
                         8 -> 0x2ffe0   GameEndAction:
@@ -1659,18 +1634,6 @@ class Stage_1_E:
         row = self.selectMenu
         if row in (1, 2, 3, 4, 5, 9, 10):
             self._say(self.pause_row_text(row))
-        elif row == 1:
-            self.pause_select(1)                              # 229 in the original
-        elif row == 2:
-            self.ReadNumberOfZombies()
-        elif row == 3:
-            self.ReadNumberOfHeadshot()                       # nothing in the original
-        elif row == 4:
-            self.ReadScore()                                  # the headshots there
-        elif row == 5:
-            self.ReadObtainedGold()
-        elif row == 10:
-            self.ReadTopScore()                               # past the original's bound
         elif row == 6:
             self.continueAction_()
         elif row == 7:
@@ -1867,27 +1830,6 @@ class Stage_1_E:
         return True
 
     # -------------------------------------------------------- the readouts
-    # -[Stage_1_E ReadNumberOfZombies] 0x3bdd0
-    def ReadNumberOfZombies(self, *_):
-        n = self.gamePlayer.killMonsterCount
-        self.killZombiesLabel = '%d' % n
-        self.app.TTSNumber_type_(n, 1)
-        return n
-
-    # -[Stage_1_E ReadNumberOfHeadshot] 0x3be7c
-    def ReadNumberOfHeadshot(self, *_):
-        n = self.gamePlayer.HeadShotCount
-        self.HeadShotLabel = '%d' % n
-        self.app.TTSNumber_type_(n, 1)
-        return n
-
-    # -[Stage_1_E ReadObtainedGold] 0x3c3f4
-    def ReadObtainedGold(self, *_):
-        n = self.ObtainedGold()
-        self.GoldLabel = '%d' % n
-        self.app.TTSNumber_type_(n, 1)
-        return n
-
     def ObtainedGold(self):
         """0x3c616: ``add.w r3, sl, sl, lsl #1`` / ``lsls r6, r6, #1`` /
         ``add.w r4, r6, r3, lsl #2`` - the gold a run pays is
@@ -1899,24 +1841,6 @@ class Stage_1_E:
         """
         p = self.gamePlayer
         return 12 * p.killMonsterCount + 2 * p.HeadShotCount
-
-    # -[Stage_1_E ReadTopScore] 0x3c214
-    def ReadTopScore(self, *_):
-        d = UserDefaults.standardUserDefaults()
-        raw = d.stringForKey_('TOPSCORE')
-        self.TopScoreLabel = raw if raw else '0'
-        n = d.intForKey_('TOPSCORE')
-        self.app.TTSNumber_type_(n, 1)
-        return n
-
-    # -[Stage_1_E ReadRank] 0x3c300
-    def ReadRank(self, *_):
-        d = UserDefaults.standardUserDefaults()
-        raw = d.stringForKey_('NOWRANK')
-        self.RankLabel = raw if raw else '-'
-        n = d.intForKey_('NOWRANK')
-        self.app.TTSNumber_type_(n, 1)
-        return n
 
     # -[Stage_1_E updateTopscoreRank] 0x3261c
     def updateTopscoreRank(self):

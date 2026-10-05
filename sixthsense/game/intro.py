@@ -79,7 +79,6 @@ class StartIntroPage(BlindScreen):
     ROW_SOUND = {1: SOUND_WELCOME,          # 0x184ae, main_label_flag
                  2: SOUND_DOUBLE_TAP,       # 0x1844e, double_tap_flag
                  3: SOUND_STORY}            # intro2storyPage's first row (0x2b714)
-    STOP_SOUNDS = (SOUND_WELCOME,)          # 0x18618 - StopElseSpeak stops only 14
     ROW_TEXT = {2: 'You can skip by pressing Enter.'}
 
     #: The story's music: bgm_start_end, looping, at 0.05 (0x17224, 0x2b6c0).
