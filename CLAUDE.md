@@ -4,19 +4,20 @@ This file guides Claude Code when it works in this repository. **It is a lean di
 
 **Memory location:** all memory files (the `[[name]]` links and the `MEMORY.md` index) live in the repo's **`aidocks/`** folder, as `aidocks/<name>.md`. Read memory from there and write new or updated memory there, never to the `~/.claude` memory store. `aidocks/MEMORY.md` is the index, so add a one-line pointer there for every new memory. Keep this file under 40,000 characters and move detail into memory ([[feedback_memory_in_aidocks]]).
 
-## This branch: custom (read first)
+## This repository: SixthSenseReborn (read first)
 
-**You are on `custom`, a branch of the port where changes need not be faithful to the original.** `main` is the faithful port; this branch is where the dev makes their own changes ([[project_custom_branch]]). The game is still called Sixth Sense here, and its save folder is the same as `main`'s.
+**This is Sixth Sense Reborn, where changes need not be faithful to the original** ([[project_reborn]]). The faithful port is the separate repository SixthSenseOriginal; this one was its `custom` branch until 2026-10-04, when it moved here with its full history. The dev works on both in tandem ([[project_two_repos]]).
 
 - **Fidelity is not the goal here.** Do what the dev asks, even when the original did otherwise.
 - **Compare, then follow the dev.** When a change is proposed, say briefly what the original did (and the binary address when it matters) and the likely better solution or difference, then do what the dev picks. Never refuse or argue for a change because it departs from the original.
-- **Where this file says the port must match the original, that is how `main` works.** On this branch it describes the starting point. `DIVERGENCES.md`, `PORTING_STATUS.md`, the evaluation note and the side-by-side rule were removed here; use the changelog and the plan note for a feature.
+- **Where this file says the port matches the original, that is how SixthSenseOriginal works.** Here it describes the starting point. `DIVERGENCES.md`, `PORTING_STATUS.md`, the first evaluation note and the side-by-side rule stayed in SixthSenseOriginal; use the changelog and the plan note for a feature.
+- **Its own name:** players see Sixth Sense Reborn; the entry script is `SixthSenseReborn.py`, the executable `SixthSenseReborn.exe`, and the save is in its own `SixthSenseReborn` folder, which copies a Sixth Sense save once on the first start ([[project_reborn_identity_plan]]). SixthSenseOriginal keeps the plain `SixthSense` names.
 - **Direction:** the recordings will eventually go, all game speech will go through Prism, and the tutorial will become screen reader friendly. See the todo list.
 - Everything else still applies: Python only, the dev runs and builds, safe silent tests, NVDA-friendly output and the commit rules.
 
 ## What this is
 
-A Windows port of **Sixth Sense** (`kr.co.bitbee.sixsense` 1.2), a 2013 iPhone audio-only zombie shooter for blind players. You walk down a dark corridor and shoot what you hear coming, in five lanes laid out like a clock face.
+**Sixth Sense Reborn**, grown from a Windows, Linux and macOS port of **Sixth Sense** (`kr.co.bitbee.sixsense` 1.2), a 2013 iPhone audio-only zombie shooter for blind players. You walk down a dark corridor and shoot what you hear coming, in five lanes laid out like a clock face.
 
 There is no source code for the original. The port is **recovered from the ARMv7 binary** and rewritten method by method **entirely in Python**. **lbk2907 created it**, including the binary extraction, and handed it to tsatria03 to publish and develop together; the "Initial commit" is entirely their work ([[project_provenance]]). Each Python module mirrors one Objective-C class and cites the binary address it came from ([[project_python_only]]).
 
@@ -41,15 +42,15 @@ The game plays the original's own 269 recorded WAVs, which `SoundList.plist` nam
 - **`tools/`**: the Mach-O and disassembly tools that produced `analysis/`. `dz.py` and `dc.py` need `capstone`.
 - **`aidocks/`** also holds `GAME_STRUCTURE.md`, the developer reference for how the original works, beside the memory notes.
 - **`docks/`**: the documents a player reads, which the build puts in a `docks` folder beside the executable, laid out as here: `readme.txt` (plain text for players, kept in step with what it describes, [[project_player_readme_plan]]), `changelog.txt` and `todo list.txt`.
-- **`tests/`** ([[project_tests_layout]]): `tests/case/` holds the tests, plain scripts, each with its own runner. **They keep off the real save and are silent by themselves**: each imports `_scratch_save`, which sets `SIXTHSENSE_USER_DIR` to a throwaway folder, `SIXTHSENSE_SILENT` so nothing reaches the screen reader, and the null audio and dummy video drivers; `paths.py` fails if one does not. Testing must speak nothing whatsoever; read [[project_safe_test_run]] before running any. `tests/interact/` holds two tools played by ear. `tests/interact/level_chooser.py` is not a test: it starts the real game at any level, area and row, on its own save in `%APPDATA%\SixthSense\level_chooser`, for checking by ear. `tests/interact/tutorial_chooser.py`, likewise not a test, does the same for the tutorial: any lesson, either ending, voice over on or off, on its own save in `%APPDATA%\SixthSense\tutorial_chooser` ([[project_tutorial_tester_plan]]).
+- **`tests/`** ([[project_tests_layout]]): `tests/case/` holds the tests, plain scripts, each with its own runner. **They keep off the real save and are silent by themselves**: each imports `_scratch_save`, which sets `SIXTHSENSE_USER_DIR` to a throwaway folder, `SIXTHSENSE_SILENT` so nothing reaches the screen reader, and the null audio and dummy video drivers; `paths.py` fails if one does not. Testing must speak nothing whatsoever; read [[project_safe_test_run]] before running any. `tests/interact/` holds two tools played by ear. `tests/interact/level_chooser.py` is not a test: it starts the real game at any level, area and row, on its own save in `%APPDATA%\SixthSenseReborn\level_chooser`, for checking by ear. `tests/interact/tutorial_chooser.py`, likewise not a test, does the same for the tutorial: any lesson, either ending, voice over on or off, on its own save in `%APPDATA%\SixthSenseReborn\tutorial_chooser` ([[project_tutorial_tester_plan]]).
 - **`vendor/`**: `soft_oal.dll` and `nvdaControllerClient64.dll` (x64), and `libopenal.so.1` for Linux ([[project_linux_build_plan]]).
-- **`compiler.py`**: the PyInstaller build script. Run it with no flags for a menu; it builds `dist\SixthSense-Windows` (around `SixthSense.exe`; the release zip extracts to that folder too), a folder build or with `--embed` one exe holding the sounds and data, and never zips or changes the repository ([[project_compiler_py]]). Run on Linux (the dev builds in WSL) it builds `dist/SixthSense-Linux` around `SixthSense` instead, from its `SYSTEMS` table ([[project_linux_build_plan]]).
+- **`compiler.py`**: the PyInstaller build script. Run it with no flags for a menu; it builds `dist\SixthSenseReborn-Windows` (around `SixthSenseReborn.exe`; the release zip extracts to that folder too), a folder build or with `--embed` one exe holding the sounds and data, and never zips or changes the repository ([[project_compiler_py]]). Run on Linux (the dev builds in WSL) it builds `dist/SixthSenseReborn-Linux` around `SixthSenseReborn` instead, from its `SYSTEMS` table ([[project_linux_build_plan]]).
 - **`releaser.py`**: sets the date version, files the changelog, runs the compiler, zips the build, commits, tags `V<version>` and uploads the zip to GitHub through `gh` ([[project_release_tooling_plan]]). Built and confirmed working by the dev on 2026-09-23. Since 2026-09-28 one release carries the Windows zip and the Linux .tar.gz: the full release on one system, then "Add this system's build to the release" on the other ([[project_linux_release_plan]]).
 - **`bloopers/`**: short clips of funny bugs, kept for fun and preferably under two minutes. Its README sets the naming and format rules. The build leaves it out; only add clips the dev provides.
 - **`New File.txt`** at the root is the dev's private scratchpad. It is gitignored; never read, edit, flag or delete it.
 - **`user/`** is gitignored private reference material. Read it, but never edit it. Never name the dev's other games that are kept in it, in the todo list, memory, or code and comments ([[feedback_no_other_games]]). The dev's old NVGT remake of this game used to be there; it was deleted on 2026-09-21 ([[project_nvgt_remake_reference]]).
 
-The save lives in `%APPDATA%\SixthSense\` (on Linux `~/.local/share/SixthSense/`), in three files since 2026-09-25: `save.json` (progress), `settings.json` (preferences, `defaults.SETTINGS_KEYS`) and `keys.json` (the key bindings). An older `defaults.json` is moved over on the first start and kept as `defaults.json.old` ([[project_save_split_plan]]).
+The save lives in `%APPDATA%\SixthSenseReborn\` (on Linux `~/.local/share/SixthSenseReborn/`, on macOS `~/Library/Application Support/SixthSenseReborn/`), copied once from SixthSenseOriginal's on the first start, in three files since 2026-09-25: `save.json` (progress), `settings.json` (preferences, `defaults.SETTINGS_KEYS`) and `keys.json` (the key bindings). An older `defaults.json` is moved over on the first start and kept as `defaults.json.old` ([[project_save_split_plan]]).
 
 ## Running and building
 
@@ -67,7 +68,7 @@ This needs 64-bit Python 3.12 or newer, pygame and `prismatoid` (Prism). Without
 
 ## Working with the binary
 
-- The binary is a reference, not a rule on this branch. Cite the address when a comment leans on it.
+- The binary is a reference, not a rule here. Cite the address when a comment leans on it.
 - Before relying on anything that hinges on one branch or constant, check the raw bytes. The decompiled listings mislead in known ways, and addresses are VM addresses, so file offset = address - 0x1000 ([[project_binary_analysis_notes]]).
 - Several tests assert current behavior, including some misreadings. Changing that behavior means updating its test in the same change.
 

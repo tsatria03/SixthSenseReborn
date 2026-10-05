@@ -5,7 +5,7 @@ metadata:
   type: project
 ---
 
-Since 2026-09-23, `todo list.txt` holds only what a player notices ([[feedback_todo_list_format]]). Everything else that needs doing, or has been done, lives here, in the same style: one plain sentence per line, newest first. The technical detail behind each line is in [[project_evaluation_2026_09]].
+Since 2026-09-23, `todo list.txt` holds only what a player notices ([[feedback_todo_list_format]]). Everything else that needs doing, or has been done, lives here, in the same style: one plain sentence per line, newest first. The technical detail behind each line is in SixthSenseOriginal's `project_evaluation_2026_09` note.
 
 **How to apply:** a new developer task goes at the top of Open. When it lands and the dev confirms, it moves to the top of Finished. A task that changes what a player hears or sees belongs in `todo list.txt` instead, and in `changelog.txt` once it is done ([[feedback_changelog]]). **Debug mode is developer-facing** (the dev, 2026-09-23: players will not know it exists), so its lines live here and never go in `todo list.txt` or `changelog.txt`. The four oldest debug lines below came from the changelog, which had them in more detail than the todo list.
 

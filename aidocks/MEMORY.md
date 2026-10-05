@@ -1,13 +1,13 @@
-# SixthSense-Windows memory index
+# SixthSenseReborn memory index
 
 The `[[name]]` links in `CLAUDE.md` and across these memories resolve to `aidocks/<name>.md`. Add a one-line pointer here for every new memory. "Memory" or "memories" always means this folder, never the `~/.claude` store.
 
 ## Reference documents (not memory notes)
-- [Game structure](GAME_STRUCTURE.md): the developer reference for how the original works, read from the binary. The faithful-port references (porting status, divergences, evaluation) were removed from this branch on 2026-10-04.
+- [Game structure](GAME_STRUCTURE.md): the developer reference for how the original works, read from the binary. The faithful-port references (porting status, divergences, the first evaluation) stayed in SixthSenseOriginal; notes here that mention them describe that repository.
 - The player documents, `changelog.txt` and `todo list.txt`, live in the repo's `docks/` folder since the same day; the compiler ships them from there.
 
 ## Project: what the port is and how to work on it
-- [Custom branch](project_custom_branch.md): the `custom` branch (from 2026-10-04, first called `seventh-sense`; the game is Sixth Sense again and shares `main`'s save folder) is a branch where changes need not be faithful to the original; compare to the original, then follow the dev; `main` stays faithful.
+- [SixthSenseReborn](project_reborn.md): this repository, where changes need not be faithful to the original; compare to the original, then follow the dev. It was SixthSenseOriginal's `custom` branch (first `seventh-sense`) until 2026-10-04, and the game is now Sixth Sense Reborn, with its own save folder.
 - [macOS builds](project_macos_build_plan.md): native-architecture app packaging, build command and checks.
 - [macOS runtime](project_macos_runtime_plan.md): universal OpenAL, macOS 11 target, Prism speech and Application Support saves.
 - [Python only](project_python_only.md): the port is written entirely in Python (pygame, OpenAL Soft through ctypes, NVDA or SAPI).
@@ -24,7 +24,7 @@ The `[[name]]` links in `CLAUDE.md` and across these memories resolve to `aidock
 
 ## Current state
 - [Two repositories](project_two_repos.md): since 2026-10-04 the game is SixthSenseOriginal (faithful) and SixthSenseReborn (this repo, the old custom branch), worked on in tandem; changes spanning both get a plan in each.
-- [Reborn identity plan](project_reborn_identity_plan.md): IN PROGRESS since 2026-10-04; the save folder and copy are built and confirmed. The name Sixth Sense Reborn, its own save folder copying the old save once, SixthSenseReborn builds and releases, the changelog's Sixth Sense history kept under a heading, and the docs saying Reborn instead of the custom branch.
+- [Reborn identity plan](project_reborn_identity_plan.md): BUILT 2026-10-04, waiting on the dev's check; the save folder and copy are confirmed. The name Sixth Sense Reborn, its own save folder copying the old save once, SixthSenseReborn builds and releases, the changelog's Sixth Sense history kept under a heading, and the docs saying Reborn instead of the custom branch.
 
 - [Tutorial ending plan](project_tutorial_ending_plan.md): FINISHED 2026-09-23, confirmed by the dev. From the binary: P (the three-finger double tap, beat Nine) ends the tutorial only after beats One to Eight; from the Tutorial row it returns to the menu, and on a first Start (which spends a coin) it counts 3, 2, 1 and starts the game. The beats also follow the original order, each action counting only after the beats before it.
 - [Tutorial tester plan](project_tutorial_tester_plan.md): FINISHED 2026-09-23, confirmed by the dev. tests/interact/tutorial_chooser.py (first built as tests/tutorial_tester.py), like the level chooser: its own save, asking the ending (Start's countdown or the Tutorial button's return to the menu), the lesson to start at, and voice over on or off.

@@ -3,6 +3,9 @@ The game is now called Sixth Sense Reborn: the window and the main menu say so, 
 Sixth Sense Reborn keeps its own save, in a SixthSenseReborn folder, so it never changes your Sixth Sense save. The first time it starts, it copies your Sixth Sense progress, settings and keys.
 Added macOS support with a copyable app and VoiceOver or native speech; targets macOS 11 or newer.
 
+SixthSense:
+The releases below are from Sixth Sense, before it became Sixth Sense Reborn.
+
 26.09.28-2:
 The game can now be built and played on Linux, WSL included, with its save in ~/.local/share/SixthSense.
 

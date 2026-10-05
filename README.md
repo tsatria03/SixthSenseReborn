@@ -19,18 +19,19 @@ repository changes what the dev chooses to.
 
 To play without installing Python, download the newest release from the
 [latest release page](https://github.com/tsatria03/SixthSenseReborn/releases/latest).
-Each release has a zip for Windows, `SixthSense-Win-<version>.zip`. Extract it and run
-`SixthSense.exe` in the `SixthSense-Windows` folder it contains. From 2026-09-28 a release
-can also carry `SixthSense-Linux-<version>.tar.gz`: extract it with
-`tar xzf SixthSense-Linux-<version>.tar.gz`, or your archive manager, and run
-`SixthSense` in the `SixthSense-Linux` folder. The `docks` folder beside it
+Each release has a zip for Windows, `SixthSenseReborn-Win-<version>.zip`. Extract it and run
+`SixthSenseReborn.exe` in the `SixthSenseReborn-Windows` folder it contains. From 2026-09-28 a release
+can also carry `SixthSenseReborn-Linux-<version>.tar.gz`: extract it with
+`tar xzf SixthSenseReborn-Linux-<version>.tar.gz`, or your archive manager, and run
+`SixthSenseReborn` in the `SixthSenseReborn-Linux` folder. The `docks` folder beside it
 holds the player's readme, the changelog and the todo list.
 
 A version is the date of the release and that day's number: `26.09.24-2` is the second
 release of the 24th of September 2026. The changelog lists what each release changed,
 and every release is on the [releases page](https://github.com/tsatria03/SixthSenseReborn/releases).
-Your save is kept in `%APPDATA%\SixthSense`, not in the game's folder, so a new release
-can go in a fresh folder and carries on from your progress.
+Your save is kept in `%APPDATA%\SixthSenseReborn`, not in the game's folder, so a new release
+can go in a fresh folder and carries on from your progress. The first time it starts, it
+copies a Sixth Sense save, from SixthSenseOriginal, if there is one, and never changes it.
 
 ---
 
@@ -52,11 +53,11 @@ and the WAVs, plists and map files are read with `wave` and `plistlib`. OpenAL S
 `vendor/openal/libopenal.1.dylib` for macOS) ships with the repository, so there is
 nothing to install for it. On Linux, if the vendored library is
 missing, the system's own `libopenal.so.1` is used (`libopenal1` on Debian and Ubuntu).
-On Linux the save is in `~/.local/share/SixthSense` (or `$XDG_DATA_HOME/SixthSense`)
-instead of `%APPDATA%\SixthSense`, and the NVDA client, being Windows-only, is skipped:
+On Linux the save is in `~/.local/share/SixthSenseReborn` (or `$XDG_DATA_HOME/SixthSenseReborn`)
+instead of `%APPDATA%\SixthSenseReborn`, and the NVDA client, being Windows-only, is skipped:
 Prism speaks instead.
 
-On macOS the save is in `~/Library/Application Support/SixthSense`, and Prism
+On macOS the save is in `~/Library/Application Support/SixthSenseReborn`, and Prism
 speaks through VoiceOver, or a native voice when no screen reader is running.
 The bundled OpenAL Soft is universal: source runs need Python and packages for
 the Mac's own architecture, Apple Silicon or Intel.
@@ -115,7 +116,7 @@ tutorial first, as the original does; pressing P at its end counts 3, 2, 1 and s
 the real game. Finished once, by either route, Start Game goes straight into the game.
 `--skip-tutorial` writes the key the tutorial writes, if you would rather skip it.
 
-The save lives in `%APPDATA%\SixthSense`, in three files: `save.json` (progress),
+The save lives in `%APPDATA%\SixthSenseReborn`, in three files: `save.json` (progress),
 `settings.json` (the volumes and voice over) and `keys.json` (the key bindings).
 `settings.json` holds `MASTERVOLUME`, `MENUMUSICVOLUME`, `LEVELMUSICVOLUME`,
 `AMBIENCEVOLUME`, `WEAPONVOLUME` and `PLAYERVOLUME`, whole percentages
@@ -176,7 +177,7 @@ the game's own voice is 269 recorded WAVs and none of them can say "Left Arrow".
 
 Binding captures a chord — hold the keys together and let go. **F1 and Escape are not
 rebindable**, so there is always a way back in. Bindings live in
-`%APPDATA%\SixthSense\keys.json`, stored by key name so a pygame update cannot
+`%APPDATA%\SixthSenseReborn\keys.json`, stored by key name so a pygame update cannot
 scramble them.
 
 ## How to play
@@ -253,7 +254,7 @@ of the binary, with addresses.
 `game/` holds the contents of `Payload/sixsense.app` as the IPA shipped them: the binary
 plists, the three map layers, the nibs, the PNGs, `Info.plist`, `iTunesArtwork`, the
 Facebook resource bundle, `_CodeSignature/` and the `sixsense` binary itself. The port
-never writes to it — the save file lives in `%APPDATA%\SixthSense`.
+never writes to it — the save file lives in `%APPDATA%\SixthSenseReborn`.
 
 The one thing that is not where the original kept it is the sounds. The original keeps
 its 269 WAVs in one flat folder; here every sound the game uses sits in
@@ -337,8 +338,8 @@ Building needs PyInstaller (`pip install pyinstaller`); releasing also needs the
 CLI, signed in with `gh auth login`.
 
 `compiler.py` only builds. It never zips and never changes the repository. Everything
-lands in `dist\SixthSense-Windows`, around `SixthSense.exe`. Run on Linux, WSL included, it
-builds a Linux game instead, in `dist/SixthSense-Linux` around `SixthSense`, with OpenAL
+lands in `dist\SixthSenseReborn-Windows`, around `SixthSenseReborn.exe`. Run on Linux, WSL included, it
+builds a Linux game instead, in `dist/SixthSenseReborn-Linux` around `SixthSenseReborn`, with OpenAL
 Soft's Linux library and no NVDA client; PyInstaller only builds for the system it runs
 on. `releaser.py` releases both, one system at a time (below).
 
@@ -355,7 +356,7 @@ where a player can open them. The third-party licenses go inside the executable,
 `licenses` folder. `docks/readme.txt` is the player's own readme: plain text, one sentence a line,
 with none of this file's developer parts.
 
-On macOS it builds `dist/SixthSense-macOS/SixthSense.app`, with
+On macOS it builds `dist/SixthSenseReborn-macOS/SixthSenseReborn.app`, with
 the data, dependencies and documents inside: copy the app on its own and open
 it in Finder. The app targets the build Python's architecture, ARM64 or Intel.
 `--console` keeps a console-folder build instead; otherwise
@@ -375,18 +376,18 @@ before each one:
    `26.09.23-1`, and the unreleased lines are filed under it in `docks/changelog.txt`.
 3. **Build** with the compiler, as a folder or a single exe. A failed build puts
    `VERSION` and the changelog back.
-4. **Zip** `dist\SixthSense-Windows` into `dist\SixthSense-Win-26.09.23-1.zip`, which
-   extracts to a `SixthSense-Windows` folder. It only zips a build made for this version.
+4. **Zip** `dist\SixthSenseReborn-Windows` into `dist\SixthSenseReborn-Win-26.09.23-1.zip`, which
+   extracts to a `SixthSenseReborn-Windows` folder. It only zips a build made for this version.
 5. **Commit and push** `VERSION` and `docks/changelog.txt` as "Release 26.09.23-1".
 6. **Tag** it `V26.09.23-1`, and push the tag.
-7. **Upload** the zip to GitHub as the release "SixthSense V26.09.23-1", with that
+7. **Upload** the zip to GitHub as the release "SixthSenseReborn V26.09.23-1", with that
    version's changelog lines as its notes. If the release is already there, the zip is
    added to it.
 
 It never moves or replaces a tag, a release, or a file already on a release.
 
-One release carries both builds: `SixthSense-Win-<version>.zip`, and
-`SixthSense-Linux-<version>.tar.gz`, which extracts to a `SixthSense-Linux` folder; a
+One release carries both builds: `SixthSenseReborn-Win-<version>.zip`, and
+`SixthSenseReborn-Linux-<version>.tar.gz`, which extracts to a `SixthSenseReborn-Linux` folder; a
 tar keeps the executable runnable and every Linux can open it. Since
 PyInstaller only builds for the system it runs on, make the release on one system with
 the full release, then on the other choose **Add this system's build to the release**:
@@ -411,7 +412,7 @@ python tests/interact/level_chooser.py 1 --row 300        # level 1, from row 30
 
 A level is what walking there would give you: monsters 1.5 times tougher and faster per
 level, one more of them out at a time, and the area alternating between the cave and
-the forest. It plays on its own save in `%APPDATA%\SixthSense\level_chooser`, so your
+the forest. It plays on its own save in `%APPDATA%\SixthSenseReborn\level_chooser`, so your
 own save is never touched, and it copies your key bindings in each time it starts.
 
 ### Starting the tutorial at any lesson
@@ -437,7 +438,7 @@ python tests/interact/tutorial_chooser.py --voice off                  # with th
 
 The lessons before the one you choose count as done, so the tutorial carries on from
 there as it would have. It plays on its own save in
-`%APPDATA%\SixthSense\tutorial_chooser`, so your own save is never touched.
+`%APPDATA%\SixthSenseReborn\tutorial_chooser`, so your own save is never touched.
 
 ## Where this came from
 

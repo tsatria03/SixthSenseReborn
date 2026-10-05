@@ -85,6 +85,22 @@ def test_the_unreleased_lines_are_counted():
     assert releaser.MAX_ENTRIES == 100
 
 
+def test_reborns_releases_go_above_sixth_senses():
+    """The dev, 2026-10-04: Sixth Sense's released sections stay, under a SixthSense: heading
+    with one line saying so.  Reborn's releases are filed above it, the heading's line is
+    never counted as an unreleased change, and the real changelog has the heading."""
+    text = ('unrelease:\nA Reborn change.\n\n'
+            'SixthSense:\nThe releases below are from Sixth Sense, before it became Sixth Sense Reborn.\n\n'
+            '26.09.28-2:\nAn old change.\n')
+    assert compiler.unreleased_lines(text) == ['A Reborn change.']
+    new, _changed, _notes = releaser.plan_changelog(text, '26.10.05-1')
+    headings = [h for h, _lines in compiler._parse_changelog(new)]
+    assert headings == ['unrelease:', '26.10.05-1:', 'SixthSense:', '26.09.28-2:'], headings
+    with open(releaser.CHANGELOG, encoding='utf-8') as fh:
+        real = [h for h, _lines in compiler._parse_changelog(fh.read())]
+    assert 'SixthSense:' in real and real.index('SixthSense:') < real.index('26.09.28-2:')
+
+
 def test_the_shipped_changelog_opens_on_the_version():
     new, _changed, _notes = releaser.plan_changelog(CHANGELOG, '26.09.23-1')
     assert compiler.without_unrelease(new).startswith('26.09.23-1:\n')

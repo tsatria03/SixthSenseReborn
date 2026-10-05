@@ -13,4 +13,4 @@ Checked on 2026-09-22 from the raw Thumb disassembly (`tools/dz.py 0x2c700 0x3ec
 - **Not everything scales.** The girl and the woman zombie are built with HPGain 1.0 (0x38d8c, 0x39034), so they keep level 1's speed and health; zombies and the boss scale.
 - **Unused stage-select art.** The bundle has `3_stage_btn_01..19` (with `_act`), `3_stage_btn_endless_*`, `_lock_*` and `_tut_*`. No code and no nib names them, so 19 stages plus an endless mode were drawn but only the endless run shipped.
 
-**How to apply:** capping levels would be a divergence and is the dev's decision. It was offered on 2026-09-22 as a cap in debug mode only or for everyone, with no answer yet. See [[project_evaluation_2026_09]].
+**How to apply:** capping levels would be a divergence and is the dev's decision. It was offered on 2026-09-22 as a cap in debug mode only or for everyone, with no answer yet. See SixthSenseOriginal's `project_evaluation_2026_09` note.

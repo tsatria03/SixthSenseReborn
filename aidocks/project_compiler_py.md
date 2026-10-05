@@ -66,7 +66,7 @@ The sounds now live in `game/sounds/used/`, in folders ([[project_sound_organiza
 - `data_summary()` words the counts for both `copy_game()` and `--dry-run`. With the repo's `game/` since the dev's second sound sort (2026-09-24), and `unused/` in builds, that is 507 files: 362 sounds (236 used, 126 unused), plus 145 plists and map layers. It was 474, with 329 sounds, before the sort.
 
 ## Still to do
-1. **Bring `--test` back once the game supports it.** `SixthSenseReborn.py` needs a log file in `%APPDATA%\SixthSense`, a `crash.txt` excepthook, an `--exit-after N` flag and a "game data: <path>" log line. Then restore `test_build()` and `read_log()` from the reference script in `user/`, adapted without its HRTF check. This also fixes the evaluation's "no crash path" item; see [[project_evaluation_2026_09]].
+1. **Bring `--test` back once the game supports it.** `SixthSenseReborn.py` needs a log file in `%APPDATA%\SixthSense`, a `crash.txt` excepthook, an `--exit-after N` flag and a "game data: <path>" log line. Then restore `test_build()` and `read_log()` from the reference script in `user/`, adapted without its HRTF check. This also fixes the evaluation's "no crash path" item; see SixthSenseOriginal's `project_evaluation_2026_09` note.
 2. **Silent failures:** until item 1 lands, a `--windowed` build that fails to start is silent. Tell the dev to use the console build (menu choice 4, `--console`) to diagnose.
 
 ## Test builds versus release builds

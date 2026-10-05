@@ -5,7 +5,7 @@ metadata:
   type: project
 ---
 
-**Status: in progress.** Planned 2026-10-04, agreed with the dev one question at a time. Step 2, the save folder and the one-time copy, was built in `8f81032` and confirmed by the dev the same day ("the save thing worked for both repos"); the entry script became `SixthSenseReborn.py` the same day. Steps 3 and 4 are still to do. Mark it finished only once the dev says it works ([[feedback_record_plans_first]]).
+**Status: built, waiting on the dev's check.** Planned 2026-10-04, agreed with the dev one question at a time, and every step built the same day. Step 2, the save folder and the one-time copy (`8f81032`), was confirmed by the dev ("the save thing worked for both repos"); the entry script became `SixthSenseReborn.py` (`ad701c4`). Step 3, the builds, releases and in-game name (`a4a548b`), and step 4, the changelog's `SixthSense:` heading (a heading of its own, with one line under it, so the releaser never counts it and files new versions above it; tested in `release.py`), CLAUDE.md, the README, the player readme, `project_custom_branch` renamed `project_reborn`, and the links to SixthSenseOriginal's first evaluation made plain mentions, wait on the dev. Mark it finished, then push, once the dev says it works. Mark it finished only once the dev says it works ([[feedback_record_plans_first]]).
 
 **Background.** SixthSenseReborn is the old `custom` branch of SixthSenseOriginal, moved here with its full history on 2026-10-04 (237 commits, no tags) and deleted there. Everything in it still carries SixthSenseOriginal's identity, so the two games would overwrite each other's save and publish look-alike downloads.
 
