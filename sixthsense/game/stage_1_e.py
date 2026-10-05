@@ -1773,7 +1773,7 @@ class Stage_1_E:
     def gameReplayAction_(self, *_):
         """Restart.  PORT DIVERGENCE: it is free, like starting a game from the menu.  The
         original spent a coin and said "no coin" when there were none (0x33128..0x33218);
-        aidocks/project_free_games_plan.md has why that is gone."""
+        aidocks/completed/free_games_plan.md has why that is gone."""
         if not self.bStop:                                    # 0x33106
             return False
         self.bStop = False                                    # 0x3310c

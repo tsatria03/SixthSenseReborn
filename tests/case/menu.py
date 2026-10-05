@@ -208,7 +208,7 @@ def test_it_opens_on_the_title_and_wraps():
 
 def test_a_game_is_free_and_there_are_no_coins():
     """-[MainController StartGameAction:] 0xb2ed spent a coin; the port's games are free
-    (aidocks/project_free_games_plan.md), and nothing counts coins or recharges them."""
+    (aidocks/completed/free_games_plan.md), and nothing counts coins or recharges them."""
     m = _menu()
     try:
         m.selectMenu = 3

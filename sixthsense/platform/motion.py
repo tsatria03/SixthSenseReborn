@@ -7,7 +7,7 @@ accelerometer comes in metres per second squared with gravity in it, so a pad ly
 reads about 9.81.
 
 Everything here fails quietly: no library, an old SDL or a pad with no sensor means no motion,
-never an error (aidocks/project_controller_shake_plan.md).  ``library`` stands in for the SDL
+never an error (aidocks/completed/controller_shake_plan.md).  ``library`` stands in for the SDL
 library in the tests, which never touch a real pad.
 """
 from __future__ import annotations

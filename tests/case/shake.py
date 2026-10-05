@@ -1,6 +1,6 @@
 """Shaking a game controller to shake the animal zombie off.
 
-A PORT ADDITION (aidocks/project_controller_shake_plan.md).  The pads, the SDL library and the clock
+A PORT ADDITION (aidocks/completed/controller_shake_plan.md).  The pads, the SDL library and the clock
 are stand-ins, so no real pad is opened or read.
 """
 from __future__ import annotations

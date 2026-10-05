@@ -1,11 +1,11 @@
 ---
-name: project_release_workflow_plan
-description: "Planned 2026-10-05. A GitHub Actions workflow builds and publishes the release when a V<version> tag is pushed: Windows zip, Linux tar.gz, and macOS arm64 and x86_64 tar.gz, packed by releaser.py's own package(). A new releaser option, Prepare and tag, is the only local step."
+name: release_workflow_plan
+description: "FINISHED 2026-10-05, confirmed by tunmi13productions. A GitHub Actions workflow builds and publishes the release when a V<version> tag is pushed: Windows zip, Linux tar.gz, and macOS arm64 and x86_64 tar.gz, packed by releaser.py's own package(). A new releaser option, Prepare and tag, is the only local step."
 metadata:
   type: project
 ---
 
-**Status: built 2026-10-05, not yet confirmed.** `releaser.py` has "Prepare and tag", `--ci-build` and `--ci-release`; `.github/workflows/release.yml` and new tests in `tests/case/release.py` (50 pass) are in. The workflow itself has never run: it is proved only by the first release made through it, and the runner names and the macOS minimum below are unchecked. Asked for by tunmi13productions: a workflow based on `releaser.py` and `compiler.py` so a release needs only a script that files the changelog, gets everything ready and tags it; the workflow then compiles and publishes, "compiling it into the files they already work like", macOS included. Builds on [[release_tooling_plan]], [[linux_release_plan]] and [[project_macos_build_plan]].
+**Status: FINISHED 2026-10-05, moved here at tunmi13productions' request** (the tag path through `gh release create` and the Mac archives on a Mac had not been run yet; that stayed noted below). `releaser.py` has "Prepare and tag", `--ci-build` and `--ci-release`; `.github/workflows/release.yml` and new tests in `tests/case/release.py` (50 pass) are in. The workflow itself has never run: it is proved only by the first release made through it, and the runner names and the macOS minimum below are unchecked. Asked for by tunmi13productions: a workflow based on `releaser.py` and `compiler.py` so a release needs only a script that files the changelog, gets everything ready and tags it; the workflow then compiles and publishes, "compiling it into the files they already work like", macOS included. Builds on [[release_tooling_plan]], [[linux_release_plan]] and [[project_macos_build_plan]].
 
 ## Decisions (tunmi13productions, 2026-10-05)
 - **macOS is built for both architectures**, Apple Silicon and Intel, as two archives. The names already carry it (`compiler.SYSTEMS['darwin']['zip']` is `macOS-<machine>`).

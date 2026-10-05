@@ -235,7 +235,7 @@ class MainController:
     def StartGameAction_(self, *_):
         """Start a game.  PORT DIVERGENCE: it is free.  The original spent one of five
         coins that came back every 30 minutes and said "no coin" when there were none
-        (0xb324..0xb5a0); aidocks/project_free_games_plan.md has why that is gone.
+        (0xb324..0xb5a0); aidocks/completed/free_games_plan.md has why that is gone.
 
         0xb3f8 always pushes Stage_1_E, whose MapInitInBundle (0x2e08e-0x2e0dc) runs the
         tutorial inline while TUTORIAL is 0.  The port runs that tutorial in

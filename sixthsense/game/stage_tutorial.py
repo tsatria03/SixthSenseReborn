@@ -136,7 +136,7 @@ KEY_HINTS = {
     'Nine': ('pause', 'Press {} to end the tutorial.'),
 }
 
-#: PORT ADDITION (tunmi13productions, 2026-10-05; aidocks/project_tutorial_controller_callouts_plan.md):
+#: PORT ADDITION (tunmi13productions, 2026-10-05; aidocks/completed/tutorial_controller_callouts_plan.md):
 #: with a game controller attached, what the screen reader says after a beat's recording, in
 #: in place of the keyboard's hint.  {x}, {a}, {b}, {start} and {rb} are
 #: the pad's own names for those buttons (platform/controller_names.py).

@@ -1,11 +1,11 @@
 ---
-name: project_tutorial_controller_callouts_plan
-description: "Planned 2026-10-05. While a game controller is attached, the tutorial says the controller's way of doing each lesson (left stick direction or D-pad, X, bumper, A, B or Start) after each recording, in both voice over modes, with PlayStation button names on a PlayStation pad. No pad: the keyboard hints stay as they are."
+name: tutorial_controller_callouts_plan
+description: "FINISHED 2026-10-05, confirmed by tunmi13productions. While a game controller is attached, the tutorial says the controller's way of doing each lesson (left stick direction or D-pad, X, bumper, A, B or Start) after each recording, in both voice over modes, with PlayStation button names on a PlayStation pad. No pad: the keyboard hints stay as they are."
 metadata:
   type: project
 ---
 
-**Status: built 2026-10-05, not yet confirmed.** `platform/controller_names.py`, `AppDelegate.controllers` and `controller_name()`, `CONTROLLER_HINTS`, `controller_hint` and `callout` in `stage_tutorial.py`, and the frame loop setting `app.controllers`. Tests: controller_names 5, tutorial 22. Not yet heard by ear with a real pad. Asked for by tunmi13productions: "use controller callouts when a controller is connected in the tutorial", e.g. push left on the left stick to shoot toward 9 o'clock, or the D-pad's left and up together; the wording left to Claude and approved ("yes I like those"). Builds on [[joystick_plan]], and on the tutorial's key hints (`Stage_Tutorial.key_hint`, [[tutorial_tester_plan]], [[screen_reader_mode]]).
+**Status: FINISHED 2026-10-05, confirmed by tunmi13productions** (built 2026-10-05). `platform/controller_names.py`, `AppDelegate.controllers` and `controller_name()`, `CONTROLLER_HINTS`, `controller_hint` and `callout` in `stage_tutorial.py`, and the frame loop setting `app.controllers`. Tests: controller_names 5, tutorial 22. Not yet heard by ear with a real pad. Asked for by tunmi13productions: "use controller callouts when a controller is connected in the tutorial", e.g. push left on the left stick to shoot toward 9 o'clock, or the D-pad's left and up together; the wording left to Claude and approved ("yes I like those"). Builds on [[joystick_plan]], and on the tutorial's key hints (`Stage_Tutorial.key_hint`, [[tutorial_tester_plan]], [[screen_reader_mode]]).
 
 ## Decisions (tunmi13productions, 2026-10-05)
 - **When:** whenever a pad is attached, in **both** voice over modes (the dev took the recommendation: the recordings describe touch swipes, so a controller player has no other way to learn the stick directions). The speech goes through the screen reader either way.

@@ -34,7 +34,7 @@ release runs on one, and then "Add this system's build to the release" on the ot
 its zip to the same release.  On Linux, WSL included, the GitHub CLI has to be installed and signed in
 there too.
 
-Or let GitHub do the building (tunmi13productions, 2026-10-05; aidocks/project_release_workflow_plan.md):
+Or let GitHub do the building (tunmi13productions, 2026-10-05; aidocks/completed/release_workflow_plan.md):
 "Prepare and tag" does the check, the version and changelog, the commit and the tag, and nothing else.
 The tag starts .github/workflows/release.yml, which builds on Windows, Linux and both kinds of Mac, packs
 each build with package() below, and publishes the release with all four archives.  The workflow calls

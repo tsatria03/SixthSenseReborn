@@ -353,7 +353,7 @@ right, with distance carried by volume.
 Numbers are spoken digit by digit from the `zero`..`nine` WAVs, one per second
 (`TTSNumber:type:` 0x5590 → `readNumber:` 0x5cbc), then the unit word: 335 hours,
 336 minutes, 337 seconds, 338 "the coin is full", 339 "the coin is charged after".
-(Reborn has no coins: games are free, and the coin words are unused; see project_free_games_plan.md.)
+(Reborn has no coins: games are free, and the coin words are unused; see completed/free_games_plan.md.)
 
 ---
 

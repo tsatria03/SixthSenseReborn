@@ -1,6 +1,6 @@
 """What a controller's buttons are called in the words the game says.
 
-A PORT ADDITION (aidocks/project_tutorial_controller_callouts_plan.md).  Pure: no pad, no pygame.
+A PORT ADDITION (aidocks/completed/tutorial_controller_callouts_plan.md).  Pure: no pad, no pygame.
 """
 from __future__ import annotations
 

@@ -1,6 +1,6 @@
 # Builds and publishes a release when a tag V<version> is pushed.
 # releaser.py's "Prepare and tag" makes that tag; this does the rest.
-# aidocks/project_release_workflow_plan.md has the plan.
+# aidocks/completed/release_workflow_plan.md has the plan.
 name: Release
 
 on:
