@@ -35,6 +35,9 @@ BY_EAR: dict[str, float] = {
     'woman_coming_cave': 0.0,
     'woman_die': 0.0,
     'woman_thank_u_kiss': 0.0,
+    # The headshot beep, 2.5 dB over the +3.5 the levelling gave it, so it is a little louder
+    # (tunmi13productions, 2026-10-05: "slightly louder").
+    'headshot_beep': 6.0,
 }
 
 # The block between these two lines is rewritten by tools/sound_trims.py.
