@@ -57,7 +57,7 @@ The newer reference script in `user/` bakes VERSION into the build as a module. 
 - passes `--collect-all prism --hidden-import _cffi_backend` and Prism's native `.pyd`
 - fills a `licenses` folder beside the executable: OpenAL Soft and the NVDA controller client from `vendor/`, and Prism and pygame from their installed packages
 
-`OPTIONAL_PACKAGES`, `optional_missing()` and comtypes are gone. This has been checked only by parsing, and hasn't been built yet. See [[project_prism_speech]].
+`OPTIONAL_PACKAGES`, `optional_missing()` and comtypes are gone. This has been checked only by parsing, and hasn't been built yet. See [[prism_speech]].
 
 ## Sounds moved (2026-09-21)
 The sounds now live in `game/sounds/used/`, in folders ([[project_sound_organization]]). The same day, `compiler.py` was changed to ship them. This was checked by reading the code only, not run.

@@ -1,6 +1,6 @@
 ---
-name: project_prism_speech
-description: "Built 2026-09-22; the tests pass and the dev confirmed it by ear: platform/speech.py speaks through NVDA's own DLL first, then Prism (prismatoid) for JAWS, Narrator and the rest, then SAPI or OneCore through Prism; comtypes is gone. compiler.py bundles Prism and ships a licenses folder (OpenAL Soft, NVDA client, Prism, pygame). How it works and how it is tested."
+name: prism_speech
+description: "FINISHED 2026-09-22, confirmed by ear by the dev, and the only speech layer since 2026-10-05. Built 2026-09-22; the tests pass and the dev confirmed it by ear: platform/speech.py speaks through NVDA's own DLL first, then Prism (prismatoid) for JAWS, Narrator and the rest, then SAPI or OneCore through Prism; comtypes is gone. compiler.py bundles Prism and ships a licenses folder (OpenAL Soft, NVDA client, Prism, pygame). How it works and how it is tested."
 metadata:
   node_type: memory
   type: project

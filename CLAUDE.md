@@ -21,7 +21,7 @@ This file guides Claude Code when it works in this repository. **It is a lean di
 
 There is no source code for the original. The port is **recovered from the ARMv7 binary** and rewritten method by method **entirely in Python**. **lbk2907 created it**, including the binary extraction, and handed it to tsatria03 to publish and develop together; the "Initial commit" is entirely their work ([[project_provenance]]). Each Python module mirrors one Objective-C class and cites the binary address it came from ([[project_python_only]]).
 
-The game plays the original's own 269 recorded WAVs, which `SoundList.plist` names by number in the original's 371 entries, plus the port's entry 371 (the bosses' being-hurt sound). Since 2026-10-05 the game plays none of its recorded speech: the menus, the shop, the inventory, the opening screen, the tutorial and the result panel are spoken, with the weapon's name when you change weapon ([[screen_reader_only_plan]], which supersedes [[screen_reader_mode]]), and the recordings it no longer plays are in `game/sounds/unused/speech/`. All of it goes through NVDA, another screen reader via Prism, or a Windows voice ([[project_prism_speech]]).
+The game plays the original's own 269 recorded WAVs, which `SoundList.plist` names by number in the original's 371 entries, plus the port's entry 371 (the bosses' being-hurt sound). Since 2026-10-05 the game plays none of its recorded speech: the menus, the shop, the inventory, the opening screen, the tutorial and the result panel are spoken, with the weapon's name when you change weapon ([[screen_reader_only_plan]], which supersedes [[screen_reader_mode]]), and the recordings it no longer plays are in `game/sounds/unused/speech/`. All of it goes through NVDA, another screen reader via Prism, or a Windows voice ([[prism_speech]]).
 
 ## Layout
 
@@ -64,7 +64,7 @@ The save lives in `%APPDATA%\SixthSenseReborn\` (on Linux `~/.local/share/SixthS
 - `--debug`: a zombie that reaches you just dies, nothing takes a heart, and no kill, headshot, score or gold counts. Tab reaches every weapon and nothing runs out. It adds F2, Shift+F2, F5, Shift+F5, F6, F7, F8 (the sound trims off and on, [[sound_trims_plan]]) and F11 (`game/debug.py`), which the F1 screen lists only in debug mode.
 - `-v` gives verbose logging.
 
-This needs 64-bit Python 3.12 or newer, pygame and `prismatoid` (Prism). Without Prism the game still runs, but only NVDA speaks ([[project_prism_speech]]). `pip install -r requirements.txt` installs both.
+This needs 64-bit Python 3.12 or newer, pygame and `prismatoid` (Prism). Without Prism the game still runs, but only NVDA speaks ([[prism_speech]]). `pip install -r requirements.txt` installs both.
 
 ## Working with the binary
 

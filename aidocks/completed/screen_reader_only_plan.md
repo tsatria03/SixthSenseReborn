@@ -6,7 +6,7 @@ metadata:
   type: project
 ---
 
-**Agreed with the dev on 2026-10-05, not built yet.** Supersedes the earlier decision in [[screen_reader_mode]] that the tutorial and in-play announcements stay recordings. It carries out the todo items about speaking everything through Prism, the screen reader friendly tutorial and removing the voice over row ([[project_reborn]], [[project_prism_speech]]).
+**Agreed with the dev on 2026-10-05, not built yet.** Supersedes the earlier decision in [[screen_reader_mode]] that the tutorial and in-play announcements stay recordings. It carries out the todo items about speaking everything through Prism, the screen reader friendly tutorial and removing the voice over row ([[project_reborn]], [[prism_speech]]).
 
 **Decisions:**
 - **Wording:** Claude drafts the tutorial and announcement lines from the recordings' file names and the existing `KEY_HINTS`, rewritten for keys and controllers instead of touch gestures. The dev corrects them by ear. Don't treat a drafted line as confirmed.
