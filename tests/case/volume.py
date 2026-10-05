@@ -133,6 +133,25 @@ def test_each_volume_moves_only_its_own_group():
         volume.percents.update(saved)
 
 
+def test_an_unusual_digit_is_a_bad_value_and_does_not_stop_the_game():
+    """A superscript two is a digit to ``str.isdigit`` but not to ``int``, so reading it
+    raised and the game would not start.  It is a bad value like any other: 100, kept as
+    written.  The same for the gameplay gain and for the menu music."""
+    for odd in ('²', '²²', '5²', '②'):
+        defaults, _wrote, saved = _loaded(MASTERVOLUME=odd, MENUMUSICVOLUME=odd,
+                                          LEVELMUSICVOLUME=odd, AMBIENCEVOLUME=odd,
+                                          WEAPONVOLUME=odd, PLAYERVOLUME=odd,
+                                          GAMEPLAYGAIN=odd)
+        try:
+            for key in volume.VOLUME_KEYS:
+                assert volume.percents[key] == 100, (odd, key)
+            assert defaults.gain_db == 0, odd
+            assert defaults.d['MASTERVOLUME'] == odd, "the player's value was replaced"
+        finally:
+            volume.percents.update(saved)
+        assert volume.percent(odd) == 100, odd
+
+
 def test_a_bad_value_counts_as_100_and_is_kept_as_written():
     """A player's own value is never written over, even a bad one; it just counts as 100."""
     defaults, wrote, saved = _loaded(MASTERVOLUME='loud', MENUMUSICVOLUME=100,

@@ -50,7 +50,7 @@ def _f(v, default=0.0):
     for i, ch in enumerate(s):
         if ch in '+-' and i == 0:
             out += ch
-        elif ch.isdigit():
+        elif ch in '0123456789':
             out += ch
         elif ch == '.' and not dot:
             dot = True

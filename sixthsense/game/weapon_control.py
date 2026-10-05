@@ -64,7 +64,7 @@ def obj_float(v):
     for i, ch in enumerate(s):
         if ch in '+-' and i == 0:
             out += ch
-        elif ch.isdigit():
+        elif ch in '0123456789':
             out += ch
         elif ch == '.' and not seen_dot:
             seen_dot = True

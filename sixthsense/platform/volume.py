@@ -121,14 +121,15 @@ gameplay_gain_db = DEFAULT_GAMEPLAY_GAIN_DB
 
 def _whole(value, top):
     """``value`` as a whole number from 0 to ``top``, or None when it is not one: a word,
-    a fraction, anything out of range.  A hand-edited file may hold "30"."""
+    a fraction, a digit that is not 0 to 9 (a superscript two), anything out of range.  A
+    hand-edited file may hold "30"."""
     if isinstance(value, bool):
         return None
     if isinstance(value, float):
         value = int(value) if value.is_integer() else None
     elif isinstance(value, str):
         text = value.strip()
-        value = int(text) if text.isdigit() else None
+        value = int(text) if text.isascii() and text.isdigit() else None
     if not isinstance(value, int) or not 0 <= value <= top:
         return None
     return value
