@@ -886,6 +886,60 @@ def test_nothing_else_works_while_a_lesson_waits():
         _restore()
 
 
+def test_the_first_game_after_the_tutorial_pauses_and_restarts_as_the_game():
+    """The first run's real game is played by the tutorial's own stage object.  Escape there
+    must pause, not leave for the menu as it does in the tutorial, and restarting from the
+    panel must start the game again, walking, not the tutorial's first lesson."""
+    from sixthsense.ui.input import Input
+
+    class _Pygame:
+        KEYDOWN, KEYUP, QUIT = 1, 2, 3
+
+        class key:
+            @staticmethod
+            def name(k):
+                return k
+
+    class _Key:
+        type = _Pygame.KEYDOWN
+
+        def __init__(self, name):
+            self.key = name
+            self.mod = 0
+
+    st = _tutorial(prompt=0.4, first_run=True)
+    loop = RunLoop.main()
+    st._say = lambda text: None
+    T.ENDING_DELAY, T.COUNTDOWN_SECONDS = 0.2, 0.3
+    try:
+        for n in T.STOP_NEEDS:
+            st.beat_done[n] = True
+        st.StopPlayAction_()
+        assert _pump(loop, 2.0, until=lambda: st.MotionSamplingTimer is not None),             'the walk never started'
+        keys = Input(st)
+        keys.handle(_Key('escape'), _Pygame)
+        assert not keys.quit, 'Escape left the first game for the menu'
+        assert st.gameState == 1, 'Escape did not pause the first game'
+        keys.handle(_Key('escape'), _Pygame)
+        assert st.gameState == 0, 'Escape did not resume'
+
+        st.StopPlayAction_()
+        assert st.gameState == 1
+        calls = []
+        st.tutorial_beat = lambda name, **k: calls.append(name)
+        assert st.gameReplayAction_() is True
+        assert not calls, 'the restart began the tutorial again: %r' % calls
+        assert st.waiting is None
+        assert st.isTutorial == 1, 'the restart read as the tutorial'
+        assert st.MotionSamplingTimer is not None and st.MotionSamplingTimer.isValid(),             'the restarted game does not walk'
+        st.StopPlayAction_()
+        assert st.gameState == 1, 'P does nothing in the restarted game'
+    finally:
+        T.ENDING_DELAY, T.COUNTDOWN_SECONDS = 3.05, 4.0
+        st.teardown()
+        _restore()
+
+
 if __name__ == '__main__':
     fns = [v for k, v in sorted(globals().items()) if k.startswith('test_')]
     bad = 0

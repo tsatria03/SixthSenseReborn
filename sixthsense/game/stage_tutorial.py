@@ -211,6 +211,9 @@ class Stage_Tutorial(Stage_1_E):
         self.line = ''             # what it said, for repeating
         self.told_repeat = False   # the first wait also says how to hear it again
         self.finished = False
+        #: PORT ADDITION: the real game that follows a first run's countdown, which this
+        #: stage object goes on to play; it is the game, not the tutorial, from then on
+        self.real_game = False
         self.warn_if_not_walking = False      # standing still is the point here
 
     # ---- the flags, under the names the original gives them ---------------
@@ -228,6 +231,12 @@ class Stage_Tutorial(Stage_1_E):
         # finished: the parent (below) starts the walk timer instead of standing
         # still, and StopPlayAction_ (P) runs the ordinary pause instead of
         # tutorial_skip, since isTutorial is what it branches on.
+        if self.real_game:
+            # A restart from the result panel of the first run's game: the game again, which
+            # walks (isTutorial is set), not the tutorial's first lesson.
+            self.isTutorial = 1
+            super().MapInitInBundle()
+            return
         self.isTutorial = 0
         super().MapInitInBundle()
         if self.MotionSamplingTimer is not None and self.MotionSamplingTimer.isValid():
@@ -499,6 +508,10 @@ class Stage_Tutorial(Stage_1_E):
     # 0x8374c, which nothing calls.
     def tutorialEndGameStart_(self, *_):
         self.ending = False
+        self.real_game = True
+        # Escape pauses the game as it does in any other, instead of leaving for the menu
+        # as it does in the tutorial.
+        self.ESCAPE_LEAVES = False
         self.noAtt = False                     # 0x83774
         self.shotFlag = False                  # 0x83782
         self.isTutorial = 1                    # 0x83786
