@@ -59,6 +59,7 @@ The `[[name]]` links in `CLAUDE.md` and across these memories resolve to `aidock
 - [Questions are checks](feedback_questions_are_checks.md): a question or fact from the dev about the original or the port gets an answer in chat, not edits to code, comments or docs.
 - [Record plans first](feedback_record_plans_first.md): an agreed plan gets its own aidocks note before any code, committed on its own first and never pushed until the whole thing is built and tested; it is marked finished in that note only once the dev says it works.
 - [Todo list format](feedback_todo_list_format.md): `todo list.txt` has ##Unfinished. then ##Finished. headings, one plain sentence per line, as short as the rest, new items at the top, LF, no markdown. Players only since 2026-09-23; developer tasks go in [Developer tasks](project_dev_tasks.md). Bugs are stated plainly, never as "Fix a bug where". Items move to finished only when the dev confirms.
+- [Joystick plan](project_joystick_plan.md): PLANNED 2026-10-04. Controller support through SDL's game controller layer (never XInput), menus first, then the stage; the dev has an Xbox One pad.
 
 ## User
 - [Screen reader](user_screen_reader.md): the dev works with NVDA running. Prefer lists and short lines to wide tables, and never make noise or speak through NVDA from tools or tests.
