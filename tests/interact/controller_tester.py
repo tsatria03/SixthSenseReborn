@@ -37,6 +37,7 @@ from __future__ import annotations
 import os
 import sys
 import tempfile
+import threading
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, ROOT)
@@ -278,6 +279,26 @@ class Tester:
                     pass
 
 
+#: If the tester has not finished this many seconds after Escape, it leaves anyway.  Closing
+#: SDL, a screen reader or the audio can stick on some machines, and this is a tool, so
+#: it never hangs on the way out (tunmi13productions, 2026-10-05).
+EXIT_SECONDS = 6.0
+
+
+def finish(pygame, tester, pads, say):
+    """Everything after Escape, in an order that cannot wait forever: the watchdog first, then
+    stopping the motors, the checklist, letting go of the pads, and quitting pygame."""
+    watchdog = threading.Timer(EXIT_SECONDS, lambda: os._exit(0))
+    watchdog.daemon = True
+    watchdog.start()
+    for step in (tester.stop, lambda: say(tester.checklist()), lambda: pygame.time.wait(1500),
+                 pads.close, pygame.quit):
+        try:
+            step()
+        except Exception as e:
+            print('closing: %r' % (e,), flush=True)
+
+
 def main():
     import pygame
 
@@ -323,18 +344,19 @@ def main():
 
     clock = pygame.time.Clock()
     running = True
-    while running:
-        for e in read_events(pygame):
-            if e.type == pygame.QUIT or (e.type == pygame.KEYDOWN and e.key == pygame.K_ESCAPE):
-                running = False
-                break
-            tester.event(e)
-        tester.tick()
-        clock.tick(60)
-    tester.stop()
-    say(tester.checklist())
-    pygame.time.wait(1500)
-    pygame.quit()
+    try:
+        while running:
+            for e in read_events(pygame):
+                if e.type == pygame.QUIT or (e.type == pygame.KEYDOWN and e.key == pygame.K_ESCAPE):
+                    running = False
+                    break
+                tester.event(e)
+            tester.tick()
+            clock.tick(60)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        finish(pygame, tester, pads, say)
     return 0
 
 

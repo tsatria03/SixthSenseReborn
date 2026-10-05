@@ -108,6 +108,24 @@ class Controllers:
         except Exception:
             log.exception('controller support is off')
 
+    def close(self):
+        """Let go of every pad and of SDL's controller layer, before ``pygame.quit()``.  A pad
+        left open is closed by SDL's own shutdown, which is where an exit has been seen to
+        stick; a pad that will not close is let go anyway."""
+        for pad in list(self._pads.values()):
+            try:
+                pad.quit()
+            except Exception:
+                log.debug('%s did not close', getattr(pad, 'name', 'a pad'))
+        self._pads.clear()
+        self._lean.clear()
+        try:
+            if self._sdl is not None:
+                self._sdl.quit()
+        except Exception:
+            log.debug('the controller layer did not close')
+        self._sdl = None
+
     def announce_attached(self):
         """The pads already attached when the game started are found now, once the sounds
         can play."""

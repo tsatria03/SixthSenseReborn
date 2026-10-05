@@ -318,6 +318,27 @@ def test_a_device_event_pygame_cannot_map_does_not_end_the_game():
     assert read_events(pygame) is not None
 
 
+def test_closing_lets_go_of_every_pad_and_survives_one_that_will_not_close():
+    class _Closable(_FakePad):
+        def __init__(self, ident, fail=False):
+            super().__init__(ident)
+            self.closed, self.fail = False, fail
+
+        def quit(self):
+            if self.fail:
+                raise RuntimeError('stuck')
+            self.closed = True
+    good, bad = _Closable(1), _Closable(2, fail=True)
+    c, app = _with(good, bad)
+    _added(c, 0)
+    _added(c, 1)
+    assert len(c.pads) == 2
+    c.close()
+    assert good.closed and c.pads == [] and c.pad_ids == []
+    c.close()                                        # closing twice is harmless
+    assert c.feed(pygame.event.Event(pygame.CONTROLLERBUTTONUP, button=0, instance_id=1)) == []
+
+
 def test_the_sounds_are_named_in_the_sound_list():
     import plistlib
 
