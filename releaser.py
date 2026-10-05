@@ -38,7 +38,8 @@ Or let GitHub do the building (tunmi13productions, 2026-10-05; aidocks/project_r
 "Prepare and tag" does the check, the version and changelog, the commit and the tag, and nothing else.
 The tag starts .github/workflows/release.yml, which builds on Windows, Linux and both kinds of Mac, packs
 each build with package() below, and publishes the release with all four archives.  The workflow calls
-this file with --ci-build and --ci-release; they are not for typing.
+this file with --ci-build and --ci-release; they are not for typing.  "Test the workflow" starts the same
+workflow by hand, which builds all four and publishes nothing.
 """
 from __future__ import annotations
 
@@ -666,6 +667,41 @@ def prepare_and_tag() -> None:
         say('follow it under Actions on the repository; nothing more is needed here.')
 
 
+def step_test_workflow() -> bool:
+    """Start a test run of the workflow on GitHub: it builds all four archives and checks the release step,
+    and publishes nothing, since a test run has no tag.  It runs the copy of the branch that is on GitHub,
+    so what is to be tested has to be pushed."""
+    if gh_path() is None:
+        say('the GitHub CLI, gh, was not found. Install it from cli.github.com.')
+        return False
+    ok, branch = git('rev-parse', '--abbrev-ref', 'HEAD')
+    if not ok or branch == 'HEAD':
+        say('this is not on a branch, so there is nothing to test.')
+        return False
+    git('fetch', 'origin')
+    ok, out = git('rev-list', '--count', '@{upstream}..HEAD')
+    if not ok:
+        say('%s has not been pushed to GitHub, so there is nothing there to test.' % branch)
+        return False
+    if int(out or 0):
+        say('%s commit(s) on %s are not pushed. The test runs what is on GitHub, so push first.'
+            % (out, branch))
+        return False
+    say('this starts the workflow on GitHub for %s: all four builds, then a check of the release step.'
+        % branch)
+    say('nothing is published, no tag is made and no release is touched; the archives are kept for a week.')
+    if not ask('Start the test run?'):
+        say('skipped.')
+        return False
+    ok, out = gh('workflow', 'run', 'release.yml', '--ref', branch)
+    if not ok:
+        say('the test run could not be started: %s' % out)
+        say('GitHub only offers a workflow to run once the file is on the default branch.')
+        return False
+    say('started. Follow it under Actions on the repository, or run: gh run watch')
+    return True
+
+
 def step_add_build() -> None:
     """The second system's half of a release: build, zip and add this system's zip to the release already
     made for VERSION.  It files nothing, commits nothing and tags nothing, so it needs the tag and the
@@ -735,6 +771,8 @@ def full_release() -> None:
 MENU = (
     ('Prepare and tag: file the changelog, commit and tag, and GitHub builds and publishes the release',
      prepare_and_tag),
+    ('Test the workflow: GitHub builds all four archives and checks the release step, publishing nothing',
+     step_test_workflow),
     ('Full release on this system: every step below, in order, building here', full_release),
     ('Check that everything is ready', step_check),
     ("Set the version and file the changelog", lambda: step_prepare()),
@@ -806,10 +844,11 @@ def ci_build(tag: str) -> int:
     return 0
 
 
-def ci_release(tag: str, folder: str) -> int:
+def ci_release(tag: str, folder: str, dry_run: bool = False) -> int:
     """Publish the release ``tag`` from the archives the build jobs left in ``folder`` (any depth), once
     every archive a release carries is there.  A release already on GitHub only gets the archives it lacks;
-    nothing on it is replaced."""
+    nothing on it is replaced.  ``dry_run`` (a test run of the workflow, which has no tag) makes the same
+    checks and says what would be published, and touches nothing on GitHub."""
     version = version_from_tag(tag)
     if version is None:
         say('"%s" is not a release tag, which is V and then a version such as V26.09.23-1.' % tag)
@@ -826,6 +865,17 @@ def ci_release(tag: str, folder: str) -> int:
             say('  ' + name)
         return 1
     paths = [found[name] for name in wanted]
+    if dry_run:
+        notes = release_notes(read_changelog(), version)
+        say('a test run: nothing is published. A tag would publish the release "%s", tag %s, with:'
+            % (title_for(version), tag))
+        for name in wanted:
+            say('  %s (%.1f MB)' % (name, os.path.getsize(found[name]) / (1 << 20)))
+        say('and %d line(s) of release notes.' % len(notes.splitlines()))
+        if not notes:
+            say('the changelog has nothing under %s, so a real release would have empty notes.'
+                % changelog_heading(version))
+        return 0
     ok, _out = gh('release', 'view', tag)
     if ok:
         on_release = release_assets(tag)
@@ -860,15 +910,21 @@ def ci_release(tag: str, folder: str) -> int:
     return 0
 
 
-def cli(argv) -> int | None:
-    """--ci-build TAG and --ci-release TAG FOLDER, for the workflow; None for anything else, which opens the
-    menu."""
+def cli(argv, env=None) -> int | None:
+    """--ci-build TAG, and --ci-release TAG FOLDER with --dry-run after it for a test run, for the
+    workflow; None for anything else, which opens the menu.  On GitHub a release is only ever published
+    from a tag: the workflow's own test run has no tag, and refuses to publish."""
+    env = os.environ if env is None else env
     if argv[:1] == ['--ci-build'] and len(argv) == 2:
         os.chdir(HERE)
         return ci_build(argv[1])
-    if argv[:1] == ['--ci-release'] and len(argv) == 3:
+    if argv[:1] == ['--ci-release'] and len(argv) in (3, 4) and argv[3:] in ([], ['--dry-run']):
+        dry = len(argv) == 4
+        if not dry and env.get('GITHUB_ACTIONS') and env.get('GITHUB_REF_TYPE') != 'tag':
+            say('this run was not started by a tag, so nothing is published.')
+            return 1
         os.chdir(HERE)
-        return ci_release(argv[1], argv[2])
+        return ci_release(argv[1], argv[2], dry)
     return None
 
 

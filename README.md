@@ -414,6 +414,13 @@ its notes. A build that fails publishes nothing: re-run the failed job under Act
 and the release follows. A tag whose `VERSION` is not the tag's builds nothing, and
 nothing on a release is ever replaced. The Mac builds are not signed.
 
+**Test it without publishing:** the releaser's **Test the workflow** starts the same workflow
+by hand on the pushed branch (or run it from the Actions page). It builds all four archives
+and checks the release step, but a test run has no tag, so nothing is published, no tag is
+made and no release is touched. The archives are kept for a week, so the Mac ones can be
+downloaded and tried. GitHub only offers a workflow to run once its file is on the default
+branch.
+
 The full release and the other menu steps still work, for building on your own machine.
 
 ### Starting at any level

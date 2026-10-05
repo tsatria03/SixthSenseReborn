@@ -718,9 +718,93 @@ def test_the_workflow_file_names_the_same_calls():
     assert "tags: ['V*']" in text
     assert 'releaser.py --ci-build' in text and 'releaser.py --ci-release' in text
     assert 'needs: build' in text and 'contents: write' in text
+    assert 'workflow_dispatch:' in text and "if: github.ref_type == 'tag'" in text and '--dry-run' in text
     for system in ('windows-latest', 'ubuntu-latest', 'macos-15', 'macos-15-intel'):
         assert system in text, system
     assert releaser.cli(['--ci-build']) is None and releaser.cli([]) is None, 'a bare flag opens the menu'
+
+
+def test_a_test_run_checks_the_release_and_touches_nothing_on_github():
+    def test(_folder):
+        with open(releaser.CHANGELOG, 'w', encoding='utf-8', newline='\n') as fh:
+            fh.write(releaser.plan_changelog(FIVE, '26.10.05-1')[0])
+        with tempfile.TemporaryDirectory() as archives:
+            _archives(archives, '26.10.05-1')
+            with _Publishing() as g:
+                assert releaser.ci_release('V26.10.05-1', archives, dry_run=True) == 0
+            assert g.calls == [], 'a test run reached GitHub'
+            _archives(archives, '26.10.05-2', releaser.release_archive_names('26.10.05-2')[:3])
+            with _Publishing() as g:
+                assert releaser.ci_release('V26.10.05-2', archives, dry_run=True) == 1, \
+                    'a test run passed with an archive missing'
+    _with_temp_files(test)
+
+
+def test_a_run_that_was_not_started_by_a_tag_never_publishes():
+    saved = os.getcwd()
+    calls = []
+    real = releaser.ci_release
+    releaser.ci_release = lambda *a: calls.append(a) or 0
+    try:
+        on_a_branch = {'GITHUB_ACTIONS': 'true', 'GITHUB_REF_TYPE': 'branch'}
+        assert releaser.cli(['--ci-release', 'V26.10.05-1', 'archives'], on_a_branch) == 1
+        assert calls == []
+        assert releaser.cli(['--ci-release', 'V26.10.05-1', 'archives', '--dry-run'], on_a_branch) == 0
+        assert calls == [('V26.10.05-1', 'archives', True)]
+        calls.clear()
+        on_a_tag = {'GITHUB_ACTIONS': 'true', 'GITHUB_REF_TYPE': 'tag'}
+        assert releaser.cli(['--ci-release', 'V26.10.05-1', 'archives'], on_a_tag) == 0
+        assert calls == [('V26.10.05-1', 'archives', False)]
+        assert releaser.cli(['--ci-release', 'V26.10.05-1', 'archives', '--other'], on_a_tag) is None
+    finally:
+        releaser.ci_release = real
+        os.chdir(saved)
+
+
+class _Git:
+    """Stands in for git, gh and the question while the test run is started."""
+
+    def __init__(self, ahead='0', upstream=True, answer=True, run_ok=True, branch='main'):
+        self.ahead, self.upstream, self.answer, self.run_ok, self.branch = ahead, upstream, answer, run_ok, branch
+        self.started = []
+        self.saved = (releaser.git, releaser.gh, releaser.gh_path, releaser.ask)
+
+    def __enter__(self):
+        def git(*args, capture=True):
+            if args[:2] == ('rev-parse', '--abbrev-ref'):
+                return True, self.branch
+            if args[:1] == ('rev-list',):
+                return self.upstream, self.ahead
+            return True, ''
+
+        def gh(*args, capture=True):
+            self.started.append(args)
+            return self.run_ok, 'denied' if not self.run_ok else ''
+        releaser.git, releaser.gh = git, gh
+        releaser.gh_path = lambda: 'gh'
+        releaser.ask = lambda question: self.answer
+        return self
+
+    def __exit__(self, *exc):
+        releaser.git, releaser.gh, releaser.gh_path, releaser.ask = self.saved
+        return False
+
+
+def test_the_test_run_starts_the_workflow_on_the_pushed_branch():
+    with _Git() as g:
+        assert releaser.step_test_workflow() is True
+    assert g.started == [('workflow', 'run', 'release.yml', '--ref', 'main')]
+    with _Git(ahead='2') as g:
+        assert releaser.step_test_workflow() is False, 'it tested what GitHub does not have'
+    with _Git(upstream=False) as g:
+        assert releaser.step_test_workflow() is False
+    with _Git(answer=False) as g:
+        assert releaser.step_test_workflow() is False
+    with _Git(branch='HEAD') as g:
+        assert releaser.step_test_workflow() is False
+    with _Git(run_ok=False) as g:
+        assert releaser.step_test_workflow() is False
+    assert g.started and not any('release' == a[0] and a[1] == 'create' for a in g.started)
 
 
 if __name__ == '__main__':

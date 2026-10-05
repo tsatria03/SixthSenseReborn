@@ -5,7 +5,7 @@ metadata:
   type: project
 ---
 
-**Status: built 2026-10-05, not yet confirmed.** `releaser.py` has "Prepare and tag", `--ci-build` and `--ci-release`; `.github/workflows/release.yml` and eight new tests in `tests/case/release.py` (47 pass) are in. The workflow itself has never run: it is proved only by the first release made through it, and the runner names and the macOS minimum below are unchecked. Asked for by tunmi13productions: a workflow based on `releaser.py` and `compiler.py` so a release needs only a script that files the changelog, gets everything ready and tags it; the workflow then compiles and publishes, "compiling it into the files they already work like", macOS included. Builds on [[project_release_tooling_plan]], [[project_linux_release_plan]] and [[project_macos_build_plan]].
+**Status: built 2026-10-05, not yet confirmed.** `releaser.py` has "Prepare and tag", `--ci-build` and `--ci-release`; `.github/workflows/release.yml` and new tests in `tests/case/release.py` (50 pass) are in. The workflow itself has never run: it is proved only by the first release made through it, and the runner names and the macOS minimum below are unchecked. Asked for by tunmi13productions: a workflow based on `releaser.py` and `compiler.py` so a release needs only a script that files the changelog, gets everything ready and tags it; the workflow then compiles and publishes, "compiling it into the files they already work like", macOS included. Builds on [[project_release_tooling_plan]], [[project_linux_release_plan]] and [[project_macos_build_plan]].
 
 ## Decisions (tunmi13productions, 2026-10-05)
 - **macOS is built for both architectures**, Apple Silicon and Intel, as two archives. The names already carry it (`compiler.SYSTEMS['darwin']['zip']` is `macOS-<machine>`).
@@ -19,6 +19,11 @@ metadata:
   - A release job, which needs every build job, so a failed build publishes nothing (a re-run of the failed job then lets it go on): `python releaser.py --ci-release`, which requires all four archives, then `gh release create` as "SixthSenseReborn V<version>" with that version's changelog lines as the notes, `--verify-tag`. If the release already exists it only adds missing archives. Nothing on a release is ever replaced.
 - **Tests** in `tests/case/release.py`: the tag to version, the four archive names, `--ci-release` refusing a missing archive and a replaced asset, `--ci-build` refusing a `VERSION` that is not the tag; all with gh and the build faked.
 - **Docs:** README.md's building and releasing section, CLAUDE.md's `releaser.py` line, pointers in [[project_release_tooling_plan]] and `MEMORY.md`.
+
+## A test run (added 2026-10-05, at tunmi13productions' asking: "a way to test it without actually publishing anything")
+- The workflow also starts by hand (`workflow_dispatch`). A test run has no tag, so the checkout's own `VERSION` stands in for it, all four builds run and upload their archives (kept 7 days), and the release job only runs `--ci-release ... --dry-run`: the same check that all four archives exist, then it says what a tag would publish. It never calls `gh` for the release.
+- A run not started by a tag also refuses a real `--ci-release` (`GITHUB_REF_TYPE` is not `tag`), so a mistake in the workflow file cannot publish from a test run.
+- `releaser.py` menu entry 2, "Test the workflow", checks that the branch is pushed, asks, and runs `gh workflow run release.yml --ref <branch>`. GitHub only lists a workflow to dispatch once its file is on the default branch, so the first test run needs the push.
 
 ## Not verified yet
 - The names of GitHub's macOS runner images for Apple Silicon and Intel in 2026. They sit in one matrix table in the workflow, to be corrected on the first run.

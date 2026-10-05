@@ -6,6 +6,9 @@ name: Release
 on:
   push:
     tags: ['V*']
+  # a test run, from releaser.py's "Test the workflow" or the Actions page: it builds all four archives and
+  # checks the release step, but has no tag, so it publishes nothing
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -37,8 +40,12 @@ jobs:
       - name: Build and pack
         shell: bash
         env:
-          TAG: ${{ github.ref_name }}
-        run: python releaser.py --ci-build "$TAG"
+          REF_TYPE: ${{ github.ref_type }}
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          # a test run has no tag, so the checkout's own VERSION stands in for it
+          if [ "$REF_TYPE" = tag ]; then TAG="$REF_NAME"; else TAG="V$(head -n 1 VERSION | tr -d ' \r')"; fi
+          python releaser.py --ci-build "$TAG"
       - uses: actions/upload-artifact@v4
         with:
           name: archive-${{ matrix.key }}
@@ -47,6 +54,7 @@ jobs:
             dist/*.tar.gz
           if-no-files-found: error
           compression-level: 0
+          retention-days: 7
 
   release:
     name: Publish the release
@@ -66,7 +74,11 @@ jobs:
           merge-multiple: true
           path: archives
       - name: Publish
+        if: github.ref_type == 'tag'
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ github.ref_name }}
         run: python releaser.py --ci-release "$TAG" archives
+      - name: Check what a tag would publish (a test run publishes nothing)
+        if: github.ref_type != 'tag'
+        run: python releaser.py --ci-release "V$(head -n 1 VERSION | tr -d ' \r')" archives --dry-run
