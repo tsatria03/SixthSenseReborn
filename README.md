@@ -1,15 +1,16 @@
-# SixthSense-Windows
+# SixthSenseReborn
 
-A Windows, Linux and macOS game in Python, branched from a port of **Sixth Sense**
+A Windows, Linux and macOS game in Python, grown from a port of **Sixth Sense**
 (`kr.co.bitbee.sixsense` 1.2, Bitbee, 2013), an iPhone audio game for blind players: you walk
-down a corridor in the dark and shoot what you hear coming. This is the `custom`
-branch, where changes need not be faithful to the original; `main` is the faithful port.
+down a corridor in the dark and shoot what you hear coming. Here changes need not be
+faithful to the original; the faithful port is
+[SixthSenseOriginal](https://github.com/tsatria03/SixthSenseOriginal).
 
 The port runs off the original app bundle's own data — the binary plists and the three
 map layers, unconverted, and the original's recorded sounds, sorted into folders under
 their own names — and drives OpenAL Soft with the same calls and the same values the
-iOS build used. On `main` nothing about the game's numbers was invented; this branch
-changes what the dev chooses to.
+iOS build used. In SixthSenseOriginal nothing about the game's numbers was invented; this
+repository changes what the dev chooses to.
 
 **Wear headphones.** The game says so itself (`SoundList.plist` 234,
 "you must use earphone") and none of it works on speakers.
@@ -17,7 +18,7 @@ changes what the dev chooses to.
 ## Download
 
 To play without installing Python, download the newest release from the
-[latest release page](https://github.com/tsatria03/SixthSense-Windows/releases/latest).
+[latest release page](https://github.com/tsatria03/SixthSenseReborn/releases/latest).
 Each release has a zip for Windows, `SixthSense-Win-<version>.zip`. Extract it and run
 `SixthSense.exe` in the `SixthSense-Windows` folder it contains. From 2026-09-28 a release
 can also carry `SixthSense-Linux-<version>.tar.gz`: extract it with
@@ -27,7 +28,7 @@ holds the player's readme, the changelog and the todo list.
 
 A version is the date of the release and that day's number: `26.09.24-2` is the second
 release of the 24th of September 2026. The changelog lists what each release changed,
-and every release so far is on the [releases page](https://github.com/tsatria03/SixthSense-Windows/releases).
+and every release is on the [releases page](https://github.com/tsatria03/SixthSenseReborn/releases).
 Your save is kept in `%APPDATA%\SixthSense`, not in the game's folder, so a new release
 can go in a fresh folder and carries on from your progress.
 
