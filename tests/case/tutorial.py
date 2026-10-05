@@ -229,6 +229,91 @@ def test_voice_over_off_adds_the_keys_after_the_prompt():
         _restore()
 
 
+class _Pad:
+    def __init__(self, name):
+        self.name = name
+
+
+class _Pads:
+    def __init__(self, *names):
+        self.pads = [_Pad(n) for n in names]
+
+
+def test_a_controller_gets_its_own_callouts_in_either_voice_over_mode():
+    """tunmi13productions, 2026-10-05: with a pad attached the tutorial says the controller's way,
+    stick first and the D-pad as the alternative, whether voice over is on or off."""
+    st = _tutorial(prompt=0.4)
+    app = st.app
+    saved_mode, saved_pads = app.mode, app.controllers
+    said = []
+    st._say = said.append
+    try:
+        app.controllers = _Pads('Xbox One Controller')
+        want = {
+            'One': "Push the left stick left to shoot toward 9 o'clock, or press D-pad left.",
+            'Two': 'Push the left stick diagonally up and left to shoot toward 10:30, '
+                   'or press D-pad left and up together.',
+            'Three': "Push the left stick up to shoot toward 12 o'clock, or press D-pad up.",
+            'Four': 'Push the left stick diagonally up and right to shoot toward 1:30, '
+                    'or press D-pad right and up together.',
+            'Five': "Push the left stick right to shoot toward 3 o'clock, or press D-pad right.",
+            'Six': 'Pull the left stick down, or press X, to reload.',
+            'Seven': 'Press the right bumper to change to the next weapon.',
+            'Eight': 'Press A a few times to shake the zombie off.',
+            'Nine': 'Press B or Start to end the tutorial.',
+        }
+        for mode in (1, 0):                              # voice over on, then off
+            app.mode = mode
+            for name, text in want.items():
+                assert st.callout(name) == text, (mode, name, st.callout(name))
+            assert st.callout('FiveHalf') is None, 'FiveHalf teaches nothing new'
+        app.mode = 1
+        assert not said
+        _pump(RunLoop.main(), 3.0, until=lambda: bool(said))
+        assert said == [want['One']], said
+    finally:
+        app.mode, app.controllers = saved_mode, saved_pads
+        st.teardown()
+        _restore()
+
+
+def test_a_playstation_pad_hears_playstation_button_names():
+    st = _tutorial(prompt=0.4)
+    app = st.app
+    saved = app.controllers
+    try:
+        app.controllers = _Pads('PS5 Controller')
+        assert st.callout('Six') == 'Pull the left stick down, or press Square, to reload.'
+        assert st.callout('Seven') == 'Press R1 to change to the next weapon.'
+        assert st.callout('Eight') == 'Press Cross a few times to shake the zombie off.'
+        assert st.callout('Nine') == 'Press Circle or Options to end the tutorial.'
+        assert st.callout('Two').endswith('D-pad left and up together.'), 'the D-pad has no names'
+    finally:
+        app.controllers = saved
+        st.teardown()
+        _restore()
+
+
+def test_without_a_controller_the_keyboard_hints_stand_as_they_were():
+    st = _tutorial(prompt=0.4)
+    app = st.app
+    saved_mode, saved_pads = app.mode, app.controllers
+    try:
+        app.controllers = None
+        assert app.controller_name() is None
+        app.controllers = _Pads()
+        assert app.controller_name() is None, 'a controller list with nothing in it'
+        app.mode = 1
+        assert st.callout('One') is None, 'voice over on, no pad: recordings only'
+        app.mode = 0
+        assert st.callout('One') == st.key_hint('One') and st.callout('One') is not None
+        assert 'stick' not in st.callout('One')
+    finally:
+        app.mode, app.controllers = saved_mode, saved_pads
+        st.teardown()
+        _restore()
+
+
 def test_killing_in_the_taught_lane_finishes_the_beat():
     st = _tutorial(prompt=0.4)
     loop = RunLoop.main()

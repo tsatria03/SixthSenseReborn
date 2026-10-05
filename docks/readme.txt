@@ -122,6 +122,7 @@ Voice over
 With voice over on, the game speaks through its own recordings, and needs no screen reader.
 With voice over off, your screen reader reads the menus, the shop, the inventory, the opening screen and the result panel instead.
 With voice over off, the tutorial also names the keys to press after each instruction.
+With a game controller attached, the tutorial says how to do each lesson on the controller instead, with voice over on or off.
 With voice over off, Left and Right also move between rows, and Home and End go to the first and the last row.
 Choose the voice over row in the main menu to turn it on or off.
 

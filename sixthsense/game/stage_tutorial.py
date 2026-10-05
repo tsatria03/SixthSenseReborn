@@ -73,6 +73,7 @@ from __future__ import annotations
 
 import logging
 
+from ..platform.controller_names import button_names
 from ..platform.defaults import UserDefaults
 from ..platform.keymap import KeyMap, binding_text
 from ..platform.runloop import RunLoop
@@ -130,6 +131,24 @@ KEY_HINTS = {
     'Seven': ('next_weapon', 'Press {} to change to the next weapon.'),
     'Eight': ('shake', 'Press {} a few times to shake the zombie off.'),
     'Nine': ('pause', 'Press {} to end the tutorial.'),
+}
+
+#: PORT ADDITION (tunmi13productions, 2026-10-05; aidocks/project_tutorial_controller_callouts_plan.md):
+#: with a game controller attached, what the screen reader says after a beat's recording, in
+#: either voice over mode, in place of the keyboard's hint.  {x}, {a}, {b}, {start} and {rb} are
+#: the pad's own names for those buttons (platform/controller_names.py).
+CONTROLLER_HINTS = {
+    'One': "Push the left stick left to shoot toward 9 o'clock, or press D-pad left.",
+    'Two': 'Push the left stick diagonally up and left to shoot toward 10:30, '
+           'or press D-pad left and up together.',
+    'Three': "Push the left stick up to shoot toward 12 o'clock, or press D-pad up.",
+    'Four': 'Push the left stick diagonally up and right to shoot toward 1:30, '
+            'or press D-pad right and up together.',
+    'Five': "Push the left stick right to shoot toward 3 o'clock, or press D-pad right.",
+    'Six': 'Pull the left stick down, or press {x}, to reload.',
+    'Seven': 'Press {rb} to change to the next weapon.',
+    'Eight': 'Press {a} a few times to shake the zombie off.',
+    'Nine': 'Press {b} or {start} to end the tutorial.',
 }
 
 _SIDES = {'left': 'right', 'right': 'left'}
@@ -236,11 +255,25 @@ class Stage_Tutorial(Stage_1_E):
             self.noAtt = True
         self.app.stopSoundBufNumber_(sound)
         self.beat_flag[name] = True            # PORT: the prompt has finished
-        hint = self.key_hint(name)
+        hint = self.callout(name)
         if hint is not None:
             self._say(hint)
         if spawn is not None:
             self.MonsterInit_(spawn)
+
+    def controller_hint(self, name):
+        """PORT ADDITION: this beat's gesture on the attached controller, in either voice
+        over mode, or None with no controller or for a beat that teaches nothing."""
+        pad = self.app.controller_name()
+        if pad is None or name not in CONTROLLER_HINTS:
+            return None
+        return CONTROLLER_HINTS[name].format(**button_names(pad))
+
+    def callout(self, name):
+        """What is said after a beat's recording: the controller's way when one is attached,
+        otherwise the keys, with voice over off."""
+        hint = self.controller_hint(name)
+        return hint if hint is not None else self.key_hint(name)
 
     def key_hint(self, name):
         """PORT ADDITION: the keys for this beat's gesture, with voice over off.  Every

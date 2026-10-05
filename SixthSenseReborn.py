@@ -169,6 +169,7 @@ def main(argv=None):
     showing_bindings = False
     pad = Controllers(pygame, app)
     pad.announce_attached()
+    app.controllers = pad
     from sixthsense.ui.vibration import Vibration
     app.vibration = Vibration(pad, enabled=lambda: app.vibration_on)
 

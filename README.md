@@ -66,7 +66,8 @@ the Mac's own architecture, Apple Silicon or Intel.
 covers: the key-binding screen and a few messages. With voice over on, the main menu's
 default, the game speaks through its own recorded WAVs and needs no screen reader. With
 voice over off, your screen reader reads the menus, the shop, the inventory and the
-pause and result panel instead, and names the keys during the tutorial.
+pause and result panel instead, and names the keys during the tutorial. With a game
+controller attached, the tutorial names the stick and button moves instead, in either mode.
 
 One more package is needed only to redo the reverse engineering, never to play:
 

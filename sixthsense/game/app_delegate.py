@@ -100,6 +100,9 @@ class AppDelegate:
         # PORT ADDITION: a controller's motors (ui/vibration.py).  The frame loop sets it;
         # without one, which is every test, nothing vibrates.
         self.vibration = None
+        # PORT ADDITION: the attached controllers (ui/controller.py).  The frame loop sets
+        # it; without one, which is every test, no pad is attached.
+        self.controllers = None
 
     # -[AppDelegate application:didFinishLaunchingWithOptions:] 0x3f64
     def didFinishLaunching(self):
@@ -233,6 +236,13 @@ class AppDelegate:
         playing, for the MG80's burst (``OalPlayback.playOverlap_gain_pos_z_``)."""
         i = self.playSoundBufNumber_(num)
         self.playback.playOverlap_gain_pos_z_(i, gain, pos, z)
+
+    def controller_name(self):
+        """PORT ADDITION: the name of the first attached controller, or None with none."""
+        pads = self.controllers.pads if self.controllers is not None else []
+        if not pads:
+            return None
+        return getattr(pads[0], 'name', None) or 'controller'
 
     def vibrate_effect(self, name):
         """PORT ADDITION: start a named effect on the controller, if there is one.  Not
