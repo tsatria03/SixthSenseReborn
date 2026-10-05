@@ -68,6 +68,7 @@ SOUND_COIN_COUNT = 334
 READ_COIN_COUNT_DELAY = 1.6
 SOUND_NO_COIN = 358
 SOUND_RANKING_NOTICE = 364
+SOUND_HEADSHOT_BEEP = 374           # PORT ADDITION: headshot_beep, the dev's own
 
 # selectMenu, flag, sound, what it does
 ROWS = (
@@ -78,9 +79,12 @@ ROWS = (
     # PORT ADDITION: the vibration row.  No recording names it, so it has no sound and is
     # always spoken through the screen reader.
     (9, 'vibration_flag', None, 'vibration'),
+    # PORT ADDITION (2026-10-05): the two headshot settings, spoken through the screen reader.
+    (10, 'headshot_speech_flag', None, 'headshot_speech'),
+    (11, 'headshot_beep_flag', None, 'headshot_beep'),
 )
-#: PORT ADDITION: what the screen reader says for each row.  The vibration row is made in
-#: ``row_text``.
+#: PORT ADDITION: what the screen reader says for each row.  The rows that are a setting are
+#: made in ``row_text``.
 ROW_TEXT = {
     'title': 'Sixth Sense Reborn: The Zombies',
     'start': 'Game start, Button',
@@ -138,6 +142,10 @@ class MainController:
         action = self._row(n)[3]
         if action == 'vibration':
             return 'Vibration, currently %s.' % ('on' if self.app.vibration_on else 'off')
+        if action == 'headshot_speech':
+            return 'Spoken headshot, currently %s.' % ('on' if self.app.headshot_speech_on else 'off')
+        if action == 'headshot_beep':
+            return 'Headshot beep, currently %s.' % ('on' if self.app.headshot_beep_on else 'off')
         return ROW_TEXT[action]
 
     # -[MainController blindModeSelectedMenu] 0x90d0 - highlight the row and say it
@@ -183,6 +191,10 @@ class MainController:
             self.TutorialAction_(None)
         elif action == 'vibration':
             self.VibrationAction_(None)
+        elif action == 'headshot_speech':
+            self.HeadshotSpeechAction_(None)
+        elif action == 'headshot_beep':
+            self.HeadshotBeepAction_(None)
         elif action == 'store':
             self.Store_(None)
 
@@ -254,6 +266,27 @@ class MainController:
         if on:
             self.app.vibrate_effect('confirm')
         log.info('vibration %s', 'on' if on else 'off')
+
+    def HeadshotSpeechAction_(self, *_):
+        """PORT ADDITION: flip the spoken "Headshot!", click, and say the new state."""
+        self.StopElseSpeak()
+        on = not self.app.headshot_speech_on
+        self.app.set_headshot_speech(on)
+        self.app.playSound_Gain_Pos_z_reprats_(SOUND_UI_SELECT, 0.2, (0.0, 0.0), 0, False)
+        self._say(self.row_text())
+        log.info('spoken headshot %s', 'on' if on else 'off')
+
+    def HeadshotBeepAction_(self, *_):
+        """PORT ADDITION: flip the headshot beep, click, say the new state, and play the
+        beep once when it is turned on, so the player hears what they chose."""
+        self.StopElseSpeak()
+        on = not self.app.headshot_beep_on
+        self.app.set_headshot_beep(on)
+        self.app.playSound_Gain_Pos_z_reprats_(SOUND_UI_SELECT, 0.2, (0.0, 0.0), 0, False)
+        self._say(self.row_text())
+        if on:
+            self.app.playSound_Gain_Pos_z_reprats_(SOUND_HEADSHOT_BEEP, 1.0, (0.0, 0.0), 0, False)
+        log.info('headshot beep %s', 'on' if on else 'off')
 
     # ================================================================= misc
     def teardown(self):

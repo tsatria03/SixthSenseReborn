@@ -65,6 +65,7 @@ MEASURED: dict[str, float] = {
     'man_monster_die': 7.0,
     'man_monster_hit': 1.0,
     # sfx/weapons
+    'headshot_beep': 3.5,
     'weapon_ak_fire': 2.0,
     'weapon_ak_reload': 10.0,
     'weapon_colt_fire': 5.0,

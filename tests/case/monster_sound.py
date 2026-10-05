@@ -206,12 +206,17 @@ def test_the_bullet_hit_is_heard_where_the_zombie_is():
         st.teardown()
 
 
-def test_a_headshot_is_announced_by_the_screen_reader():
-    """A headshot is announced by the screen reader, not the headshot_4 recording
-    (330; a PORT DIVERGENCE of 2026-10-05), and the gun's hit still fades with the zombie."""
-    app, st = _new_stage()
-    said = []
+def _headshot(app, st, speech=True, beep=False):
+    """Fire one headshot at a zombie far down lane 1 and let it land; returns what was
+    said and the calls to playHitSound, and the zombie."""
+    from sixthsense.platform.defaults import UserDefaults
+    d = UserDefaults.standardUserDefaults()
+    d.setObject_forKey_('1' if speech else '0', 'HEADSHOTSPEECH')
+    d.setObject_forKey_('1' if beep else '0', 'HEADSHOTBEEP')
+    said, hits = [], []
     st._say = said.append
+    real = app.playHitSound_Gain_Pos_z_
+    app.playHitSound_Gain_Pos_z_ = lambda *a: (hits.append(a), real(*a))[-1]
     loop = RunLoop.main()
     st.MonsterInit_(1)                      # lane 1, hard left, far out
     m = st.MonsterBuffer[0]
@@ -222,18 +227,37 @@ def test_a_headshot_is_announced_by_the_screen_reader():
     m.MovingPosAngle = 180
     m.HP = 1000
     m.headShotFlag = True
+    st.gamePlayer.useWepon = 2
+    st.shotFlag = False
+    st.MovingShot_(180.0)
+    import time
+    t0 = time.monotonic()
+    while time.monotonic() - t0 < S1E.SHOT_TRAVEL + 0.3:
+        loop.pump()
+        time.sleep(0.004)
+    assert st.gamePlayer.HeadShotCount == 1, 'it was not a headshot'
+    return said, hits, m
+
+
+def _headshot_done(app, st):
+    from sixthsense.platform.defaults import UserDefaults
+    d = UserDefaults.standardUserDefaults()
+    d.removeObjectForKey_('HEADSHOTSPEECH')
+    d.removeObjectForKey_('HEADSHOTBEEP')
+    app.__dict__.pop('playHitSound_Gain_Pos_z_', None)
+    st.teardown()
+
+
+def test_a_headshot_is_announced_by_the_screen_reader():
+    """A headshot is announced by the screen reader, not the headshot_4 recording
+    (330; a PORT DIVERGENCE of 2026-10-05), and the gun's hit still fades with the zombie.
+    By default there is no beep."""
+    app, st = _new_stage()
     try:
-        st.gamePlayer.useWepon = 2
-        st.shotFlag = False
-        st.MovingShot_(180.0)
-        import time
-        t0 = time.monotonic()
-        while time.monotonic() - t0 < S1E.SHOT_TRAVEL + 0.3:
-            loop.pump()
-            time.sleep(0.004)
-        assert st.gamePlayer.HeadShotCount == 1, 'it was not a headshot'
+        said, hits, _m = _headshot(app, st)
         assert said == ['Headshot!'], said
         assert app.CheckSoundBuf_(330) == -1, 'the recording still played'
+        assert not [h for h in hits if h[0] == 374], 'the beep played by default'
         pb = app.playback
         # the gun's hit fades as the zombie does (a PORT DIVERGENCE of 2026-09-27):
         # the zombie's own 100 and 1600, not playSound:'s 40 and 800
@@ -241,7 +265,31 @@ def test_a_headshot_is_announced_by_the_screen_reader():
         assert pb.al.source_float(hit, al.AL_REFERENCE_DISTANCE) == 100.0
         assert pb.al.source_float(hit, al.AL_MAX_DISTANCE) == 1600.0
     finally:
-        st.teardown()
+        _headshot_done(app, st)
+
+
+def test_spoken_headshot_can_be_turned_off():
+    app, st = _new_stage()
+    try:
+        said, _hits, _m = _headshot(app, st, speech=False)
+        assert said == [], said
+    finally:
+        _headshot_done(app, st)
+
+
+def test_the_headshot_beep_plays_where_the_zombie_is():
+    """PORT ADDITION (2026-10-05): with the beep on, every headshot hit plays headshot_beep
+    (374) at the zombie's position, through the call the gun's hit uses so it fades as the
+    zombie does."""
+    app, st = _new_stage()
+    try:
+        said, hits, m = _headshot(app, st, speech=True, beep=True)
+        beeps = [h for h in hits if h[0] == 374]
+        assert len(beeps) == 1, hits
+        assert beeps[0][2] == m.Pos, (beeps[0], m.Pos)
+        assert said == ['Headshot!'], said
+    finally:
+        _headshot_done(app, st)
 
 
 def test_a_monster_never_passes_through_you_on_its_last_step():

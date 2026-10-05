@@ -47,12 +47,12 @@ def _menu():
 def test_the_rows_are_the_originals():
     """The rows selectTapPointSoundStart (0x9825) claims, with their sounds and their
     original numbers, less the coins (1), ranking (5) and Game Center (8), and the port's
-    vibration row (9), which has no recording, and the voice over row (7), which went on
-    2026-10-05 with the recorded voice."""
-    assert [r[0] for r in ROWS] == [2, 3, 4, 6, 9]
-    assert [r[3] for r in ROWS] == ['title', 'start', 'tutorial',
-                                    'store', 'vibration']
-    assert [r[2] for r in ROWS] == [16, 17, 23, 18, None]
+    vibration row (9) and the two headshot rows (10, 11), which have no recording, and the
+    voice over row (7), which went on 2026-10-05 with the recorded voice."""
+    assert [r[0] for r in ROWS] == [2, 3, 4, 6, 9, 10, 11]
+    assert [r[3] for r in ROWS] == ['title', 'start', 'tutorial', 'store', 'vibration',
+                                    'headshot_speech', 'headshot_beep']
+    assert [r[2] for r in ROWS] == [16, 17, 23, 18, None, None, None]
     # every one of them is a real entry with a WAV behind it
     sl = plistlib.load(open(paths.path_for_resource('SoundList', 'plist'), 'rb'))
     for _n, _f, sound, _a in ROWS:
@@ -197,10 +197,11 @@ def test_it_opens_on_the_title_and_wraps():
         for _ in range(len(ROWS)):
             m.move(1)
             seen.append(m._row()[3])
-        assert seen == ['start', 'tutorial', 'store', 'vibration', 'title'], seen
+        assert seen == ['start', 'tutorial', 'store', 'vibration', 'headshot_speech',
+                        'headshot_beep', 'title'], seen
         m.selectMenu = 2
         m.move(-1)
-        assert m.selectMenu == 9, 'moving up off the top did not wrap'
+        assert m.selectMenu == 11, 'moving up off the top did not wrap'
     finally:
         m.teardown()
 
@@ -335,6 +336,10 @@ def test_the_rows_speak_through_the_screen_reader():
     d = UserDefaults.standardUserDefaults()
     m = _menu()
     try:
+        m.move(-1)
+        assert m.speech.said[-1] == 'Headshot beep, currently off.'
+        m.move(-1)
+        assert m.speech.said[-1] == 'Spoken headshot, currently on.'
         m.move(-1)
         assert m.speech.said[-1] == 'Vibration, currently on.'
         m.move(-1)
@@ -530,6 +535,47 @@ def test_left_and_right_move_like_voiceovers_flicks_in_the_screen_reader_mode():
         assert shop.selectMenu == rows[0], 'Left went to row %d' % shop.selectMenu
     finally:
         shop.teardown()
+        m.teardown()
+
+
+def test_the_headshot_rows_say_and_flip_their_settings():
+    """PORT ADDITION (2026-10-05): speech starts on and the beep off; Enter flips each,
+    saves it in settings.json's keys, clicks and says the new state; turning the beep on
+    plays it once."""
+    d = UserDefaults.standardUserDefaults()
+    d.removeObjectForKey_('HEADSHOTSPEECH')
+    d.removeObjectForKey_('HEADSHOTBEEP')
+    m = _menu()
+    played = []
+    app = m.app
+    real = app.playSound_Gain_Pos_z_reprats_
+    app.playSound_Gain_Pos_z_reprats_ = lambda n, *a: (played.append(n), real(n, *a))[-1]
+    try:
+        assert app.headshot_speech_on and not app.headshot_beep_on
+        m.selectMenu = 10
+        m.blindModeSelectedMenu()
+        assert m.speech.said[-1] == 'Spoken headshot, currently on.'
+        m.activate()
+        assert d.stringForKey_('HEADSHOTSPEECH') == '0' and not app.headshot_speech_on
+        assert m.speech.said[-1] == 'Spoken headshot, currently off.'
+        assert played == [10], played
+        m.activate()
+        assert d.stringForKey_('HEADSHOTSPEECH') == '1' and app.headshot_speech_on
+
+        played.clear()
+        m.selectMenu = 11
+        m.activate()
+        assert d.stringForKey_('HEADSHOTBEEP') == '1' and app.headshot_beep_on
+        assert m.speech.said[-1] == 'Headshot beep, currently on.'
+        assert played == [10, 374], played
+        played.clear()
+        m.activate()
+        assert d.stringForKey_('HEADSHOTBEEP') == '0' and not app.headshot_beep_on
+        assert played == [10], 'the beep played when it was turned off'
+    finally:
+        app.__dict__.pop('playSound_Gain_Pos_z_reprats_', None)
+        d.removeObjectForKey_('HEADSHOTSPEECH')
+        d.removeObjectForKey_('HEADSHOTBEEP')
         m.teardown()
 
 

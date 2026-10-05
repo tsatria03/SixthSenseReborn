@@ -21,10 +21,12 @@ Up and Down move between them, and Enter or Escape goes on to the main menu.
 
 The main menu
 
-The main menu has five rows: the title, Start Game, Tutorial, Store, and vibration.
+The main menu has seven rows: the title, Start Game, Tutorial, Store, vibration, spoken headshot, and headshot beep.
 Up and Down move between the rows, and each row reads itself aloud.
 Enter chooses the row you are on.
 The vibration row says "Vibration, currently on" or "off", and Enter on it switches the controller's vibration. The game remembers the setting.
+The spoken headshot row says "Spoken headshot, currently on" or "off", and Enter on it turns the "Headshot!" call on or off.
+The headshot beep row says "Headshot beep, currently off" or "on", and Enter on it turns on a beep that plays where the zombie is on every headshot. It starts off, and turning it on plays it once.
 Escape in the main menu quits the game.
 Page Up makes the menu music louder, and Page Down makes it quieter, in the main menu, the shop and the inventory.
 It goes from silent to its full volume in steps of ten percent, and the game remembers where you left it.

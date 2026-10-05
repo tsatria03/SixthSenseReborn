@@ -131,6 +131,29 @@ class AppDelegate:
         if not on:
             self.vibrate_stop()
 
+    # ======================================================== the headshot settings
+    @property
+    def headshot_speech_on(self):
+        """PORT ADDITION: ``HEADSHOTSPEECH`` in settings.json, '1' or '0': the screen reader
+        says "Headshot!".  A save that has never set it does."""
+        return UserDefaults.standardUserDefaults().stringForKey_('HEADSHOTSPEECH') != '0'
+
+    @property
+    def headshot_beep_on(self):
+        """PORT ADDITION: ``HEADSHOTBEEP`` in settings.json, '1' or '0': a beep where the
+        zombie is on every headshot.  A save that has never set it has no beep."""
+        return UserDefaults.standardUserDefaults().stringForKey_('HEADSHOTBEEP') == '1'
+
+    def set_headshot_speech(self, on):
+        d = UserDefaults.standardUserDefaults()
+        d.setObject_forKey_('1' if on else '0', 'HEADSHOTSPEECH')
+        d.synchronize()
+
+    def set_headshot_beep(self, on):
+        d = UserDefaults.standardUserDefaults()
+        d.setObject_forKey_('1' if on else '0', 'HEADSHOTBEEP')
+        d.synchronize()
+
     # ================================================================ sounds
     @property
     def sound_list(self):

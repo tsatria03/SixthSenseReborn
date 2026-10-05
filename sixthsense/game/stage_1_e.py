@@ -166,6 +166,8 @@ SHAKE_SOUNDS = {8: ([197, 323, 324], [198, 325, 326])}
 
 #: PORT ADDITION: what the screen reader says for the recording the stage still played in play.
 HEADSHOT_TEXT = 'Headshot!'
+#: PORT ADDITION (tunmi13productions, 2026-10-05): headshot_beep, SoundList entry 374.
+SOUND_HEADSHOT_BEEP = 374
 #: 0x3a83a plays this on a gun's hit that kills, headshot or not (0x3a7fc: only when
 #: HP is 0 or less).  The original names it weapon_head_shot; what it marks is the
 #: kill, and tsatria03 renamed it weapon_gun_att2 (2026-09-25).
@@ -1020,7 +1022,11 @@ class Stage_1_E:
                     self.gamePlayer.HeadShotCount += 1
                 # 0x3a24a played headshot_4 (330) at 0.1 here.  PORT DIVERGENCE
                 # (2026-10-05): the screen reader says it instead.
-                self._say(HEADSHOT_TEXT)
+                if self.app.headshot_speech_on:                  # PORT ADDITION: a setting
+                    self._say(HEADSHOT_TEXT)
+                if self.app.headshot_beep_on:                   # PORT ADDITION: a setting
+                    # where the zombie is, fading with distance as the gun's hit does
+                    self.app.playHitSound_Gain_Pos_z_(SOUND_HEADSHOT_BEEP, 1.0, m.Pos, 40)
                 self.app.vibrate_headshot(m.monsterRange)      # PORT ADDITION: a firm thump
             else:
                 m.HP -= weapon.Damage                           # 0x3a796
