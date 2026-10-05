@@ -85,7 +85,7 @@ ROWS = (
 #: PORT ADDITION: what the screen reader says for each row with voice over off.
 #: The coin row and the voice over row are made in ``row_text``.
 ROW_TEXT = {
-    'title': 'Sixth Sense: The Zombies',
+    'title': 'Sixth Sense Reborn: The Zombies',
     'start': 'Game start, Button',
     'tutorial': 'Tutorial, Button',
     'store': 'Store, Button',

@@ -689,7 +689,7 @@ def test_turning_voice_over_off_speaks_through_the_screen_reader():
         m.move(-4)                  # store, tutorial, start, title, coin
         assert m.speech.said[-1].startswith('Number of coins, 3.'), m.speech.said[-1]
         m.move(1)
-        assert m.speech.said[-1] == 'Sixth Sense: The Zombies'
+        assert m.speech.said[-1] == 'Sixth Sense Reborn: The Zombies'
     finally:
         m.app.__dict__.pop('playSound_Gain_Pos_z_reprats_', None)
         m.app.mode = 1

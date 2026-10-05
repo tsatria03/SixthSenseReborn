@@ -1,6 +1,6 @@
-"""Build SixthSense into an executable with PyInstaller.
+"""Build SixthSenseReborn into an executable with PyInstaller.
 
-It builds into dist/SixthSense-Windows, dist/SixthSense-Linux or dist/SixthSense-macOS
+It builds into dist/SixthSenseReborn-Windows, dist/SixthSenseReborn-Linux or dist/SixthSenseReborn-macOS
 for the current system, and nothing else: it never zips and never changes the
 repository.  Setting the version, filing the changelog, zipping, tagging and uploading a release are
 releaser.py's work, and the releaser calls this to do the building.
@@ -17,11 +17,11 @@ which still work typed out:
     py compiler.py --no-game      leave the game's data out
     py compiler.py --dry-run      say what a build would do, build nothing
 
-Every build lands in dist\\SixthSense-Windows, around SixthSense.exe, with the text a player reads beside the executable - the readme,
+Every build lands in dist\\SixthSenseReborn-Windows, around SixthSenseReborn.exe, with the text a player reads beside the executable - the readme,
 the changelog and the todo list in a docks\\ folder, as in the repository, and VERSION and the license at
 the top.  Those are never put inside it.  The third-party licenses go inside the executable, as
 licenses\\, whichever kind of build (since 2026-09-25).  That folder is what releaser.py zips into
-dist\\SixthSense-Win-<VERSION>.zip.
+dist\\SixthSenseReborn-Win-<VERSION>.zip.
 
 The port and the vendored DLLs always go inside the build.  In the folder build the game's own files do
 not: the plists and the three map layers are copied next to the executable, into game\\, and the sounds
@@ -30,7 +30,7 @@ looks for them when frozen, used first.  With --embed the same files go inside t
 and paths.py finds them in the folder it unpacks itself to; that costs a few seconds at every launch.
 Nothing else in the original app bundle is copied: the game never opens any of it.
 
-There is no --test yet.  A test build would start the game and read its log; SixthSense does not write a
+There is no --test yet.  A test build would start the game and read its log; SixthSenseReborn does not write a
 log, or a crash.txt, so there is nothing for a test run to read.  A windowed build that fails says
 why aloud, in one line; build with --console to see the whole traceback.
 
@@ -53,16 +53,16 @@ import sys
 import time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-#: The executable's name, before the system's own ending: SixthSense.exe on Windows, SixthSense on Linux.
-NAME = 'SixthSense'
+#: The executable's name, before the system's own ending: SixthSenseReborn.exe on Windows, SixthSenseReborn on Linux.
+NAME = 'SixthSenseReborn'
 ENTRY = 'SixthSenseReborn.py'
 
 #: What differs between the systems a build can be made on (tunmi13productions, 2026-09-28;
 #: aidocks/project_linux_build_plan.md).  PyInstaller only builds for the system it runs on, so a Windows
 #: build is made on Windows and a Linux one on Linux, in WSL or not.  Each system has:
-#:     folder     what the build folder is called after SixthSense-, and so the one a release extracts to
+#:     folder     what the build folder is called after SixthSenseReborn-, and so the one a release extracts to
 #:     exe        the executable's file name
-#:     zip        what releaser.py calls the system in the archive's name: SixthSense-Win-<version>.zip
+#:     zip        what releaser.py calls the system in the archive's name: SixthSenseReborn-Win-<version>.zip
 #:     archive    what releaser.py packs the build into: a zip for Windows, which opens one with nothing
 #:                installed; a gzipped tar for Linux, which every Linux can open, keeping the executable
 #:                bit and symbolic links (tunmi13productions, 2026-09-28)
@@ -318,7 +318,7 @@ def command(args, data=()) -> list[str]:
                 '--add-data', APP_DOCS_STAGE + os.pathsep + '.']
     # An onedir .app is one copyable item in Finder without unpacking at launch.
     if (args.onefile or args.embed) and not app_bundle(args):
-        # one file lands in dist\SixthSense-Windows too, so every build is one folder to zip and nothing
+        # one file lands in dist\SixthSenseReborn-Windows too, so every build is one folder to zip and nothing
         # else in dist\ - an older zip, say - is swept into it
         cmd += ['--onefile', '--distpath', output_dir(args)]
     for src, inside in data:
@@ -331,19 +331,19 @@ def command(args, data=()) -> list[str]:
 
 
 def output_dir(args=None) -> str:
-    """Where the executable lands, and so where everything beside it goes: dist\\SixthSense-Windows,
+    """Where the executable lands, and so where everything beside it goes: dist\\SixthSenseReborn-Windows,
     whichever kind of build."""
     return os.path.join(HERE, 'dist', FOLDER)
 
 
 def pyinstaller_dir() -> str:
-    """Where a folder build's PyInstaller puts it, named after the executable: dist\\SixthSense.  It is
+    """Where a folder build's PyInstaller puts it, named after the executable: dist\\SixthSenseReborn.  It is
     moved to output_dir() once built, since PyInstaller names that folder and the executable alike."""
     return os.path.join(HERE, 'dist', NAME)
 
 
 def clear_output(dest_root: str) -> None:
-    """Empty dist\\SixthSense-Windows before a build, and dist\\SixthSense, where a folder build first
+    """Empty dist\\SixthSenseReborn-Windows before a build, and dist\\SixthSenseReborn, where a folder build first
     lands and where builds went before 2026-09-25.  A one-file build only writes its executable, and would
     leave an older build's files around it."""
     folders = [dest_root, pyinstaller_dir()]
@@ -355,7 +355,7 @@ def clear_output(dest_root: str) -> None:
 
 
 def move_folder_build(dest_root: str) -> None:
-    """A folder build is made in dist\\SixthSense; move it to dist\\SixthSense-Windows."""
+    """A folder build is made in dist\\SixthSenseReborn; move it to dist\\SixthSenseReborn-Windows."""
     built = pyinstaller_dir()
     if os.path.normcase(built) != os.path.normcase(dest_root) and os.path.isdir(built):
         os.replace(built, dest_root)
@@ -496,7 +496,7 @@ def stage_licenses(dest: str = None) -> int:
 
 
 def main(argv=None) -> int:
-    parser = argparse.ArgumentParser(prog='compiler.py', description='build SixthSense with PyInstaller')
+    parser = argparse.ArgumentParser(prog='compiler.py', description='build SixthSenseReborn with PyInstaller')
     parser.add_argument('--embed', action='store_true',
                         help="one executable with the sounds and the game's data inside it; the text a "
                              'player reads stays beside it')
@@ -625,7 +625,7 @@ MENU = (
 )
 if system_key() == 'darwin':
     MENU = (
-        ('App build: a self-contained SixthSense.app to copy and open in Finder', []),
+        ('App build: a self-contained SixthSenseReborn.app to copy and open in Finder', []),
         ('Clean app build: empty PyInstaller caches first', ['--clean']),
         ('Console folder build for debugging', ['--console']),
         ('Console single executable with game data inside', ['--console', '--embed']),
@@ -637,7 +637,7 @@ if system_key() == 'darwin':
 def menu() -> list | None:
     """Ask which build.  Returns the flags for it, or None to quit."""
     version = build_version()
-    say('SixthSense compiler.  VERSION is %s.'
+    say('SixthSenseReborn compiler.  VERSION is %s.'
         % (version or 'missing - releaser.py sets it as it releases'))
     say()
     for number, (text, _flags) in enumerate(MENU, 1):

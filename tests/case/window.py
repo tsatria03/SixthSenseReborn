@@ -224,10 +224,10 @@ def _failing_run(error):
 def test_a_failed_start_says_why():
     said, code = _failing_run(OSError('alcOpenDevice failed'))
     assert code == 1
-    assert said == ['SixthSense stopped because of an error. OSError: alcOpenDevice failed'], said
-    said, code = _failing_run(SystemExit("SixthSense's game data was not found. Tried:\n  x"))
+    assert said == ['Sixth Sense Reborn stopped because of an error. OSError: alcOpenDevice failed'], said
+    said, code = _failing_run(SystemExit("Sixth Sense Reborn's game data was not found. Tried:\n  x"))
     assert code == 1
-    assert said == ["SixthSense's game data was not found. Tried:"], said
+    assert said == ["Sixth Sense Reborn's game data was not found. Tried:"], said
 
 
 def test_a_normal_exit_says_nothing():

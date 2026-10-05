@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""SixthSense - Windows port.  Entry point.
+"""Sixth Sense Reborn.  Entry point.
 
 ``kr.co.bitbee.sixsense`` 1.2 was an iPhone audio game: you walk down a corridor in the
 dark and shoot what you hear coming.  This runs the same game on Windows, off the same
@@ -93,7 +93,7 @@ PUSHED = ('store', 'store_weapons', 'store_detail', 'inventory',
 
 
 def main(argv=None):
-    ap = argparse.ArgumentParser(description='SixthSense (Windows port)')
+    ap = argparse.ArgumentParser(description='Sixth Sense Reborn')
     ap.add_argument('--game', help="the original app bundle's contents, or a folder "
                                     'holding Payload/sixsense.app (default: game/)')
     ap.add_argument('--stage', action='store_true',
@@ -160,7 +160,7 @@ def main(argv=None):
     # second audio device beside the OpenAL one the whole game plays through.
     pygame.display.init()
     pygame.font.init()
-    pygame.display.set_caption('SixthSense (debug)' if args.debug else 'SixthSense')
+    pygame.display.set_caption('Sixth Sense Reborn (debug)' if args.debug else 'Sixth Sense Reborn')
     display = pygame.display.set_mode((640, 400))
     font = pygame.font.SysFont('Consolas', 16)
     clock = pygame.time.Clock()
@@ -313,7 +313,7 @@ def main(argv=None):
 
 def _menu_lines(menu):
     from sixthsense.game.main_controller import ROWS
-    out = ['SixthSense   headphones recommended', '',
+    out = ['Sixth Sense Reborn   headphones recommended', '',
            'coins %d      next coin in %s' % (menu.app.Coin, menu.coin_clock), '']
     if getattr(menu, 'message', ''):
         out += [menu.message, '']
@@ -327,8 +327,8 @@ def _intro_lines(page):
     if getattr(page, 'logo', False):
         return ['Bitbee', '', 'Enter skips the logo   Escape skips to the menu']
     if page.splash:
-        return ['SixthSense', '', '0_splash2.png']
-    out = ['SixthSense   headphones required', '']
+        return ['Sixth Sense Reborn', '', '0_splash2.png']
+    out = ['Sixth Sense Reborn   headphones required', '']
     # wrap the warning the original puts on explainLabel
     words, line = page.text.split(), ''
     for w in words:
@@ -365,7 +365,7 @@ SCREEN_TITLE = {
 
 
 def _screen_lines(kind, screen):
-    out = ['SixthSense   %s' % SCREEN_TITLE[kind], '',
+    out = ['Sixth Sense Reborn   %s' % SCREEN_TITLE[kind], '',
            'gold %d' % screen.app.haveGold]
     if kind in ('store_detail', 'inventory_detail'):
         out.append('%s   ammo %s   range %dm   damage %d   price %dG'
@@ -396,7 +396,7 @@ PANEL_TITLE = {1: 'PAUSED', 2: 'MISSION COMPLETE', 3: 'GAME OVER'}
 
 def _panel_lines(stage):
     """``-[Stage_1_E selectTapPointSoundStart]``'s ten bands, as a list."""
-    out = ['SixthSense   %s' % PANEL_TITLE.get(stage.gameState, ''), '',
+    out = ['Sixth Sense Reborn   %s' % PANEL_TITLE.get(stage.gameState, ''), '',
            'zombies %s   headshots %s   score %s   gold %s'
            % (stage.killZombiesLabel, stage.HeadShotLabel,
               stage.ScoreLabel, stage.GoldLabel),
@@ -416,7 +416,7 @@ def _stage_lines(stage, inp):
     p = stage.gamePlayer
     w = stage.weaponSource[p.useWepon]
     lines = [
-        'SixthSense   headphones recommended',
+        'Sixth Sense Reborn   headphones recommended',
         '',
         'HP %d      weapon %s (%d rounds)' % (
             p.HP, '-' if w is None else
@@ -476,7 +476,7 @@ def run():
         return 1
     except Exception as e:
         log.exception('the game stopped')
-        _say_why('SixthSense stopped because of an error. %s: %s' % (type(e).__name__, e))
+        _say_why('Sixth Sense Reborn stopped because of an error. %s: %s' % (type(e).__name__, e))
         return 1
 
 

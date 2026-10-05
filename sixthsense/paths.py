@@ -135,7 +135,7 @@ def game() -> str:
                 break
             tried.append('%s: %s' % (why, path))
         else:
-            raise SystemExit("SixthSense's game data was not found. Tried:\n  "
+            raise SystemExit("Sixth Sense Reborn's game data was not found. Tried:\n  "
                              + '\n  '.join(tried)
                              + "\nPass --game with the path to Payload/sixsense.app.")
     return _game

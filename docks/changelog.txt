@@ -1,4 +1,5 @@
 unrelease:
+The game is now called Sixth Sense Reborn: the window and the main menu say so, the game is SixthSenseReborn.exe, and its download is SixthSenseReborn-Win-<version>.zip.
 Sixth Sense Reborn keeps its own save, in a SixthSenseReborn folder, so it never changes your Sixth Sense save. The first time it starts, it copies your Sixth Sense progress, settings and keys.
 Added macOS support with a copyable app and VoiceOver or native speech; targets macOS 11 or newer.
 
