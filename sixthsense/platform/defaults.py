@@ -63,7 +63,7 @@ SETTINGS_KEYS = ('MASTERVOLUME', 'MENUMUSICVOLUME', 'LEVELMUSICVOLUME', 'AMBIENC
 #: Keys the game no longer reads, dropped from both files when the save is opened, so an
 #: old value cannot linger there.  ENTITYVOLUME went on 2026-09-28: the zombies are always
 #: at full volume (aidocks/completed/entity_full_volume_plan.md).  EYEMODE went on 2026-10-05
-#: with the voice over row (aidocks/project_screen_reader_only_plan.md).
+#: with the voice over row (aidocks/completed/screen_reader_only_plan.md).
 RETIRED_KEYS = ('ENTITYVOLUME', 'EYEMODE')
 
 

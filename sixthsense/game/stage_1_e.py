@@ -1525,7 +1525,7 @@ class Stage_1_E:
 
     def _panel_voice(self, sound, gain=0.2):
         """One of the panel's voice lines, spoken through the screen reader (2026-10-05,
-        aidocks/project_screen_reader_only_plan.md)."""
+        aidocks/completed/screen_reader_only_plan.md)."""
         if sound in self.PANEL_MESSAGE_TEXT:
             self._say(self.PANEL_MESSAGE_TEXT[sound])
         else:

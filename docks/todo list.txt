@@ -6,13 +6,13 @@ In the weapon test range, two zombies that reach you at once on your last heart 
 In your first game after the tutorial, Escape goes back to the menu instead of pausing.
 A zombie that has grabbed you can still take a heart while the game is paused, and its grab carries on after a restart.
 A volume in settings.json written with an unusual digit, such as a superscript two, stops the game from starting.
-Remove the voice over row from the main menu, so the game is driven entirely by the screen reader.
 Remove the recordings once everything they say is spoken through Prism.
 Make weapons upgradeable, so that they can do more damage.
 Raise the gold you earn after a death a little, so weapons are a bit easier to get.
 
 ##Finished.
 
+The voice over row is gone from the main menu, so the game is driven entirely by the screen reader.
 A purchase is no longer announced twice at the same time, because the recording is gone and only the screen reader says "Purchase has been completed".
 The tutorial is spoken by the screen reader, with the keys or controller buttons for each lesson, and a lesson that sends in a zombie waits for Enter instead of a timer.
 All of the game's speech goes through the screen reader instead of the recordings, and changing weapon says the weapon's name.

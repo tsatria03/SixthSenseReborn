@@ -12,7 +12,7 @@ This file guides Claude Code when it works in this repository. **It is a lean di
 - **Compare, then follow the dev.** When a change is proposed, say briefly what the original did (and the binary address when it matters) and the likely better solution or difference, then do what the dev picks. Never refuse or argue for a change because it departs from the original.
 - **Where this file says the port matches the original, that is how SixthSenseOriginal works.** Here it describes the starting point. `DIVERGENCES.md`, `PORTING_STATUS.md`, the first evaluation note and the side-by-side rule stayed in SixthSenseOriginal; use the changelog and the plan note for a feature.
 - **Its own name:** players see Sixth Sense Reborn; the entry script is `SixthSenseReborn.py`, the executable `SixthSenseReborn.exe`, and the save is in its own `SixthSenseReborn` folder, which copies a Sixth Sense save once on the first start ([[reborn_identity_plan]]). SixthSenseOriginal keeps the plain `SixthSense` names.
-- **Direction:** all game speech goes through the screen reader and the recordings are gone from play; the self-voiced mode and its main menu row were removed on 2026-10-05 ([[project_screen_reader_only_plan]]). See the todo list.
+- **Direction:** all game speech goes through the screen reader and the recordings are gone from play; the self-voiced mode and its main menu row were removed on 2026-10-05 ([[screen_reader_only_plan]]). See the todo list.
 - Everything else still applies: Python only, the dev runs and builds, safe silent tests, NVDA-friendly output and the commit rules.
 
 ## What this is
@@ -21,7 +21,7 @@ This file guides Claude Code when it works in this repository. **It is a lean di
 
 There is no source code for the original. The port is **recovered from the ARMv7 binary** and rewritten method by method **entirely in Python**. **lbk2907 created it**, including the binary extraction, and handed it to tsatria03 to publish and develop together; the "Initial commit" is entirely their work ([[project_provenance]]). Each Python module mirrors one Objective-C class and cites the binary address it came from ([[project_python_only]]).
 
-The game plays the original's own 269 recorded WAVs, which `SoundList.plist` names by number in the original's 371 entries, plus the port's entry 371 (the bosses' being-hurt sound). Since 2026-10-05 the game plays none of its recorded speech: the menus, the shop, the inventory, the opening screen, the tutorial and the result panel are spoken, with the weapon's name when you change weapon ([[project_screen_reader_only_plan]], which supersedes [[project_screen_reader_mode]]), and the recordings it no longer plays are in `game/sounds/unused/speech/`. All of it goes through NVDA, another screen reader via Prism, or a Windows voice ([[project_prism_speech]]).
+The game plays the original's own 269 recorded WAVs, which `SoundList.plist` names by number in the original's 371 entries, plus the port's entry 371 (the bosses' being-hurt sound). Since 2026-10-05 the game plays none of its recorded speech: the menus, the shop, the inventory, the opening screen, the tutorial and the result panel are spoken, with the weapon's name when you change weapon ([[screen_reader_only_plan]], which supersedes [[screen_reader_mode]]), and the recordings it no longer plays are in `game/sounds/unused/speech/`. All of it goes through NVDA, another screen reader via Prism, or a Windows voice ([[project_prism_speech]]).
 
 ## Layout
 
@@ -77,7 +77,7 @@ This needs 64-bit Python 3.12 or newer, pygame and `prismatoid` (Prism). Without
 - **macOS runtime** (11+, universal OpenAL, Prism speech and Application Support saves): [[project_macos_runtime_plan]]. **Native-architecture app builds** and console debugging builds: [[project_macos_build_plan]].
 
 - **Reading the binary correctly**: [[project_binary_analysis_notes]].
-- **The screen reader** (the game's only voice since 2026-10-05; the voice over row is gone): [[project_screen_reader_only_plan]]; the original design is [[project_screen_reader_mode]].
+- **The screen reader** (the game's only voice since 2026-10-05; the voice over row is gone): [[screen_reader_only_plan]]; the original design is [[screen_reader_mode]].
 - **Running the tests safely**, once the dev says yes: [[project_safe_test_run]].
 - **Adapting the build script**: [[project_compiler_py]].
 - **The task list** (`docks/todo list.txt`) and how to write in it: [[feedback_todo_list_format]]. It holds only what a player notices, since it ships beside the game; developer tasks, open and finished, are in [[project_dev_tasks]].

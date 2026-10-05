@@ -1,10 +1,12 @@
 ---
-name: project_screen_reader_mode
-description: "The dev's idea (2026-09-22): with the voice over row off, the screen reader speaks the game's words, numbers read whole, sfx stay recordings, new players start self-voiced. The menus and result panel built 2026-09-22 and confirmed by ear; the tutorial and in-play announcements stay recordings by the dev's decision."
+name: screen_reader_mode
+description: "FINISHED 2026-09-22, then superseded on 2026-10-05 by screen_reader_only_plan, which removed the voice over mode. The dev's idea (2026-09-22): with the voice over row off, the screen reader speaks the game's words, numbers read whole, sfx stay recordings, new players start self-voiced. The menus and result panel built 2026-09-22 and confirmed by ear; the tutorial and in-play announcements stay recordings by the dev's decision."
 metadata:
   node_type: memory
   type: project
 ---
+
+**Superseded on 2026-10-05:** [[screen_reader_only_plan]] made the screen reader the only voice and removed the voice over row, so this note is the record of the mode as it was.
 
 **Built for the menus and the result panel on 2026-09-22, and the dev confirmed it by ear the same day (now in the todo list's finished section).** The intro, main menu, shop, inventory and the stage's pause/result/game over panel speak in mode 0. **The dev decided (2026-09-22) that the tutorial and the announcements during play stay recordings in both modes**, because their timing follows the recordings; don't propose converting them unless asked. What was built:
 - The panel: `Stage_1_E.pause_row_text`, `_panel_voice` and `PANEL_MESSAGE_TEXT` (227, 229, 354, 358); in mode 0 activating a result row rereads it instead of the off-by-one reader. Test in `test_pause.py`.

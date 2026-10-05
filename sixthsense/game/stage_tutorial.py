@@ -103,7 +103,7 @@ NEXT_DELAY = {'Seven': 1.5, 'Eight': 1.5}
 NAGGED = ('One', 'Two', 'Three', 'Four', 'Five', 'FiveHalf', 'Six')
 
 # name, what the screen reader says first, the monster it sends in (or None).
-# PORT DIVERGENCE (tunmi13productions, 2026-10-05; aidocks/project_screen_reader_only_plan.md):
+# PORT DIVERGENCE (tunmi13productions, 2026-10-05; aidocks/completed/screen_reader_only_plan.md):
 # the original played a recording (275..284, 361) and sent the monster in 9.5 s later (6.5
 # for Eight), the recording's length.  Here a beat that sends one in says its words, the keys
 # or the controller's buttons (KEY_HINTS, CONTROLLER_HINTS) and then waits for Enter (a pad's

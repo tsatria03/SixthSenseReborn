@@ -1,12 +1,12 @@
 ---
-name: project_screen_reader_only_plan
-description: "Agreed 2026-10-05: drop the self-voiced mode so everything is spoken through Prism, tutorial and in-play announcements included, then remove the main menu's voice over row. Staged; not built yet."
+name: screen_reader_only_plan
+description: "FINISHED 2026-10-05, confirmed by tunmi13productions. Agreed 2026-10-05: drop the self-voiced mode so everything is spoken through Prism, tutorial and in-play announcements included, then remove the main menu's voice over row. Staged; not built yet."
 metadata:
   node_type: memory
   type: project
 ---
 
-**Agreed with the dev on 2026-10-05, not built yet.** Supersedes the earlier decision in [[project_screen_reader_mode]] that the tutorial and in-play announcements stay recordings. It carries out the todo items about speaking everything through Prism, the screen reader friendly tutorial and removing the voice over row ([[project_reborn]], [[project_prism_speech]]).
+**Agreed with the dev on 2026-10-05, not built yet.** Supersedes the earlier decision in [[screen_reader_mode]] that the tutorial and in-play announcements stay recordings. It carries out the todo items about speaking everything through Prism, the screen reader friendly tutorial and removing the voice over row ([[project_reborn]], [[project_prism_speech]]).
 
 **Decisions:**
 - **Wording:** Claude drafts the tutorial and announcement lines from the recordings' file names and the existing `KEY_HINTS`, rewritten for keys and controllers instead of touch gestures. The dev corrects them by ear. Don't treat a drafted line as confirmed.

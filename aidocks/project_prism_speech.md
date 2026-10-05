@@ -56,5 +56,5 @@ metadata:
 - Run `tests/case/speech.py` with the rest, the safe way ([[project_safe_test_run]]).
 - Never run anything that speaks through NVDA or Prism for real without the dev's say-so, since they work with NVDA running ([[feedback_dont_run_or_build]]).
 - Checking it by ear, especially without NVDA and with Narrator, is the dev's job.
-- The screen reader mode ([[project_screen_reader_mode]]) builds on this.
+- The screen reader mode ([[screen_reader_mode]]) builds on this.
 - Don't name the reference project in code, comments or notes ([[feedback_no_other_games]]).
