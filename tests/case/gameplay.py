@@ -1021,23 +1021,25 @@ def test_changing_weapon_says_its_name():
         st.teardown()
 
 
-def test_the_weapon_change_sound_is_quiet_and_the_old_one_stops():
-    """gunChangeAction: stops the old weapon's change sound (0x35c72..0x35c88), then plays
-    the new one's at a hard-coded 0.2, z 40 (0x35e80..0x35e9e), not the plist's 1.0."""
+def test_changing_weapon_plays_no_recording_of_its_name():
+    """gunChangeAction: played the weapon's change sound (0x35e80..0x35e9e), which is its
+    name recorded; the screen reader says the name now (2026-10-05), so nothing plays and
+    nothing is stopped, and the sword's own draw sound is the only sound."""
     app, st = _new_stage()
     played, stopped = [], []
-    real_play, real_stop = app.playSound_Gain_Pos_z_reprats_, app.stopSoundBufNumber_
-    app.playSound_Gain_Pos_z_reprats_ = lambda n, g, pos, z, r: played.append((n, g, pos, z))
+    app.playSound_Gain_Pos_z_reprats_ = lambda n, g, pos, z, r: played.append(n)
     app.stopSoundBufNumber_ = lambda n: stopped.append(n)
+    st._say = lambda text: None
     try:
-        app.useWeapon = ['1', '1', '1', '0', '0', '0', '0', '0']
+        app.useWeapon = ['1', '1', '1', '0', '0', '0', '0', '1']
         st.gamePlayer.useWepon = 2
-        old = st.weaponSource[2].weaponChangeSoundNumber
+        names = {st.weaponSource[i].weaponChangeSoundNumber for i in range(8)}
+        st.gunChangeAction_(1)                              # the sword
+        assert st.gamePlayer.useWepon == 7
+        assert not names & set(played), 'a recording of a weapon name played: %r' % played
+        assert played == [S1E.SOUND_SWORD_START], played
         st.gunChangeAction_(1)
-        new = st.weaponSource[st.gamePlayer.useWepon]
-        assert new.weaponChangeSoundGain == 1.0            # what the plist says...
-        assert (new.weaponChangeSoundNumber, 0.2, (0.0, 0.0), 40) in played, played
-        assert old in stopped, 'the old weapon change sound was not stopped'
+        assert not names & set(played + stopped), (played, stopped)
     finally:
         del app.playSound_Gain_Pos_z_reprats_
         del app.stopSoundBufNumber_
