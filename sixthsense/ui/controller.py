@@ -21,6 +21,36 @@ import logging
 
 log = logging.getLogger('controller')
 
+
+def read_events(pygame):
+    """``pygame.event.get()``, kept from crashing on a device event pygame cannot map.
+
+    A DualSense on Windows is listed twice at start: SDL finds it, then lets its own driver
+    take it over, so the first listing is removed again.  The removal arrives for a pad that
+    pygame never put in its table, and ``pygame.event.get()`` raises ``SystemError`` (from a
+    ``KeyError``) before it returns anything, which ended the game as it started.  The
+    event is lost with the rest of that one batch, which is only device events at start, and
+    the next call goes on from the queue.  Found with a DualSense, 2026-10-05.
+    """
+    try:
+        return pygame.event.get()
+    except SystemError:
+        log.warning('pygame could not read a device event, so it was skipped', exc_info=True)
+        return []
+
+
+def instance_id(pad):
+    """SDL's instance id for an open pad, which is what its events carry.
+
+    pygame's ``Controller.id`` is the device index the pad was opened with.  It is the
+    instance id only until a device has come and gone: the DualSense above is index 0 and
+    instance 1, so its removal could not be matched to it by ``pad.id``.  A stand-in with no
+    joystick is its ``id``."""
+    try:
+        return pad.as_joystick().get_instance_id()
+    except Exception:
+        return pad.id
+
 #: PORT ADDITION: the sounds for a controller found and lost, their entries in
 #: SoundList.plist, and the short buzz that follows the first (low motor, high motor,
 #: milliseconds).
@@ -107,6 +137,11 @@ class Controllers:
         """The controllers that are attached, oldest first."""
         return list(self._pads.values())
 
+    @property
+    def pad_ids(self):
+        """Their SDL instance ids, in the same order."""
+        return list(self._pads)
+
     def _open(self, index, announce=True):
         try:
             if not self._sdl.is_controller(index):
@@ -115,9 +150,10 @@ class Controllers:
         except Exception:
             log.exception('opening controller %s', index)
             return
-        if pad.id in self._pads:
+        ident = instance_id(pad)
+        if ident in self._pads:
             return                      # SDL announces what start-up already found
-        self._pads[pad.id] = pad
+        self._pads[ident] = pad
         log.info('controller: %s', pad.name)
         if announce:
             self._found(pad)

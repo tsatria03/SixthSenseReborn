@@ -252,6 +252,72 @@ def test_a_pad_that_cannot_vibrate_is_still_found():
     assert app.played == [SOUND_DETECTED]
 
 
+class _Joy:
+    def __init__(self, instance):
+        self.instance = instance
+
+    def get_instance_id(self):
+        return self.instance
+
+
+class _DualSense(_FakePad):
+    """A pad opened at device index 0 that SDL numbers instance 1, as a DualSense on Windows
+    is after SDL lists it twice at start (2026-10-05)."""
+
+    def __init__(self, index=0, instance=1):
+        super().__init__(index, 'DualSense Wireless Controller')
+        self.instance = instance
+
+    def as_joystick(self):
+        return _Joy(self.instance)
+
+
+def test_a_pad_is_known_by_its_sdl_instance_id_not_its_device_index():
+    from sixthsense.ui.controller import instance_id
+    pad = _DualSense(0, 1)
+    assert pad.id == 0 and instance_id(pad) == 1
+    assert instance_id(_FakePad(7)) == 7, 'a stand-in with no joystick is its id'
+    c, app = _with(pad)
+    _added(c, 0)
+    assert c.pad_ids == [1] and [p.name for p in c.pads] == ['DualSense Wireless Controller']
+
+
+def test_unplugging_a_pad_whose_index_is_not_its_instance_is_noticed():
+    c, app = _with(_DualSense(0, 1))
+    _added(c, 0)
+    _removed(c, 1)                                   # the removal carries the instance id
+    assert app.played == [SOUND_DETECTED, SOUND_NOT_DETECTED], app.played
+    assert c.pads == [] and c.just_lost
+
+
+def test_the_same_pad_announced_twice_is_one_pad():
+    pad = _DualSense(0, 1)
+    c, app = _with(pad)
+    _added(c, 0)
+    c._sdl = _FakeSdl([pad])
+    _added(c, 0)
+    assert app.played == [SOUND_DETECTED] and len(c.pads) == 1
+
+
+def test_a_device_event_pygame_cannot_map_does_not_end_the_game():
+    from sixthsense.ui.controller import read_events
+
+    class _Events:
+        calls = 0
+
+        def get(self):
+            self.calls += 1
+            if self.calls == 1:
+                raise SystemError('<built-in function get> returned a result with an exception set')
+            return ['an event']
+
+    class _Pg:
+        event = _Events()
+    assert read_events(_Pg) == [], 'the batch with the bad event is skipped'
+    assert read_events(_Pg) == ['an event'], 'and the next one reads on'
+    assert read_events(pygame) is not None
+
+
 def test_the_sounds_are_named_in_the_sound_list():
     import plistlib
 

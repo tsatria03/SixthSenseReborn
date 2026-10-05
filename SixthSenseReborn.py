@@ -150,7 +150,7 @@ def main(argv=None):
         return 0
 
     import pygame
-    from sixthsense.ui.controller import Controllers
+    from sixthsense.ui.controller import Controllers, read_events
     from sixthsense.ui.focus import focus_lost, interrupt_stop
     from sixthsense.ui.input import Input
     from sixthsense.ui.keybind_screen import KeyBindScreen
@@ -195,7 +195,7 @@ def main(argv=None):
     next_device_check = 0.0
     while not quitting:
         closing = False
-        for event in pygame.event.get():
+        for event in read_events(pygame):
             if event.type == pygame.QUIT:
                 # The window's close button or Alt+F4 quits the game from any screen.
                 # Escape is a key, not this, so it still goes back, pauses or leaves

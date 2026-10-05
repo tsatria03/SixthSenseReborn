@@ -175,6 +175,34 @@ def test_every_capable_pad_can_be_shaken():
     assert shake.tick(True, lambda: got.append(1)) == 1
 
 
+def test_the_sensor_is_asked_for_by_the_sdl_instance_id():
+    """A DualSense opened at device index 0 can be SDL's instance 1; asking for 0 finds nothing."""
+    class _Joy:
+        def get_instance_id(self):
+            return 1
+
+    class _Opened:
+        id, name = 0, 'DualSense Wireless Controller'
+
+        def as_joystick(self):
+            return _Joy()
+    from sixthsense.ui.controller import Controllers
+    pads = Controllers(__import__('pygame'), sdl=_NoSdl())
+    pads._pads[1] = _Opened()
+    sdl = _FakeSDL(has={1}, reading={1: FLICK})
+    shake, got = Shake(pads, Motion(sdl), _Clock()), []
+    assert shake.capable() is True
+    assert shake.tick(True, lambda: got.append(1)) == 1 and sdl.enabled == {1: True}
+
+
+class _NoSdl:
+    def init(self):
+        pass
+
+    def get_count(self):
+        return 0
+
+
 def test_the_game_asks_whether_a_pad_can_be_shaken():
     app = AppDelegate.shared()
     saved = app.shake

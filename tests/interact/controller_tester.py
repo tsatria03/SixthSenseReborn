@@ -282,7 +282,7 @@ def main():
     import pygame
 
     from sixthsense.platform.speech import Speech
-    from sixthsense.ui.controller import Controllers
+    from sixthsense.ui.controller import Controllers, read_events
 
     speech = Speech.shared()
 
@@ -324,7 +324,7 @@ def main():
     clock = pygame.time.Clock()
     running = True
     while running:
-        for e in pygame.event.get():
+        for e in read_events(pygame):
             if e.type == pygame.QUIT or (e.type == pygame.KEYDOWN and e.key == pygame.K_ESCAPE):
                 running = False
                 break

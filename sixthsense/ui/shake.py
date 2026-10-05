@@ -36,7 +36,8 @@ class Shake:
         self._last = {}                     # instance id -> when it last shook
 
     def _ids(self):
-        return [pad.id for pad in self.controllers.pads if hasattr(pad, 'id')]
+        ids = getattr(self.controllers, 'pad_ids', None)        # SDL's instance ids
+        return list(ids) if ids is not None else [pad.id for pad in self.controllers.pads]
 
     def _capable_ids(self):
         ids = self._ids()
