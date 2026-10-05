@@ -29,7 +29,7 @@ Voice over is the main menu's voice over row.  The recorded instructions play ei
 with it off, the screen reader also names the keys to press for each one.
 
 **Your save is never touched.**  It plays on its own save in
-``%APPDATA%\\SixthSense\\tutorial_chooser``, and takes a fresh copy of your key bindings
+``%APPDATA%\\SixthSenseReborn\\tutorial_chooser``, and takes a fresh copy of your key bindings
 each time it starts.  Choosing Tutorial from its main menu starts the chosen lesson again.
 """
 from __future__ import annotations
@@ -64,15 +64,15 @@ LESSONS = (
 def _own_save():
     """Point APPDATA at the chooser's own folder, before anything reads it."""
     real = os.path.join(os.environ.get('APPDATA') or os.path.expanduser('~'),
-                        'SixthSense')
+                        'SixthSenseReborn')
     mine = os.path.join(real, 'tutorial_chooser')
-    os.makedirs(os.path.join(mine, 'SixthSense'), exist_ok=True)
+    os.makedirs(os.path.join(mine, 'SixthSenseReborn'), exist_ok=True)
     # your key bindings and your settings (the volumes), but never your save; the voice
     # over question below then sets voice over in the chooser's own settings
     for name in ('keys.json', 'settings.json'):
         yours = os.path.join(real, name)
         if os.path.exists(yours):
-            shutil.copyfile(yours, os.path.join(mine, 'SixthSense', name))
+            shutil.copyfile(yours, os.path.join(mine, 'SixthSenseReborn', name))
     os.environ['APPDATA'] = mine
 
 

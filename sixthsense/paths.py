@@ -19,18 +19,24 @@ belongs to one of the files that are not the original's own.
 Because the top folder comes first, an untouched original bundle still works: its WAVs are
 all found where the original found them.
 
-The port never writes to ``game/``.  The save file lives in ``%APPDATA%\\SixthSense`` on
-Windows, ``~/.local/share/SixthSense`` on Linux, ``~/Library/Application Support/SixthSense``
-on macOS, or wherever ``SIXTHSENSE_USER_DIR`` points,
-which the tests use.
+The port never writes to ``game/``.  The save file lives in ``%APPDATA%\\SixthSenseReborn``
+on Windows, ``~/.local/share/SixthSenseReborn`` on Linux,
+``~/Library/Application Support/SixthSenseReborn`` on macOS, or wherever
+``SIXTHSENSE_USER_DIR`` points, which the tests use.  The first time it is made, an
+existing Sixth Sense save beside it, in ``SixthSenseOriginal`` or an older ``SixthSense``,
+is copied in once (``adopt_old_save``).
 
 ``--game PATH`` (or ``SIXTHSENSE_GAME``) points somewhere else: another copy of the
 bundle, or a folder holding ``Payload/sixsense.app``.
 """
 from __future__ import annotations
 
+import logging
 import os
+import shutil
 import sys
+
+log = logging.getLogger(__name__)
 
 FROZEN = getattr(sys, 'frozen', False)
 if FROZEN:
@@ -58,8 +64,18 @@ NVDA_DLL = os.path.join(VENDOR, 'nvda', 'nvdaControllerClient64.dll')
 BINARY = os.path.join(ROOT, 'analysis', 'bin', 'sixsense_armv7')
 
 GAME_ENV = 'SIXTHSENSE_GAME'
-# The save's folder in place of %APPDATA%\SixthSense - set by the tests, never by the game.
+# The save's folder in place of %APPDATA%\SixthSenseReborn - set by the tests, never by the
+# game.
 USER_DIR_ENV = 'SIXTHSENSE_USER_DIR'
+#: The save's folder under save_base(), and Sixth Sense's, whose save the first start
+#: copies (the dev, 2026-10-04: aidocks/project_reborn_identity_plan.md): SixthSenseOriginal
+#: since that game renamed its folder the same day, or SixthSense where it has not run since.
+SAVE_FOLDER = 'SixthSenseReborn'
+OLD_SAVE_FOLDERS = ('SixthSenseOriginal', 'SixthSense')
+#: What is copied from Sixth Sense's folder: the progress, the settings, the key bindings,
+#: and a defaults.json from before the save split, which defaults.py then moves over.  The
+#: .bak backups are left behind; the next save writes fresh ones.
+OLD_SAVE_FILES = ('save.json', 'settings.json', 'keys.json', 'defaults.json')
 APP_NAME = 'sixsense.app'
 
 # Where the sounds are, inside the bundle folder.  An original bundle has no such folders.
@@ -192,14 +208,41 @@ def save_base() -> str:
             or os.path.join(os.path.expanduser('~'), '.local', 'share'))
 
 
+def adopt_old_save(new: str, old: str) -> bool:
+    """Copy Sixth Sense's save into Reborn's folder ``new``, once: only when ``new`` does
+    not exist yet and ``old`` does.  ``old`` is only read, never changed.  A file that
+    cannot be copied is logged and left out, so the game starts with what it has rather
+    than not at all; ``new`` exists afterwards either way, so nothing is ever copied
+    twice.  True when there was a save to copy."""
+    if os.path.isdir(new) or not os.path.isdir(old):
+        return False
+    os.makedirs(new, exist_ok=True)
+    for name in OLD_SAVE_FILES:
+        src = os.path.join(old, name)
+        if not os.path.isfile(src):
+            continue
+        try:
+            shutil.copyfile(src, os.path.join(new, name))
+        except OSError as e:
+            log.warning("could not copy Sixth Sense's %s: %s", name, e)
+    log.info("copied Sixth Sense's save from %s", old)
+    return True
+
+
 def user_dir() -> str:
-    """Where ``NSUserDefaults`` and the save game live: ``%APPDATA%\\SixthSense``, or on
-    Linux ``$XDG_DATA_HOME/SixthSense`` (``~/.local/share/SixthSense``), on macOS
-    ``~/Library/Application Support/SixthSense``, or the folder
+    """Where ``NSUserDefaults`` and the save game live: ``%APPDATA%\\SixthSenseReborn``, or
+    on Linux ``$XDG_DATA_HOME/SixthSenseReborn`` (``~/.local/share/SixthSenseReborn``), on
+    macOS ``~/Library/Application Support/SixthSenseReborn``, or the folder
     ``SIXTHSENSE_USER_DIR`` names.  The tests set that to a throwaway folder, so they never
-    read or write the real save."""
+    read or write the real save, and nothing is ever copied into it.  The first time the
+    folder is made, Sixth Sense's save beside it is copied in (``adopt_old_save``), from
+    the first of ``OLD_SAVE_FOLDERS`` there is."""
     p = os.environ.get(USER_DIR_ENV)
     if not p:
-        p = os.path.join(save_base(), 'SixthSense')
+        base = save_base()
+        p = os.path.join(base, SAVE_FOLDER)
+        for name in OLD_SAVE_FOLDERS:
+            if adopt_old_save(p, os.path.join(base, name)):
+                break
     os.makedirs(p, exist_ok=True)
     return p

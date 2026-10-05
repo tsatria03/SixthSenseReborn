@@ -21,7 +21,7 @@ Starting part-way down the corridor replays the action cells above the start row
 spawn tier, the quiet stretch and the level music are what they would have been.
 
 **Your save is never touched.**  It plays on its own save in
-``%APPDATA%\\SixthSense\\level_chooser``, marked as past the tutorial, and takes a fresh copy
+``%APPDATA%\\SixthSenseReborn\\level_chooser``, marked as past the tutorial, and takes a fresh copy
 of your key bindings each time it starts.  Gold and scores earned here stay there.
 
 Everything else is the real game: Escape pauses and resumes, the pause panel's Main menu
@@ -49,14 +49,14 @@ NEAR_BOSS_ROW = SIREN_ROW + 2
 def _own_save():
     """Point APPDATA at the chooser's own folder, before anything reads it."""
     real = os.path.join(os.environ.get('APPDATA') or os.path.expanduser('~'),
-                        'SixthSense')
+                        'SixthSenseReborn')
     mine = os.path.join(real, 'level_chooser')
-    os.makedirs(os.path.join(mine, 'SixthSense'), exist_ok=True)
+    os.makedirs(os.path.join(mine, 'SixthSenseReborn'), exist_ok=True)
     # your key bindings and your settings (voice over, the volumes), but never your save
     for name in ('keys.json', 'settings.json'):
         yours = os.path.join(real, name)
         if os.path.exists(yours):
-            shutil.copyfile(yours, os.path.join(mine, 'SixthSense', name))
+            shutil.copyfile(yours, os.path.join(mine, 'SixthSenseReborn', name))
     os.environ['APPDATA'] = mine
 
 

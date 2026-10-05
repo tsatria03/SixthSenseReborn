@@ -160,7 +160,8 @@ def test_pointing_somewhere_else_forgets_the_old_sounds():
 
 
 def test_the_save_goes_where_sixthsense_user_dir_points():
-    """The tests' way off the real save; without it, the save is in %APPDATA%\\SixthSense."""
+    """The tests' way off the real save; without it, the save is in
+    %APPDATA%\\SixthSenseReborn."""
     old_dir, old_appdata = os.environ.get(paths.USER_DIR_ENV), os.environ.get('APPDATA')
     was = paths.WINDOWS
     top = tempfile.mkdtemp()
@@ -171,7 +172,7 @@ def test_the_save_goes_where_sixthsense_user_dir_points():
         os.environ.pop(paths.USER_DIR_ENV)
         paths.WINDOWS = True
         os.environ['APPDATA'] = top
-        assert paths.user_dir() == os.path.join(top, 'SixthSense')
+        assert paths.user_dir() == os.path.join(top, 'SixthSenseReborn')
     finally:
         paths.WINDOWS = was
         for key, old in ((paths.USER_DIR_ENV, old_dir), ('APPDATA', old_appdata)):
@@ -183,7 +184,8 @@ def test_the_save_goes_where_sixthsense_user_dir_points():
 
 
 def test_on_linux_the_save_goes_in_the_users_data_folder():
-    """2026-09-28: $XDG_DATA_HOME/SixthSense, which is ~/.local/share/SixthSense when unset."""
+    """2026-09-28: $XDG_DATA_HOME/SixthSenseReborn, which is ~/.local/share/SixthSenseReborn
+    when unset."""
     keys = (paths.USER_DIR_ENV, 'XDG_DATA_HOME')
     old = {k: os.environ.get(k) for k in keys}
     was = paths.WINDOWS, paths.MACOS
@@ -193,7 +195,7 @@ def test_on_linux_the_save_goes_in_the_users_data_folder():
         paths.WINDOWS = False
         paths.MACOS = False
         os.environ['XDG_DATA_HOME'] = top
-        assert paths.user_dir() == os.path.join(top, 'SixthSense')
+        assert paths.user_dir() == os.path.join(top, 'SixthSenseReborn')
         os.environ.pop('XDG_DATA_HOME')
         assert paths.save_base() == os.path.join(os.path.expanduser('~'), '.local', 'share')
     finally:
@@ -225,8 +227,111 @@ def test_on_macos_the_save_goes_in_application_support():
                 patch.dict(os.environ, {'XDG_DATA_HOME': os.path.join(top, 'xdg')}):
             assert paths.user_dir() == _scratch_save.FOLDER, 'save override was ignored'
             os.environ.pop(paths.USER_DIR_ENV)
-            expected = os.path.join(top, 'Library', 'Application Support', 'SixthSense')
+            expected = os.path.join(top, 'Library', 'Application Support', 'SixthSenseReborn')
             assert paths.user_dir() == expected and os.path.isdir(expected)
+
+
+def _old_save(top, files=('save.json', 'settings.json', 'keys.json'), folder='SixthSense'):
+    """A Sixth Sense save folder under ``top``, each file holding its own name."""
+    old = os.path.join(top, folder)
+    os.makedirs(os.path.join(old, 'level_chooser'))
+    for name in files + ('save.json.bak',):
+        with open(os.path.join(old, name), 'w', encoding='utf-8') as fh:
+            fh.write(name)
+    return old
+
+
+def _snapshot(folder):
+    out = {}
+    for dirpath, dirs, files in os.walk(folder):
+        for name in files:
+            p = os.path.join(dirpath, name)
+            with open(p, encoding='utf-8') as fh:
+                out[os.path.relpath(p, folder)] = (fh.read(), os.path.getmtime(p))
+    return out
+
+
+def test_the_first_start_copies_sixth_senses_save_once():
+    """The dev, 2026-10-04: Reborn's own save folder takes a copy of Sixth Sense's save the
+    first time it is made, and never touches Sixth Sense's folder."""
+    with tempfile.TemporaryDirectory() as top:
+        old = _old_save(top)
+        before = _snapshot(old)
+        new = os.path.join(top, 'SixthSenseReborn')
+        assert paths.adopt_old_save(new, old)
+        assert sorted(os.listdir(new)) == ['keys.json', 'save.json', 'settings.json'], \
+            'the backup or the choosers came along: %s' % os.listdir(new)
+        for name in os.listdir(new):
+            with open(os.path.join(new, name), encoding='utf-8') as fh:
+                assert fh.read() == name
+        assert _snapshot(old) == before, "Sixth Sense's save was changed"
+        # a later start leaves Reborn's save as it is
+        with open(os.path.join(new, 'save.json'), 'w', encoding='utf-8') as fh:
+            fh.write('played in Reborn')
+        assert not paths.adopt_old_save(new, old)
+        with open(os.path.join(new, 'save.json'), encoding='utf-8') as fh:
+            assert fh.read() == 'played in Reborn'
+
+
+def test_a_save_from_before_the_split_is_copied_too():
+    """A defaults.json comes along, for defaults.py to move over as it does any old save."""
+    with tempfile.TemporaryDirectory() as top:
+        old = _old_save(top, files=('defaults.json',))
+        new = os.path.join(top, 'SixthSenseReborn')
+        assert paths.adopt_old_save(new, old)
+        assert os.listdir(new) == ['defaults.json']
+
+
+def test_with_no_sixth_sense_save_reborn_starts_fresh():
+    with tempfile.TemporaryDirectory() as top:
+        new = os.path.join(top, 'SixthSenseReborn')
+        assert not paths.adopt_old_save(new, os.path.join(top, 'SixthSense'))
+        assert not os.path.exists(new), 'adopt_old_save made the folder with nothing to copy'
+
+
+def test_user_dir_copies_the_old_save_but_never_under_the_tests_override():
+    """The real lookup copies from the folder beside it; the tests' throwaway save never
+    takes a copy of anything."""
+    from unittest.mock import patch
+    with tempfile.TemporaryDirectory() as top:
+        _old_save(top)
+        with patch.object(paths, 'WINDOWS', True), patch.dict(os.environ, {'APPDATA': top}):
+            assert paths.user_dir() == _scratch_save.FOLDER
+            assert not os.path.exists(os.path.join(_scratch_save.FOLDER, 'keys.json'))
+            os.environ.pop(paths.USER_DIR_ENV)
+            new = paths.user_dir()
+            assert new == os.path.join(top, 'SixthSenseReborn')
+            assert os.path.isfile(os.path.join(new, 'save.json'))
+
+
+def test_sixthsenseoriginals_folder_comes_before_the_old_one():
+    """SixthSenseOriginal renamed its save folder on 2026-10-04; where both are there, the
+    renamed one is the newer save."""
+    from unittest.mock import patch
+    with tempfile.TemporaryDirectory() as top:
+        _old_save(top, files=('keys.json',))
+        _old_save(top, files=('save.json',), folder='SixthSenseOriginal')
+        with patch.object(paths, 'WINDOWS', True), patch.dict(os.environ, {'APPDATA': top}):
+            os.environ.pop(paths.USER_DIR_ENV)
+            assert os.listdir(paths.user_dir()) == ['save.json']
+
+
+def test_a_file_that_cannot_be_copied_is_left_out():
+    """The game starts with what could be copied rather than not at all."""
+    from unittest.mock import patch
+    real = shutil.copyfile
+
+    def flaky(src, dst):
+        if os.path.basename(src) == 'keys.json':
+            raise PermissionError('locked')
+        return real(src, dst)
+    with tempfile.TemporaryDirectory() as top:
+        old = _old_save(top)
+        new = os.path.join(top, 'SixthSenseReborn')
+        with patch.object(shutil, 'copyfile', flaky):
+            assert paths.adopt_old_save(new, old)
+        assert sorted(os.listdir(new)) == ['save.json', 'settings.json']
+        assert not paths.adopt_old_save(new, old), 'it tried again'
 
 
 def test_every_test_file_keeps_off_the_real_save():
