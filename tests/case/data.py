@@ -184,10 +184,12 @@ def test_start_positions_are_1000cm():
 # ------------------------------------------------------------------ sounds
 def test_sound_list_covers_the_wavs():
     """The original's 371 entries, and 371, the bosses' being-hurt sound, which the port
-    adds (tsatria03, 2026-09-25)."""
+    adds (tsatria03, 2026-09-25), and the two controller sounds, 372 and 373
+    (tunmi13productions, 2026-10-04)."""
     sl = _sound_list()
-    assert len(sl) == 372
+    assert len(sl) == 374
     assert sl[371] == 'zombies_boss_1_damage'
+    assert sl[372:] == ['ctrl_detected', 'ctrl_not_detected']
     missing = sorted({n for n in sl if paths.path_for_resource(n, 'wav') is None})
     # The stage-select buttons and zombie_5_hit_player were already missing in the
     # bundle.

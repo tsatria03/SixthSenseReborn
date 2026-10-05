@@ -167,7 +167,8 @@ def main(argv=None):
     clock = pygame.time.Clock()
     bindings = KeyBindScreen()
     showing_bindings = False
-    pad = Controllers(pygame)
+    pad = Controllers(pygame, app)
+    pad.announce_attached()
 
     if args.tutorial:
         kind, obj = 'tutorial', _new_tutorial()
@@ -202,9 +203,13 @@ def main(argv=None):
                 next_device_check = 0.0     # coming back checks the device at once
             keys = pad.feed(event)
             if keys is not None:
-                # a controller: the menus take it as keys; the bindings screen and the
-                # stage do not yet (aidocks/project_joystick_plan.md, phase 2)
-                if not showing_bindings and kind not in STAGES:
+                # a controller: the menus take it as keys, a stage reads it itself, and
+                # the bindings screen ignores it (aidocks/project_joystick_plan.md)
+                if showing_bindings:
+                    pass
+                elif kind in STAGES:
+                    inp.controller(event, pygame, keys)
+                else:
                     for key_event in keys:
                         inp.handle(key_event, pygame)
                 continue

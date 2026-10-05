@@ -37,11 +37,13 @@ cluster, which is the point for a game meant to be played with the screen off.
 from __future__ import annotations
 
 import logging
+import math
 import time
 
 from ..game.weapon_control import MG80_NUMBER
 from ..platform import volume
 from ..platform.keymap import CHORD_WINDOW, KeyMap
+from .controller import STICK_PRESS, STICK_RELEASE, axis_value
 
 log = logging.getLogger('input')
 
@@ -83,6 +85,21 @@ def gameplay_volume_key(name, mod, stage, pygame):
     return True
 
 
+#: PORT ADDITION: how long a lean of the stick waits before it fires, so a push toward a
+#: diagonal, whose two axes arrive as separate events, is read as the diagonal and not as
+#: the first axis alone.  The stick's version of the keyboard's chord window.
+AIM_SETTLE = 0.06
+
+
+#: PORT ADDITION: the D-pad in play is the arrow keys' clock face: Left 9, Left+Up 10:30,
+#: Up 12, Right+Up 1:30, Right 3, Down reload.  The three that can grow into a diagonal wait
+#: out the keyboard's chord window; Down and the diagonals fire at once.
+DPAD_LANES = {frozenset(('left',)): 1, frozenset(('left', 'up')): 2, frozenset(('up',)): 3,
+              frozenset(('right', 'up')): 4, frozenset(('right',)): 5,
+              frozenset(('down',)): 'reload'}
+DPAD_EXTENDABLE = (frozenset(('left',)), frozenset(('up',)), frozenset(('right',)))
+
+
 class Input:
     """Turns pygame key events into the calls the stage expects."""
 
@@ -94,6 +111,13 @@ class Input:
         self._pending_at = None           # when the chord window closes
         self.last_lane = 3                # where --debug's F5 spawns
         self._auto_lane = None            # the lane a held key keeps firing down
+        self._dpad = set()                # the D-pad directions held: 'up', 'left', ...
+        self._dpad_due = None             # when the D-pad's chord window closes
+        self._stick = {}                  # the left stick: axis -> -1.0 to 1.0
+        self._aiming = False              # leaned out and not yet back to the middle
+        self._aim_fired = False
+        self._aim_due = 0.0               # when the lean settles and fires
+        self._aim_peak = (0.0, 0.0)       # the furthest it went, for a flick
         # The keymap is shared, and a key that was down when the last screen went away
         # never had its key-up delivered here.  Left held, it makes the next stage read
         # chords nobody is pressing.
@@ -119,6 +143,113 @@ class Input:
             self._auto_lane = None      # empty: no click on every frame
             return
         st.MovingShot_(LANE_ANGLE[self._auto_lane])
+
+    # ---- the controller (PORT ADDITION, aidocks/project_joystick_plan.md) -------
+    def controller(self, event, pygame, keys):
+        """A controller event, with the key events ``Controllers.feed`` made of it.  The
+        panels take those keys, as the menus do.  In play the left stick aims like the
+        swipe, and the buttons are reload, weapon change, shake and pause."""
+        st = self.stage
+        if event.type == pygame.CONTROLLERDEVICEREMOVED:
+            self._stick = {}
+            self._aim_reset()
+            self._dpad_reset()
+        if st.gameState != 0:
+            self._aim_reset()
+            self._dpad_reset()
+            for key in keys:
+                self.handle(key, pygame)
+            return
+        way = {pygame.CONTROLLER_BUTTON_DPAD_UP: 'up', pygame.CONTROLLER_BUTTON_DPAD_DOWN: 'down',
+               pygame.CONTROLLER_BUTTON_DPAD_LEFT: 'left',
+               pygame.CONTROLLER_BUTTON_DPAD_RIGHT: 'right'}.get(getattr(event, 'button', None))
+        if way and event.type == pygame.CONTROLLERBUTTONDOWN:
+            self._dpad_down(way)
+        elif way and event.type == pygame.CONTROLLERBUTTONUP:
+            self._dpad_up(way)
+        elif event.type == pygame.CONTROLLERBUTTONDOWN:
+            action = {pygame.CONTROLLER_BUTTON_X: 'reload',
+                      pygame.CONTROLLER_BUTTON_RIGHTSHOULDER: 'next_weapon',
+                      pygame.CONTROLLER_BUTTON_LEFTSHOULDER: 'prev_weapon',
+                      pygame.CONTROLLER_BUTTON_A: 'shake',
+                      pygame.CONTROLLER_BUTTON_B: 'escape',
+                      pygame.CONTROLLER_BUTTON_START: 'escape'}.get(event.button)
+            if action == 'escape':
+                self.escape()
+            else:
+                self.perform(action)
+        elif event.type == pygame.CONTROLLERAXISMOTION and event.axis in (
+                pygame.CONTROLLER_AXIS_LEFTX, pygame.CONTROLLER_AXIS_LEFTY):
+            self._stick[event.axis == pygame.CONTROLLER_AXIS_LEFTY] = axis_value(event.value)
+            self._aim_step()
+
+    def _dpad_fire(self):
+        """Act on the D-pad as it stands: the lane or the reload it names, if any."""
+        what = DPAD_LANES.get(frozenset(self._dpad))
+        if what == 'reload':
+            self.stage.ReloadGesture()
+        elif what is not None:
+            self.attack_lane(what)
+
+    def _dpad_down(self, way):
+        self._dpad.add(way)
+        held = frozenset(self._dpad)
+        if held in DPAD_EXTENDABLE:
+            self._dpad_due = time.monotonic() + CHORD_WINDOW   # might become a diagonal
+        else:
+            self._dpad_due = None
+            self._dpad_fire()
+
+    def _dpad_up(self, way):
+        if self._dpad_due is not None:          # let go before the window closed
+            self._dpad_due = None
+            self._dpad_fire()
+        self._dpad.discard(way)
+        self._auto_lane = None                  # any key up ends a burst, as on the keyboard
+
+    def _dpad_reset(self):
+        self._dpad.clear()
+        self._dpad_due = None
+
+    def _vector(self):
+        return self._stick.get(False, 0.0), self._stick.get(True, 0.0)
+
+    def _aim_step(self):
+        """The stick moved: start a lean, grow its peak, or end it.  Y is down."""
+        x, y = self._vector()
+        size = math.hypot(x, y)
+        if not self._aiming:
+            if size >= STICK_PRESS:
+                self._aiming, self._aim_fired = True, False
+                self._aim_due = time.monotonic() + AIM_SETTLE
+                self._aim_peak = (x, y)
+        elif size < STICK_RELEASE:
+            if not self._aim_fired:
+                self._aim_fire(self._aim_peak)      # a flick let go before it settled
+            self._aim_reset()
+        elif size > math.hypot(*self._aim_peak):
+            self._aim_peak = (x, y)
+
+    def _aim_fire(self, vector):
+        """Fire where the stick points: its angle, up being 12 o'clock, through the lane
+        bands the swipe uses.  Down is the reload sector."""
+        st = self.stage
+        self._aim_fired = True
+        angle = math.degrees(math.atan2(-vector[1], vector[0])) % 360.0
+        weapon = st.weaponSource[st.gamePlayer.useWepon]
+        melee = weapon is not None and weapon.WeaponNumber in (1, 7)
+        lane = st._lane_for_angle(angle, melee=melee)
+        if lane == 'reload':
+            st.ReloadGesture()
+        else:
+            self.attack_lane(lane)
+
+    def _aim_reset(self):
+        """The lean is over: no burst goes on."""
+        if self._aiming:
+            self._auto_lane = None
+        self._aiming = False
+        self._aim_fired = False
 
     def perform(self, action):
         if action is None:
@@ -242,7 +373,15 @@ class Input:
         if self.stage.gameState != 0:
             self._pending_at = None
             self._auto_lane = None
+            self._aim_reset()
+            self._dpad_reset()
             return
+        if self._dpad_due is not None and time.monotonic() >= self._dpad_due:
+            self._dpad_due = None
+            self._dpad_fire()
+        if self._aiming and not self._aim_fired and time.monotonic() >= self._aim_due:
+            x, y = self._vector()
+            self._aim_fire((x, y) if math.hypot(x, y) >= STICK_PRESS else self._aim_peak)
         if self._pending_at is not None and time.monotonic() >= self._pending_at:
             self._pending_at = None
             self.perform(self.keymap.settle())
@@ -252,4 +391,6 @@ class Input:
     def reset(self):
         self._pending_at = None
         self._auto_lane = None
+        self._aim_reset()
+        self._dpad_reset()
         self.keymap.clear_held()

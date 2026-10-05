@@ -24,7 +24,8 @@ from sixthsense.platform.defaults import UserDefaults            # noqa: E402
 from sixthsense.platform.keymap import (ACTION_IDS, CHORD_WINDOW,  # noqa: E402
                                         DEFAULTS, FIXED, KeyMap)
 from sixthsense.platform.runloop import RunLoop                  # noqa: E402
-from sixthsense.ui.input import LANE_ANGLE, Input                # noqa: E402
+from sixthsense.ui.controller import Controllers                 # noqa: E402
+from sixthsense.ui.input import AIM_SETTLE, LANE_ANGLE, Input    # noqa: E402
 from sixthsense.ui.keybind_screen import KeyBindScreen           # noqa: E402
 
 
@@ -407,6 +408,293 @@ def test_other_weapons_fire_once_per_press():
 
 def test_an_empty_mg80_does_not_click_on_every_frame():
     assert _held_shots(6, ammo=0) == 1
+
+
+# ------------------------------------------------------------- the controller
+_PAD = None
+
+
+class _NoSdl:
+    """No controller layer at all: these tests never open or buzz a real pad."""
+
+    def init(self):
+        pass
+
+    def get_count(self):
+        return 0
+
+
+def _pad_event(kind, **kw):
+    global _PAD
+    if _PAD is None:
+        _PAD = Controllers(pygame, sdl=_NoSdl())
+    return pygame.event.Event(kind, instance_id=0, **kw)
+
+
+def _pad(inp, event):
+    """What the frame loop does with a controller event over a stage."""
+    inp.controller(event, pygame, _PAD.feed(event))
+
+
+def _lean(inp, x, y):
+    """Move the left stick to (x, y), y down, one axis at a time as a pad reports it."""
+    _pad(inp, _pad_event(pygame.CONTROLLERAXISMOTION, axis=pygame.CONTROLLER_AXIS_LEFTX, value=x))
+    _pad(inp, _pad_event(pygame.CONTROLLERAXISMOTION, axis=pygame.CONTROLLER_AXIS_LEFTY, value=y))
+
+
+def _recorded(st, inp):
+    """Record the swipe angles the stage is asked for and the reloads."""
+    log = {'angles': [], 'reloads': 0}
+    real = st.MovingShot_
+
+    def shot(angle):
+        log['angles'].append(round(angle))
+        real(angle)
+
+    def reload_():
+        log['reloads'] += 1
+    st.MovingShot_ = shot
+    st.ReloadGesture = reload_
+    return log
+
+
+def _settle_stick(inp):
+    time.sleep(AIM_SETTLE + 0.02)
+    inp.pump()
+
+
+def test_the_stick_fires_where_it_points():
+    for (x, y), angle in (((-1, 0), 180), ((0, -1), 90), ((1, 0), 0),
+                          ((-0.7, -0.7), 123), ((0.7, -0.7), 57)):
+        st, inp = _stage()
+        try:
+            log = _recorded(st, inp)
+            _lean(inp, x, y)
+            _settle_stick(inp)
+            assert log['angles'] == [angle], ((x, y), log)
+        finally:
+            st.teardown()
+
+
+def test_a_diagonal_is_not_fired_as_its_first_axis():
+    """The x axis arrives first, pointing at 9 o'clock; the shot waits for the y."""
+    st, inp = _stage()
+    try:
+        log = _recorded(st, inp)
+        _lean(inp, -0.8, -0.8)
+        assert log['angles'] == [], 'it fired before the lean settled'
+        _settle_stick(inp)
+        assert log['angles'] == [123], log
+    finally:
+        st.teardown()
+
+
+def test_a_flick_let_go_early_still_fires_at_its_peak():
+    st, inp = _stage()
+    try:
+        log = _recorded(st, inp)
+        _lean(inp, 0.0, -1.0)
+        _lean(inp, 0.0, 0.0)
+        assert log['angles'] == [90], log
+    finally:
+        st.teardown()
+
+
+def test_a_lean_is_one_shot_for_a_gun_that_is_not_the_mg80():
+    st, inp = _stage()
+    try:
+        st.gamePlayer.useWepon = 2
+        log = _recorded(st, inp)
+        _lean(inp, 0.0, -1.0)
+        _settle_stick(inp)
+        for _ in range(4):
+            st.shotFlag = False
+            inp.pump()
+        assert log['angles'] == [90], log
+        _lean(inp, 0.0, 0.0)
+        _lean(inp, 1.0, 0.0)
+        _settle_stick(inp)
+        assert log['angles'] == [90, 0], log
+    finally:
+        st.teardown()
+
+
+def test_the_mg80_fires_while_the_stick_is_held_and_stops_when_it_is_let_go():
+    st, inp = _stage()
+    try:
+        st.gamePlayer.useWepon = 6
+        log = _recorded(st, inp)
+        _lean(inp, 0.0, -1.0)
+        _settle_stick(inp)
+        for _ in range(4):
+            st.shotFlag = False
+            inp.pump()
+        held = len(log['angles'])
+        assert held > 2 and set(log['angles']) == {90}, log
+        _lean(inp, 0.0, 0.0)
+        for _ in range(4):
+            st.shotFlag = False
+            inp.pump()
+        assert len(log['angles']) == held, 'it kept firing after the stick was let go'
+    finally:
+        st.teardown()
+
+
+def test_the_stick_down_reloads_once():
+    st, inp = _stage()
+    try:
+        log = _recorded(st, inp)
+        _lean(inp, 0.0, 1.0)
+        _settle_stick(inp)
+        _settle_stick(inp)
+        assert log['reloads'] == 1 and log['angles'] == [], log
+    finally:
+        st.teardown()
+
+
+def _dpad(inp, *names, down=True):
+    kind = pygame.CONTROLLERBUTTONDOWN if down else pygame.CONTROLLERBUTTONUP
+    for n in names:
+        button = getattr(pygame, 'CONTROLLER_BUTTON_DPAD_' + n.upper())
+        _pad(inp, _pad_event(kind, button=button))
+
+
+def _chord_window(inp):
+    time.sleep(CHORD_WINDOW + 0.02)
+    inp.pump()
+
+
+def test_the_dpad_is_the_clock_face():
+    for names, angle in ((('left',), 180), (('up',), 90), (('right',), 0),
+                         (('left', 'up'), 123), (('up', 'left'), 123),
+                         (('right', 'up'), 57), (('up', 'right'), 57)):
+        st, inp = _stage()
+        try:
+            log = _recorded(st, inp)
+            _dpad(inp, *names)
+            _chord_window(inp)
+            assert log['angles'] == [angle], (names, log)
+        finally:
+            st.teardown()
+
+
+def test_a_dpad_diagonal_is_one_shot_and_fires_at_once():
+    st, inp = _stage()
+    try:
+        log = _recorded(st, inp)
+        _dpad(inp, 'left')
+        assert log['angles'] == [], 'a single direction fired before the window closed'
+        _dpad(inp, 'up')
+        assert log['angles'] == [123], log
+        _chord_window(inp)
+        assert log['angles'] == [123], 'the diagonal fired twice'
+    finally:
+        st.teardown()
+
+
+def test_a_dpad_tap_let_go_early_still_fires():
+    st, inp = _stage()
+    try:
+        log = _recorded(st, inp)
+        _dpad(inp, 'right')
+        _dpad(inp, 'right', down=False)
+        assert log['angles'] == [0], log
+    finally:
+        st.teardown()
+
+
+def test_dpad_down_reloads_at_once_and_opposites_do_nothing():
+    st, inp = _stage()
+    try:
+        log = _recorded(st, inp)
+        _dpad(inp, 'down')
+        assert log['reloads'] == 1, log
+        _dpad(inp, 'down', down=False)
+        _dpad(inp, 'left', 'right')
+        _chord_window(inp)
+        assert log['angles'] == [] and log['reloads'] == 1, log
+    finally:
+        st.teardown()
+
+
+def test_the_mg80_fires_while_the_dpad_is_held_and_stops_when_it_is_let_go():
+    st, inp = _stage()
+    try:
+        st.gamePlayer.useWepon = 6
+        log = _recorded(st, inp)
+        _dpad(inp, 'up')
+        _chord_window(inp)
+        for _ in range(4):
+            st.shotFlag = False
+            inp.pump()
+        held = len(log['angles'])
+        assert held > 2 and set(log['angles']) == {90}, log
+        _dpad(inp, 'up', down=False)
+        for _ in range(4):
+            st.shotFlag = False
+            inp.pump()
+        assert len(log['angles']) == held, 'it kept firing after the D-pad was let go'
+    finally:
+        st.teardown()
+
+
+def test_the_buttons_in_play():
+    st, inp = _stage()
+    try:
+        log = _recorded(st, inp)
+        calls = []
+        st.doubleTapChangeWeapon_ = lambda *a: calls.append('next')
+        st.threeTapChangeWeapon_ = lambda *a: calls.append('prev')
+        for button in (pygame.CONTROLLER_BUTTON_X, pygame.CONTROLLER_BUTTON_RIGHTSHOULDER,
+                       pygame.CONTROLLER_BUTTON_LEFTSHOULDER):
+            _pad(inp, _pad_event(pygame.CONTROLLERBUTTONDOWN, button=button))
+        assert log['reloads'] == 1 and calls == ['next', 'prev'], (log, calls)
+    finally:
+        st.teardown()
+
+
+def test_a_shakes_when_a_zombie_has_you():
+    st, inp = _stage()
+    try:
+        st.isShake = True
+        st.shakeFlag = 1
+        st.shakeCount = 0
+        st.shakesNeeded = 5
+        _pad(inp, _pad_event(pygame.CONTROLLERBUTTONDOWN, button=pygame.CONTROLLER_BUTTON_A))
+        assert st.shakeCount == 1, st.shakeCount
+    finally:
+        st.teardown()
+
+
+def test_b_pauses_and_resumes_and_the_panel_takes_the_menu_keys():
+    st, inp = _stage()
+    try:
+        b = pygame.CONTROLLER_BUTTON_B
+        _pad(inp, _pad_event(pygame.CONTROLLERBUTTONDOWN, button=b))
+        assert st.gameState == 1, 'B did not pause'
+        _pad(inp, _pad_event(pygame.CONTROLLERBUTTONDOWN,
+                             button=pygame.CONTROLLER_BUTTON_DPAD_DOWN))
+        assert st.selectMenu, 'the D-pad did not move through the panel'
+        _pad(inp, _pad_event(pygame.CONTROLLERBUTTONDOWN, button=b))
+        assert st.gameState == 0, 'B did not resume'
+    finally:
+        st.teardown()
+
+
+def test_unplugging_the_pad_ends_a_burst():
+    st, inp = _stage()
+    try:
+        st.gamePlayer.useWepon = 6
+        _lean(inp, 0.0, -1.0)
+        _settle_stick(inp)
+        _pad(inp, _pad_event(pygame.CONTROLLERDEVICEREMOVED))
+        log = _recorded(st, inp)
+        for _ in range(3):
+            st.shotFlag = False
+            inp.pump()
+        assert log['angles'] == [], log
+    finally:
+        st.teardown()
 
 
 def test_bindings_survive_a_round_trip():

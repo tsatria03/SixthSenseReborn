@@ -11,7 +11,8 @@ keyboard event the screen already takes, so no screen changes:
     A                     Enter
     B                     Escape
 
-The stage is not translated yet (phase 2), and nothing is while the key bindings screen
+The stage reads the controller itself (``Input.controller``), except for the pause and
+result panels, which take these keys.  Nothing is translated while the key bindings screen
 is open, where a key press would be captured as a binding.
 """
 from __future__ import annotations
@@ -19,6 +20,13 @@ from __future__ import annotations
 import logging
 
 log = logging.getLogger('controller')
+
+#: PORT ADDITION: the sounds for a controller found and lost, their entries in
+#: SoundList.plist, and the short buzz that follows the first (low motor, high motor,
+#: milliseconds).
+SOUND_DETECTED = 372
+SOUND_NOT_DETECTED = 373
+CONNECT_BUZZ = (0.5, 0.5, 200)
 
 #: How far the left stick must lean to count as a press, and how far back it must come
 #: before it can press again.  The gap keeps a stick resting near the edge from repeating.
@@ -37,11 +45,21 @@ _STICK_AXES = (('CONTROLLER_AXIS_LEFTX', 'K_LEFT', 'K_RIGHT'),
                ('CONTROLLER_AXIS_LEFTY', 'K_UP', 'K_DOWN'))
 
 
+def axis_value(value):
+    """An axis event's value as -1.0 to 1.0, whether pygame gave it so or in SDL's raw
+    units."""
+    value = float(value)
+    return value / 32768.0 if abs(value) > 1.0 else value
+
+
 class Controllers:
     """Opens the attached pads and turns their events into key events."""
 
-    def __init__(self, pygame):
+    def __init__(self, pygame, app=None, sdl=None):
+        """``sdl`` is pygame's controller module; the tests pass a stand-in, so they never
+        open or buzz a real pad."""
         self.pygame = pygame
+        self.app = app                  # plays the sounds; none, none are played
         self._pads = {}                  # instance id -> pygame Controller
         self._lean = {}                  # (instance id, axis) -> -1, 0 or 1
         self._buttons = {getattr(pygame, b): getattr(pygame, k) for b, k in _BUTTON_KEYS}
@@ -49,20 +67,44 @@ class Controllers:
                       for a, n, p in _STICK_AXES}
         self._sdl = None
         try:
-            from pygame._sdl2 import controller
+            controller = sdl
+            if controller is None:
+                from pygame._sdl2 import controller
             controller.init()
             self._sdl = controller
             for index in range(controller.get_count()):
-                self._open(index)
+                self._open(index, announce=False)
         except Exception:
             log.exception('controller support is off')
+
+    def announce_attached(self):
+        """The pads already attached when the game started are found now, once the sounds
+        can play."""
+        for pad in self.pads:
+            self._found(pad)
+
+    def _play(self, number):
+        if self.app is None:
+            return
+        try:
+            self.app.playSound_Gain_Pos_z_reprats_(number, 1.0, (0.0, 0.0), 0, False)
+        except Exception:
+            log.exception('playing sound %s', number)
+
+    def _found(self, pad):
+        """A controller was found and opened: its sound, then a short buzz."""
+        self._play(SOUND_DETECTED)
+        try:
+            pad.rumble(*CONNECT_BUZZ)
+        except Exception:
+            log.debug('%s did not buzz', pad.name)
 
     @property
     def pads(self):
         """The controllers that are attached, oldest first."""
         return list(self._pads.values())
 
-    def _open(self, index):
+    def _open(self, index, announce=True):
         try:
             if not self._sdl.is_controller(index):
                 return
@@ -70,11 +112,16 @@ class Controllers:
         except Exception:
             log.exception('opening controller %s', index)
             return
+        if pad.id in self._pads:
+            return                      # SDL announces what start-up already found
         self._pads[pad.id] = pad
         log.info('controller: %s', pad.name)
+        if announce:
+            self._found(pad)
 
     def _close(self, instance_id):
-        self._pads.pop(instance_id, None)
+        if self._pads.pop(instance_id, None) is not None:
+            self._play(SOUND_NOT_DETECTED)
         for key in [k for k in self._lean if k[0] == instance_id]:
             del self._lean[key]
 
@@ -111,9 +158,7 @@ class Controllers:
         return None
 
     def _stick(self, pad, axis, value, keys):
-        value = float(value)
-        if abs(value) > 1.0:
-            value /= 32768.0                    # raw SDL units
+        value = axis_value(value)
         lean = self._lean.get((pad, axis), 0)
         if lean == 0:
             if abs(value) < STICK_PRESS:
