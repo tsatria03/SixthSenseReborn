@@ -22,4 +22,6 @@ metadata:
 
 **Built 2026-10-05, awaiting the dev's ear:** `AppDelegate.headshot_speech_on`/`headshot_beep_on` and their setters, main menu rows 10 and 11 (`HeadshotSpeechAction_`, `HeadshotBeepAction_`; turning the beep on plays it once), `SoundList.plist` entry 374, `defaults.SETTINGS_KEYS`, the call in `Stage_1_E.MonsterDamage` through `playHitSound_Gain_Pos_z_` at `m.Pos`, z 40, gain 1.0 (it fades with distance like the gun's hit). `tools/sound_trims.py` gave the beep +3.5 dB, and the dev asked for it slightly louder, so `BY_EAR` holds +6.0 dB for it (it wins over the measured value); rerunning it also wanted to add trims for the two controller sounds (`ctrl_detected`, `ctrl_not_detected`, +8.5 dB each), which were left out because that would change their loudness. Tests: `menu`, `monster_sound`, `data`, `volume`.
 
+**The beep stays where the zombie is, on purpose.** On 2026-10-05 the dev heard it fade on far zombies with `tests/interact/headshot_tester.py` and had it moved to the centre (`aaa6341`); the same day tunmi13productions told them that was deliberate, and it was reverted (`f74743d`). Don't move it to the centre again unless the dev asks.
+
 **Status: FINISHED 2026-10-05, confirmed by tunmi13productions** (the beep's level too). Moved to `aidocks/completed/` ([[feedback_completed_projects]]).

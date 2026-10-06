@@ -9,8 +9,8 @@ the tools in ``tests\\interact`` that you play.
     python tests\\interact\\headshot_tester.py --speech off --beep on
 
 Each setting is on, off, or left out for the one in your own settings.json.  In the
-game, a headshot says "Headshot!" when the spoken headshot is on and plays the beep in
-the middle of your head when the beep is on, and both when both are (``Stage_1_E.
+game, a headshot says "Headshot!" when the spoken headshot is on and plays the beep
+where the zombie is when the beep is on, and both when both are (``Stage_1_E.
 MonsterDamage``).  Here every shot from a gun that hits a zombie counts as a headshot,
 whether or not the zombie's head was open; the knife, the sword and the grenade have no
 headshots, as in the game.

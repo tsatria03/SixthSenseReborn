@@ -119,7 +119,7 @@ The Store row opens the shop.
 The weapon list has a page for each weapon, which reads its numbers aloud.
 Buy a weapon with gold, or choose Try to test it first on a practice range.
 In the inventory you choose which weapons you take into a game.
-Each game pays 12 gold for every kill and 2 more for every headshot.
+Each game pays 15 gold for every kill and 5 more for every headshot.
 
 Screen reader
 
