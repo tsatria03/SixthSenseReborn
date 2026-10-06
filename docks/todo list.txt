@@ -2,6 +2,7 @@
 
 Make weapons upgradeable, so that they can do more damage.
 Raise the gold you earn after a death a little, so weapons are a bit easier to get.
+Make the weapon stats in save.json, the ammo capacity, effective range, damage and price that the shop and the inventory read out, count when you change them, since right now the game writes them but never reads them back.
 
 ##Finished.
 

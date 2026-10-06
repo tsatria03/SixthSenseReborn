@@ -6,7 +6,7 @@ This file guides Claude Code when it works in this repository. **It is a lean di
 
 ## This repository: SixthSenseReborn (read first)
 
-**This is Sixth Sense Reborn, where changes need not be faithful to the original** ([[project_reborn]]). The faithful port is the separate repository SixthSenseOriginal; this one was its `custom` branch until 2026-10-04, when it moved here with its full history. The dev works on both in tandem ([[project_two_repos]]).
+**This is Sixth Sense Reborn, where changes need not be faithful to the original** ([[project_reborn]]). The faithful port is the separate repository SixthSenseOriginal; this one was its `custom` branch until 2026-10-04, when it moved here with its full history. Since 2026-10-05 SixthSenseOriginal is frozen and all work happens here; read it only as a reference ([[project_two_repos]]).
 
 - **Fidelity is not the goal here.** Do what the dev asks, even when the original did otherwise.
 - **Compare, then follow the dev.** When a change is proposed, say briefly what the original did (and the binary address when it matters) and the likely better solution or difference, then do what the dev picks. Never refuse or argue for a change because it departs from the original.

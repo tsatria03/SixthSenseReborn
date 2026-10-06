@@ -20,7 +20,7 @@ The `[[name]]` links in `CLAUDE.md` and across these memories resolve to `aidock
 - [Old NVGT remake](project_nvgt_remake_reference.md): the dev's NVGT prototype was deleted on 2026-09-21. Its only legacy is the folder layout of `game/sounds`.
 
 ## Current state
-- [Two repositories](project_two_repos.md): since 2026-10-04 the game is SixthSenseOriginal (faithful) and SixthSenseReborn (this repo, the old custom branch), worked on in tandem; changes spanning both get a plan in each.
+- [Two repositories](project_two_repos.md): since 2026-10-04 the game is SixthSenseOriginal (faithful) and SixthSenseReborn (this repo, the old custom branch), SixthSenseOriginal is frozen since 2026-10-05 and all work happens here; read it only as a reference.
 
 - [Tests folder layout](project_tests_layout.md): since 2026-09-23 the dev's own reorganization puts the automated tests in `tests/case/` (no `test_` prefix; the test range's is `weapon_range.py`) and the two by-ear tools in `tests/interact/` (`level_chooser.py`, `tutorial_chooser.py`, with saves of the same names).
 - [Developer tasks](project_dev_tasks.md): the repository, tool, test, build and docs tasks, open and finished, moved out of `todo list.txt` on 2026-09-23 when that file became players only.
