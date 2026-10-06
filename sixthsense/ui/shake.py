@@ -69,7 +69,7 @@ class Shake:
 
         PORT ADDITION (2026-10-06): with the Settings screen's shake turned off, this is the
         same as not being active, so no sensor is switched on and nothing is read.  A is
-        still the shake button either way (aidocks/project_settings_menu_plan.md).
+        still the shake button either way (aidocks/completed/settings_menu_plan.md).
         """
         if not self.on():
             active = False

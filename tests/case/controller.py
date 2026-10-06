@@ -350,7 +350,7 @@ def test_the_sounds_are_named_in_the_sound_list():
 
 
 # --------------------------------- the one pad the game plays with (2026-10-06)
-# aidocks/project_settings_menu_plan.md: the Settings screen picks the pad by name, and any
+# aidocks/completed/settings_menu_plan.md: the Settings screen picks the pad by name, and any
 # other attached pad is ignored.  A name, never an id: unplug the pad on id 0 and the next
 # one plugged in takes that id.
 

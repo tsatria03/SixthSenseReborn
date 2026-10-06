@@ -1,6 +1,6 @@
 """PORT ADDITION: the Settings screen, where every setting the menu used to carry lives.
 
-tunmi13productions, 2026-10-06 (aidocks/project_settings_menu_plan.md).  The main menu
+tunmi13productions, 2026-10-06 (aidocks/completed/settings_menu_plan.md).  The main menu
 had grown three setting rows of its own - vibration and the two headshot settings - so
 they moved in here behind one Settings row, and the screen gained two more: the shake,
 and which controller the game plays with.

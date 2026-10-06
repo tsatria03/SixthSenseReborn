@@ -1,11 +1,13 @@
 ---
-name: project_settings_menu_plan
-description: "PLANNED 2026-10-06: a Settings row in the main menu opens a screen holding every setting, the vibration and two headshot rows moved into it, plus a shake row and a controller picker. A row for something the attached pad cannot do stays visible and reads \"not supported\", and will not toggle. The chosen pad is saved by name, not by id, and is the only pad the game reads."
+name: settings_menu_plan
+description: "FINISHED 2026-10-06, confirmed by tunmi13productions: a Settings row in the main menu opens a screen holding every setting, the vibration and two headshot rows moved into it, plus a shake row and a controller picker. A row for something the attached pad cannot do stays visible and reads \"not supported\", and will not toggle. The chosen pad is saved by name, not by id, and is the only pad the game reads."
 metadata:
   type: project
 ---
 
-**Status: planned.** Agreed with tunmi13productions on 2026-10-06 and recorded before any code ([[feedback_record_plans_first]]). Mark it finished only once they say it works, then move it to `completed/` ([[feedback_completed_projects]]).
+**Status: FINISHED 2026-10-06, confirmed by tunmi13productions** ("makr it finished"), and moved to `completed/` the same day. Built the same day it was agreed, recorded before any code ([[feedback_record_plans_first]]). `sixthsense/game/settings_screen.py`, the menu's one `settings` row in place of three, `AppDelegate`'s `shake_on`, `set_shake`, `controller_choice`, `set_controller_choice`, `can_shake_now`, `skip_intro_on` and `set_skip_intro`, the active pad in `ui/controller.py`, and `ui/vibration.py` and `ui/shake.py` reading it. New `tests/case/settings_menu.py` (13). Covering files passed: menu 18, window 11, shake 15, controller 31, vibration 36, tutorial 31, intro 9, save 13, focus 4, gameplay 59, input 48, paths 22, release 50.
+
+Two commits: the screen itself, and the skip-the-opening-screens row added to it afterwards.
 
 The ask, in tunmi13productions' words: "let's move all the rows involving settings (vibration and headshots so far) under a new row called Settings. because now I want to add a shake option for supported controllers. it'd be off by default if a controller does not have an ability. it wouldn't appear as a changeable option, it'd be hidden. not removed from the row, just invisible. that can apply with anything the controller doesn't support. you can also change the controller in this menu if you have multiple connected (be careful of sdl detecting the same controller twice). save the controler by name, as ID's are unreliable. this is because someone could disconnect the controller in ID 0, which means the next time they plug it in it'd be ID 1, not 0, because they swapped positions."
 

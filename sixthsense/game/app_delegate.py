@@ -158,7 +158,7 @@ class AppDelegate:
         d.synchronize()
 
     # ================================================= the shake and the chosen pad
-    # PORT ADDITION (tunmi13productions, 2026-10-06, aidocks/project_settings_menu_plan.md)
+    # PORT ADDITION (tunmi13productions, 2026-10-06, aidocks/completed/settings_menu_plan.md)
 
     @property
     def shake_on(self):

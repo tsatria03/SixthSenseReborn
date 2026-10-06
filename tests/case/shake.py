@@ -218,7 +218,7 @@ def test_the_game_asks_whether_a_pad_can_be_shaken():
 
 
 # ------------------------------------- the Settings screen's shake (2026-10-06)
-# aidocks/project_settings_menu_plan.md
+# aidocks/completed/settings_menu_plan.md
 
 class _ActivePads(_Pads):
     """Stands in for ui/controller.Controllers once it can name the chosen pad: only that

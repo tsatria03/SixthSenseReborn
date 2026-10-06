@@ -50,7 +50,7 @@ def test_the_rows_are_the_originals():
     row (7), which went on 2026-10-05 with the recorded voice, and the port's settings row
     (9), which has no recording.  Until 2026-10-06 the vibration and the two headshot
     settings were rows 9, 10 and 11 here; they moved behind the settings row
-    (aidocks/project_settings_menu_plan.md)."""
+    (aidocks/completed/settings_menu_plan.md)."""
     assert [r[0] for r in ROWS] == [2, 3, 4, 6, 9]
     assert [r[3] for r in ROWS] == ['title', 'start', 'tutorial', 'store', 'settings']
     assert [r[2] for r in ROWS] == [16, 17, 23, 18, None]
@@ -310,7 +310,7 @@ def test_the_store_row_opens_the_shop():
 
 def test_the_settings_row_opens_the_settings_screen():
     """PORT ADDITION (2026-10-06): the vibration and headshot rows moved behind this one
-    (aidocks/project_settings_menu_plan.md)."""
+    (aidocks/completed/settings_menu_plan.md)."""
     from sixthsense.game import main_controller as MC
     m = _menu()
     played = []
@@ -400,7 +400,7 @@ class _Buzzer:
 
 # The vibration and headshot rows moved to the Settings screen on 2026-10-06, and
 # their tests with them: see tests/case/settings_menu.py
-# (aidocks/project_settings_menu_plan.md).
+# (aidocks/completed/settings_menu_plan.md).
 
 def test_vibration_off_stops_the_effects_and_the_connect_buzz():
     import pygame

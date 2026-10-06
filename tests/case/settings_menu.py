@@ -1,6 +1,6 @@
 """The Settings screen: every setting, and what the attached pad can and cannot do.
 
-A PORT ADDITION (tunmi13productions, 2026-10-06; aidocks/project_settings_menu_plan.md).
+A PORT ADDITION (tunmi13productions, 2026-10-06; aidocks/completed/settings_menu_plan.md).
 The vibration and the two headshot rows moved here out of the main menu, and the screen
 gained the shake and the controller picker.  A row the pad cannot do stays where it is,
 reads "not supported" and will not turn on.

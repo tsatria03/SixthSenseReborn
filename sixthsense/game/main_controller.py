@@ -78,7 +78,7 @@ ROWS = (
     # PORT ADDITION: the settings row.  No recording names it, so it has no sound and is
     # always spoken through the screen reader.  Until 2026-10-06 the vibration and the two
     # headshot settings were three rows of their own here; they moved behind this one
-    # (aidocks/project_settings_menu_plan.md).
+    # (aidocks/completed/settings_menu_plan.md).
     (9, 'settings_flag', None, 'settings'),
 )
 #: PORT ADDITION: what the screen reader says for each row.  The rows that are a setting are
@@ -246,7 +246,7 @@ class MainController:
     def SettingsAction_(self, *_):
         """PORT ADDITION (2026-10-06): push the Settings screen, as ``StoreAction:`` pushes
         the shop.  The vibration and headshot rows that used to be here live on it now
-        (aidocks/project_settings_menu_plan.md)."""
+        (aidocks/completed/settings_menu_plan.md)."""
         self.StopElseSpeak()
         self.app.playSound_Gain_Pos_z_reprats_(SOUND_UI_SELECT, 0.2, (0.0, 0.0), 0, False)
         self.next_screen = 'settings'

@@ -168,7 +168,7 @@ class Controllers:
         return list(self._pads)
 
     # ---- the one pad the game plays with ---------------------------------------------
-    # PORT ADDITION (tunmi13productions, 2026-10-06, aidocks/project_settings_menu_plan.md):
+    # PORT ADDITION (tunmi13productions, 2026-10-06, aidocks/completed/settings_menu_plan.md):
     # the Settings screen picks which pad the game reads, and the others are ignored.  The
     # choice is saved by *name*, never by an id: unplug the pad on id 0 and the next one to
     # be plugged in takes that id, so an id means nothing between runs.
