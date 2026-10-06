@@ -1,4 +1,5 @@
 unrelease:
+The tutorial's reloading lesson now mentions the D-pad. With a controller it said to pull the left stick down or press X, and left out that pressing the D-pad down reloads as well, which it always did. Every other lesson already named the D-pad.
 A new setting, skip the opening screens, takes you straight to the main menu when you start the game instead of the publisher's logo and the earphone warning. It starts off, so you see them as before, and the game remembers it.
 The wait after "Now loading" is shorter, 1.3 seconds instead of 2.8, so a level starts sooner. Nothing was ever loading during that wait: the game is ready in about twenty thousandths of a second, and the rest was time set aside for the old recorded "Now Loading", which the game no longer plays.
 The main menu's settings are now behind one Settings row, so the menu is the title, Start Game, Tutorial, Store and Settings. Vibration, spoken headshot and headshot beep moved onto the settings screen, where Escape goes back to the menu, and the game remembers them all as before.

@@ -148,7 +148,9 @@ CONTROLLER_HINTS = {
     'Four': 'Push the left stick diagonally up and right to shoot toward 1:30, '
             'or press D-pad right and up together.',
     'Five': "Push the left stick right to shoot toward 3 o'clock, or press D-pad right.",
-    'Six': 'Pull the left stick down, or press {x}, to reload.',
+    # the D-pad's down is reload too (ui/input.py's DPAD_LANES), which this left out
+    # until tunmi13productions noticed: every other lesson names the D-pad
+    'Six': 'Pull the left stick down, press D-pad down, or press {x}, to reload.',
     'Seven': 'Press {rb} to change to the next weapon.',
     'Eight': 'Press {a} a few times to shake the zombie off.',
     'EightShake': 'Press {a} a few times, or give the controller a shake, to shake the zombie off.',

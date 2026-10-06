@@ -272,7 +272,7 @@ def test_a_controller_gets_its_own_callouts():
             'Four': 'Push the left stick diagonally up and right to shoot toward 1:30, '
                     'or press D-pad right and up together.',
             'Five': "Push the left stick right to shoot toward 3 o'clock, or press D-pad right.",
-            'Six': 'Pull the left stick down, or press X, to reload.',
+            'Six': 'Pull the left stick down, press D-pad down, or press X, to reload.',
             'Seven': 'Press the right bumper to change to the next weapon.',
             'Eight': 'Press A a few times to shake the zombie off.',
             'Nine': 'Press B or Start to end the tutorial.',
@@ -289,13 +289,23 @@ def test_a_controller_gets_its_own_callouts():
         _restore()
 
 
+def test_every_movement_lesson_names_the_dpad():
+    """The D-pad does everything the left stick does, reload included (ui/input.py's
+    DPAD_LANES maps down to reload), so no lesson that teaches a direction may leave it
+    out.  Six did until tunmi13productions noticed, 2026-10-06."""
+    from sixthsense.game.stage_tutorial import CONTROLLER_HINTS
+    for name in ('One', 'Two', 'Three', 'Four', 'Five', 'Six'):
+        assert 'D-pad' in CONTROLLER_HINTS[name], name
+
+
 def test_a_playstation_pad_hears_playstation_button_names():
     st = _tutorial(prompt=0.4)
     app = st.app
     saved = app.controllers
     try:
         app.controllers = _Pads('PS5 Controller')
-        assert st.callout('Six') == 'Pull the left stick down, or press Square, to reload.'
+        assert st.callout('Six') == ('Pull the left stick down, press D-pad down, '
+                                     'or press Square, to reload.')
         assert st.callout('Seven') == 'Press R1 to change to the next weapon.'
         assert st.callout('Eight') == 'Press Cross a few times to shake the zombie off.'
         assert st.callout('Nine') == 'Press Circle or Options to end the tutorial.'
@@ -791,11 +801,13 @@ def test_the_prompt_says_how_to_hear_it_again_only_the_first_time():
     try:
         app.controllers = None
         st.told_repeat = False
-        assert st.continue_prompt() == 'Press Enter to continue, or any other key to hear this again.'
+        assert st.continue_prompt() == ('Press Enter to continue, or any other key '
+                                        'to hear this again.')
         assert st.continue_prompt() == 'Press Enter to continue.'
         app.controllers = _Pads('PS5 Controller')
         st.told_repeat = False
-        assert st.continue_prompt() == 'Press Cross to continue, or Triangle to hear this again.'
+        assert st.continue_prompt() == ('Press Cross to continue, or Triangle to '
+                                        'hear this again.')
         app.controllers = _Pads('Xbox One Controller')
         assert st.continue_prompt() == 'Press A to continue.'
     finally:
