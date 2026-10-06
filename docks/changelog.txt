@@ -1,4 +1,5 @@
 unrelease:
+On a Mac, Sixth Sense Reborn now has an app identity of its own instead of the one it shared with the original Sixth Sense, so the system no longer mistakes one for the other. Your save is not affected.
 The download is much smaller, because it now carries only the sounds the game plays. The old speech recordings, which the screen reader replaced, and other sounds the game never used are no longer included, which takes about 70 megabytes off.
 Every setting is now in settings.json from the first start, not only the volumes. Vibration, the spoken headshot, the headshot beep, shake to break free, the controller and skipping the opening screens used to appear there only once you changed them on the Settings screen. They start at the same values as before, so nothing sounds different, and a setting you have already changed is kept.
 The pause and result panel in the game window no longer says that restarting costs a coin. Games have been free since the coins were removed, but the window's label had not caught up.

@@ -544,6 +544,9 @@ def test_macos_builds_a_copyable_native_app():
                     if not flags.get('console', False):
                         assert '--onefile' not in cmd
                         assert compiler.APP_DOCS_STAGE + os.pathsep + '.' in cmd
+                        # Reborn's own identity, never the faithful port's (2026-10-06)
+                        assert cmd[cmd.index('--osx-bundle-identifier') + 1] == \
+                            'org.sixthsense.reborn'
     for system in ('win32', 'linux'):
         with patch.object(compiler, 'system_key', return_value=system):
             assert '--target-arch' not in compiler.command(_Args())

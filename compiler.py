@@ -266,6 +266,12 @@ LICENSES_STAGE = os.path.join(HERE, 'build', 'embed', 'licenses')
 APP_DOCS_STAGE = os.path.join(HERE, 'build', 'embed', 'app-docs')
 
 
+#: The macOS app's identity, Reborn's own (2026-10-06).  It was org.sixthsense.port, carried
+#: over from the faithful port; macOS keys an app's settings, permissions and "open with" on
+#: this, so Reborn and SixthSenseOriginal on one Mac could be taken for the same app.
+BUNDLE_ID = 'org.sixthsense.reborn'
+
+
 def app_bundle(args) -> bool:
     return system_key() == 'darwin' and not args.console
 
@@ -321,7 +327,7 @@ def command(args, data=()) -> list[str]:
         # --console shows the whole traceback
         cmd += ['--windowed']
     if app_bundle(args):
-        cmd += ['--osx-bundle-identifier', 'org.sixthsense.port',
+        cmd += ['--osx-bundle-identifier', BUNDLE_ID,
                 '--add-data', APP_DOCS_STAGE + os.pathsep + '.']
     # An onedir .app is one copyable item in Finder without unpacking at launch.
     if (args.onefile or args.embed) and not app_bundle(args):

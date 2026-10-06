@@ -42,6 +42,7 @@ Item numbers are the 19 of the evaluation's list, ranked high to low.
    - The `compiler.py` docstring counts are corrected in the same commit; `tests/case/release.py` checks the blooper is never shipped.
 6. **The macOS bundle identity** (item 8). Player-facing on a Mac.
    - Open question: the new identifier. Recommendation: `org.sixthsense.reborn`.
+   - **The dev's decision (2026-10-06): "Fix the macoss build bugs. I like what you said."** **Built 2026-10-06, not yet confirmed**: `compiler.BUNDLE_ID` is `org.sixthsense.reborn`; `release.py`'s macOS test checks it; 51 of 51. The save folder is found by name, not by this id, so a Mac player's save is unaffected. SixthSenseOriginal was not checked out beside this repository, so its id was not read; the change stands either way. To check: the next macOS build's app reports the new id.
 7. **The release workflow** (items 2, 4). Not player-facing.
    - `release.yml` runs the whole test suite on each system before building, the same safe way (`_scratch_save` makes it silent), and stops the release on a failure.
    - PyInstaller is pinned to the version the dev builds with now (read from their environment with `pip show`, not guessed).
