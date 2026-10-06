@@ -17,7 +17,7 @@ import os
 import shutil
 
 #: What a tool takes from the player's own folder each time it starts, inside the save
-#: folder's config folder (aidocks/project_save_folders_plan.md).
+#: folder's config folder (aidocks/completed/save_folders_plan.md).
 COPIED = (os.path.join('config', 'keys.json'), os.path.join('config', 'settings.json'))
 
 

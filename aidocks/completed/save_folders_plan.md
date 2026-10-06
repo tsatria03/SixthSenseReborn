@@ -1,11 +1,11 @@
 ---
-name: project_save_folders_plan
+name: save_folders_plan
 description: "PLANNED 2026-10-06: split the save into folders inside the save folder: saves/save.json (progress), config/settings.json and keys.json, store/shop.json and inventory.json (lowercase names, lists of weapon names), weapons/<name>.json (short names). defaults.py routes and translates; old layouts move over once."
 metadata:
   type: project
 ---
 
-**Status: built 2026-10-06, not yet confirmed by the dev.** At the dev's word ("please build the save split first"), ahead of the evaluation's groups 9 to 11.
+**Status: FINISHED 2026-10-06, confirmed by the dev: "Everything works!", after starting the game on their real save, which sorted itself out as the copy had.** Built the same day, At the dev's word ("please build the save split first"), ahead of the evaluation's groups 9 to 11.
 
 **What was built:** `defaults.py` routes every key by name to its file and translates it (`_home`, `objectForKey_`, `setObject_forKey_`); `flat()` gives every key back under the game's names, which the tests use to check what reached the disk. `keymap.py` uses `config/keys.json` and moves a flat one once (`_move_flat_keys`). `_own_save.py` copies from `config/`, or from the flat layout where a player's save has not moved yet. A byte order mark (Notepad) is read. **One bug found by the new tests and fixed before commit:** moving a flat save in, the first equipped weapon created the `equipped` list, so the others read "0" and counted as already set, and only the grenade stayed equipped; "already there" now means what inventory.json held before the move began (`_place`). Checked on a copy of the dev's real save in the session scratchpad (never the real one): every key in its file, save.json left with `WEAPON_STATS_REAL`, nothing set aside as damaged, the game reading gold 0, the colt equipped and the same order. Full suite **619 of 619 across 34 files** in 336 s; save.py has 24.
 

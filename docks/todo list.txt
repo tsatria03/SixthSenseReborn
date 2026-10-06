@@ -1,6 +1,5 @@
 ##Unfinished.
 
-Split the save into folders, so that the settings, the key bindings, the shop, your inventory and each weapon have a short file of their own.
 The download carries sounds the game never plays, including the old speech recordings and a blooper clip.
 On a Mac, Sixth Sense Reborn shares its app identity with the original Sixth Sense, so the system may mistake one for the other.
 The pause and result panel in the game window still says that restarting costs a coin.
@@ -9,6 +8,7 @@ Some settings only appear in settings.json once you change them on the Settings 
 
 ##Finished.
 
+The save is a set of short files in folders, so the settings, the key bindings, the shop, your inventory and each weapon have a file of their own.
 You can set the game to skip the opening screens and start on the main menu.
 The main menu's settings are behind one Settings row, which also holds a shake option for controllers that can sense being shaken and a controller picker for when more than one is plugged in.
 You can put your weapons in the order you want, with the Reorder weapons row in the inventory, and that order is what Tab takes you through in a game and what you start with.

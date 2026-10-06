@@ -2,7 +2,7 @@
 kind of key in its own file under the save folder's folders, translates the names, and
 moves an old layout over.
 
-The layout is tsatria03's (2026-10-06, aidocks/project_save_folders_plan.md):
+The layout is tsatria03's (2026-10-06, aidocks/completed/save_folders_plan.md):
 saves/save.json, config/settings.json and keys.json, store/shop.json and inventory.json,
 and weapons/<name>.json.  Every test points ``SIXTHSENSE_USER_DIR`` at a throwaway folder
 of its own, so the real save is never read or written.
@@ -152,7 +152,7 @@ def test_a_deleted_save_starts_over():
 # ---- the folders: each key in its own file, under its own name ------------------------
 
 def test_each_file_holds_its_own_keys_under_its_own_names():
-    """aidocks/project_save_folders_plan.md: short names in the weapon files, lowercase in
+    """aidocks/completed/save_folders_plan.md: short names in the weapon files, lowercase in
     the store files with the weapons as lists of names, and the rest as they were."""
     with _Folder() as f:
         _save(TUTORIAL='1', STAGE='3', WEAPON_STATS_REAL=1,

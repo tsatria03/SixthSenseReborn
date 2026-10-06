@@ -136,7 +136,7 @@ def bindings_text(bindings):
     return ', or '.join(binding_text(b) for b in bindings)
 
 
-#: Where the bindings live inside the save folder (aidocks/project_save_folders_plan.md).
+#: Where the bindings live inside the save folder (aidocks/completed/save_folders_plan.md).
 KEYS_FILE = os.path.join('config', 'keys.json')
 #: Where they lived until 2026-10-06.
 FLAT_KEYS_FILE = 'keys.json'

@@ -29,7 +29,7 @@ weapon (``game/weapon_upgrades.py``), and ``WEAPON_ORDER`` (``game/weapon_order.
 PORT ADDITION: the original keeps everything in one plist.  The port split it into
 save.json and settings.json on 2026-09-25 (aidocks/completed/save_split_plan.md), and into
 short files in folders on 2026-10-06, tsatria03's layout
-(aidocks/project_save_folders_plan.md):
+(aidocks/completed/save_folders_plan.md):
 
     saves/save.json          progress, and any key not named below, the safe place for a
                              key added later
