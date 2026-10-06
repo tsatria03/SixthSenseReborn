@@ -231,11 +231,22 @@ GUN_SHOT_Z = 40
 EMPTY_CLICK_POS = {1: (-25.0, 0.0), 2: (-15.0, 25.0), 3: (0.0, 25.0), 4: (-15.0, 25.0),
                    5: (25.0, 0.0)}
 
-#: 0x2d45e (0x7d6a2 in Stage_Tutorial) - how long the original waits, after Now
-#: Loading plays, before calling MapInitInBundle - so the recording has time to
-#: finish before the level's own ambience and music start over it (or, for
-#: Stage_Tutorial, before its first prompt does).
-LOADING_SECONDS = 2.8
+#: 0x2d45e (0x7d6a2 in Stage_Tutorial) - how long the game waits, after Now Loading is
+#: said, before calling MapInitInBundle, so that it has time to finish before the level's
+#: own ambience and music start over it (or, for Stage_Tutorial, before beat One does).
+#:
+#: **Nothing is loading during this wait.**  The weapons are loaded in viewDidLoad before
+#: it (about 4 ms) and the maps in MapInitInBundle after it (about 16 ms), so the wait
+#: covers no work at all.
+#:
+#: The original waited 2.8 s here.  Its "Now Loading" recording is only 1.26 s long, so
+#: even then the wait was its own pacing on a 2013 iPhone rather than the length of
+#: anything; and since 2026-10-05 that recording does not play, the screen reader saying
+#: the words instead, which at an ordinary rate takes well under a second.  So 2.8 left
+#: about two seconds of silence covering a recording that is gone.  Shortened to 1.3 s
+#: (tunmi13productions, 2026-10-06), just past the old recording's length, which keeps
+#: the beat the original meant while losing the dead air.
+LOADING_SECONDS = 1.3
 
 
 class Stage_1_E:
