@@ -62,12 +62,12 @@ speaks through VoiceOver, or a native voice when no screen reader is running.
 The bundled OpenAL Soft is universal: source runs need Python and packages for
 the Mac's own architecture, Apple Silicon or Intel.
 
-`vendor/nvda/nvdaControllerClient64.dll` ships too, so NVDA can speak what no recording
-covers: the key-binding screen and a few messages. With voice over on, the main menu's
-default, the game speaks through its own recorded WAVs and needs no screen reader. With
-voice over off, your screen reader reads the menus, the shop, the inventory and the
-pause and result panel instead, and names the keys during the tutorial. With a game
-controller attached, the tutorial names the stick and button moves instead, in either mode.
+`vendor/nvda/nvdaControllerClient64.dll` ships too. Since 2026-10-05 everything the game
+says goes through your screen reader: the menus, the shop, the inventory, the settings,
+the pause and result panel, the tutorial and the announcements during play. NVDA speaks
+through its own client, any other screen reader through Prism, and with none running a
+system voice does. The original's recorded speech is no longer played. The tutorial names
+the keys for each lesson, or, with a game controller attached, the stick and button moves.
 
 One more package is needed only to redo the reverse engineering, never to play:
 
@@ -91,14 +91,16 @@ That opens on the publisher's logo and its sound, then the splash and the warnin
 the original does, and then the menu. Enter skips the logo, and Escape skips straight
 to the menu. The opening screen's third row tells the game's story, which the original
 recorded but never played.
-**Up** and **Down** walk the six rows and **Enter** chooses; each row reads itself
-with the game's own recording. A game costs a coin. A new player starts with ten, and
-coins come back one every thirty minutes up to five, even while the game is closed,
-which is what the original does too.
+**Up** and **Down** walk the five rows - the title, Start Game, Tutorial, Store and
+Settings - and **Enter** chooses; your screen reader reads each row. Games are free: the
+original's coins, one spent a game and one back every thirty minutes, are gone.
 
-The **Store** row opens the shop — the weapon list, a page per weapon with its four
-numbers read aloud, and the inventory, where what you equip is what the stage hands
-you. Gold comes out of your runs: twelve a kill and two a headshot.
+The **Store** row opens the shop — the weapon list, a page per weapon with its numbers
+read aloud and its upgrade button, and the inventory, where what you equip is what the
+stage hands you, and where you can reorder the weapons. Gold comes out of your runs:
+15 a kill and 5 a headshot, both editable in `store/shop.json` (the original paid 12 and
+2). The **Settings** row holds skipping the opening screens, the spoken headshot and its
+beep, vibration, shaking a pad to break free, and which controller to play with.
 
 `--stage` and `--tutorial` skip the menu, `--no-intro` skips the opening for one run
 (`SKIPINTRO` in `settings.json`, set on the Settings screen, does it for good). Other
@@ -107,14 +109,12 @@ options: `--no-window` (headless), `--game DIR` (another copy of the bundle), `-
 `--debug` is for trying things out: a zombie that reaches you just dies, nothing takes a heart and
 you cannot die, and no kill, headshot, score or gold counts. A stage says "Debug mode"
 as it starts. Tab reaches every weapon, bought or not, and no gun or grenade runs out.
-Starting or restarting a game needs no coin and spends none.
 Eight keys are added, which the F1 screen lists and rebinds: F2 next section of the
 corridor, Shift+F2 next level (after 8, back to 1), F5 spawn a zombie in the lane you
 last attacked, Shift+F5 choose what F5 spawns, F6 hold the zombies in place, F7 let
 zombies hit you without taking a heart, F8 turn the sound trims off or on, F11 say where they are.
 
-Until you have finished the tutorial once, Start Game spends a coin and takes you to the
-tutorial first, as the original does; pressing P at its end counts 3, 2, 1 and starts
+Until you have finished the tutorial once, Start Game takes you to the tutorial first, as the original does; pressing P at its end counts 3, 2, 1 and starts
 the real game. Finished once, by either route, Start Game goes straight into the game.
 `--skip-tutorial` writes the key the tutorial writes, if you would rather skip it.
 
@@ -211,12 +211,12 @@ chords: hold both keys together.
 | **P** | pause — the original's stop button, which has no key of its own |
 | **F1** | key bindings — see below |
 | **Esc** | pause a stage, and resume it from the pause panel; back to the menu from the tutorial; quit from the menu |
-| **Page Up** / **Page Down** | the menu music louder / quieter, in the menu, the shop and the inventory: 0 to 100% in steps of ten, saved as `MENUMUSICVOLUME`, and said aloud with voice over off. The level music is left alone |
-| **Page Up** / **Page Down** in play | the gameplay gain, 0 to 6 dB on OpenAL's listener: every sound effect and the recorded speech louder together, the music and ambience held where they were. With **Shift** or **Alt**: the weapons or the player, 0 to 100% in tens. The entities (zombies, bosses, the monster, the woman) are always at full volume, and **Ctrl** with these keys does nothing. Saved in `settings.json` and said aloud in both speech modes |
+| **Page Up** / **Page Down** | the menu music louder / quieter, in the menu, the shop and the inventory: 0 to 100% in steps of ten, saved as `MENUMUSICVOLUME`, and said aloud. The level music is left alone |
+| **Page Up** / **Page Down** in play | the gameplay gain, 0 to 6 dB on OpenAL's listener: every sound effect louder together, the music and ambience held where they were. With **Shift** or **Alt**: the weapons or the player, 0 to 100% in tens. The entities (zombies, bosses, the monster, the woman) are always at full volume, and **Ctrl** with these keys does nothing. Saved in `settings.json` and said aloud |
 
 When the pause or result panel is up, the keyboard belongs to it: **Up** and **Down**
 walk its rows, **Enter** chooses. The same goes for the menu, the shop and the
-inventory. With voice over turned off, **Home** and **End** also go to the first row and
+inventory. **Home** and **End** also go to the first row and
 the last, and **Left** and **Right** move to the previous row and the next, like
 VoiceOver's flicks. You can pause as often as you like: continue and restart both let the next
 pause through, as in the original.
@@ -265,10 +265,14 @@ sixthsense/
     openal.py            ctypes binding for OpenAL Soft
     music.py             the two AVAudioPlayer streams
     runloop.py           NSTimer and performSelector:afterDelay:
-    defaults.py          NSUserDefaults
+    defaults.py          NSUserDefaults, as short files in the save folder's folders
     keymap.py            PORT ADDITION: bindings, including chords
-    speech.py            PORT ADDITION: NVDA, Prism or a Windows voice, for what no WAV says
+    speech.py            PORT ADDITION: the game's voice: NVDA, Prism or a system voice
     volume.py            PORT ADDITION: the volume knobs, in decibels
+    sound_trims.py       PORT ADDITION: per-file trims that even out the recordings
+    sound_position.py    PORT ADDITION: where a sound is placed, lanes nearer 12
+    motion.py            PORT ADDITION: a pad's motion sensor, through SDL
+    controller_names.py  PORT ADDITION: a pad's buttons in the words the game says
   game/
     app_delegate.py      global state + the sound dispatch
     oal_playback.py      oalPlayback
@@ -281,16 +285,24 @@ sixthsense/
     stage_1_test.py      Stage_1_TEST - the weapon test range behind Try
     main_controller.py   MainController - the menu
     intro.py             startIntroPage - the logo, the splash, the warning and the story
-    blind_screen.py      the shape every self-voiced screen shares
+    blind_screen.py      the shape every menu screen shares
     store.py             the shop: front menu, weapon list, weapon page
-    inventory.py         the eight slots, and equipping them
+    inventory.py         the eight slots, equipping them, and reordering
+    settings_screen.py   PORT ADDITION: the Settings screen
+    weapon_stats.py      PORT ADDITION: each weapon's numbers, from the save
+    weapon_upgrades.py   PORT ADDITION: upgrade levels and their prices
+    weapon_order.py      PORT ADDITION: the order the weapons come in
+    gold_rates.py        PORT ADDITION: the gold a game pays
     debug.py             PORT ADDITION: the --debug keys
   ui/
     input.py             the keyboard, resolved through the keymap
-    keybind_screen.py    the self-voiced rebinding screen (F1)
+    keybind_screen.py    the rebinding screen (F1)
     menu_input.py        Up/Down/Enter for the menu
-    screen_input.py      ...and for the shop and the inventory
+    screen_input.py      ...and for the shop, the inventory and the settings
     focus.py             switching away from the window pauses a stage
+    controller.py        PORT ADDITION: a game controller, through SDL
+    vibration.py         PORT ADDITION: the controller's motors
+    shake.py             PORT ADDITION: shaking a pad to break free
 game/                    the original app bundle, its sounds sorted into folders (see below)
 vendor/                  OpenAL Soft and NVDA's controller client, with their licenses
 analysis/                the binary, and the disassembly this was written from
@@ -324,10 +336,13 @@ tutorial and so on — and each keeps its original file name, so `SoundList.plis
 finds it. Each file was matched to the original by comparing its audio. They came back
 through a compressed copy, so they carry faint codec noise, but they are 16-bit PCM,
 like the originals; six are the original files themselves. `game/sounds/used/` holds
-only what the game plays, 236 files. `game/sounds/unused/` holds 126 the game never
-plays: the original's sounds for things the port leaves out, such as the ranking and
-the coin store, extra copies, the sounds that are not the original's own, and a blooper.
-One entry of `SoundList.plist` follows a renamed file.
+only what the game plays, 103 files, and it is all a build carries.
+`game/sounds/unused/` holds 191 the game never plays, kept for reference: 145 recordings
+of speech, which the screen reader replaced on 2026-10-05, and 46 sound effects for
+things the port leaves out, such as the ranking, the coins and the zombies that never
+spawn, with extra copies and the sounds that are not the original's own. A few entries
+of `SoundList.plist` follow files renamed by ear, and the port adds four, 371 to 374:
+the bosses' being-hurt sound, two controller sounds and the headshot beep.
 
 The port reads from there, so the data it runs on is the original's data. `--game PATH`
 (or `SIXTHSENSE_GAME`) points at another copy; an untouched original bundle, with its
@@ -341,7 +356,7 @@ reproducible without the IPA.
 
 `tests/` has two folders:
 
-- **`tests/case/`** holds the tests: 24 plain scripts, each checking one part of the
+- **`tests/case/`** holds the tests: 34 plain scripts, each checking one part of the
   game against the original and printing `ok` or `FAIL` for every check, then a total.
   Run any of them on its own; there is nothing to install beyond what the game needs.
 - **`tests/interact/`** holds tools you play rather than tests: `level_chooser.py`
@@ -358,19 +373,26 @@ python tests/case/paths.py          # where the game finds its sounds, plists an
 python tests/case/gameplay.py       # a headless playthrough (~35 s, opens the audio device)
 python tests/case/input.py          # the keyboard mapping
 python tests/case/tutorial.py       # the ten tutorial beats
-python tests/case/menu.py           # the menu rows and the coin economy
+python tests/case/menu.py           # the menu rows, and games being free
 python tests/case/menu_music.py     # Page Up and Page Down on the menu music (audio device)
-python tests/case/digits.py         # numbers spoken digit by digit, in the right order
+python tests/case/settings_menu.py  # the Settings screen, and what the attached pad can do
 python tests/case/pause.py          # the pause and result panel
 python tests/case/store.py          # the shop, buying, and the inventory
 python tests/case/inventory.py      # equipping through the inventory's screens, step by step
 python tests/case/weapon_stats.py   # each weapon's stats in the save, read by the pages and the stage
 python tests/case/gold_rates.py     # the gold a game pays per kill and per headshot, from the save
 python tests/case/weapon_upgrades.py  # upgrade levels, prices and what each level adds
+python tests/case/weapon_order.py   # the order the weapons come in, and the reorder screen
 python tests/case/weapon_range.py   # the weapon test range behind the shop's Try button
 python tests/case/intro.py          # the logo, the splash, the warning, the story, skipping
-python tests/case/speech.py         # who speaks what no WAV covers (stand-ins, silent)
+python tests/case/speech.py         # which screen reader or voice speaks (stand-ins, silent)
 python tests/case/volume.py         # the decibel knobs, and the binary's mix left alone
+python tests/case/sound_trims.py    # the per-file trims that even out the recordings
+python tests/case/sound_position.py # the lanes at 10:30 and 1:30 heard nearer 12
+python tests/case/controller.py     # a game controller on the menus (fake pads)
+python tests/case/controller_names.py # a pad's buttons in the game's words
+python tests/case/vibration.py      # the controller's motors when something hits you (fake pads)
+python tests/case/shake.py          # shaking a pad to break free (fake pads and sensor)
 python tests/case/gameplay_volume.py # the gain and the group volumes in play (audio device)
 python tests/case/monster_sound.py  # zombie sounds read back from OpenAL (audio device)
 python tests/case/focus.py          # switching away from the window pauses a stage
@@ -398,7 +420,8 @@ window, whatever your shell has set. `case/paths.py` fails if a test file leaves
 ## Building and releasing
 
 Both scripts open a numbered menu when double-clicked, and wait for Enter at the end.
-Building needs PyInstaller (`pip install pyinstaller`); releasing also needs the GitHub
+Building needs PyInstaller (`pip install pyinstaller==6.22.3`, the version the release
+workflow pins); releasing also needs the GitHub
 CLI, signed in with `gh auth login`.
 
 `compiler.py` only builds. It never zips and never changes the repository. Everything
@@ -467,7 +490,8 @@ Pushing a tag `V<version>` makes GitHub build and publish the release itself, wi
 and pushes "Release <version>", then tags it and pushes the tag. It builds, zips and
 uploads nothing.
 
-The tag starts one build per system on GitHub's own machines: Windows and Linux as a
+The tag starts one build per system on GitHub's own machines. Each first runs every test
+in `tests/case`, and a failing test stops that build and so the release. Then Windows and Linux build as a
 single executable (`compiler.py --embed`), and the Mac as its app, once for Apple Silicon
 and once for Intel. Each build is packed by the releaser's own `package()`, so the names
 and the folders inside are the ones above, with `SixthSenseReborn-macOS-arm64-<version>.tar.gz`
@@ -510,21 +534,18 @@ own save is never touched, and it copies your key bindings in each time it start
 
 `tests/interact/tutorial_chooser.py` is not a test either. It opens the real tutorial at the
 lesson you choose, with the ending you choose, so neither needs a deleted save or a
-replay of the lessons before it. Opened on its own, it asks three things:
+replay of the lessons before it. Opened on its own, it asks two things:
 
 - **The ending:** `start`, where P counts 3, 2, 1 into the real game as after a
   first Start, or `menu`, where P goes back to the main menu as from the Tutorial
   button.
 - **The lesson,** 1 to 10: the five clock positions, the stronger zombie, reloading,
   changing weapon, shaking off the animal zombie, and ending the tutorial with P.
-- **Voice over on or off.** The recordings play either way; with it off, your screen
-  reader also names the keys for each lesson.
 
 ```bash
 python tests/interact/tutorial_chooser.py                              # asks
 python tests/interact/tutorial_chooser.py --lesson 9                   # the animal zombie
 python tests/interact/tutorial_chooser.py --ending start --lesson 10   # P, then into the game
-python tests/interact/tutorial_chooser.py --voice off                  # with the key hints
 ```
 
 The lessons before the one you choose count as done, so the tutorial carries on from
