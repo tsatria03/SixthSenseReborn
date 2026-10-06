@@ -217,6 +217,60 @@ def test_the_game_asks_whether_a_pad_can_be_shaken():
         app.shake = saved
 
 
+# ------------------------------------- the Settings screen's shake (2026-10-06)
+# aidocks/project_settings_menu_plan.md
+
+class _ActivePads(_Pads):
+    """Stands in for ui/controller.Controllers once it can name the chosen pad: only that
+    pad is read for a shake, so a pad SDL listed twice is read once."""
+
+    def __init__(self, *ids, active=None):
+        _Pads.__init__(self, *ids)
+        self._active = ids[:1] if active is None else active
+
+    @property
+    def active_pad_ids(self):
+        return list(self._active)
+
+
+def test_the_shake_turned_off_reads_nothing_at_all():
+    """Off is the same as no zombie holding you: no sensor is switched on, so nothing is
+    read and no pad is kept busy."""
+    sdl = _FakeSDL(has={1}, reading={1: FLICK})
+    shake = Shake(_Pads(1), Motion(sdl), _Clock(), on=lambda: False)
+    got = []
+    assert shake.tick(True, lambda: got.append(1)) == 0
+    assert got == [] and sdl.enabled == {}, sdl.enabled
+
+
+def test_the_shake_turned_on_again_reads_as_before():
+    sdl = _FakeSDL(has={1}, reading={1: FLICK})
+    on = [False]
+    shake = Shake(_Pads(1), Motion(sdl), _Clock(), on=lambda: on[0])
+    got = []
+    assert shake.tick(True, lambda: got.append(1)) == 0
+    on[0] = True
+    assert shake.tick(True, lambda: got.append(1)) == 1
+    assert got == [1]
+
+
+def test_without_an_on_switch_the_shake_is_on():
+    """Every caller from before the setting existed, and the tests above, get a shake that
+    works, so the setting could not quietly turn it off for them."""
+    sdl = _FakeSDL(has={1}, reading={1: FLICK})
+    shake = Shake(_Pads(1), Motion(sdl), _Clock())
+    assert shake.tick(True, lambda: None) == 1
+
+
+def test_only_the_chosen_pad_is_read_for_a_shake():
+    sdl = _FakeSDL(has={1, 2}, reading={1: FLICK, 2: FLICK})
+    shake = Shake(_ActivePads(1, 2, active=[2]), Motion(sdl), _Clock())
+    got = []
+    assert shake.tick(True, lambda: got.append('any')) == 1, 'the chosen pad did not read'
+    assert 1 not in sdl.enabled, 'the pad that was not chosen had its sensor switched on'
+    assert sdl.enabled == {2: True}, sdl.enabled
+
+
 if __name__ == '__main__':
     fns = [v for k, v in sorted(globals().items()) if k.startswith('test_')]
     bad = 0

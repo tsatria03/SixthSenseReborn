@@ -27,17 +27,26 @@ SHAKE_GAP = 0.25
 
 
 class Shake:
-    def __init__(self, controllers, motion=None, clock=time.monotonic):
+    def __init__(self, controllers, motion=None, clock=time.monotonic, on=None):
+        """``on`` says whether the player has the shake turned on; without one it is on,
+        which is what the tests and any caller from before 2026-10-06 get."""
         self.controllers = controllers
         self.motion = motion if motion is not None else Motion()
         self.clock = clock
+        self.on = on if on is not None else (lambda: True)
         self._can = {}                      # instance id -> has an accelerometer
         self._listening = set()             # the pads whose sensor is on
         self._last = {}                     # instance id -> when it last shook
 
     def _ids(self):
-        ids = getattr(self.controllers, 'pad_ids', None)        # SDL's instance ids
-        return list(ids) if ids is not None else [pad.id for pad in self.controllers.pads]
+        """The pad the game plays with (``ui/controller.py``'s ``active_pad_ids``), so only
+        the pad the player picked in Settings is read for a shake.  A stand-in in the tests
+        may carry only ``pad_ids`` or ``pads``, and then every pad it has is read."""
+        for attr in ('active_pad_ids', 'pad_ids'):
+            ids = getattr(self.controllers, attr, None)         # SDL's instance ids
+            if ids is not None:
+                return list(ids)
+        return [pad.id for pad in self.controllers.pads]
 
     def _capable_ids(self):
         ids = self._ids()
@@ -56,7 +65,14 @@ class Shake:
 
     def tick(self, active, on_shake) -> int:
         """Once a frame.  While ``active`` (a zombie holds you), listen, and call ``on_shake()``
-        for each shake; otherwise make sure no sensor is on.  Returns the shakes this frame."""
+        for each shake; otherwise make sure no sensor is on.  Returns the shakes this frame.
+
+        PORT ADDITION (2026-10-06): with the Settings screen's shake turned off, this is the
+        same as not being active, so no sensor is switched on and nothing is read.  A is
+        still the shake button either way (aidocks/project_settings_menu_plan.md).
+        """
+        if not self.on():
+            active = False
         if not active:
             for i in list(self._listening):
                 self.motion.enable(i, False)

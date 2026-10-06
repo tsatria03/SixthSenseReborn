@@ -64,7 +64,7 @@ OLD_KEPT = OLD_FILE + '.old'
 #: (tsatria03, 2026-09-25).  A setting added later goes where it belongs in this list.
 SETTINGS_KEYS = ('MASTERVOLUME', 'MENUMUSICVOLUME', 'LEVELMUSICVOLUME', 'AMBIENCEVOLUME',
                  'GAMEPLAYGAIN', 'WEAPONVOLUME', 'PLAYERVOLUME', 'VIBRATION',
-                 'HEADSHOTSPEECH', 'HEADSHOTBEEP')
+                 'HEADSHOTSPEECH', 'HEADSHOTBEEP', 'SHAKE', 'CONTROLLER')
 #: Keys the game no longer reads, dropped from both files when the save is opened, so an
 #: old value cannot linger there.  ENTITYVOLUME went on 2026-09-28: the zombies are always
 #: at full volume (aidocks/completed/entity_full_volume_plan.md).  EYEMODE went on 2026-10-05

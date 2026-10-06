@@ -21,13 +21,23 @@ Up and Down move between them, and Enter or Escape goes on to the main menu.
 
 The main menu
 
-The main menu has seven rows: the title, Start Game, Tutorial, Store, vibration, spoken headshot, and headshot beep.
+The main menu has five rows: the title, Start Game, Tutorial, Store and Settings.
 Up and Down move between the rows, and each row reads itself aloud.
 Enter chooses the row you are on.
-The vibration row says "Vibration, currently on" or "off", and Enter on it switches the controller's vibration. The game remembers the setting.
-The spoken headshot row says "Spoken headshot, currently on" or "off", and Enter on it turns the "Headshot!" call on or off.
-The headshot beep row says "Headshot beep, currently off" or "on", and Enter on it turns on a beep that plays where the zombie is on every headshot. It starts off, and turning it on plays it once.
 Escape in the main menu quits the game.
+
+Settings
+
+Enter on the Settings row opens the settings, and Escape goes back to the menu.
+It has five rows after Back: spoken headshot, headshot beep, vibration, shake to break free, and controller.
+Each row says what it is and what it is set to, such as "Vibration, currently on", and Enter on it changes it.
+The spoken headshot row turns the "Headshot!" call on or off. It starts on.
+The headshot beep row turns on a beep that plays where the zombie is on every headshot. It starts off, and turning it on plays it once.
+The vibration row switches the controller's vibration. It starts on, and turning it on buzzes once so you can feel it.
+The shake to break free row lets you shake a controller that can sense being shaken, such as a PlayStation DualSense, to shake the animal zombie off. It starts on, and the A button always works whether it is on or not.
+The controller row says which controller the game is using, and Enter on it moves to the next one you have plugged in. The game plays with that one only, and remembers it by name, so unplugging things and plugging them back in does not lose your choice.
+A row the game cannot use says so instead of its setting, such as "Vibration, not supported", and Enter on it tells you why rather than changing anything. That happens when no controller is plugged in, or when the controller cannot do that thing, such as a controller with no motion sensor for the shake. Your setting is kept underneath, so a controller that can do it later finds your old choice.
+The game remembers every setting in settings.json.
 Page Up makes the menu music louder, and Page Down makes it quieter, in the main menu, the shop and the inventory.
 It goes from silent to its full volume in steps of ten percent, and the game remembers where you left it.
 Your screen reader says the new volume.

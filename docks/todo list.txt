@@ -4,6 +4,7 @@ Nothing is waiting here right now. New bugs, planned changes and anything still 
 
 ##Finished.
 
+The main menu's settings are behind one Settings row, which also holds a shake option for controllers that can sense being shaken and a controller picker for when more than one is plugged in.
 You can put your weapons in the order you want, with the Reorder weapons row in the inventory, and that order is what Tab takes you through in a game and what you start with.
 Weapons can be upgraded, so that they have more ammo, do more damage and reach further, with one upgrade button on each weapon's page.
 Your gold and your grenade count are always in save.json, so you can see and change them.

@@ -349,6 +349,73 @@ def test_the_sounds_are_named_in_the_sound_list():
     assert sl[SOUND_NOT_DETECTED] == 'ctrl_not_detected'
 
 
+# --------------------------------- the one pad the game plays with (2026-10-06)
+# aidocks/project_settings_menu_plan.md: the Settings screen picks the pad by name, and any
+# other attached pad is ignored.  A name, never an id: unplug the pad on id 0 and the next
+# one plugged in takes that id.
+
+class _ChoosingApp(_App):
+    def __init__(self, choice=''):
+        _App.__init__(self)
+        self.controller_choice = choice
+
+
+def _choosing(choice, *pads):
+    app = _ChoosingApp(choice)
+    c = Controllers(pygame, app, sdl=_FakeSdl())
+    c._sdl = _FakeSdl(pads)
+    for index in range(len(pads)):
+        _added(c, index)
+    return c, app
+
+
+def test_the_names_attached_list_each_name_once():
+    c, _app = _choosing('', _FakePad(0, 'Xbox Wireless Controller'),
+                        _FakePad(1, 'PS5 Controller'))
+    assert c.names == ['Xbox Wireless Controller', 'PS5 Controller']
+    # SDL listing one pad twice is one name, so the picker shows one controller
+    c, _app = _choosing('', _FakePad(0, 'PS5 Controller'), _FakePad(1, 'PS5 Controller'))
+    assert c.names == ['PS5 Controller']
+    assert len(c.pads) == 2, 'both listings are still open'
+
+
+def test_the_saved_name_picks_the_pad_and_the_others_are_ignored():
+    c, _app = _choosing('PS5 Controller', _FakePad(0, 'Xbox Wireless Controller'),
+                        _FakePad(1, 'PS5 Controller'))
+    assert c.active_name == 'PS5 Controller'
+    assert c.active_pad_ids == [1] and len(c.active_pads) == 1
+    # the chosen pad plays
+    assert c.feed(pygame.event.Event(pygame.CONTROLLERBUTTONDOWN,
+                                     button=pygame.CONTROLLER_BUTTON_A, instance_id=1))
+    # and the other one does nothing at all
+    assert c.feed(pygame.event.Event(pygame.CONTROLLERBUTTONDOWN,
+                                     button=pygame.CONTROLLER_BUTTON_A, instance_id=0)) == []
+    assert c.feed(pygame.event.Event(pygame.CONTROLLERAXISMOTION,
+                                     axis=pygame.CONTROLLER_AXIS_LEFTY,
+                                     value=-1.0, instance_id=0)) == []
+
+
+def test_no_choice_takes_the_first_pad_found():
+    c, _app = _choosing('', _FakePad(0, 'Xbox Wireless Controller'),
+                        _FakePad(1, 'PS5 Controller'))
+    assert c.active_name == 'Xbox Wireless Controller' and c.active_pad_ids == [0]
+
+
+def test_a_saved_name_that_is_not_attached_falls_back_without_clearing():
+    c, app = _choosing('PS5 Controller', _FakePad(0, 'Xbox Wireless Controller'))
+    assert c.active_name == 'Xbox Wireless Controller', 'it did not fall back'
+    assert app.controller_choice == 'PS5 Controller', 'the choice was cleared'
+    assert c.feed(pygame.event.Event(pygame.CONTROLLERBUTTONDOWN,
+                                     button=pygame.CONTROLLER_BUTTON_A, instance_id=0))
+
+
+def test_with_no_pad_nothing_is_refused():
+    """So a game is never left unplayable by the filter itself."""
+    c, _app = _choosing('PS5 Controller')
+    assert c.active_pad is None and c.active_pads == [] and c.active_pad_ids == []
+    assert c._is_active(0) and c._is_active(5)
+
+
 if __name__ == '__main__':
     fns = [v for k, v in sorted(globals().items()) if k.startswith('test_')]
     bad = 0

@@ -69,6 +69,7 @@ def _new_screen(name, arg=None):
     """
     from sixthsense.game.inventory import (DetailInventoryController,
                                            InventoryController, ReorderController)
+    from sixthsense.game.settings_screen import SettingsController
     from sixthsense.game.store import (DetailStoreController, MainStoreController,
                                        StoreController)
     made = {
@@ -78,6 +79,7 @@ def _new_screen(name, arg=None):
         'inventory': lambda: InventoryController(),
         'inventory_detail': lambda: DetailInventoryController(arg),
         'reorder': lambda: ReorderController(),
+        'settings': lambda: SettingsController(),
     }[name]()
     made.startRead()
     return made
@@ -90,7 +92,7 @@ DEVICE_CHECK_SECONDS = 1.0
 
 #: The screens that are pushed rather than swapped in.
 PUSHED = ('store', 'store_weapons', 'store_detail', 'inventory',
-          'inventory_detail', 'reorder')
+          'inventory_detail', 'reorder', 'settings')
 
 
 def main(argv=None):
@@ -174,7 +176,8 @@ def main(argv=None):
     from sixthsense.ui.vibration import Vibration
     app.vibration = Vibration(pad, enabled=lambda: app.vibration_on)
     from sixthsense.ui.shake import Shake
-    app.shake = Shake(pad)
+    # the Settings screen's shake: off, no sensor is switched on at all
+    app.shake = Shake(pad, on=lambda: app.shake_on)
 
     if args.tutorial:
         kind, obj = 'tutorial', _new_tutorial()
@@ -383,11 +386,13 @@ SCREEN_ROWS = {
     'inventory_detail': {1: 'back', 2: 'name', 3: 'ammo capacity',
                          4: 'effective range', 5: 'damage', 6: 'price',
                          7: 'state', 8: 'equip / unequip'},
+    'settings': {1: 'back', 2: 'spoken headshot', 3: 'headshot beep', 4: 'vibration',
+                 5: 'shake to break free', 6: 'controller'},
 }
 SCREEN_TITLE = {
     'store': 'STORE', 'store_weapons': 'WEAPON SHOP', 'store_detail': 'WEAPON',
     'inventory': 'INVENTORY', 'inventory_detail': 'WEAPON',
-    'reorder': 'REORDER WEAPONS',
+    'reorder': 'REORDER WEAPONS', 'settings': 'SETTINGS',
 }
 
 

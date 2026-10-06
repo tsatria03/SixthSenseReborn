@@ -118,12 +118,21 @@ the real game. Finished once, by either route, Start Game goes straight into the
 `--skip-tutorial` writes the key the tutorial writes, if you would rather skip it.
 
 The save lives in `%APPDATA%\SixthSenseReborn`, in three files: `save.json` (progress),
-`settings.json` (the volumes and voice over) and `keys.json` (the key bindings).
+`settings.json` (the volumes and the Settings screen's rows) and `keys.json` (the key
+bindings).
 `settings.json` holds `MASTERVOLUME`, `MENUMUSICVOLUME`, `LEVELMUSICVOLUME`,
 `AMBIENCEVOLUME`, `WEAPONVOLUME` and `PLAYERVOLUME`, whole percentages
 from 0 to 100, where 100 is the original's mix, and `GAMEPLAYGAIN`, whole decibels from 0
 to 6, where 0 is; they are read on the next start, and the menu music, the gain and the
-two groups are also set by Page Up and Page Down. The first two hold the `NSUserDefaults` keys the original writes, under their
+two groups are also set by Page Up and Page Down. It also holds what the **Settings**
+screen sets: `VIBRATION`, `HEADSHOTSPEECH`, `HEADSHOTBEEP` and `SHAKE`, each '1' or '0',
+and `CONTROLLER`, the name of the pad the game plays with, or '' for whichever is found
+first. `CONTROLLER` is a **name, never an id**: unplug the pad on id 0 and the next one
+plugged in takes that id, so an id means nothing between runs. A saved name that is not
+attached is left alone and the game falls back to the first pad it finds, so plugging the
+preferred pad back in picks it up again. Only that pad plays, buzzes and is read for a
+shake; any other attached pad is ignored, which is also how a pad SDL has listed twice
+stops being two controllers. The first two hold the `NSUserDefaults` keys the original writes, under their
 own names, split by key; the original kept them all in one plist. A `defaults.json` from
 before the split is moved into the new files on the first start and kept as
 `defaults.json.old`.

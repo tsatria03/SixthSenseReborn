@@ -143,6 +143,44 @@ class AppDelegate:
         if not on:
             self.vibrate_stop()
 
+    # ================================================= the shake and the chosen pad
+    # PORT ADDITION (tunmi13productions, 2026-10-06, aidocks/project_settings_menu_plan.md)
+
+    @property
+    def shake_on(self):
+        """``SHAKE`` in settings.json, '1' or '0': shaking a pad that can sense one shakes
+        a zombie off.  A save that has never set it can, since that is how it worked before
+        there was a setting (aidocks/completed/controller_shake_plan.md).  A is still the
+        shake button whatever this says."""
+        return UserDefaults.standardUserDefaults().stringForKey_('SHAKE') != '0'
+
+    def set_shake(self, on):
+        d = UserDefaults.standardUserDefaults()
+        d.setObject_forKey_('1' if on else '0', 'SHAKE')
+        d.synchronize()
+
+    @property
+    def controller_choice(self):
+        """``CONTROLLER`` in settings.json: the name of the pad the game plays with, or ''
+        for whichever is found first.
+
+        **A name, never an id.**  Unplug the pad on id 0 and the next pad plugged in takes
+        that id, so an id says nothing between runs (tunmi13productions, 2026-10-06).  A
+        saved name that is not attached is left alone, so plugging that pad back in picks
+        it up again with nothing for the player to do.
+        """
+        return UserDefaults.standardUserDefaults().stringForKey_('CONTROLLER') or ''
+
+    def set_controller_choice(self, name):
+        d = UserDefaults.standardUserDefaults()
+        d.setObject_forKey_(name or '', 'CONTROLLER')
+        d.synchronize()
+
+    def can_shake_now(self):
+        """Whether a shake would do anything: the player has it on and the chosen pad can
+        sense one.  ``can_shake`` alone ignores the setting, for the Settings screen."""
+        return self.shake_on and self.can_shake()
+
     # ======================================================== the headshot settings
     @property
     def headshot_speech_on(self):

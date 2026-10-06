@@ -328,8 +328,9 @@ class Stage_Tutorial(Stage_1_E):
         pad = self.app.controller_name()
         if pad is None or name not in CONTROLLER_HINTS:
             return None
-        if name == 'Eight' and self.app.can_shake():
-            name = 'EightShake'                 # only offered when the pad can sense it
+        # only offered when the pad can sense one and the player has it on
+        if name == 'Eight' and self.app.can_shake_now():
+            name = 'EightShake'
         return CONTROLLER_HINTS[name].format(**button_names(pad))
 
     def callout(self, name):

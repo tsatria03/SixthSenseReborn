@@ -167,6 +167,75 @@ class Controllers:
         """Their SDL instance ids, in the same order."""
         return list(self._pads)
 
+    # ---- the one pad the game plays with ---------------------------------------------
+    # PORT ADDITION (tunmi13productions, 2026-10-06, aidocks/project_settings_menu_plan.md):
+    # the Settings screen picks which pad the game reads, and the others are ignored.  The
+    # choice is saved by *name*, never by an id: unplug the pad on id 0 and the next one to
+    # be plugged in takes that id, so an id means nothing between runs.
+
+    @property
+    def names(self):
+        """The names of the pads attached, oldest first, each name only once.
+
+        SDL can list one physical pad twice - on Windows a DualSense is listed again until
+        its own driver takes it (aidocks/completed/controller_shake_plan.md) - so a repeated
+        name is one entry.  Two genuinely identical pads collapse together too, which
+        tunmi13productions accepted: a name is all the save can tell apart anyway.
+        """
+        seen = []
+        for pad in self._pads.values():
+            name = getattr(pad, 'name', None) or 'controller'
+            if name not in seen:
+                seen.append(name)
+        return seen
+
+    def _chosen_name(self):
+        """The name the save asks for, or '' for whichever pad is found first."""
+        if self.app is None:
+            return ''
+        return getattr(self.app, 'controller_choice', '') or ''
+
+    @property
+    def active_pad(self):
+        """The pad the game plays with: the first one whose name the save asks for, else
+        the first attached.  A saved name that is not attached is left in the save, so
+        plugging that pad back in picks it up again with nothing to do."""
+        wanted = self._chosen_name()
+        if wanted:
+            for pad in self._pads.values():
+                if (getattr(pad, 'name', None) or 'controller') == wanted:
+                    return pad
+        for pad in self._pads.values():
+            return pad
+        return None
+
+    @property
+    def active_name(self):
+        """The name of the pad the game plays with, or None with no pad attached."""
+        pad = self.active_pad
+        return None if pad is None else (getattr(pad, 'name', None) or 'controller')
+
+    @property
+    def active_pads(self):
+        """The pad the game plays with, as a list: what vibration and the shake read, so
+        only the chosen pad buzzes and only it is read for a shake."""
+        pad = self.active_pad
+        return [] if pad is None else [pad]
+
+    @property
+    def active_pad_ids(self):
+        """Its SDL instance id, as a list."""
+        pad = self.active_pad
+        if pad is None:
+            return []
+        return [i for i, p in self._pads.items() if p is pad]
+
+    def _is_active(self, instance_id):
+        """Whether an event from this pad is the chosen pad's.  With no pad somehow
+        attached, nothing is refused, so a game is never left unplayable."""
+        ids = self.active_pad_ids
+        return not ids or instance_id in ids
+
     def _open(self, index, announce=True):
         try:
             if not self._sdl.is_controller(index):
@@ -210,6 +279,11 @@ class Controllers:
         if t == pg.CONTROLLERDEVICEREMOVED:
             self._close(getattr(event, 'instance_id', None))
             return []
+        if t in (pg.CONTROLLERBUTTONDOWN, pg.CONTROLLERBUTTONUP, pg.CONTROLLERAXISMOTION):
+            # only the chosen pad plays; any other attached pad is ignored, so a pad SDL
+            # has listed twice, or one left on the desk feeding stick drift, does nothing
+            if not self._is_active(getattr(event, 'instance_id', 0)):
+                return []
         if t == pg.CONTROLLERBUTTONDOWN:
             key = self._buttons.get(event.button)
             return self._press(key) if key is not None else []

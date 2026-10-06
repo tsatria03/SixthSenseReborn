@@ -134,6 +134,15 @@ ZOMBIE_EFFECTS = {1: 'punch', 2: 'scratch', 3: 'maul', 4: 'scratch', 5: 'maul',
                   22: 'stone'}
 
 
+def _active(controllers):
+    """The pad the game plays with (``ui/controller.py``'s ``active_pads``), so only the
+    pad the player picked in Settings buzzes.  A stand-in in the tests may carry only
+    ``pads``, and then every pad it has is used, as before.
+    """
+    pads = getattr(controllers, 'active_pads', None)
+    return list(pads) if pads is not None else list(controllers.pads)
+
+
 class Vibration:
     def __init__(self, controllers, clock=time.monotonic, enabled=lambda: True):
         """``enabled`` says whether the player has vibration on; off, nothing plays."""
@@ -157,7 +166,7 @@ class Vibration:
         return self._start(headshot_effect(distance))
 
     def _start(self, segments):
-        pads = self.controllers.pads
+        pads = _active(self.controllers)
         if not segments or not pads or not self.enabled():
             return False
         self.stop()
@@ -184,7 +193,7 @@ class Vibration:
         if due is None:
             return
         _t, low, high, ms = due
-        for pad in self.controllers.pads:
+        for pad in _active(self.controllers):
             try:
                 pad.rumble(low, high, ms)
             except Exception:
@@ -195,7 +204,7 @@ class Vibration:
         and a pad being lost."""
         had = bool(self._queue)
         self._queue = []
-        for pad in self.controllers.pads:
+        for pad in _active(self.controllers):
             try:
                 pad.stop_rumble()
             except Exception:
