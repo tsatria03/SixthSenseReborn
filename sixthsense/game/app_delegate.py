@@ -107,6 +107,12 @@ class AppDelegate:
         d = UserDefaults.standardUserDefaults()
         self.haveGold = d.intForKey_('GOLD')
         self.stage = d.intForKey_('STAGE')
+        # PORT ADDITION (tsatria03, 2026-10-05): GOLD is written only when it changes, at
+        # a game's end and on buying, so a new save had no key to see or edit.  A missing
+        # one is written as '0', in the original's text form; gold already there stays.
+        gold_missing = d.objectForKey_('GOLD') is None
+        if gold_missing:
+            d.setObject_forKey_('0', 'GOLD')
         # PORT ADDITION (2026-09-25): the volume settings, and settings.json written with
         # every one at its default, so a player sees what they can change
         # (aidocks/completed/volume_settings_plan.md)
@@ -114,7 +120,7 @@ class AppDelegate:
         # PORT ADDITION (2026-10-05): the gold a game pays, editable (gold_rates.py)
         wrote = gold_rates.fill(d) or wrote
         # and the upgrade levels, caps and settings (weapon_upgrades.py)
-        wrote = weapon_upgrades.fill(d) or wrote
+        wrote = weapon_upgrades.fill(d) or wrote or gold_missing
         if wrote:
             d.synchronize()
         self.weaponHave()

@@ -42,6 +42,20 @@ class _NewSave:
         shutil.rmtree(self.top, ignore_errors=True)
 
 
+def test_a_new_save_shows_its_gold():
+    """GOLD was written only when it changed; a start now writes a missing one as '0',
+    and keeps gold already there."""
+    from sixthsense.game.app_delegate import AppDelegate
+    with _NewSave() as s:
+        app = AppDelegate.shared()
+        app.didFinishLaunching()
+        with open(s.d.path, encoding='utf-8') as fh:
+            assert json.load(fh)['GOLD'] == '0'
+        s.d.setObject_forKey_('750', 'GOLD')
+        app.didFinishLaunching()
+        assert s.d.objectForKey_('GOLD') == '750' and app.haveGold == 750
+
+
 def test_the_defaults_are_fifteen_and_five():
     assert gold_rates.DEFAULTS == {'GOLD_PER_KILL': 15, 'GOLD_PER_HEADSHOT': 5}
 
