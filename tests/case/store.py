@@ -7,13 +7,11 @@ Checked against ``-[mainStoreController ...]`` (0x1c8c8), ``-[StoreController ..
 from __future__ import annotations
 
 import os
-import plistlib
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 import _scratch_save                                             # noqa: E402,F401  never the real save
 
-from sixthsense import paths                                      # noqa: E402
 from sixthsense.game.app_delegate import AppDelegate              # noqa: E402
 from sixthsense.game.blind_screen import MESSAGE_TEXT             # noqa: E402
 from sixthsense.game.inventory import (SLOTS, DetailInventoryController,  # noqa: E402
@@ -59,16 +57,6 @@ def _app(gold=0, grenades=0):
     return app
 
 
-def test_every_row_has_a_wav_behind_it():
-    sl = plistlib.load(open(paths.path_for_resource('SoundList', 'plist'), 'rb'))
-    for cls in (MainStoreController, StoreController, DetailStoreController,
-                InventoryController, DetailInventoryController):
-        for row, sound in cls.ROW_SOUND.items():
-            name = sl[sound]
-            assert paths.path_for_resource(name, 'wav'), \
-                '%s row %d -> %d %s' % (cls.__name__, row, sound, name)
-
-
 def test_the_gold_shop_row_is_unreachable():
     """selectMenu is never set to 3 anywhere in mainStoreController, so sound 236
     Gold shop Button is never played - even though glodShopAction: and its tbb case
@@ -77,7 +65,6 @@ def test_the_gold_shop_row_is_unreachable():
     m = MainStoreController()
     try:
         assert m.GOLD_SHOP_ROW not in m.rows()
-        assert 236 not in m.ROW_SOUND.values()
         assert hasattr(m, 'glodShopAction_'), 'the action itself should still be here'
     finally:
         m.teardown()
@@ -135,7 +122,6 @@ def test_there_is_no_purchase_all_weapons_row():
     s = StoreController(speech=_Recorder())
     try:
         assert s.rows() == (1, 2, 3, 4, 5, 6, 7, 8)
-        assert 366 not in s.ROW_SOUND.values()
         for _ in range(12):
             assert s.move(1) != 9
         assert not hasattr(s, 'ItemAllAction_')
@@ -169,9 +155,9 @@ def test_a_weapon_page_reads_its_own_numbers():
         assert (p.ammocapacity, p.effetiverange, p.power, p.price) == \
             (10, 1000, 35, 7000)
         assert p.row_text(4) == 'Effective range, 10 metres', p.row_text(4)
-        assert p.row_sound(2) == 249                    # shotgun image
-        assert p.row_sound(3) == 255                    # ammo capacity
-        assert p.row_sound(6) == 258                    # price
+        assert p.row_text(2) == 'Shotgun, Image', p.row_text(2)
+        assert p.row_text(3) == 'Ammo capacity, 10', p.row_text(3)
+        assert p.row_text(6) == 'Price, 7,000', p.row_text(6)
         assert p.selectMenu == 1                        # 0x19b90
     finally:
         p.teardown()
@@ -184,7 +170,7 @@ def test_the_grenade_page_counts_instead_of_a_magazine():
     p = DetailStoreController(0)
     try:
         assert p.ammocapacity == 4
-        assert p.row_sound(3) == 369                    # number of greades
+        assert p.row_text(3) == 'Number of grenades, 4', p.row_text(3)
         assert p.price == 1000
     finally:
         p.teardown()
@@ -276,11 +262,11 @@ def test_equipping_writes_the_key_the_stage_reads():
     p = DetailInventoryController(6)                    # MG80
     try:
         assert p.used == 0
-        assert p.row_sound(8) == 350                    # "use"
+        assert p.row_text(8) == 'Equip, Button'
         assert p.equipToggleAction_() == 1
         assert d.intForKey_('MG80USE') == 1
         assert app.useWeapon[6] == '1'
-        assert p.row_sound(8) == 349                    # now it offers "not use"
+        assert p.row_text(8) == 'Unequip, Button'       # now it offers to unequip
         assert p.equipToggleAction_() == 0
         assert d.intForKey_('MG80USE') == 0
         assert app.useWeapon[6] == '0'

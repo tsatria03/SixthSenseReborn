@@ -2,7 +2,7 @@
 """Sixth Sense Reborn.  Entry point.
 
 ``kr.co.bitbee.sixsense`` 1.2 was an iPhone audio game: you walk down a corridor in the
-dark and shoot what you hear coming.  This runs the same game on Windows, off the same
+dark and shoot what you hear coming.  This runs the same game on Windows, Linux and macOS, off the same
 data files, with OpenAL Soft doing what iOS's OpenAL did.
 
 Run it with headphones on - the game says so itself (``SoundList[234]``).
@@ -62,7 +62,7 @@ def _new_intro():
 
 
 def _new_screen(name, arg=None):
-    """One of the blind-mode screens the shop row leads to.
+    """One of the menu screens the shop row leads to.
 
     The original pushes these onto a ``UINavigationController``; the frame loop keeps
     a stack of its own and does the same.
@@ -350,7 +350,7 @@ def _menu_lines(menu):
            '']
     if getattr(menu, 'message', ''):
         out += [menu.message, '']
-    for num, _flag, _sound, action in ROWS:
+    for num, _flag, action in ROWS:
         out.append('%s %s' % ('>' if num == menu.selectMenu else ' ', action))
     out += ['', 'Up/Down move   Enter choose   F1 key bindings   Esc quit']
     return out

@@ -1,12 +1,11 @@
-"""PORT ADDITION: a synthesiser, for the words the game's own recordings cannot say.
+"""PORT ADDITION: the game's voice.
 
-SixthSense speaks entirely through its 269 recorded WAVs, which ``SoundList.plist`` names
-by number. That covers everything the original ever needed to say - and nothing the
-key-binding screen needs, which is key names ("Left Arrow", "Left Shift"), action names,
-and whatever the player has just bound. The only letters or digits in the bundle are
-``zero``..``nine``, recorded for the number reader.
+The original spoke entirely through its recorded WAVs, which ``SoundList.plist`` names by
+number.  The port first used this module only for the words those recordings could not
+say, such as the key-binding screen's key names; since 2026-10-05 it says everything
+(aidocks/completed/screen_reader_only_plan.md).
 
-So those words go to the player's screen reader, or to a plain voice when none is running.
+Every line goes to the player's screen reader, or to a plain voice when none is running.
 Before every line, the first of these that can speak says it:
 
     NVDA         through its own controller client, vendor/nvda/nvdaControllerClient64.dll

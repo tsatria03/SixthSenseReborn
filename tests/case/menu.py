@@ -1,8 +1,7 @@
-"""The main menu: the rows, the free games and the voice-over toggle."""
+"""The main menu: the rows, the free games and the voice-over toggle's absence."""
 from __future__ import annotations
 
 import os
-import plistlib
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
@@ -45,20 +44,13 @@ def _menu():
 
 
 def test_the_rows_are_the_originals():
-    """The rows selectTapPointSoundStart (0x9825) claims, with their sounds and their
-    original numbers, less the coins (1), ranking (5) and Game Center (8), the voice over
-    row (7), which went on 2026-10-05 with the recorded voice, and the port's settings row
-    (9), which has no recording.  Until 2026-10-06 the vibration and the two headshot
-    settings were rows 9, 10 and 11 here; they moved behind the settings row
-    (aidocks/completed/settings_menu_plan.md)."""
+    """The rows selectTapPointSoundStart (0x9825) claims, with their original numbers,
+    less the coins (1), ranking (5) and Game Center (8), the voice over row (7), which
+    went on 2026-10-05 with the recorded voice, and the port's settings row (9).  Until
+    2026-10-06 the vibration and the two headshot settings were rows 9, 10 and 11 here;
+    they moved behind the settings row (aidocks/completed/settings_menu_plan.md)."""
     assert [r[0] for r in ROWS] == [2, 3, 4, 6, 9]
-    assert [r[3] for r in ROWS] == ['title', 'start', 'tutorial', 'store', 'settings']
-    assert [r[2] for r in ROWS] == [16, 17, 23, 18, None]
-    # every one of them is a real entry with a WAV behind it
-    sl = plistlib.load(open(paths.path_for_resource('SoundList', 'plist'), 'rb'))
-    for _n, _f, sound, _a in ROWS:
-        if sound is not None:                  # the settings row has no recording
-            assert paths.path_for_resource(sl[sound], 'wav'), sound
+    assert [r[2] for r in ROWS] == ['title', 'start', 'tutorial', 'store', 'settings']
 
 
 def test_the_menu_music_plays_under_the_rows():
@@ -187,7 +179,7 @@ def test_changing_the_music_frees_the_file_it_had():
 
 def test_there_is_no_exit_row():
     """exit_flag and Exit: exist, but no row claims them and nothing plays sound 20."""
-    assert 'exit' not in [r[3] for r in ROWS]
+    assert 'exit' not in [r[2] for r in ROWS]
 
 
 def test_it_opens_on_the_title_and_wraps():
@@ -197,7 +189,7 @@ def test_it_opens_on_the_title_and_wraps():
         seen = []
         for _ in range(len(ROWS)):
             m.move(1)
-            seen.append(m._row()[3])
+            seen.append(m._row()[2])
         assert seen == ['start', 'tutorial', 'store', 'settings', 'title'], seen
         m.selectMenu = 2
         m.move(-1)
@@ -219,7 +211,7 @@ def test_a_game_is_free_and_there_are_no_coins():
             m.activate()
             assert m.next_screen == 'stage', 'start %d was refused' % n
         assert not hasattr(m.app, 'Coin') and not hasattr(m, 'coinTimer')
-        assert 'coin' not in [r[3] for r in ROWS]
+        assert 'coin' not in [r[2] for r in ROWS]
         d = UserDefaults.standardUserDefaults()
         assert d.objectForKey_('COIN_TIMER') is None, 'a recharge clock was written'
     finally:
@@ -274,7 +266,7 @@ def test_there_is_no_voice_over_row():
     """The game is always read by the screen reader since 2026-10-05, so the row that
     switched the recorded voice on is gone, with its sounds and its saved setting."""
     from sixthsense.game import main_controller as MC
-    assert 'modechange' not in [r[3] for r in MC.ROWS]
+    assert 'modechange' not in [r[2] for r in MC.ROWS]
     assert not hasattr(MC.MainController, 'ModeChageAction_')
     assert not hasattr(AppDelegate.shared(), 'mode')
 
@@ -283,7 +275,7 @@ def test_there_is_no_ranking_or_game_center_row():
     """Rows 5 and 8 opened the publisher's ranking server and Apple's Game Center,
     which the port does not have, so they are left out, and moving never lands on
     them."""
-    actions = [r[3] for r in ROWS]
+    actions = [r[2] for r in ROWS]
     assert 'ranking' not in actions and 'gamecenter' not in actions
     m = _menu()
     try:
@@ -338,10 +330,10 @@ def test_start_and_store_click_first():
     played = []
     app.playSound_Gain_Pos_z_reprats_ = lambda n, *a: played.append(n)
     try:
-        m.selectMenu = next(n for n, _f, _s, a in MC.ROWS if a == 'start')
+        m.selectMenu = next(n for n, _f, a in MC.ROWS if a == 'start')
         m.activate()
         assert played == [10], played
-        m.selectMenu = next(n for n, _f, _s, a in MC.ROWS if a == 'store')
+        m.selectMenu = next(n for n, _f, a in MC.ROWS if a == 'store')
         played.clear()
         m.activate()
         assert played == [10], played

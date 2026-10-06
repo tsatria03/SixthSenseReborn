@@ -18,12 +18,10 @@ from __future__ import annotations
 import logging
 
 from .blind_screen import BlindScreen
+from .stage_1_e import SOUND_HEADSHOT_BEEP
 from .store import BACK_TEXT
 
 log = logging.getLogger('settings')
-
-SOUND_BACK = 13
-SOUND_HEADSHOT_BEEP = 374           # PORT ADDITION: the dev's own, as the menu played it
 
 #: The rows, named so that inserting one is a matter of the numbers here and nowhere else.
 #: The ones that need no pad come first, so the ones that can read "not supported" are
@@ -54,7 +52,6 @@ class SettingsController(BlindScreen):
 
     ROWS = (BACK_ROW, SKIP_INTRO_ROW, SPEECH_ROW, BEEP_ROW, VIBRATION_ROW, SHAKE_ROW,
             CONTROLLER_ROW)
-    ROW_SOUND = {BACK_ROW: SOUND_BACK}
     TITLE_TEXT = 'Settings.'
 
     def __init__(self, speech=None):

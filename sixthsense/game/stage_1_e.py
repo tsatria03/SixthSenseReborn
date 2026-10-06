@@ -180,7 +180,8 @@ HEADSHOT_TEXT = 'Headshot!'
 #: PORT ADDITION: said as a game starts loading, where the original played 46,
 #: "Now Loading".
 LOADING_TEXT = 'Now loading.'
-#: PORT ADDITION (tunmi13productions, 2026-10-05): headshot_beep, SoundList entry 374.
+#: PORT ADDITION (tunmi13productions, 2026-10-05): headshot_beep, SoundList entry 374,
+#: the one definition; the Settings screen plays it too, as a sample.
 SOUND_HEADSHOT_BEEP = 374
 #: 0x3a83a plays this on a gun's hit that kills, headshot or not (0x3a7fc: only when
 #: HP is 0 or less).  The original names it weapon_head_shot; what it marks is the
@@ -1557,10 +1558,6 @@ class Stage_1_E:
     #: ranking server gave you, and that server is gone.
     PAUSE_ROWS = (1, 2, 3, 4, 5, 10, 6, 7, 8)
 
-    #: Rows whose label does not depend on the state (0x30930..0x311c2).
-    PAUSE_ROW_SOUND = {2: 230, 3: 231, 4: 232, 5: 233, 9: 357, 10: 356,
-                       7: 224, 8: 355}
-
     #: PORT ADDITION: what the screen reader says in place of the
     #: panel's own voice lines.
     PANEL_MESSAGE_TEXT = {227: 'Mission success.', 229: 'Paused.',
@@ -1582,8 +1579,8 @@ class Stage_1_E:
             self.app.playSound_Gain_Pos_z_reprats_(sound, gain, (0.0, 0.0), 0, False)
 
     def pause_row_text(self, row):
-        """PORT ADDITION: what the screen reader says for a panel row with voice over
-        off, the label and its number together."""
+        """PORT ADDITION: what the screen reader says for a panel row, the label and its
+        number together, in place of the original's recordings (0x30930..0x311c2)."""
         p = self.gamePlayer
         if row == 1:
             return {1: 'Paused', 2: 'Mission success', 3: 'Game over'}.get(self.gameState, '')

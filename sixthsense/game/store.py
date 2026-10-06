@@ -30,8 +30,7 @@ log = logging.getLogger('store')
 # --------------------------------------------------------------------------- data
 #: weaponType -> what the shop says and charges for it.
 #:
-#:   name sound   the WAV that names the weapon, played when the row is read
-#:   image sound  the WAV the weapon's own page opens with
+#:   name         what the screen reader calls the weapon
 #:   key          the NSUserDefaults key that means "owned"
 #:   use          the key that means "equipped"; without its USE, the weapon's name in
 #:                the save's stats keys (weapon_stats.py)
@@ -41,12 +40,12 @@ log = logging.getLogger('store')
 #: which it spoke and never played with, went on 2026-10-05; the prices it charged
 #: are weapon_stats.REAL's.
 SHOP = {
-    1: dict(name='Shotgun', image=249, label=241, key='SHOTGUN', use='SHOTGUNUSE'),
-    2: dict(name='M4A1', image=250, label=242, key='M4', use='M4USE'),
-    3: dict(name='AK47', image=251, label=243, key='AK47', use='AK47USE'),
-    4: dict(name='MG80', image=252, label=244, key='MG80', use='MG80USE'),
-    5: dict(name='Japanese sword', image=253, label=245, key='JAPAN', use='JAPANUSE'),
-    0: dict(name='Grenade', image=47, label=348, key='GRENADECOUNT', use='GRENADEUSE'),
+    1: dict(name='Shotgun', key='SHOTGUN', use='SHOTGUNUSE'),
+    2: dict(name='M4A1', key='M4', use='M4USE'),
+    3: dict(name='AK47', key='AK47', use='AK47USE'),
+    4: dict(name='MG80', key='MG80', use='MG80USE'),
+    5: dict(name='Japanese sword', key='JAPAN', use='JAPANUSE'),
+    0: dict(name='Grenade', key='GRENADECOUNT', use='GRENADEUSE'),
 }
 
 
@@ -114,19 +113,11 @@ def upgrade_action(page, item):
         page.say(page.message)
     return result
 
-#: 0x19b32..0x19b66 - the four WAVs that name a number on a weapon's page.
-SOUND_AMMO_CAPACITY = 255
-SOUND_EFFECTIVE_RANGE = 256
-SOUND_DAMAGE = 257
-SOUND_PRICE = 258
-
-SOUND_BACK = 13
+#: The original's recordings for what buying says; ``BlindScreen.play`` has the screen
+#: reader say each one's words (``blind_screen.MESSAGE_TEXT``).
 SOUND_GOLD_LACKING = 259            # 0x1bc28
 SOUND_PURCHASED_ALREADY = 359       # 0x1bb80
 SOUND_PURCHASE_COMPLETE = 260       # 0x1bf9c
-SOUND_BUY_BUTTON = 238
-SOUND_TRY_BUTTON = 362
-SOUND_GRENADE_COUNT = 369
 
 BACK_TEXT = 'Back, Button'
 
@@ -171,10 +162,9 @@ class MainStoreController(BlindScreen):
     gold instead.  Coins are gone altogether: games are free.
     """
 
-    ROWS = (1, 2, 4)                             # 3 is unreachable; 5 and 6 are left out
-    ROW_SOUND = {1: SOUND_BACK,                  # 0x1dffa back button
-                 2: 235,                         # 0x1e276 Weapon shop Button
-                 4: 237}                         # 0x1e33c Inventory Button
+    #: 1 back (0x1dffa), 2 weapon shop (0x1e276), 4 inventory (0x1e33c); 3 is
+    #: unreachable; 5 and 6 are left out
+    ROWS = (1, 2, 4)
     TITLE_TEXT = 'Store.'
     ROW_TEXT = {1: BACK_TEXT,
                 2: 'Weapon shop, Button',
@@ -236,15 +226,8 @@ class StoreController(BlindScreen):
     be bought on its own for gold.
     """
 
-    ROWS = (1, 2, 3, 4, 5, 6, 7, 8)     # 9 is left out
-    ROW_SOUND = {1: SOUND_BACK,      # 0x159a8 back button
-                 2: 233,             # obtained gold
-                 3: 241,             # shotgun button
-                 4: 242,             # M4A1 button
-                 5: 243,             # AK47 button
-                 6: 244,             # MG80 button
-                 7: 245,             # japanese sword button
-                 8: 348}             # Grenade button
+    #: 1 back (0x159a8), 2 the gold you have, 3 to 8 the six weapons; 9 is left out
+    ROWS = (1, 2, 3, 4, 5, 6, 7, 8)
     TITLE_TEXT = 'Weapon shop.'
     ROW_TEXT = {1: BACK_TEXT,
                 3: 'Shotgun, Button',
@@ -299,7 +282,6 @@ class DetailStoreController(BlindScreen):
     """
 
     ROWS = (1, 2, 3, 4, 5, 6, 7, 8)
-    ROW_SOUND = {1: SOUND_BACK, 7: SOUND_BUY_BUTTON, 8: SOUND_TRY_BUTTON}
 
     def __init__(self, weaponType=1, speech=None):
         BlindScreen.__init__(self, speech=speech)
@@ -309,15 +291,9 @@ class DetailStoreController(BlindScreen):
     # -[DetailStoreController viewDidLoad] 0x190dc
     def viewDidLoad(self):
         item = SHOP[self.weaponType]
-        self.type_image_sound = item['image']                 # 0x19318
-        self.names = item['label']
         # 0x19ea4: the grenade's ammo capacity is GRENADECOUNT.  PORT DIVERGENCE: the
         # rest come from the save (weapon_stats.py), not the original's literals.
         load_stats(self, item)
-        self.type_ammocapacity = SOUND_AMMO_CAPACITY          # 0x19b66
-        self.type_effectiverange = SOUND_EFFECTIVE_RANGE      # 0x19b56
-        self.type_power = SOUND_DAMAGE                        # 0x19b32
-        self.type_price = SOUND_PRICE                         # 0x19b44
         self.selectMenu = 1                                   # 0x19b90
         self.message = ''                                     # maskLabel
 
@@ -350,22 +326,6 @@ class DetailStoreController(BlindScreen):
             return upgrade_row_text(self.stats_name)
         return detail_row_text(self, row, SHOP[self.weaponType]['name'])
 
-    def row_sound(self, row):
-        """Rows 2..6 name themselves with the weapon's own WAVs, 0x1afbc onward."""
-        if row == 2:
-            return self.type_image_sound
-        if row == 3:
-            # 0x1b00c: the grenade has no magazine, so its count is read as a count.
-            return (SOUND_GRENADE_COUNT if self.weaponType == 0
-                    else self.type_ammocapacity)
-        if row == 4:
-            return self.type_effectiverange
-        if row == 5:
-            return self.type_power
-        if row == 6:
-            return self.type_price
-        return BlindScreen.row_sound(self, row)
-
     def activate(self):
         self.StopElseSpeak()
         row = self.selectMenu
@@ -395,7 +355,7 @@ class DetailStoreController(BlindScreen):
             return False
 
         if self.app.haveGold < self.price:                            # 0x1bbd4
-            # 0x1bbee: only the self-voiced mode played it; the screen reader says it now.
+            # 0x1bbee: the original played its recording; the screen reader says it now.
             self.play(SOUND_GOLD_LACKING)
             self.message = 'Gold is lacking.'
             return False

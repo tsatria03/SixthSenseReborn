@@ -1,14 +1,15 @@
 """``MainController`` - the main menu. Ported from 0x81f0..0xccb0.
 
-The menu is self-voiced from the game's own WAVs, and it is built for a finger rather
+The original's menu spoke from the game's own WAVs, and it is built for a finger rather
 than a cursor: ``-[MainController selectTapPointSoundStart]`` (0x9825) maps the *Y
 coordinate* of a touch to a row, sets ``selectMenu``, raises that row's flag and plays
 its name; a double tap then activates whatever ``selectMenu`` is on
 (``-[MainController tapCount]`` 0x9350). The whole blind path is gated on
 ``[AppDelegate mode]`` - ``-[MainController Menu:]`` returns immediately when it is 0,
-which is the sighted button layout.
+which is the sighted button layout.  The port's rows are spoken by the screen reader,
+``ROW_TEXT`` (aidocks/completed/screen_reader_only_plan.md).
 
-The eight rows, in screen order, with the flag and sound each one owns:
+The original's eight rows, in screen order, with the flag and sound each one owned:
 
     selectMenu  flag              sound
      1          coin_flag         334  "number of coins"
@@ -52,23 +53,17 @@ from .app_delegate import AppDelegate
 log = logging.getLogger('menu')
 
 SOUND_UI_SELECT = 10
-SOUND_TITLE = 16
-SOUND_GAME_START = 17
-SOUND_STORE = 18
-SOUND_TUTORIAL = 23
-SOUND_RANKING_NOTICE = 364
 
-# selectMenu, flag, sound, what it does
+# selectMenu, flag, what it does
 ROWS = (
-    (2, 'main_title_flag', SOUND_TITLE, 'title'),
-    (3, 'start_game_flag', SOUND_GAME_START, 'start'),
-    (4, 'tutorial_flag', SOUND_TUTORIAL, 'tutorial'),
-    (6, 'store_flag', SOUND_STORE, 'store'),
-    # PORT ADDITION: the settings row.  No recording names it, so it has no sound and is
-    # always spoken through the screen reader.  Until 2026-10-06 the vibration and the two
+    (2, 'main_title_flag', 'title'),
+    (3, 'start_game_flag', 'start'),
+    (4, 'tutorial_flag', 'tutorial'),
+    (6, 'store_flag', 'store'),
+    # PORT ADDITION: the settings row.  Until 2026-10-06 the vibration and the two
     # headshot settings were three rows of their own here; they moved behind this one
     # (aidocks/completed/settings_menu_plan.md).
-    (9, 'settings_flag', None, 'settings'),
+    (9, 'settings_flag', 'settings'),
 )
 #: PORT ADDITION: what the screen reader says for each row.  The rows that are a setting are
 #: made in ``row_text``.
@@ -92,7 +87,7 @@ class MainController:
         self.quit = False
         self.speech = speech
         self.message = ''                   # maskLabel1
-        self._flags = {f: False for _n, f, _s, _a in ROWS}
+        self._flags = {f: False for _n, f, _a in ROWS}
 
     # ================================================================ entry
     # -[MainController viewDidLoad] 0x85c1
@@ -101,12 +96,9 @@ class MainController:
         self.selectMenu = 2
         self.blindModeSelectedMenu()
 
-    # -[MainController StopElseSpeak] 0x96e9 - silence every menu voice
+    # -[MainController StopElseSpeak] 0x96e9 - silence every menu voice; the original's
+    # were recordings, the port's is the screen reader
     def StopElseSpeak(self):
-        for _n, _f, sound, _a in ROWS:
-            if sound is not None:
-                self.app.stopSoundBufNumber_(sound)
-        self.app.stopSoundBufNumber_(SOUND_RANKING_NOTICE)
         if self.speech is not None:
             self.speech.stop()
 
@@ -118,16 +110,13 @@ class MainController:
                 return row
         return ROWS[0]
 
-    def row_sound(self, n=None):
-        return self._row(n)[2]
-
     def row_text(self, n=None):
         """What the screen reader says for a row."""
-        return ROW_TEXT[self._row(n)[3]]
+        return ROW_TEXT[self._row(n)[2]]
 
     # -[MainController blindModeSelectedMenu] 0x90d0 - highlight the row and say it
     def blindModeSelectedMenu(self):
-        num, flag, _s, action = self._row()
+        num, flag, action = self._row()
         for f in self._flags:
             self._flags[f] = False
         self.StopElseSpeak()
@@ -156,7 +145,7 @@ class MainController:
     # ============================================================ activating
     # -[MainController tapCount] 0x9350 - a double tap runs the selected row
     def activate(self):
-        action = self._row()[3]
+        action = self._row()[2]
         if action == 'title':
             self.blindModeSelectedMenu()
             return

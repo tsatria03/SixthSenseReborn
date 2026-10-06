@@ -44,8 +44,6 @@ def test_the_rows_are_the_bands_of_the_panel():
     three buttons.  The rank (9) is left out: its ranking server is gone."""
     assert Stage_1_E.PAUSE_ROWS == (1, 2, 3, 4, 5, 10, 6, 7, 8)
     sl = plistlib.load(open(paths.path_for_resource('SoundList', 'plist'), 'rb'))
-    for row, sound in Stage_1_E.PAUSE_ROW_SOUND.items():
-        assert paths.path_for_resource(sl[sound], 'wav'), row
     for sound in (229, 223, 226, 354):
         assert paths.path_for_resource(sl[sound], 'wav'), sound
 

@@ -47,7 +47,6 @@ TEST_WEAPON = {1: 3, 2: 4, 3: 5, 4: 6, 5: 7, 6: 8}
 WIN_KILLS = 5                   # 0x45be6: cmp r0, #5
 SOUND_GAME_COMPLETE = 90        # bgm_game_complete, 0x45d74
 SOUND_SAW_WAIT = 74             # weapon_saw_wait, 0x48be4
-SOUND_BACK = 13                 # back button, the panel's last row (0x43f92)
 SOUND_MISSION_SUCCESS = 227
 SOUND_MISSION_FAIL = 228
 SOUND_PAUSED = 229
@@ -62,8 +61,8 @@ class Stage_1_TEST(Stage_1_E):
     """The weapon test range: one weapon, standing still, five kills."""
 
     #: The panel's rows, in order: no rank (9) and no top score (10).
+    #: The last, back to the shop, is 0x43f92.
     PAUSE_ROWS = (1, 2, 3, 4, 5, 6, 7, 8)
-    PAUSE_ROW_SOUND = {2: 230, 3: 231, 4: 232, 5: 233, 7: 224, 8: SOUND_BACK}
     PANEL_MESSAGE_TEXT = dict(Stage_1_E.PANEL_MESSAGE_TEXT)
 
     #: F2 and Shift+F2 of --debug have no corridor to move along here.

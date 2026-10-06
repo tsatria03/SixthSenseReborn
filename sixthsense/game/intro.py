@@ -75,10 +75,9 @@ class StartIntroPage(BlindScreen):
     tunmi13productions' idea, at tsatria03's decision.
     """
 
+    #: 1 is the welcome (0x184ae, main_label_flag), 2 how to skip (0x1844e,
+    #: double_tap_flag), 3 the story (intro2storyPage's first row, 0x2b714).
     ROWS = (1, 2, 3)
-    ROW_SOUND = {1: SOUND_WELCOME,          # 0x184ae, main_label_flag
-                 2: SOUND_DOUBLE_TAP,       # 0x1844e, double_tap_flag
-                 3: SOUND_STORY}            # intro2storyPage's first row (0x2b714)
     ROW_TEXT = {2: 'You can skip by pressing Enter.'}
 
     #: The story's music: bgm_start_end, looping, at 0.05 (0x17224, 0x2b6c0).
@@ -100,12 +99,11 @@ class StartIntroPage(BlindScreen):
         self.story_music = False            # bgm_start_end is playing under the story
 
     def select(self, row):
-        """Landing on a row; on the story, its music starts under it, in both modes."""
-        sound = BlindScreen.select(self, row)
+        """Landing on a row; on the story, its music starts under it."""
+        BlindScreen.select(self, row)
         if row == 3:
             self.text = STORY_TEXT
             self._start_story_music()
-        return sound
 
     def _start_story_music(self):
         if self.app.playback is not None:
@@ -203,7 +201,7 @@ class StartIntroPage(BlindScreen):
         (0x1892e).  ``intro2storyPage`` is the screen that would have, and nothing
         creates one of those either, so *As the ozone* is never heard in the shipped
         game.  **Reproduced**: it is here, and nothing calls it.  The port's story row
-        (row 3, ``select``) plays the same sound and music itself.
+        (row 3, ``select``) has the screen reader read the same story, with the music.
         """
         self.app.stopSoundBufNumber_(SOUND_WELCOME)
         self.play(SOUND_STORY)

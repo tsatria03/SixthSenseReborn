@@ -20,32 +20,29 @@ from ..platform.controller_names import button_names
 from ..platform.defaults import UserDefaults
 from . import weapon_order
 from .blind_screen import BlindScreen
-from .store import (BACK_TEXT, LEVEL_ROW, SOUND_AMMO_CAPACITY, SOUND_BACK, SOUND_DAMAGE,
-                    SOUND_EFFECTIVE_RANGE, SOUND_GRENADE_COUNT, SOUND_PRICE, UPGRADE_ROW,
-                    detail_row_text, level_row_text, load_stats, owns, stats_name,
-                    upgrade_action, upgrade_row_text)
+from .store import (BACK_TEXT, LEVEL_ROW, UPGRADE_ROW, detail_row_text, level_row_text,
+                    load_stats, owns, stats_name, upgrade_action, upgrade_row_text)
 
 log = logging.getLogger('inventory')
 
+#: What equipping says, as the original's recordings; ``BlindScreen.play`` has the screen
+#: reader say each one's words (``blind_screen.MESSAGE_TEXT``).
 SOUND_NOT_EQUIPPED = 351        # 0x2adb4
 SOUND_BEING_EQUIPPED = 352      # 0x2acf0
-SOUND_STATE = 353
-SOUND_NOT_USE = 349
-SOUND_USE = 350
 
 #: weaponType -> the slot's page.  0x27664 (knife), 0x27874 (grenade),
 #: 0x27b1c (colt), 0x27d42 (shotgun), 0x27f5e (M4A1), 0x28184 (AK47),
 #: 0x283aa (MG80), 0x285cc (japanese sword).  The original's stats for each went on
 #: 2026-10-05; the page reads the save's (weapon_stats.py).
 SLOTS = {
-    0: dict(name='Grenade', image=47, label=348, use='GRENADEUSE'),
-    1: dict(name='Knife', image=247, label=239, use='KNIFEUSE'),
-    2: dict(name='Colt', image=248, label=240, use='COLTUSE'),
-    3: dict(name='Shotgun', image=249, label=241, use='SHOTGUNUSE'),
-    4: dict(name='M4A1', image=250, label=242, use='M4USE'),
-    5: dict(name='AK47', image=251, label=243, use='AK47USE'),
-    6: dict(name='MG80', image=252, label=244, use='MG80USE'),
-    7: dict(name='Japanese sword', image=253, label=245, use='JAPANUSE'),
+    0: dict(name='Grenade', use='GRENADEUSE'),
+    1: dict(name='Knife', use='KNIFEUSE'),
+    2: dict(name='Colt', use='COLTUSE'),
+    3: dict(name='Shotgun', use='SHOTGUNUSE'),
+    4: dict(name='M4A1', use='M4USE'),
+    5: dict(name='AK47', use='AK47USE'),
+    6: dict(name='MG80', use='MG80USE'),
+    7: dict(name='Japanese sword', use='JAPANUSE'),
 }
 
 
@@ -63,15 +60,6 @@ class InventoryController(BlindScreen):
     REORDER_ROW = 10
 
     ROWS = (1, 2, 3, 4, 5, 6, 7, 8, 9, REORDER_ROW)
-    ROW_SOUND = {1: SOUND_BACK,
-                 2: 348,            # Grenade button
-                 3: 239,            # knife button
-                 4: 240,            # colt button
-                 5: 241,            # shotgun button
-                 6: 242,            # M4A1 button
-                 7: 243,            # AK47 button
-                 8: 244,            # MG80 button
-                 9: 245}            # japanese sword button
 
     #: 0x25c72, 0x25e2a ... 0x2687a - ItemNAction:'s argument to setWeaponType:.
     ROW_WEAPON = {2: 0, 3: 1, 4: 2, 5: 3, 6: 4, 7: 5, 8: 6, 9: 7}
@@ -111,7 +99,6 @@ class DetailInventoryController(BlindScreen):
     """
 
     ROWS = (1, 2, 3, 4, 5, 6, 7, 8)
-    ROW_SOUND = {1: SOUND_BACK, 7: SOUND_STATE}
 
     def __init__(self, weaponType=0, speech=None):
         BlindScreen.__init__(self, speech=speech)
@@ -121,18 +108,12 @@ class DetailInventoryController(BlindScreen):
     # -[DetailInventoryController viewDidLoad] 0x274a0
     def viewDidLoad(self):
         slot = SLOTS[self.weaponType]
-        self.type_image_sound = slot['image']
-        self.names = slot['label']
         # 0x278dc: the grenade's ammo capacity is GRENADECOUNT.  PORT DIVERGENCE: the
         # rest come from the save (weapon_stats.py), not the original's literals.
         load_stats(self, slot)
         d = UserDefaults.standardUserDefaults()
         self.used = d.intForKey_(slot['use'])                 # 0x27820 and its copies
         self.message = ''                                     # maskLabel, for the window
-        self.type_ammocapacity = SOUND_AMMO_CAPACITY          # 0x2888c
-        self.type_effectiverange = SOUND_EFFECTIVE_RANGE      # 0x28874
-        self.type_power = SOUND_DAMAGE                        # 0x28850
-        self.type_price = SOUND_PRICE                         # 0x28862
         self.selectMenu = 1                                   # 0x28aca
 
     def title_text(self):
@@ -150,30 +131,13 @@ class DetailInventoryController(BlindScreen):
         if row == 7:
             return 'State, %s' % ('equipped' if self.used else 'not equipped')
         if row == 8:
-            # the button says what pressing it would do, as row_sound's does
+            # 0x2acd0 / 0x2ad94: the button says what pressing it would do
             return 'Unequip, Button' if self.used else 'Equip, Button'
         if row == LEVEL_ROW:
             return level_row_text(stats_name(SLOTS[self.weaponType]))
         if row == UPGRADE_ROW:
             return upgrade_row_text(stats_name(SLOTS[self.weaponType]))
         return detail_row_text(self, row, SLOTS[self.weaponType]['name'])
-
-    def row_sound(self, row):
-        if row == 2:
-            return self.type_image_sound
-        if row == 3:
-            return (SOUND_GRENADE_COUNT if self.weaponType == 0
-                    else self.type_ammocapacity)
-        if row == 4:
-            return self.type_effectiverange
-        if row == 5:
-            return self.type_power
-        if row == 6:
-            return self.type_price
-        if row == 8:
-            # 0x2acd0 / 0x2ad94: the button says what pressing it would do.
-            return SOUND_NOT_USE if self.used else SOUND_USE
-        return BlindScreen.row_sound(self, row)
 
     def activate(self):
         """0x290c8 - an if/else chain: equip, or back."""
@@ -262,9 +226,6 @@ class ReorderController(BlindScreen):
             return BACK_TEXT
         slot = self.slot_for(row)
         return '' if slot is None else SLOTS[slot]['name']
-
-    def row_sound(self, row):
-        return SOUND_BACK if row == 1 else None
 
     def instructions(self):
         """How to move a weapon, in the words that suit what is plugged in, as the

@@ -1,4 +1,4 @@
-"""The shape every blind-mode screen in this game shares.
+"""The shape every menu screen in this game shares.
 
 ``MainController``, ``Stage_1_E``'s result panel, the shop, the weapon pages and the
 inventory are all built the same way (see ``aidocks/GAME_STRUCTURE.md`` §8):
@@ -16,8 +16,10 @@ finger resting on a row does not say it twice.  A keyboard moves between rows on
 at a time, so the move is the guard, and Up/Down/Enter stand in for drag-and-double-tap
 exactly as they do in ``MainController``.
 
-Nothing about the rows, their order, their sounds or what they do is invented here;
-every subclass carries the addresses it was read from.
+**PORT DIVERGENCE (2026-10-05):** the rows are spoken by the screen reader, each screen's
+``ROW_TEXT`` or ``row_text``, instead of the original's recordings
+(aidocks/completed/screen_reader_only_plan.md).  The rows, their order and what they
+do are still the original's; every subclass carries the addresses it was read from.
 """
 from __future__ import annotations
 
@@ -53,12 +55,10 @@ def whole(number):
 
 
 class BlindScreen:
-    """One screen of the blind-mode UI, driven by Up / Down / Enter."""
+    """One menu screen, driven by Up / Down / Enter."""
 
     #: row numbers in the order they sit on the screen, top to bottom
     ROWS = ()
-    #: row -> the SoundList entry that names it
-    ROW_SOUND = {}
     #: PORT ADDITION: row -> what the screen reader says for it,
     #: "<name>, Button" for a button.  Overridden by ``row_text`` where it changes.
     ROW_TEXT = {}
@@ -105,10 +105,6 @@ class BlindScreen:
     def rows(self):
         return self.ROWS
 
-    def row_sound(self, row):
-        """Overridden where a row's label depends on the screen's state."""
-        return self.ROW_SOUND.get(row)
-
     def row_text(self, row):
         """What the screen reader says for a row.  Overridden where it depends on the
         screen's state, or carries a number."""
@@ -120,7 +116,6 @@ class BlindScreen:
         self.StopElseSpeak()
         # The label and its number in one line, with no reader queued behind it.
         self.say(self.row_text(row))
-        return self.row_sound(row)
 
     def title_text(self):
         """The screen's name for the screen reader, or None."""
