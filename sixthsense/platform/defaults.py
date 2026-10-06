@@ -165,6 +165,16 @@ class _File:
                 self.recovered = True
         self.d = d or {}
 
+    def ensure_backup(self):
+        """Copy a file that read cleanly to its .bak when it has none yet (tsatria03,
+        2026-10-06), so there is something to carry on from before its second write."""
+        if self.recovered or os.path.exists(self.backup) or not os.path.exists(self.path):
+            return
+        try:
+            shutil.copyfile(self.path, self.backup)
+        except OSError:
+            log.exception('could not back up %s', self.path)
+
     def ordered(self):
         if self.order is None:
             return dict(sorted(self.d.items()))
@@ -268,6 +278,8 @@ class UserDefaults:
         changed = self._sort_misplaced() or changed
         if changed or any(f.recovered for f in self._files()):
             self.synchronize()      # or the next launch finds no save at all
+        # the settings always have a backup, even before their second write
+        self.settings.ensure_backup()
 
     def _files(self):
         return [self.save, self.settings, self.shop, self.inventory] + list(self.weapons.values())

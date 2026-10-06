@@ -142,6 +142,15 @@ KEYS_FILE = os.path.join('config', 'keys.json')
 FLAT_KEYS_FILE = 'keys.json'
 
 
+def _read_bindings(path):
+    """The bindings a file holds; raises when it cannot be read or is not an object."""
+    with open(path, 'r', encoding='utf-8-sig') as f:
+        saved = json.load(f)
+    if not isinstance(saved, dict):
+        raise ValueError('%s is not a set of bindings' % path)
+    return saved
+
+
 def _move_flat_keys(folder, path):
     """Copy a keys.json from the folder itself to ``path`` when ``path`` has none yet, and
     keep the old one as keys.json.old, as defaults.py keeps the old save files."""
@@ -194,20 +203,41 @@ class KeyMap:
         start, holding the default bindings, instead of appearing only once a key is
         rebound.  An action the file does not name yet, one added since it was written,
         gets its default and is written in too.  A file that cannot be read is left
-        alone, so a player's bindings are never overwritten by the defaults."""
+        alone, so a player's bindings are never overwritten by the defaults.
+
+        PORT ADDITION (tsatria03, 2026-10-06): ``keys.json.bak`` is the file before its
+        last write, as every save file has, and is made from a file that reads cleanly
+        when there is none yet.  A file that cannot be read carries on from it."""
         saved = {}
-        try:
-            if os.path.exists(self.path):
-                with open(self.path, 'r', encoding='utf-8') as f:
-                    saved = json.load(f)
-                for action in ACTION_IDS:
-                    if action in saved:
-                        self.bindings[action] = [tuple(b) for b in saved[action] if b]
-        except Exception:
-            log.exception('could not read %s; using the defaults', self.path)
-            return
+        self.damaged = False
+        if os.path.exists(self.path):
+            try:
+                saved = _read_bindings(self.path)
+            except Exception:
+                log.exception('could not read %s', self.path)
+                self.damaged = True
+                try:
+                    saved = _read_bindings(self.backup)
+                    log.warning('carrying on from %s', self.backup)
+                except Exception:
+                    log.warning('no usable %s either; using the defaults', self.backup)
+                    saved = {}
+            for action in ACTION_IDS:
+                if action in saved:
+                    self.bindings[action] = [tuple(b) for b in saved[action] if b]
+            if self.damaged:
+                return              # the damaged file stays as it is
+            if not os.path.exists(self.backup):
+                try:
+                    shutil.copyfile(self.path, self.backup)
+                except OSError:
+                    log.exception('could not back up %s', self.path)
         if not all(action in saved for action in ACTION_IDS):
             self.save()
+
+    @property
+    def backup(self):
+        return self.path + '.bak'
 
     def save(self):
         try:
@@ -216,7 +246,12 @@ class KeyMap:
             with open(tmp, 'w', encoding='utf-8') as f:
                 json.dump({a: [list(b) for b in self.bindings[a]] for a in ACTION_IDS},
                           f, indent=1, sort_keys=True)
+            # the file before this write, unless it is a damaged one: that would put a
+            # good backup out of reach
+            if os.path.exists(self.path) and not getattr(self, 'damaged', False):
+                shutil.copyfile(self.path, self.backup)
             os.replace(tmp, self.path)
+            self.damaged = False
         except Exception:
             log.exception('could not write %s', self.path)
 

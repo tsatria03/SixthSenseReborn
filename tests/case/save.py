@@ -397,6 +397,44 @@ def test_a_damaged_settings_json_carries_on_from_its_backup():
             assert fh.read() == '{"EYEMO'
 
 
+def test_the_settings_and_the_keys_always_have_a_backup():
+    """tsatria03, 2026-10-06: a .bak for the keys and the settings, made where there is none
+    yet, not only from their second write on."""
+    from sixthsense.platform.keymap import KeyMap
+    with _Folder() as f:
+        f.write(SETTINGS, json.dumps({'MASTERVOLUME': 80}))
+        f.write(KEYS, json.dumps({'pause': [['f12']]}))
+        UserDefaults()
+        KeyMap()
+        assert f.read(SETTINGS + '.bak') == {'MASTERVOLUME': 80}
+        assert f.read(KEYS + '.bak')['pause'] == [['f12']]
+
+
+def test_a_key_save_keeps_the_one_before_as_a_backup():
+    from sixthsense.platform.keymap import KeyMap
+    with _Folder() as f:
+        km = KeyMap()
+        km.set_binding('pause', ('f12',))
+        km.set_binding('pause', ('f10',))
+        assert f.read(KEYS)['pause'] == [['f10']]
+        assert f.read(KEYS + '.bak')['pause'] == [['f12']]
+
+
+def test_damaged_keys_carry_on_from_the_backup_and_never_overwrite_it():
+    from sixthsense.platform.keymap import KeyMap
+    with _Folder() as f:
+        KeyMap().set_binding('pause', ('f12',))
+        KeyMap().set_binding('pause', ('f10',))       # the backup now holds f12
+        f.write(KEYS, '{"pause": [["f1')
+        km = KeyMap()
+        assert km.bindings['pause'] == [('f12',)], 'the backup was not used'
+        with open(f.file(KEYS), encoding='utf-8') as fh:
+            assert fh.read() == '{"pause": [["f1', 'the damaged file was written over'
+        km.set_binding('lane1', ('z',))               # a rebind writes the file again
+        assert f.read(KEYS + '.bak')['pause'] == [['f12']], 'the damaged file became the backup'
+        assert f.read(KEYS)['lane1'] == [['z']]
+
+
 def test_the_key_bindings_move_into_config_once():
     from sixthsense.platform.keymap import KeyMap
     with _Folder() as f:
