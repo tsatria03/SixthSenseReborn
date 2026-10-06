@@ -230,7 +230,7 @@ class DetailInventoryController(BlindScreen):
 class ReorderController(BlindScreen):
     """PORT ADDITION (tunmi13productions, 2026-10-06): the order the weapons come in.
 
-    aidocks/project_weapon_order_plan.md.  Back, then the equipped weapons in the
+    aidocks/completed/weapon_order_plan.md.  Back, then the equipped weapons in the
     player's own order (``weapon_order.py``).  Up and Down walk them; Shift with either
     moves the weapon under the cursor, and the cursor goes with it.  On a pad the
     bumpers move it.  Nothing here equips or unequips: it only says what order the

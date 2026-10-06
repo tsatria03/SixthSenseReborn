@@ -1,6 +1,6 @@
 """PORT ADDITION: the order the weapons come in, which you set yourself.
 
-tunmi13productions, 2026-10-06 (aidocks/project_weapon_order_plan.md).  The original has one
+tunmi13productions, 2026-10-06 (aidocks/completed/weapon_order_plan.md).  The original has one
 order and it is the slot number: ``-[Stage_1_E weaponInit]`` (0x35008) fills
 ``weaponSource[i]`` from ``WEAPON_FILES[i]``, and ``-[Stage_1_E gunChangeAction:]``
 (0x35a08) walks ``w = (w + step) % 8``, stepping over whatever is not equipped.

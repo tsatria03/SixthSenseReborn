@@ -1,6 +1,6 @@
 """The order the weapons come in, which the player sets themselves.
 
-A PORT ADDITION (tunmi13productions, 2026-10-06; aidocks/project_weapon_order_plan.md).
+A PORT ADDITION (tunmi13productions, 2026-10-06; aidocks/completed/weapon_order_plan.md).
 WEAPON_ORDER in save.json holds all eight slots; the reorder screen lists the equipped
 ones, and a game cycles through them in that order and starts you on the first.
 

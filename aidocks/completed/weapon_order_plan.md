@@ -1,11 +1,15 @@
 ---
-name: project_weapon_order_plan
-description: "PLANNED 2026-10-06: a Reorder weapons button in the inventory opens a list of the equipped weapons; Up and Down walk it, Shift and an arrow move a weapon, and the order is what Tab cycles through in a game and what you start on. WEAPON_ORDER in save.json. On a pad the bumpers move a weapon, and the screen says whichever instructions fit what is attached."
+name: weapon_order_plan
+description: "FINISHED 2026-10-06, confirmed by tunmi13productions: a Reorder weapons button in the inventory opens a list of the equipped weapons; Up and Down walk it, Shift and an arrow move a weapon, and the order is what Tab cycles through in a game and what you start on. WEAPON_ORDER in save.json. On a pad the bumpers move a weapon, and the screen says whichever instructions fit what is attached."
 metadata:
   type: project
 ---
 
-**Status: planned.** Agreed with tunmi13productions on 2026-10-06 and recorded before any code ([[feedback_record_plans_first]]). Mark it finished only once they say it works, then move it to `completed/` ([[feedback_completed_projects]]).
+**Status: FINISHED 2026-10-06, confirmed by tunmi13productions** ("yes, finish and push"), and moved to `completed/` the same day. Built the same day it was agreed, recorded before any code ([[feedback_record_plans_first]]). `sixthsense/game/weapon_order.py`, `ReorderController` and the inventory's row 10, `move_weapon_key` shared by `ui/menu_input.py` and `ui/screen_input.py`, the bumpers in `ui/controller.py`, the four families in `platform/controller_names.py`, and `startWeapon` and `gunChangeAction_` in `stage_1_e.py`. New `tests/case/weapon_order.py` (14). Covering files passed: controller_names 11, input 48, gameplay 59, menu 20, inventory 2, store 20, window 10, controller 26, tutorial 31, pause 30, focus 4, weapon_range 15, release 50, paths 22, save 13.
+
+Two things the build got wrong and the tests or the dev caught, kept here as the record:
+- **Nothing moved in the real game.** The keys went into `MenuInput`, but the shop and inventory screens use `ScreenInput`; tunmi13productions found it by ear ("trying to reorder doesn't work, neither on keyboard or controller") because every test drove the screen's methods directly. One shared `move_weapon_key` now serves both, and a test drives `ScreenInput` itself.
+- **Games started on the grenade**, because plain slot order puts it first and it has no magazine. `gameplay.py` and `input.py` caught it. The default order became the original's own cycle turned round to begin at the colt.
 
 The ask, in tunmi13productions' words: "I want to add the ability to rearrange weapon order. maybe a button in inventory called reorder. then in the list of equipped weapons, you use the up and down arrows to navigate between them. you can hold down shift to move a weapon up or down. and this is how they will appear during gameplay. when you move an item it will say something like, mg80 moved above colt, or mg80 moved below shotgun."
 

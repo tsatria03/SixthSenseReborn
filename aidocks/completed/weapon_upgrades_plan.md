@@ -1,6 +1,6 @@
 ---
 name: weapon_upgrades_plan
-description: "FINISHED 2026-10-05, confirmed by the dev: one upgrade button per weapon raises its level, adding damage, ammo and range on top of its stats; prices start at 100 and grow 1.2x; cap 10 per weapon; every number editable in save.json. Answers the todo item about upgradeable weapons. RETUNED 2026-10-06 (built, not yet confirmed): a level adds a share of the weapon's own stat, 15% a level, so level 10 is two and a half times the weapon, in place of the flat steps that made every weapon gain +260; the range moves a whole metre at a time."
+description: "FINISHED 2026-10-05, confirmed by the dev: one upgrade button per weapon raises its level, adding damage, ammo and range on top of its stats; prices start at 100 and grow 1.2x; cap 10 per weapon; every number editable in save.json. Answers the todo item about upgradeable weapons. RETUNED 2026-10-06, confirmed by tunmi13productions: a level adds a share of the weapon's own stat, 15% a level, so level 10 is two and a half times the weapon, in place of the flat steps that made every weapon gain +260; the range moves a whole metre at a time."
 metadata:
   type: project
 ---
@@ -42,7 +42,7 @@ Agreed with the dev on 2026-10-05 and recorded before any code ([[feedback_recor
 
 ## Retuned 2026-10-06: a share of the weapon's own stat
 
-**Status: built, not yet confirmed.** The dev found their level 10 colt holding 267 rounds: "I'm a bit concerned about weapon upgrades. my colt is at level 10, with an ammo capacity of 267. like wow." Agreed the same day, recorded before the code.
+**Status: FINISHED 2026-10-06, confirmed by tunmi13productions** ("yes, finish and push"). They found their level 10 colt holding 267 rounds: "I'm a bit concerned about weapon upgrades. my colt is at level 10, with an ammo capacity of 267. like wow." Agreed the same day, recorded before the code.
 
 **What went wrong.** The three steps were flat counts shared by all eight weapons, and the 1.2 growth compounded them 26x by level 10, so every weapon gained the same `+260` whatever its size. A maxed colt held 267 rounds against the MG80's 310, 86% of a machine gun's magazine, and did 290 damage against zombies of 30 to 200 HP (`game/type*.plist`, index 3), one-shotting every one of them and killing a 2000 HP boss in 7 shots instead of 67. Its range went from 10 m to 36 m. The flat step was the root cause: 10 rounds a level means nothing in particular when it is applied to both a 7-round revolver and a 50-round machine gun.
 
