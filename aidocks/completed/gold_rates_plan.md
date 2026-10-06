@@ -1,11 +1,13 @@
 ---
-name: project_gold_rates_plan
-description: "PLANNED 2026-10-05: the gold a game pays becomes kills x GOLD_PER_KILL + headshots x GOLD_PER_HEADSHOT, two save.json keys defaulting to 15 and 5 (the original's 12 and 2), so weapons are easier to get and the rates can be edited."
+name: gold_rates_plan
+description: "FINISHED 2026-10-05, confirmed by the dev: the gold a game pays becomes kills x GOLD_PER_KILL + headshots x GOLD_PER_HEADSHOT, two save.json keys defaulting to 15 and 5 (the original's 12 and 2), so weapons are easier to get and the rates can be edited."
 metadata:
   type: project
 ---
 
-**Status: PLANNED, agreed with the dev on 2026-10-05, not built.** Recorded before any code ([[feedback_record_plans_first]]). It answers the todo item "Raise the gold you earn after a death a little, so weapons are a bit easier to get." Mark it finished only once the dev says it works, then move it to `completed/` ([[feedback_completed_projects]]).
+**Status: FINISHED 2026-10-05, confirmed by the dev** ("All tests past on my end"), and moved to `completed/` the same day. `game/gold_rates.py` (`DEFAULTS`, `fill`, `rate`, `gold_for`), filled in `AppDelegate.didFinishLaunching`; `Stage_1_E.ObtainedGold` calls `gold_for`. New `tests/case/gold_rates.py` (4); `pause.py` updated for 15 and 5 and an edited rate (30). Covering files passed: gold_rates 4, pause 30, paths 22, weapon_range 15, gameplay 58, save 13, menu 20, intro 9.
+
+Agreed with the dev on 2026-10-05 and recorded before any code ([[feedback_record_plans_first]]). It answers the todo item "Raise the gold you earn after a death a little, so weapons are a bit easier to get." Mark it finished only once the dev says it works, then move it to `completed/` ([[feedback_completed_projects]]).
 
 **Why:** a game pays `12 * killMonsterCount + 2 * HeadShotCount` (`Stage_1_E.ObtainedGold`, 0x3c616), paid when you die (`missionFailTell_`) or on the mission success ending (`MissionSuccessTell`). The sword at 50,000 took about 4,000 kills. The dev chose two editable rates over lowering prices, since a raise helps every save at once, while prices already in a save are never overwritten ([[real_weapon_stats_plan]]).
 

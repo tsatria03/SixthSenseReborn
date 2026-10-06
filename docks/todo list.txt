@@ -1,10 +1,10 @@
 ##Unfinished.
 
 Make weapons upgradeable, so that they can do more damage.
-Raise the gold you earn after a death a little, so weapons are a bit easier to get.
 
 ##Finished.
 
+A game pays a little more gold, 15 for each kill and 5 for each headshot, so weapons are a bit easier to get, and both can be changed in save.json.
 The weapon stats in save.json are the real ones and count when you change them: the magazine, the range, the damage and the price, which the shop and the inventory read out, with the range in metres.
 After buying a weapon, the screen reader says "Purchase has completed", the same words as the window.
 In the weapon test range, two zombies that reach you at once on your last heart kill you instead of leaving you below zero hearts.

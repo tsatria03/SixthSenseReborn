@@ -146,6 +146,7 @@ The key starts with the weapon's name, so SHOTGUN_DAMAGE is the shotgun's damage
 The shop and the inventory read the same numbers out, with the range in metres, so a range of 1000 is 10 metres.
 The grenade's count is GRENADECOUNT, the knife and the sword have no magazine, and the knife and the colt are free, so those have no key.
 Close the game before you change them, since it writes the file while it runs, and a number it cannot use is put back to the weapon's own.
+GOLD_PER_KILL and GOLD_PER_HEADSHOT in save.json are the gold a game pays when it ends, 15 for each zombie you kill and 5 for each headshot, and you can change them the same way.
 If a save from an older version is there, called defaults.json, the game moves it into the new files by itself and keeps the old one as defaults.json.old.
 If one of the files is ever damaged, the game keeps it with .damaged on the end of its name and carries on from a backup.
 

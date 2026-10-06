@@ -137,6 +137,9 @@ out in metres), `<W>_DAMAGE` and `<W>_PRICE` (what the shop charges), where `<W>
 files' numbers and the shop's prices; there is no key where nothing could use one (the
 grenade's count is `GRENADECOUNT`, the blades have no magazine, the knife and colt are
 not sold). A value that is not a whole number of 0 or more is put back on the next start.
+`GOLD_PER_KILL` (15) and `GOLD_PER_HEADSHOT` (5) are the gold a game pays when it ends,
+per kill and per headshot hit, raised from the original's 12 and 2 and editable the same
+way; the weapon test range keeps its own 12% of the score.
 
 ## Controls
 
@@ -315,6 +318,7 @@ python tests/case/pause.py          # the pause and result panel
 python tests/case/store.py          # the shop, buying, and the inventory
 python tests/case/inventory.py      # equipping through the inventory's screens, step by step
 python tests/case/weapon_stats.py   # each weapon's stats in the save, read by the pages and the stage
+python tests/case/gold_rates.py     # the gold a game pays per kill and per headshot, from the save
 python tests/case/weapon_range.py   # the weapon test range behind the shop's Try button
 python tests/case/intro.py          # the logo, the splash, the warning, the story, skipping
 python tests/case/speech.py         # who speaks what no WAV covers (stand-ins, silent)
