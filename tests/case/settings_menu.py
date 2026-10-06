@@ -179,7 +179,8 @@ def test_a_new_settings_json_shows_every_setting():
         s.d.synchronize()
         assert {r: getattr(s.app, r) for r in readers} == before, 'a default changed play'
         assert s.d.stringForKey_('HEADSHOTSPEECH') == '0', "the player's value was replaced"
-        with open(os.path.join(paths.user_dir(), 'settings.json'), encoding='utf-8') as fh:
+        with open(os.path.join(paths.user_dir(), 'config', 'settings.json'),
+                  encoding='utf-8') as fh:
             assert list(json.load(fh)) == list(SETTINGS_KEYS)
         assert not fill_settings(s.d), 'a complete file was filled again'
 

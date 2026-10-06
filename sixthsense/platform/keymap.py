@@ -2,8 +2,9 @@
 
 The original has no key bindings at all - every action is a swipe, a tap or a shake
 (``aidocks/GAME_STRUCTURE.md`` §7). The port binds those actions to keys, keeps the
-bindings in ``%APPDATA%\\SixthSenseReborn\\keys.json`` and lets the player rebind them from
-the screen F1 opens.
+bindings in ``%APPDATA%\\SixthSenseReborn\\config\\keys.json`` (in the folder itself until
+2026-10-06, and moved from there once: ``_move_flat_keys``) and lets the player rebind them
+from the screen F1 opens.
 
 **Bindings can be chords.** An action holds a list of bindings, and each binding is a
 *set* of keys that must be held together. That is what makes the default arrow layout
@@ -45,6 +46,7 @@ from __future__ import annotations
 import json
 import logging
 import os
+import shutil
 
 from .. import paths
 
@@ -134,6 +136,27 @@ def bindings_text(bindings):
     return ', or '.join(binding_text(b) for b in bindings)
 
 
+#: Where the bindings live inside the save folder (aidocks/project_save_folders_plan.md).
+KEYS_FILE = os.path.join('config', 'keys.json')
+#: Where they lived until 2026-10-06.
+FLAT_KEYS_FILE = 'keys.json'
+
+
+def _move_flat_keys(folder, path):
+    """Copy a keys.json from the folder itself to ``path`` when ``path`` has none yet, and
+    keep the old one as keys.json.old, as defaults.py keeps the old save files."""
+    old = os.path.join(folder, FLAT_KEYS_FILE)
+    if os.path.exists(path) or not os.path.exists(old):
+        return
+    try:
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        shutil.copyfile(old, path)
+        os.replace(old, old + '.old')
+        log.warning('moved %s to %s', old, path)
+    except OSError:
+        log.exception('could not move %s to %s', old, path)
+
+
 class KeyMap:
     _shared = None
 
@@ -144,7 +167,11 @@ class KeyMap:
         return cls._shared
 
     def __init__(self, path=None):
-        self.path = path or os.path.join(paths.user_dir(), 'keys.json')
+        if path is None:
+            folder = paths.user_dir()
+            path = os.path.join(folder, KEYS_FILE)
+            _move_flat_keys(folder, path)
+        self.path = path
         self.bindings = {a: [tuple(b) for b in DEFAULTS[a]] for a in ACTION_IDS}
         self.load()
         self._held = set()
@@ -184,6 +211,7 @@ class KeyMap:
 
     def save(self):
         try:
+            os.makedirs(os.path.dirname(self.path), exist_ok=True)
             tmp = self.path + '.tmp'
             with open(tmp, 'w', encoding='utf-8') as f:
                 json.dump({a: [list(b) for b in self.bindings[a]] for a in ACTION_IDS},

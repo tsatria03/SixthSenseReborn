@@ -49,8 +49,7 @@ def test_a_new_save_shows_its_gold():
     with _NewSave() as s:
         app = AppDelegate.shared()
         app.didFinishLaunching()
-        with open(s.d.path, encoding='utf-8') as fh:
-            assert json.load(fh)['GOLD'] == '0'
+        assert UserDefaults().flat()['GOLD'] == '0'      # read back from disk
         s.d.setObject_forKey_('750', 'GOLD')
         app.didFinishLaunching()
         assert s.d.objectForKey_('GOLD') == '750' and app.haveGold == 750
@@ -64,8 +63,7 @@ def test_a_new_save_gets_both_rates_in_save_json():
     with _NewSave() as s:
         assert gold_rates.fill(s.d) is True
         s.d.synchronize()
-        with open(s.d.path, encoding='utf-8') as fh:
-            saved = json.load(fh)
+        saved = UserDefaults().flat()                    # read back from disk
         assert saved['GOLD_PER_KILL'] == 15 and saved['GOLD_PER_HEADSHOT'] == 5, saved
         assert gold_rates.fill(s.d) is False, 'a second start wrote again'
 

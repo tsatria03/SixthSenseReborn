@@ -11,7 +11,6 @@ Each test runs on a new, empty save folder of its own.
 """
 from __future__ import annotations
 
-import json
 import os
 import shutil
 import sys
@@ -105,8 +104,7 @@ def test_a_new_save_has_every_weapons_stats_and_no_others():
         for key in ('GRENADE_AMMO_CAPACITY', 'KNIFE_AMMO_CAPACITY', 'JAPAN_AMMO_CAPACITY',
                     'KNIFE_PRICE', 'COLT_PRICE'):
             assert s.d.objectForKey_(key) is None, key
-        with open(s.d.path, encoding='utf-8') as fh:
-            saved = json.load(fh)
+        saved = UserDefaults().flat()                    # read back from disk
         assert saved['MG80_RANGE'] == 1600 and saved['WEAPON_STATS_REAL'] == 1, saved
 
 
@@ -119,8 +117,7 @@ def test_the_grenade_count_is_always_in_the_save():
         s.d.setObject_forKey_('4', 'GRENADECOUNT')
         s.restart()
         assert s.d.objectForKey_('GRENADECOUNT') == '4', 'the count was written over'
-        with open(s.d.path, encoding='utf-8') as fh:
-            assert json.load(fh)['GRENADECOUNT'] == '4'
+        assert UserDefaults().flat()['GRENADECOUNT'] == '4'
 
 
 def test_an_older_saves_shop_numbers_are_replaced_once():
@@ -161,8 +158,7 @@ def test_the_earlier_key_names_are_renamed_with_their_values():
             assert s.d.objectForKey_('WEAPON_STATS_REAL') == 1
             for old in (marker, edit, rng, ammo):
                 assert s.d.objectForKey_(old) is None, old
-            with open(s.d.path, encoding='utf-8') as fh:
-                saved = json.load(fh)
+            saved = UserDefaults().flat()                # read back from disk
             stats_keys = [k for k in saved if k.endswith(('RANGE', 'DAMAGE', 'PRICE',
                                                           'CAPACITY', 'REAL'))]
             assert all('_' in k and k == k.upper() for k in stats_keys), stats_keys

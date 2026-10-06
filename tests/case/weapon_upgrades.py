@@ -122,8 +122,7 @@ def test_the_range_moves_a_whole_metre_at_a_time():
 def test_a_new_save_has_every_setting_level_and_cap():
     with _NewSave() as s:
         s.d.synchronize()
-        with open(s.d.path, encoding='utf-8') as fh:
-            saved = json.load(fh)
+        saved = UserDefaults().flat()                    # read back from disk
         assert saved['UPGRADE_START_PRICE'] == 100 and saved['UPGRADE_PRICE_GROWTH'] == 1.2
         assert saved['UPGRADE_DAMAGE_SHARE'] == 15 and saved['UPGRADE_AMMO_SHARE'] == 15
         assert saved['UPGRADE_RANGE_SHARE'] == 15

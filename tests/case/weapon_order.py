@@ -8,7 +8,6 @@ Each test runs on a new, empty save folder of its own.
 """
 from __future__ import annotations
 
-import json
 import os
 import shutil
 import sys
@@ -120,9 +119,8 @@ def test_a_new_save_starts_on_the_colt_and_cycles_as_the_original_did():
     order itself would have started a game on the grenade, which has no magazine."""
     with _NewSave() as s:
         s.d.synchronize()
-        with open(s.d.path, encoding='utf-8') as fh:
-            assert json.load(fh)['WEAPON_ORDER'] == [COLT, SHOTGUN, M4, AK47, MG80,
-                                                     JAPAN, GRENADE, KNIFE]
+        assert UserDefaults().flat()['WEAPON_ORDER'] == [COLT, SHOTGUN, M4, AK47, MG80,
+                                                         JAPAN, GRENADE, KNIFE]
         assert O.order(s.d) == O.DEFAULT_ORDER
         assert O.first_equipped(s.app, s.d) == COLT
         assert O.equipped(s.app, s.d) == [COLT, GRENADE, KNIFE], 'the original cycle'
@@ -169,8 +167,7 @@ def test_moving_swaps_with_the_next_equipped_weapon_and_saves():
         assert O.move(SHOTGUN, 1, s.app, s.d) is None, 'it moved past the bottom'
         # the move went into the save, not only into memory
         s.d.synchronize()
-        with open(s.d.path, encoding='utf-8') as fh:
-            assert json.load(fh)['WEAPON_ORDER'] == O.order(s.d)
+        assert UserDefaults().flat()['WEAPON_ORDER'] == O.order(s.d)
 
 
 def test_a_weapon_that_is_not_equipped_keeps_its_place():

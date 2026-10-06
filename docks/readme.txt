@@ -38,7 +38,7 @@ The vibration row switches the controller's vibration. It starts on, and turning
 The shake to break free row lets you shake a controller that can sense being shaken, such as a PlayStation DualSense, to shake the animal zombie off, which takes one shake or two. It starts on, and the A button always works whether it is on or not.
 The controller row says which controller the game is using, and Enter on it moves to the next one you have plugged in. The game plays with that one only, and remembers it by name, so unplugging things and plugging them back in does not lose your choice.
 A row the game cannot use says so instead of its setting, such as "Vibration, not supported", and Enter on it tells you why rather than changing anything. That happens when no controller is plugged in, or when the controller cannot do that thing, such as a controller with no motion sensor for the shake. Your setting is kept underneath, so a controller that can do it later finds your old choice.
-The game remembers every setting in settings.json.
+The game remembers every setting in config/settings.json.
 Page Up makes the menu music louder, and Page Down makes it quieter, in the main menu, the shop and the inventory.
 It goes from silent to its full volume in steps of ten percent, and the game remembers where you left it.
 Your screen reader says the new volume.
@@ -161,30 +161,35 @@ Left and Right also move between rows, and Home and End go to the first and the 
 
 Your save
 
-Your progress is saved in save.json, your settings, such as the menu music volume, in settings.json, and your keys in keys.json.
-On Windows, all three are in the SixthSenseReborn folder in your AppData Roaming folder, which you can open by typing %APPDATA%\SixthSenseReborn into the Windows Run box.
+Your save is a set of short files in four folders, each holding one thing.
+saves/save.json holds your progress, such as whether you have finished the tutorial.
+config/settings.json holds your settings, and config/keys.json your keys.
+store/shop.json holds the shop's rules, and store/inventory.json what you have.
+weapons holds one file for each weapon, such as weapons/shotgun.json, with that weapon's numbers.
+On Windows, the folders are in the SixthSenseReborn folder in your AppData Roaming folder, which you can open by typing %APPDATA%\SixthSenseReborn into the Windows Run box.
 On Linux, they are in ~/.local/share/SixthSenseReborn, or $XDG_DATA_HOME/SixthSenseReborn when set.
 On macOS, they are in ~/Library/Application Support/SixthSenseReborn.
 The first time Sixth Sense Reborn starts, it copies your progress, settings and keys from Sixth Sense, if you have played it, and it never changes your Sixth Sense save.
+To start over completely, delete the saves, store and weapons folders while the game is closed; your settings and keys stay.
 In settings.json you can set six volumes, from 0 for silent to 100, the original's mix.
 MASTERVOLUME is everything, MENUMUSICVOLUME the menu music, LEVELMUSICVOLUME the music during a game, AMBIENCEVOLUME the cave, the forest and the rain, WEAPONVOLUME the weapons, and PLAYERVOLUME your own sounds.
 GAMEPLAYGAIN is the gain during a game, from 0 to 6 decibels, where 0 is the original's mix; a number it cannot use counts as 0.
 Change a number in a text editor, save the file and start the game again to hear it.
 A number the game cannot use counts as 100.
-GOLD in save.json is the gold you have, which starts at 0.
-In save.json each weapon has its numbers, which the game plays with: AMMO_CAPACITY is the magazine, RANGE how far it reaches in centimetres, DAMAGE what a hit takes off, and PRICE what the shop charges.
-The key starts with the weapon's name, so SHOTGUN_DAMAGE is the shotgun's damage, and the names are GRENADE, KNIFE, COLT, SHOTGUN, M4, AK47, MG80 and JAPAN, the Japanese sword.
+Close the game before you change any of these files, since it writes them while it runs.
+In store/inventory.json, gold is the gold you have and grenades the grenades you have, both starting at 0.
+owned lists the weapons you have bought, and equipped the weapons you carry.
+order is the order the weapons come in, which starts colt, shotgun, m4a1, ak47, mg80, sword, grenade, knife; the reorder screen is the easy way to change it, and every weapon has to be there exactly once, or the game puts the whole list back.
+The weapons are called grenade, knife, colt, shotgun, m4a1, ak47, mg80 and sword, and those are also the names of their files.
+Each weapon's file has the numbers the game plays with: ammo_capacity is the magazine, range how far it reaches in centimetres, damage what a hit takes off, and price what the shop charges.
 The shop and the inventory read the same numbers out, with the range in metres, so a range of 1000 is 10 metres.
-The grenade's count is GRENADECOUNT, the grenades you have, which starts at 0, the knife and the sword have no magazine, and the knife and the colt are free, so those have no key.
-Close the game before you change them, since it writes the file while it runs, and a number it cannot use is put back to the weapon's own.
-GOLD_PER_KILL and GOLD_PER_HEADSHOT in save.json are the gold a game pays when it ends, 15 for each zombie you kill and 5 for each headshot, and you can change them the same way.
-WEAPON_ORDER is the order the weapons come in, as the eight slot numbers: 0 the grenade, 1 the knife, 2 the colt, 3 the shotgun, 4 the M4A1, 5 the AK47, 6 the MG80 and 7 the Japanese sword.
-It starts as 2, 3, 4, 5, 6, 7, 0, 1, which is the colt first and then the rest, and the reorder screen is the easy way to change it. Every number has to be there exactly once, or the game puts the whole list back.
-Each weapon's level is its name and _LEVEL, such as SHOTGUN_LEVEL, and its top level is its name and _MAX_LEVEL, 10 to start with.
-UPGRADE_START_PRICE is the first level's price, 100, and UPGRADE_PRICE_GROWTH how much each level's price grows, 1.2, which is a fifth more each time.
-UPGRADE_DAMAGE_SHARE, UPGRADE_AMMO_SHARE and UPGRADE_RANGE_SHARE are how much of the weapon's own damage, magazine and range one level adds, as a percentage, 15 each, so at 15 the top level is two and a half times the weapon: a colt of 7 rounds, 30 damage and 10 metres holds 18, does 75 and reaches 25 metres at level 10. The range goes up a whole metre at a time, since it is read out in metres.
+The knife, the sword and the grenade have no magazine, and the knife and the colt are free, so those have no such number; a number the game cannot use is put back to the weapon's own.
+level is the weapon's upgrade level, and max_level its top level, 10 to start with; a level above the top counts only as the top.
+In store/shop.json, gold_per_kill and gold_per_headshot are the gold a game pays when it ends, 15 for each zombie you kill and 5 for each headshot.
+upgrade_start_price is the first level's price, 100, and upgrade_price_growth how much each level's price grows, 1.2, which is a fifth more each time.
+upgrade_damage_share, upgrade_ammo_share and upgrade_range_share are how much of the weapon's own damage, magazine and range one level adds, as a percentage, 15 each, so at 15 the top level is two and a half times the weapon: a colt of 7 rounds, 30 damage and 10 metres holds 18, does 75 and reaches 25 metres at level 10. The range goes up a whole metre at a time, since it is read out in metres.
 These five are for every weapon at once, and the price growth can have decimals.
-If a save from an older version is there, called defaults.json, the game moves it into the new files by itself and keeps the old one as defaults.json.old.
+If a save from an older version is there, the game moves it into the folders by itself the first time it starts, and keeps each old file with .old on the end of its name.
 If one of the files is ever damaged, the game keeps it with .damaged on the end of its name and carries on from a backup.
 
 Credits

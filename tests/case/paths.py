@@ -231,26 +231,32 @@ def test_the_by_ear_tools_never_change_appdata():
 def test_a_by_ear_tools_save_is_its_own():
     """_own_save puts a tool's save in a folder of its own inside the game's, on every
     system, the same folder on Windows as before, and copies the key bindings and the
-    settings but never the save."""
+    settings, from config/ (or, where the player's save has not moved into the folders yet,
+    from beside them), but never the save."""
     from unittest.mock import patch
     sys.path.insert(0, INTERACT)
     try:
         from _own_save import own_save
     finally:
         sys.path.remove(INTERACT)
-    with tempfile.TemporaryDirectory() as top:
-        real = os.path.join(top, 'SixthSenseReborn')
-        os.makedirs(real)
-        for name in ('keys.json', 'settings.json', 'save.json'):
-            with open(os.path.join(real, name), 'w', encoding='utf-8') as fh:
-                fh.write(name)
-        with patch.object(paths, 'save_base', return_value=top), patch.dict(os.environ):
-            mine = own_save('level_chooser')
-            assert mine == os.path.join(real, 'level_chooser', 'SixthSenseReborn'), mine
-            assert os.environ[paths.USER_DIR_ENV] == mine
-            assert paths.user_dir() == mine
-            assert sorted(os.listdir(mine)) == ['keys.json', 'settings.json'], \
-                'the save came along: %s' % os.listdir(mine)
+    for layout in ('config', ''):
+        with tempfile.TemporaryDirectory() as top:
+            real = os.path.join(top, 'SixthSenseReborn')
+            os.makedirs(os.path.join(real, 'config'))
+            os.makedirs(os.path.join(real, 'saves'))
+            for name in ('keys.json', 'settings.json'):
+                with open(os.path.join(real, layout, name), 'w', encoding='utf-8') as fh:
+                    fh.write(name)
+            with open(os.path.join(real, 'saves', 'save.json'), 'w', encoding='utf-8') as fh:
+                fh.write('{}')
+            with patch.object(paths, 'save_base', return_value=top), patch.dict(os.environ):
+                mine = own_save('level_chooser')
+                assert mine == os.path.join(real, 'level_chooser', 'SixthSenseReborn'), mine
+                assert os.environ[paths.USER_DIR_ENV] == mine
+                assert paths.user_dir() == mine
+                assert os.listdir(mine) == ['config'], 'the save came along: %s' % os.listdir(mine)
+                assert sorted(os.listdir(os.path.join(mine, 'config'))) == \
+                    ['keys.json', 'settings.json'], layout or 'flat'
         assert os.environ[paths.USER_DIR_ENV] == _scratch_save.FOLDER, \
             "the tests' own override was not put back"
 

@@ -118,9 +118,26 @@ tutorial first, as the original does; pressing P at its end counts 3, 2, 1 and s
 the real game. Finished once, by either route, Start Game goes straight into the game.
 `--skip-tutorial` writes the key the tutorial writes, if you would rather skip it.
 
-The save lives in `%APPDATA%\SixthSenseReborn`, in three files: `save.json` (progress),
-`settings.json` (the volumes and the Settings screen's rows) and `keys.json` (the key
-bindings).
+The save lives in `%APPDATA%\SixthSenseReborn`, in short files in four folders, one thing
+each (tsatria03's layout, 2026-10-06):
+
+- `saves/save.json`: progress (`TUTORIAL`, `STAGE`, the score records), and any key not
+  named below.
+- `config/settings.json`: the volumes and the Settings screen's rows; `config/keys.json`:
+  the key bindings.
+- `store/shop.json`: the shop's rules, lowercase (`gold_per_kill`, `upgrade_start_price`
+  ...).
+- `store/inventory.json`: `gold`, `grenades`, and `owned`, `equipped` and `order` as lists
+  of weapon names.
+- `weapons/<name>.json`, one per weapon (`grenade`, `knife`, `colt`, `shotgun`, `m4a1`,
+  `ak47`, `mg80`, `sword`): `ammo_capacity`, `range`, `damage`, `price`, `level` and
+  `max_level`.
+
+The game itself still asks for the original's key names (`GOLD`, `M4USE`,
+`SHOTGUN_DAMAGE`); `sixthsense/platform/defaults.py` routes each to its file and translates
+the name, so nothing else knows about the folders. Below, a key is named as the game names
+it.
+
 `settings.json` holds `MASTERVOLUME`, `MENUMUSICVOLUME`, `LEVELMUSICVOLUME`,
 `AMBIENCEVOLUME`, `WEAPONVOLUME` and `PLAYERVOLUME`, whole percentages
 from 0 to 100, where 100 is the original's mix, and `GAMEPLAYGAIN`, whole decibels from 0
@@ -133,12 +150,13 @@ plugged in takes that id, so an id means nothing between runs. A saved name that
 attached is left alone and the game falls back to the first pad it finds, so plugging the
 preferred pad back in picks it up again. Only that pad plays, buzzes and is read for a
 shake; any other attached pad is ignored, which is also how a pad SDL has listed twice
-stops being two controllers. The first two hold the `NSUserDefaults` keys the original writes, under their
-own names, split by key; the original kept them all in one plist. A `defaults.json` from
-before the split is moved into the new files on the first start and kept as
-`defaults.json.old`.
+stops being two controllers. The original kept all of these in one plist. An older save -
+`save.json` and `settings.json` in the folder itself (before 2026-10-06), or a
+`defaults.json` (before 2026-09-25) - is moved into the folders on the first start, each
+old file kept with `.old` on its name, and a key found in a file it does not belong in is
+moved to its own on every start. An empty file counts as new.
 
-`save.json` also holds each weapon's stats, which the game plays with and the shop and
+The weapon files hold each weapon's stats, which the game plays with and the shop and
 inventory read out: `<W>_AMMO_CAPACITY` (the magazine), `<W>_RANGE` (centimetres, read
 out in metres), `<W>_DAMAGE` and `<W>_PRICE` (what the shop charges), where `<W>` is
 `GRENADE`, `KNIFE`, `COLT`, `SHOTGUN`, `M4`, `AK47`, `MG80` or `JAPAN`, so
@@ -157,7 +175,8 @@ cycle turned round to begin at the colt, so an untouched save plays as the origi
 The inventory's Reorder weapons screen is the easy way to change it: Up and Down walk the
 equipped weapons, Shift with either moves one, and on a pad the bumpers do. That order is
 what Tab cycles through in a game and what a game starts you on.
-Weapon upgrades: each weapon has `<W>_LEVEL` (0) and `<W>_MAX_LEVEL` (10), and one
+Weapon upgrades: each weapon has `<W>_LEVEL` (0) and `<W>_MAX_LEVEL` (10; a level above
+it counts only as the cap), and one
 upgrade button on its pages raises the level, adding to its damage, ammo capacity and
 range at once (not the grenade's or the blades' ammo). Five keys apply to every weapon:
 `UPGRADE_START_PRICE` (100) and `UPGRADE_PRICE_GROWTH` (1.2), so level n costs
@@ -218,7 +237,7 @@ the game's own voice is 269 recorded WAVs and none of them can say "Left Arrow".
 
 Binding captures a chord — hold the keys together and let go. **F1 and Escape are not
 rebindable**, so there is always a way back in. Bindings live in
-`%APPDATA%\SixthSenseReborn\keys.json`, stored by key name so a pygame update cannot
+`%APPDATA%\SixthSenseReborn\config\keys.json`, stored by key name so a pygame update cannot
 scramble them.
 
 ## How to play
@@ -357,7 +376,7 @@ python tests/case/monster_sound.py  # zombie sounds read back from OpenAL (audio
 python tests/case/focus.py          # switching away from the window pauses a stage
 python tests/case/window.py         # the window's close button and the screen loop
 python tests/case/release.py        # the releaser's version, changelog and names (builds nothing)
-python tests/case/save.py           # save.json and settings.json, the old save moved over, damaged files kept (temp folders only)
+python tests/case/save.py           # the save folders, the names translated, old layouts moved over, damaged files kept (temp folders only)
 python tests/case/music_memory.py   # changing the music and ambience frees the old files (audio device)
 python tests/case/audio_device.py   # a lost audio device is reopened (fake device, then OpenAL's null driver)
 python tests/case/runloop.py        # timers and delayed calls: once each, in time order, on a fine clock

@@ -16,8 +16,9 @@ from __future__ import annotations
 import os
 import shutil
 
-#: What a tool takes from the player's own folder each time it starts.
-COPIED = ('keys.json', 'settings.json')
+#: What a tool takes from the player's own folder each time it starts, inside the save
+#: folder's config folder (aidocks/project_save_folders_plan.md).
+COPIED = (os.path.join('config', 'keys.json'), os.path.join('config', 'settings.json'))
 
 
 def own_save(name, copied=COPIED):
@@ -27,8 +28,11 @@ def own_save(name, copied=COPIED):
     mine = os.path.join(real, name, paths.SAVE_FOLDER)
     os.makedirs(mine, exist_ok=True)
     for file in copied:
-        yours = os.path.join(real, file)
-        if os.path.exists(yours):
-            shutil.copyfile(yours, os.path.join(mine, file))
+        # a player whose own save has not moved into the folders yet has it flat
+        for yours in (os.path.join(real, file), os.path.join(real, os.path.basename(file))):
+            if os.path.exists(yours):
+                os.makedirs(os.path.dirname(os.path.join(mine, file)), exist_ok=True)
+                shutil.copyfile(yours, os.path.join(mine, file))
+                break
     os.environ[paths.USER_DIR_ENV] = mine
     return mine
