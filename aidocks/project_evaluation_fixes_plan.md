@@ -58,6 +58,7 @@ Item numbers are the 19 of the evaluation's list, ranked high to low.
     - **Built 2026-10-06, not yet confirmed**: CLAUDE.md's SoundList entries (371 to 374), sound counts (103 and 191), the stray backtick from the blooper edit, the modules each package now has, and "a system voice"; MEMORY.md's evaluation line, which had run into the Provenance line since the stash was restored, its status lines, and a "now" note on each finished project line that read as current (Reborn names and paths, coins, voice over, builds); [[project_tests_layout]] with all four tools, `_own_save.py` and the 34 test files; [[project_safe_test_run]] with the 619 run.
 11. **Long functions** (item 19).
     - Open question: refactor `main()` in `SixthSenseReborn.py` and the longest `stage_1_e.py` methods now, or leave them noted? Recommendation: leave them as a developer task; splitting them changes no behaviour and risks breaking timing the tests cover only partly.
+    - **The dev's decision (2026-10-06): "Leave the big code changes in the dev tasks plan."** Not built; it stays an open line in [[project_dev_tasks]]. Every group is now built or decided.
 
 ## Todo list and developer tasks
 - `docks/todo list.txt` ##Unfinished. gets the player-facing groups 1, 4, 5 and 6 (five lines; group 1 is two), replacing the "Nothing is waiting here" line.
