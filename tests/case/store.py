@@ -15,6 +15,7 @@ import _scratch_save                                             # noqa: E402,F4
 
 from sixthsense import paths                                      # noqa: E402
 from sixthsense.game.app_delegate import AppDelegate              # noqa: E402
+from sixthsense.game.blind_screen import MESSAGE_TEXT             # noqa: E402
 from sixthsense.game.inventory import (SLOTS, DetailInventoryController,  # noqa: E402
                                        InventoryController)
 from sixthsense.game.store import (SHOP, DetailStoreController,   # noqa: E402
@@ -199,6 +200,7 @@ def test_buying_a_weapon_spends_the_gold_and_equips_it():
         assert d.intForKey_('AK47USE') == 1, 'a bought weapon is equipped, 0x1be08'
         assert app.haveWeapon[5] == '1'
         assert p.message == 'Purchase has completed.'
+        assert MESSAGE_TEXT[260] == p.message, 'the screen reader says the window\'s words'
         # 0x1bb58: buying it again is refused, and costs nothing
         assert p.buyAction_() is False
         assert app.haveGold == 5000

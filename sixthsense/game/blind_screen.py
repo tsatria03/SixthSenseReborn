@@ -40,7 +40,7 @@ SOUND_UI_SELECT = 10
 #: ``ROW_TEXT``.
 MESSAGE_TEXT = {
     259: 'Gold is lacking.',
-    260: 'Purchase has been completed.',
+    260: 'Purchase has completed.',     # the weapon buy's line, 0xb7d86
     351: 'Not equipped.',
     352: 'Equipped.',
     359: 'This weapon has been purchased.',
