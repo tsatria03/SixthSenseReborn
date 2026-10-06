@@ -9,7 +9,9 @@ Evaluated at the dev's asking on 2026-10-06, read-only, at `d1eb337`. The same d
 
 **Why:** a baseline for Reborn after SixthSenseOriginal was frozen ([[project_two_repos]]), listing what the removed voice over mode ([[screen_reader_only_plan]]) and coins ([[free_games_plan]]) left behind.
 
-**How to apply:** none of these has been acted on except the one marked fixed; each needs the dev's go-ahead. Check an item still stands before working on it, and mark it here when done.
+**Since fixed:** every finding below was acted on the same day through [[project_evaluation_fixes_plan]], which says what each fix was and which the dev has confirmed; this note stays as the record of what was found.
+
+**How to apply (as written before the fixes):** none of these has been acted on except the one marked fixed; each needs the dev's go-ahead. Check an item still stands before working on it, and mark it here when done.
 
 Fixed:
 - `tests/case/volume.py`'s `test_settings_json_lists_them_in_the_devs_order` failed after `46efca7` added `SHAKE`, `CONTROLLER` and `SKIPINTRO` to `defaults.SETTINGS_KEYS` without updating it. Fixed on 2026-10-06 (uncommitted at the time of writing). Lesson: a contributor runs only their own tests, so a test elsewhere that pins the same thing only fails on a full run.
