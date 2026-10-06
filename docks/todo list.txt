@@ -1,5 +1,6 @@
 ##Unfinished.
 
+Remove the keys the game no longer uses from save.json, such as REVIEWCOUNT, which counts game overs only because the original used it to ask for an App Store review.
 On a Mac, Sixth Sense Reborn shares its app identity with the original Sixth Sense, so the system may mistake one for the other.
 
 ##Finished.
