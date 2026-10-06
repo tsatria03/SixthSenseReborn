@@ -100,7 +100,8 @@ The **Store** row opens the shop — the weapon list, a page per weapon with its
 numbers read aloud, and the inventory, where what you equip is what the stage hands
 you. Gold comes out of your runs: twelve a kill and two a headshot.
 
-`--stage` and `--tutorial` skip the menu, `--no-intro` skips the opening. Other
+`--stage` and `--tutorial` skip the menu, `--no-intro` skips the opening for one run
+(`SKIPINTRO` in `settings.json`, set on the Settings screen, does it for good). Other
 options: `--no-window` (headless), `--game DIR` (another copy of the bundle), `-v`.
 
 `--debug` is for trying things out: a zombie that reaches you just dies, nothing takes a heart and
@@ -125,7 +126,7 @@ bindings).
 from 0 to 100, where 100 is the original's mix, and `GAMEPLAYGAIN`, whole decibels from 0
 to 6, where 0 is; they are read on the next start, and the menu music, the gain and the
 two groups are also set by Page Up and Page Down. It also holds what the **Settings**
-screen sets: `VIBRATION`, `HEADSHOTSPEECH`, `HEADSHOTBEEP` and `SHAKE`, each '1' or '0',
+screen sets: `SKIPINTRO`, `VIBRATION`, `HEADSHOTSPEECH`, `HEADSHOTBEEP` and `SHAKE`, each '1' or '0',
 and `CONTROLLER`, the name of the pad the game plays with, or '' for whichever is found
 first. `CONTROLLER` is a **name, never an id**: unplug the pad on id 0 and the next one
 plugged in takes that id, so an id means nothing between runs. A saved name that is not

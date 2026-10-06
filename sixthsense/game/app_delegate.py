@@ -143,6 +143,20 @@ class AppDelegate:
         if not on:
             self.vibrate_stop()
 
+    # ====================================================== the opening screens
+    @property
+    def skip_intro_on(self):
+        """PORT ADDITION (tunmi13productions, 2026-10-06): ``SKIPINTRO`` in settings.json,
+        '1' or '0': the game opens on the menu instead of the publisher's logo and the
+        warning.  A save that has never set it sees them, as it always did.  ``--no-intro``
+        does the same for one run without saving anything."""
+        return UserDefaults.standardUserDefaults().stringForKey_('SKIPINTRO') == '1'
+
+    def set_skip_intro(self, on):
+        d = UserDefaults.standardUserDefaults()
+        d.setObject_forKey_('1' if on else '0', 'SKIPINTRO')
+        d.synchronize()
+
     # ================================================= the shake and the chosen pad
     # PORT ADDITION (tunmi13productions, 2026-10-06, aidocks/project_settings_menu_plan.md)
 

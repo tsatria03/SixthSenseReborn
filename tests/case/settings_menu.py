@@ -21,12 +21,12 @@ import _scratch_save                                             # noqa: E402,F4
 
 from sixthsense import paths                                     # noqa: E402
 from sixthsense.game.app_delegate import AppDelegate             # noqa: E402
-from sixthsense.game.settings_screen import (CONTROLLER_ROW,     # noqa: E402
-                                             SettingsController)
+from sixthsense.game.settings_screen import (BEEP_ROW, CONTROLLER_ROW,   # noqa: E402
+                                             SHAKE_ROW, SKIP_INTRO_ROW, SPEECH_ROW,
+                                             VIBRATION_ROW, SettingsController)
 from sixthsense.platform.defaults import UserDefaults            # noqa: E402
 from sixthsense.platform.runloop import RunLoop                  # noqa: E402
 
-SPEECH_ROW, BEEP_ROW, VIBRATION_ROW, SHAKE_ROW = 2, 3, 4, 5
 
 
 class _Recorder:
@@ -136,10 +136,10 @@ class _NewSave:
         shutil.rmtree(self.top, ignore_errors=True)
 
 
-def test_the_rows_are_back_the_four_settings_and_the_picker():
+def test_the_rows_are_back_the_five_settings_and_the_picker():
     with _NewSave() as s:
         page = s.page()
-        assert page.rows() == (1, 2, 3, 4, 5, 6)
+        assert page.rows() == (1, 2, 3, 4, 5, 6, 7)
         assert page.title_text() == 'Settings.'
         assert page.row_text(1) == 'Back, Button'
 
@@ -151,11 +151,13 @@ def test_the_defaults_are_what_they_were_before_the_screen_existed():
         s.pads('Xbox Wireless Controller')
         s.can_shake(True)
         page = s.page()
+        assert page.row_text(SKIP_INTRO_ROW) == 'Skip the opening screens, currently off.'
         assert page.row_text(SPEECH_ROW) == 'Spoken headshot, currently on.'
         assert page.row_text(BEEP_ROW) == 'Headshot beep, currently off.'
         assert page.row_text(VIBRATION_ROW) == 'Vibration, currently on.'
         assert page.row_text(SHAKE_ROW) == 'Shake to break free, currently on.'
         assert s.app.shake_on and s.app.can_shake_now()
+        assert not s.app.skip_intro_on, 'the opening screens were skipped by default'
 
 
 def test_each_toggle_flips_saves_and_says_the_new_state():
@@ -163,7 +165,9 @@ def test_each_toggle_flips_saves_and_says_the_new_state():
         s.pads('Xbox Wireless Controller')
         s.can_shake(True)
         page = s.page()
-        for row, key, label, was in ((SPEECH_ROW, 'HEADSHOTSPEECH', 'Spoken headshot', True),
+        for row, key, label, was in ((SKIP_INTRO_ROW, 'SKIPINTRO',
+                                      'Skip the opening screens', False),
+                                     (SPEECH_ROW, 'HEADSHOTSPEECH', 'Spoken headshot', True),
                                      (BEEP_ROW, 'HEADSHOTBEEP', 'Headshot beep', False),
                                      (VIBRATION_ROW, 'VIBRATION', 'Vibration', True),
                                      (SHAKE_ROW, 'SHAKE', 'Shake to break free', True)):
@@ -177,6 +181,7 @@ def test_each_toggle_flips_saves_and_says_the_new_state():
         with open(s.d.settings.path, encoding='utf-8') as fh:
             saved = json.load(fh)
         assert 'SHAKE' in saved, 'SHAKE is not in settings.json'
+        assert saved['SKIPINTRO'] == '0', 'SKIPINTRO is not in settings.json'
         assert 'CONTROLLER' not in saved or saved['CONTROLLER'] == ''
 
 
@@ -221,7 +226,7 @@ def test_with_no_pad_the_rows_stay_but_say_not_supported():
     not supported. so it won't let you toggle it on"."""
     with _NewSave() as s:
         page = s.page()
-        assert page.rows() == (1, 2, 3, 4, 5, 6), 'a row went missing'
+        assert page.rows() == (1, 2, 3, 4, 5, 6, 7), 'a row went missing'
         assert page.row_text(VIBRATION_ROW) == 'Vibration, not supported.'
         assert page.row_text(SHAKE_ROW) == 'Shake to break free, not supported.'
         assert page.row_text(CONTROLLER_ROW) == 'Controller, none attached.'
@@ -361,6 +366,7 @@ def test_the_real_keyboard_walks_and_flips():
         page.startRead()
         assert page.speech.said[0] == 'Settings.'
         keys = ScreenInput(page)
+        keys.handle(_Key('down'), _Pygame)
         keys.handle(_Key('down'), _Pygame)
         assert page.selectMenu == SPEECH_ROW
         assert page.speech.said[-1] == 'Spoken headshot, currently on.'

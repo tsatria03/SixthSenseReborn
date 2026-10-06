@@ -31,8 +31,9 @@ LIMIT = 200
 class Run:
     """One pass of the frame loop, with every screen it builds and tears down."""
 
-    def __init__(self, script):
+    def __init__(self, script, argv=('--no-intro',)):
         self.script = script            # frame -> a callable taking this Run
+        self.argv = list(argv)          # what main() is started with
         self.built = []                 # (kind, screen), in the order they were made
         self.torn = []
         self.frame = 0
@@ -49,7 +50,7 @@ class Run:
         RunLoop.main().reset()
         real = {n: getattr(SixthSenseReborn, n) for n in
                 ('_new_menu', '_new_stage', '_new_tutorial', '_new_screen',
-                 '_new_test_range')}
+                 '_new_test_range', '_new_intro')}
         run = self
 
         def wrap(kind, fn):
@@ -67,6 +68,7 @@ class Run:
         SixthSenseReborn._new_tutorial = wrap('tutorial', real['_new_tutorial'])
         SixthSenseReborn._new_screen = wrap('screen', real['_new_screen'])
         SixthSenseReborn._new_test_range = wrap('weapon_test', real['_new_test_range'])
+        SixthSenseReborn._new_intro = wrap('intro', real['_new_intro'])
         real_get = pygame.event.get
 
         def get():
@@ -82,7 +84,7 @@ class Run:
 
         pygame.event.get = get
         try:
-            SixthSenseReborn.main(['--no-intro'])
+            SixthSenseReborn.main(self.argv)
         finally:
             pygame.event.get = real_get
             for n, fn in real.items():
@@ -233,6 +235,32 @@ def test_a_normal_exit_says_nothing():
         assert e.code == 0
     else:
         raise AssertionError('a normal exit was taken for a failure')
+
+
+def test_the_opening_screens_play_unless_the_setting_skips_them():
+    """PORT ADDITION (tunmi13productions, 2026-10-06): SKIPINTRO in settings.json, set on
+    the Settings screen, does for good what --no-intro does for one run."""
+    d = UserDefaults.standardUserDefaults()
+    try:
+        d.removeObjectForKey_('SKIPINTRO')
+        run = Run({2: close}, argv=[]).go()
+        assert run.count('intro') == 1, 'the opening screens did not play'
+        assert run.count('menu') == 0
+
+        _save(SKIPINTRO='1')
+        run = Run({2: close}, argv=[]).go()
+        assert run.count('intro') == 0, 'the setting did not skip the opening screens'
+        assert run.count('menu') == 1, 'it did not open on the menu'
+
+        _save(SKIPINTRO='0')
+        run = Run({2: close}, argv=[]).go()
+        assert run.count('intro') == 1, 'turning it off did not bring them back'
+
+        # and the flag still works on its own, whatever the save says
+        run = Run({2: close}, argv=['--no-intro']).go()
+        assert run.count('intro') == 0 and run.count('menu') == 1
+    finally:
+        d.removeObjectForKey_('SKIPINTRO')
 
 
 if __name__ == '__main__':

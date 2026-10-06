@@ -30,11 +30,14 @@ Shaking a pad to break free already works wherever the pad can sense it, with no
 A pushed screen, as the shop and the inventory are, so Escape goes back and the rows read themselves. Every row is always there, in this order, with the ones that need a pad last:
 
 1. Back
-2. Spoken headshot, currently on.
-3. Headshot beep, currently off.
-4. Vibration, currently on.
-5. Shake to break free, currently on.
-6. Controller, Xbox Wireless Controller.
+2. Skip the opening screens, currently off.
+3. Spoken headshot, currently on.
+4. Headshot beep, currently off.
+5. Vibration, currently on.
+6. Shake to break free, currently on.
+7. Controller, Xbox Wireless Controller.
+
+The rows are named in the module (`BACK_ROW`, `SKIP_INTRO_ROW` and so on), so inserting one is a matter of those numbers and nowhere else. Row 2 was added on 2026-10-06, after the rest was built, at tunmi13productions' asking: "add a setting to optionally disable the splash screen and take you to the main menu". It is `SKIPINTRO`, '1' or '0', default '0', and does for good what `--no-intro` does for one run; it needs no pad, so it joins the rows that are never unsupported.
 
 Enter on a setting flips it and says the new state, as the menu rows do now. Enter on the Controller row moves to the next attached pad and says its name.
 
@@ -53,6 +56,7 @@ The main menu keeps `title`, `start`, `tutorial` and `store`, and its three sett
 ## Save keys
 
 - `SHAKE`, '1' or '0', default '1' (on), in `SETTINGS_KEYS` beside the other toggles.
+- `SKIPINTRO`, '1' or '0', default '0' (the opening screens play), also in `SETTINGS_KEYS`.
 - `CONTROLLER`, the chosen pad's name as SDL reports it, or '' for "whichever is found first", also in `SETTINGS_KEYS`. **Never an id.**
 - A saved name that is not attached is **left alone, not cleared**, and the game falls back to the first pad it finds, so plugging the preferred pad back in restores it without the player doing anything.
 

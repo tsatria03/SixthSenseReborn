@@ -25,24 +25,36 @@ log = logging.getLogger('settings')
 SOUND_BACK = 13
 SOUND_HEADSHOT_BEEP = 374           # PORT ADDITION: the dev's own, as the menu played it
 
-#: row -> (what it is called, the attribute that reads it, the attribute that sets it).
-#: The two that need no pad come first, so the ones that can read "not supported" are
+#: The rows, named so that inserting one is a matter of the numbers here and nowhere else.
+#: The ones that need no pad come first, so the ones that can read "not supported" are
 #: always at the end of the list.
-TOGGLES = {
-    2: ('Spoken headshot', 'headshot_speech_on', 'set_headshot_speech'),
-    3: ('Headshot beep', 'headshot_beep_on', 'set_headshot_beep'),
-    4: ('Vibration', 'vibration_on', 'set_vibration'),
-    5: ('Shake to break free', 'shake_on', 'set_shake'),
-}
+BACK_ROW = 1
+SKIP_INTRO_ROW = 2
+SPEECH_ROW = 3
+BEEP_ROW = 4
+VIBRATION_ROW = 5
+SHAKE_ROW = 6
 #: the picker, which is not a toggle
-CONTROLLER_ROW = 6
+CONTROLLER_ROW = 7
+
+#: row -> (what it is called, the attribute that reads it, the attribute that sets it)
+TOGGLES = {
+    SKIP_INTRO_ROW: ('Skip the opening screens', 'skip_intro_on', 'set_skip_intro'),
+    SPEECH_ROW: ('Spoken headshot', 'headshot_speech_on', 'set_headshot_speech'),
+    BEEP_ROW: ('Headshot beep', 'headshot_beep_on', 'set_headshot_beep'),
+    VIBRATION_ROW: ('Vibration', 'vibration_on', 'set_vibration'),
+    SHAKE_ROW: ('Shake to break free', 'shake_on', 'set_shake'),
+}
+#: the rows that need a controller for there to be anything to change
+NEED_PAD = (VIBRATION_ROW, SHAKE_ROW, CONTROLLER_ROW)
 
 
 class SettingsController(BlindScreen):
     """Back, the four toggles, then the controller picker."""
 
-    ROWS = (1, 2, 3, 4, 5, CONTROLLER_ROW)
-    ROW_SOUND = {1: SOUND_BACK}
+    ROWS = (BACK_ROW, SKIP_INTRO_ROW, SPEECH_ROW, BEEP_ROW, VIBRATION_ROW, SHAKE_ROW,
+            CONTROLLER_ROW)
+    ROW_SOUND = {BACK_ROW: SOUND_BACK}
     TITLE_TEXT = 'Settings.'
 
     def __init__(self, speech=None):
@@ -64,9 +76,9 @@ class SettingsController(BlindScreen):
         between.
         """
         names = self._names()
-        if row in (4, 5, CONTROLLER_ROW) and not names:
+        if row in NEED_PAD and not names:
             return 'No controller is attached.'
-        if row == 5 and not self.app.can_shake():
+        if row == SHAKE_ROW and not self.app.can_shake():
             return 'This controller cannot sense a shake.'
         if row == CONTROLLER_ROW and len(names) < 2:
             return 'This is the only controller attached.'
@@ -78,11 +90,11 @@ class SettingsController(BlindScreen):
         at all reads "not supported"."""
         if row == CONTROLLER_ROW:
             return bool(self._names())
-        return row not in (4, 5) or self.why_not(row) is None
+        return row not in NEED_PAD or self.why_not(row) is None
 
     # ---- the rows ---------------------------------------------------------------------
     def row_text(self, row):
-        if row == 1:
+        if row == BACK_ROW:
             return BACK_TEXT
         if row == CONTROLLER_ROW:
             name = self.app.controllers.active_name if self.app.controllers else None
@@ -95,7 +107,7 @@ class SettingsController(BlindScreen):
     def activate(self):
         self.StopElseSpeak()
         row = self.selectMenu
-        if row == 1:
+        if row == BACK_ROW:
             self.goBackAction_()
         elif row == CONTROLLER_ROW:
             self.nextControllerAction_()
@@ -120,9 +132,9 @@ class SettingsController(BlindScreen):
         if now:
             # the same proof the menu's rows gave: vibration buzzes once, and the beep
             # plays once, so the player hears what they just chose
-            if row == 4:
+            if row == VIBRATION_ROW:
                 self.app.vibrate_effect('confirm')
-            elif row == 3:
+            elif row == BEEP_ROW:
                 self.app.playSound_Gain_Pos_z_reprats_(
                     SOUND_HEADSHOT_BEEP, 1.0, (0.0, 0.0), 0, False)
         log.info('%s %s', label, 'on' if now else 'off')

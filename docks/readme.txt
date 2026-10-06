@@ -29,8 +29,9 @@ Escape in the main menu quits the game.
 Settings
 
 Enter on the Settings row opens the settings, and Escape goes back to the menu.
-It has five rows after Back: spoken headshot, headshot beep, vibration, shake to break free, and controller.
+It has six rows after Back: skip the opening screens, spoken headshot, headshot beep, vibration, shake to break free, and controller.
 Each row says what it is and what it is set to, such as "Vibration, currently on", and Enter on it changes it.
+The skip the opening screens row takes you straight to the main menu when you start the game, instead of the publisher's logo and the earphone warning. It starts off, so you see them as before.
 The spoken headshot row turns the "Headshot!" call on or off. It starts on.
 The headshot beep row turns on a beep that plays where the zombie is on every headshot. It starts off, and turning it on plays it once.
 The vibration row switches the controller's vibration. It starts on, and turning it on buzzes once so you can feel it.

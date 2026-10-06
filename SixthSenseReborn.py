@@ -109,7 +109,8 @@ def main(argv=None):
     ap.add_argument('--no-window', action='store_true',
                     help='run headless (keyboard input unavailable)')
     ap.add_argument('--no-intro', action='store_true',
-                    help='open on the menu instead of the splash and the warning')
+                    help='open on the menu instead of the splash and the warning, for this '
+                         "run; the Settings screen's \"Skip the opening screens\" saves it")
     ap.add_argument('--debug', action='store_true',
                     help='nothing hurts you and you cannot die, and no kill, '
                          'headshot, score or gold counts')
@@ -183,7 +184,9 @@ def main(argv=None):
         kind, obj = 'tutorial', _new_tutorial()
     elif args.stage:
         kind, obj = 'stage', _new_stage()
-    elif args.no_intro:
+    elif args.no_intro or app.skip_intro_on:
+        # PORT ADDITION (2026-10-06): SKIPINTRO in settings.json, set on the Settings
+        # screen, does for good what --no-intro does for one run
         kind, obj = 'menu', _new_menu()
     else:
         kind, obj = 'intro', _new_intro()
@@ -386,8 +389,9 @@ SCREEN_ROWS = {
     'inventory_detail': {1: 'back', 2: 'name', 3: 'ammo capacity',
                          4: 'effective range', 5: 'damage', 6: 'price',
                          7: 'state', 8: 'equip / unequip'},
-    'settings': {1: 'back', 2: 'spoken headshot', 3: 'headshot beep', 4: 'vibration',
-                 5: 'shake to break free', 6: 'controller'},
+    'settings': {1: 'back', 2: 'skip the opening screens', 3: 'spoken headshot',
+                 4: 'headshot beep', 5: 'vibration', 6: 'shake to break free',
+                 7: 'controller'},
 }
 SCREEN_TITLE = {
     'store': 'STORE', 'store_weapons': 'WEAPON SHOP', 'store_detail': 'WEAPON',
