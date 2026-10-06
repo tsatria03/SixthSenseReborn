@@ -25,6 +25,7 @@ The `[[name]]` links in `CLAUDE.md` and across these memories resolve to `aidock
 - [Tests folder layout](project_tests_layout.md): since 2026-09-23 the dev's own reorganization puts the automated tests in `tests/case/` (no `test_` prefix; the test range's is `weapon_range.py`) and the two by-ear tools in `tests/interact/` (`level_chooser.py`, `tutorial_chooser.py`, with saves of the same names).
 - [Developer tasks](project_dev_tasks.md): the repository, tool, test, build and docs tasks, open and finished, moved out of `todo list.txt` on 2026-09-23 when that file became players only.
 - [Weapon test range](project_test_range.md): `Stage_1_TEST`, behind the shop's Try button, was ported on 2026-09-22 as `game/stage_1_test.py`. It gives you one weapon, standing still, with tier 1 zombies; five kills win, gold is 12% of the score, and the panel has no rank. It has addresses and divergences.
+- [Weapon upgrades plan](project_weapon_upgrades_plan.md): PLANNED 2026-10-05. One upgrade button per weapon raises its level; damage, ammo (10 each) and range (100 cm) added on top, growing 1.2x a level; price from 100, growing 1.2x; cap 10 per weapon; on the inventory pages and bought weapons' shop pages; every number in save.json.
 - [Levels are endless](project_levels_endless.md): the original has no level cap and no win (verified in the raw instructions). From about level 9 zombies arrive on their first step, and unused art shows 19 stages plus endless were planned.
 
 ## Completed projects (aidocks/completed/, no project_ prefix)
