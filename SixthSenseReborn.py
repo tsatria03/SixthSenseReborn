@@ -68,7 +68,7 @@ def _new_screen(name, arg=None):
     a stack of its own and does the same.
     """
     from sixthsense.game.inventory import (DetailInventoryController,
-                                           InventoryController)
+                                           InventoryController, ReorderController)
     from sixthsense.game.store import (DetailStoreController, MainStoreController,
                                        StoreController)
     made = {
@@ -77,6 +77,7 @@ def _new_screen(name, arg=None):
         'store_detail': lambda: DetailStoreController(arg),
         'inventory': lambda: InventoryController(),
         'inventory_detail': lambda: DetailInventoryController(arg),
+        'reorder': lambda: ReorderController(),
     }[name]()
     made.startRead()
     return made
@@ -89,7 +90,7 @@ DEVICE_CHECK_SECONDS = 1.0
 
 #: The screens that are pushed rather than swapped in.
 PUSHED = ('store', 'store_weapons', 'store_detail', 'inventory',
-          'inventory_detail')
+          'inventory_detail', 'reorder')
 
 
 def main(argv=None):
@@ -377,7 +378,8 @@ SCREEN_ROWS = {
                      4: 'effective range', 5: 'damage', 6: 'price',
                      7: 'buy', 8: 'try'},
     'inventory': {1: 'back', 2: 'grenade', 3: 'knife', 4: 'colt', 5: 'shotgun',
-                  6: 'M4A1', 7: 'AK47', 8: 'MG80', 9: 'japanese sword'},
+                  6: 'M4A1', 7: 'AK47', 8: 'MG80', 9: 'japanese sword',
+                  10: 'reorder weapons'},
     'inventory_detail': {1: 'back', 2: 'name', 3: 'ammo capacity',
                          4: 'effective range', 5: 'damage', 6: 'price',
                          7: 'state', 8: 'equip / unequip'},
@@ -385,6 +387,7 @@ SCREEN_ROWS = {
 SCREEN_TITLE = {
     'store': 'STORE', 'store_weapons': 'WEAPON SHOP', 'store_detail': 'WEAPON',
     'inventory': 'INVENTORY', 'inventory_detail': 'WEAPON',
+    'reorder': 'REORDER WEAPONS',
 }
 
 
@@ -403,10 +406,13 @@ def _screen_lines(kind, screen):
         if getattr(screen, 'message', ''):
             out.append(screen.message)
     out.append('')
-    names = SCREEN_ROWS[kind]
+    # the reorder screen's rows are the player's own weapon order, so it names them
+    names = SCREEN_ROWS.get(kind, {})
     for row in screen.rows():
-        out.append('%s %s' % ('>' if row == screen.selectMenu else ' ',
-                              names.get(row, 'row %d' % row)))
+        label = names.get(row) or screen.row_text(row) or 'row %d' % row
+        out.append('%s %s' % ('>' if row == screen.selectMenu else ' ', label))
+    if kind == 'reorder':
+        out += ['', 'Shift+Up/Down move a weapon']
     out += ['', 'Up/Down move   Enter choose   Esc back   F1 key bindings']
     return out
 

@@ -51,7 +51,7 @@ from ..platform import volume
 from ..platform.defaults import UserDefaults
 from ..platform.runloop import RunLoop
 from .oal_playback import OalPlayback
-from . import gold_rates, weapon_stats, weapon_upgrades
+from . import gold_rates, weapon_order, weapon_stats, weapon_upgrades
 from .sound_list_control import SoundListControl
 
 log = logging.getLogger('app')
@@ -121,6 +121,8 @@ class AppDelegate:
         wrote = gold_rates.fill(d) or wrote
         # and the upgrade levels, caps and settings (weapon_upgrades.py)
         wrote = weapon_upgrades.fill(d) or wrote or gold_missing
+        # PORT ADDITION (2026-10-06): the order the weapons come in (weapon_order.py)
+        wrote = weapon_order.fill(d) or wrote
         if wrote:
             d.synchronize()
         self.weaponHave()

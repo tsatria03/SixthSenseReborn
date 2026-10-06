@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import logging
 
-from .menu_input import menu_music_key
+from .menu_input import menu_music_key, move_weapon_key
 
 log = logging.getLogger('screen.input')
 
@@ -29,6 +29,11 @@ class ScreenInput:
         name = pygame.key.name(event.key)
         s = self.screen
         if menu_music_key(name, s.app, s.say):
+            return
+        # PORT ADDITION (2026-10-06): Shift with an arrow, or a bumper, on the reorder
+        # screen.  This is the keyboard the shop and inventory screens use, the reorder
+        # screen among them (game/weapon_order.py).
+        if move_weapon_key(name, event, pygame, s):
             return
         if name == 'escape':
             s.goBackAction_()

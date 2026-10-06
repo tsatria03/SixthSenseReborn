@@ -68,7 +68,14 @@ _BUTTON_KEYS = (('CONTROLLER_BUTTON_DPAD_UP', 'K_UP'),
                 ('CONTROLLER_BUTTON_DPAD_LEFT', 'K_LEFT'),
                 ('CONTROLLER_BUTTON_DPAD_RIGHT', 'K_RIGHT'),
                 ('CONTROLLER_BUTTON_A', 'K_RETURN'),
-                ('CONTROLLER_BUTTON_B', 'K_ESCAPE'))
+                ('CONTROLLER_BUTTON_B', 'K_ESCAPE'),
+                # PORT ADDITION (2026-10-06): the two bumpers, which move a weapon on the
+                # reorder screen (game/weapon_order.py).  F13 and F14 stand for them: no
+                # keyboard here has those keys and nothing else in the game reads them, so
+                # a bumper does nothing at all anywhere else.  Page Up and Page Down would
+                # have been simpler but already set the menu music's volume.
+                ('CONTROLLER_BUTTON_LEFTSHOULDER', 'K_F13'),
+                ('CONTROLLER_BUTTON_RIGHTSHOULDER', 'K_F14'))
 
 #: (the axis, its key when pushed negative, its key when pushed positive)
 _STICK_AXES = (('CONTROLLER_AXIS_LEFTX', 'K_LEFT', 'K_RIGHT'),

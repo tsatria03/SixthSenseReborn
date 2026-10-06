@@ -140,6 +140,13 @@ not sold). A value that is not a whole number of 0 or more is put back on the ne
 `GOLD_PER_KILL` (15) and `GOLD_PER_HEADSHOT` (5) are the gold a game pays when it ends,
 per kill and per headshot hit, raised from the original's 12 and 2 and editable the same
 way; the weapon test range keeps its own 12% of the score.
+`WEAPON_ORDER` is the order the weapons come in, the eight slot numbers (0 grenade,
+1 knife, 2 colt, 3 shotgun, 4 M4A1, 5 AK47, 6 MG80, 7 Japanese sword), each exactly once
+or the whole list is put back. It starts as `[2, 3, 4, 5, 6, 7, 0, 1]`, the original's own
+cycle turned round to begin at the colt, so an untouched save plays as the original did.
+The inventory's Reorder weapons screen is the easy way to change it: Up and Down walk the
+equipped weapons, Shift with either moves one, and on a pad the bumpers do. That order is
+what Tab cycles through in a game and what a game starts you on.
 Weapon upgrades: each weapon has `<W>_LEVEL` (0) and `<W>_MAX_LEVEL` (10), and one
 upgrade button on its pages raises the level, adding to its damage, ammo capacity and
 range at once (not the grenade's or the blades' ammo). Five keys apply to every weapon:

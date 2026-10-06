@@ -70,6 +70,7 @@ In a game, the left stick aims like a swipe: up is 12 o'clock, left 9, right 3, 
 Lean the stick for one shot, and bring it back to the middle before the next. The MG80 keeps firing while the stick is held.
 The D-pad does the same as the arrow keys: left, up and right, left and up together, right and up together, and down to reload.
 X reloads, the right bumper changes to the next weapon, and the left bumper to the previous one.
+On the reorder screen the same two bumpers move a weapon down and up the list.
 A shakes you free when the animal zombie grabs you.
 A controller that can sense motion, such as a PlayStation DualSense, can also be shaken for the same thing.
 An Xbox controller has no motion sensor, so it only has the button.
@@ -119,6 +120,11 @@ The Store row opens the shop.
 The weapon list has a page for each weapon, which reads its numbers aloud.
 Buy a weapon with gold, or choose Try to test it first on a practice range.
 In the inventory you choose which weapons you take into a game.
+The last row, Reorder weapons, opens the weapons you have equipped and lets you put them in the order you want.
+Up and Down walk the list, and Shift with Up or Down moves the weapon you are on, which says what it did, such as "MG80 moved above Colt".
+On a controller the left stick walks the list, the left bumper moves a weapon up and the right bumper moves it down.
+That order is the order Tab takes you through in a game, and the weapon at the top is the one you start with.
+A weapon you unequip keeps its place and comes back to it when you equip it again.
 Each game pays 15 gold for every kill and 5 more for every headshot.
 
 Upgrading weapons
@@ -126,7 +132,8 @@ Upgrading weapons
 Every weapon has a level, which its page reads after its numbers, such as "Level, 3 of 10".
 The upgrade button, "Upgrade stats to level 4 for 173 gold", raises the weapon one level, and its damage, ammo capacity and range all go up together.
 The grenade, the knife and the sword have no magazine, so they gain damage and range only.
-The first level adds 10 damage, 10 rounds and one metre of range, and each level after adds a fifth more than the one before.
+Each level adds 15 per cent of the weapon's own damage, magazine and range, so a weapon at level 10 is two and a half times the weapon it was: a colt of 7 rounds, 30 damage and 10 metres holds 18, does 75 and reaches 25 metres.
+The range goes up a whole metre at a time, so the knife and the sword, which are only 2 and 3 metres to begin with, keep the same range for a level or two at a time.
 The first level costs 100 gold, and each level after costs a fifth more than the one before, so a weapon at level 10 has cost 2,596 gold.
 In the shop the upgrade button takes Buy's place once the weapon is yours, and the grenade keeps Buy as well, since you buy grenades again and again.
 In the inventory every weapon you own has the upgrade button after Equip, and that is where the knife and the colt are upgraded.
@@ -159,6 +166,8 @@ The shop and the inventory read the same numbers out, with the range in metres, 
 The grenade's count is GRENADECOUNT, the grenades you have, which starts at 0, the knife and the sword have no magazine, and the knife and the colt are free, so those have no key.
 Close the game before you change them, since it writes the file while it runs, and a number it cannot use is put back to the weapon's own.
 GOLD_PER_KILL and GOLD_PER_HEADSHOT in save.json are the gold a game pays when it ends, 15 for each zombie you kill and 5 for each headshot, and you can change them the same way.
+WEAPON_ORDER is the order the weapons come in, as the eight slot numbers: 0 the grenade, 1 the knife, 2 the colt, 3 the shotgun, 4 the M4A1, 5 the AK47, 6 the MG80 and 7 the Japanese sword.
+It starts as 2, 3, 4, 5, 6, 7, 0, 1, which is the colt first and then the rest, and the reorder screen is the easy way to change it. Every number has to be there exactly once, or the game puts the whole list back.
 Each weapon's level is its name and _LEVEL, such as SHOTGUN_LEVEL, and its top level is its name and _MAX_LEVEL, 10 to start with.
 UPGRADE_START_PRICE is the first level's price, 100, and UPGRADE_PRICE_GROWTH how much each level's price grows, 1.2, which is a fifth more each time.
 UPGRADE_DAMAGE_SHARE, UPGRADE_AMMO_SHARE and UPGRADE_RANGE_SHARE are how much of the weapon's own damage, magazine and range one level adds, as a percentage, 15 each, so at 15 the top level is two and a half times the weapon: a colt of 7 rounds, 30 damage and 10 metres holds 18, does 75 and reaches 25 metres at level 10. The range goes up a whole metre at a time, since it is read out in metres.

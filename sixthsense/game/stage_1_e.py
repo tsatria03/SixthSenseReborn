@@ -62,7 +62,7 @@ from .make_maps import MakeMaps
 from .monster_control import MonsterControl, lane_bearing
 from .moving_accelerometer import MovingAccelerometer
 from .player_control import PlayerControl
-from . import gold_rates, weapon_stats
+from . import gold_rates, weapon_order, weapon_stats
 from .weapon_control import WeaponControl, WEAPON_FILES, WEAPON_NAMES, WEAPON_SLOTS
 
 log = logging.getLogger('stage')
@@ -424,10 +424,15 @@ class Stage_1_E:
 
     # -[Stage_1_E startWeapon] 0x35708
     def startWeapon(self):
-        use = self.app.useWeapon
-        if len(use) > 2 and use[2] != '0':       # 0x3572a: COLTUSE
-            self.gamePlayer.useWepon = 2
+        """PORT DIVERGENCE (2026-10-06, weapon_order.py): the first equipped weapon in
+        the player's own order, where 0x3572a read COLTUSE first and handed you the colt
+        whenever it was equipped.  Putting a weapon first is the point of the order.
+        With nothing equipped the original's walk up the slots is what is left."""
+        first = weapon_order.first_equipped(self.app)
+        if first is not None:
+            self.gamePlayer.useWepon = first
         else:
+            use = self.app.useWeapon
             w = self.gamePlayer.useWepon
             while w < WEAPON_SLOTS:
                 if w < len(use) and int(use[w] or 0) > 0:
@@ -1316,12 +1321,15 @@ class Stage_1_E:
     def gunChangeAction_(self, step=1):
         """Cycle to the next owned-and-equipped weapon.  --debug: every weapon, bought
         and equipped or not."""
+        # PORT ADDITION (2026-10-06): the walk follows the player's own order rather
+        # than the slot numbers 0 to 7 (weapon_order.py).  In debug mode every weapon is
+        # reached, equipped or not, so the full order is walked.
         use = self.app.useWeapon
+        walk = weapon_order.order() if self.app.debug else weapon_order.equipped(self.app)
         w = self.gamePlayer.useWepon
-        for _ in range(WEAPON_SLOTS):
-            w = (w + step) % WEAPON_SLOTS
-            if self.app.debug or (w < len(use) and use[w] == '1'):
-                break
+        if walk:
+            at = walk.index(w) if w in walk else -step % len(walk)
+            w = walk[(at + step) % len(walk)]
         self.gamePlayer.useWepon = w
         weapon = self.weaponSource[w]
         if weapon:

@@ -16,7 +16,9 @@ from __future__ import annotations
 
 import logging
 
+from ..platform.controller_names import button_names
 from ..platform.defaults import UserDefaults
+from . import weapon_order
 from .blind_screen import BlindScreen
 from .store import (BACK_TEXT, LEVEL_ROW, SOUND_AMMO_CAPACITY, SOUND_BACK, SOUND_DAMAGE,
                     SOUND_EFFECTIVE_RANGE, SOUND_GRENADE_COUNT, SOUND_PRICE, UPGRADE_ROW,
@@ -55,7 +57,12 @@ class InventoryController(BlindScreen):
     the table unused, which is why the table looks as though it skips the grenade.
     """
 
-    ROWS = (1, 2, 3, 4, 5, 6, 7, 8, 9)
+    #: PORT ADDITION (2026-10-06): row 10, after the eight slots, opens the reorder
+    #: screen (weapon_order.py).  The eight stay in slot order whatever the player's
+    #: order is, so a weapon is always in the same row when they go looking for it.
+    REORDER_ROW = 10
+
+    ROWS = (1, 2, 3, 4, 5, 6, 7, 8, 9, REORDER_ROW)
     ROW_SOUND = {1: SOUND_BACK,
                  2: 348,            # Grenade button
                  3: 239,            # knife button
@@ -70,6 +77,7 @@ class InventoryController(BlindScreen):
     ROW_WEAPON = {2: 0, 3: 1, 4: 2, 5: 3, 6: 4, 7: 5, 8: 6, 9: 7}
     TITLE_TEXT = 'Inventory.'
     ROW_TEXT = {1: BACK_TEXT,
+                REORDER_ROW: 'Reorder weapons, Button',
                 **{row: '%s, Button' % SLOTS[w]['name'] for row, w in ROW_WEAPON.items()}}
 
     def activate(self):
@@ -77,9 +85,16 @@ class InventoryController(BlindScreen):
         row = self.selectMenu
         if row == 1:
             self.goBackAction_()
+        elif row == self.REORDER_ROW:
+            self.reorderAction_()
         elif row in self.ROW_WEAPON:
             self.ItemAction_(self.ROW_WEAPON[row])
         return row
+
+    def reorderAction_(self, *_):
+        """PORT ADDITION: open the reorder screen (weapon_order.py)."""
+        self.ui_select()
+        self.push('reorder')
 
     # -[InventoryController Item1Action:] 0x25b90 and its seven copies
     def ItemAction_(self, weapon_type):
@@ -210,3 +225,90 @@ class DetailInventoryController(BlindScreen):
         the list in slot order, with the grenade, the knife and the colt always owned."""
         have = self.app.haveWeapon
         return self.weaponType < len(have) and have[self.weaponType] == '1'
+
+
+class ReorderController(BlindScreen):
+    """PORT ADDITION (tunmi13productions, 2026-10-06): the order the weapons come in.
+
+    aidocks/project_weapon_order_plan.md.  Back, then the equipped weapons in the
+    player's own order (``weapon_order.py``).  Up and Down walk them; Shift with either
+    moves the weapon under the cursor, and the cursor goes with it.  On a pad the
+    bumpers move it.  Nothing here equips or unequips: it only says what order the
+    weapons come in, and the inventory's own list stays in slot order so a weapon is
+    always in the same row.
+    """
+
+    TITLE_TEXT = 'Reorder weapons.'
+
+    def __init__(self, speech=None):
+        BlindScreen.__init__(self, speech=speech)
+        self.selectMenu = 1
+
+    def order(self):
+        """The equipped weapons, in the player's order."""
+        return weapon_order.equipped(self.app, self.defaults)
+
+    def rows(self):
+        """Back, then one row per equipped weapon.  Row 1 + n is the nth weapon."""
+        return tuple(range(1, len(self.order()) + 2))
+
+    def slot_for(self, row):
+        """The weapon slot a row carries, or None for Back and for a row past the end."""
+        carried = self.order()
+        return carried[row - 2] if 2 <= row < len(carried) + 2 else None
+
+    def row_text(self, row):
+        if row == 1:
+            return BACK_TEXT
+        slot = self.slot_for(row)
+        return '' if slot is None else SLOTS[slot]['name']
+
+    def row_sound(self, row):
+        return SOUND_BACK if row == 1 else None
+
+    def instructions(self):
+        """How to move a weapon, in the words that suit what is plugged in, as the
+        tutorial's callouts do (aidocks/completed/tutorial_controller_callouts_plan.md).
+        A pad gets the controller wording, with its own button names."""
+        carried = self.order()
+        if not carried:
+            return 'No weapons are equipped.'
+        if len(carried) == 1:
+            return 'Only one weapon is equipped, so there is nothing to reorder.'
+        pad = self.app.controller_name()
+        if pad is not None:
+            names = button_names(pad)
+            return ('Push %s up and down to walk the list, %s to move a weapon up, '
+                    '%s to move it down.' % (names['left_stick'], names['lb'], names['rb']))
+        return ('Up and Down to walk the list, Shift and Up or Down to move a weapon.')
+
+    def startRead(self):
+        """The screen's name, then how to move a weapon, then row 1."""
+        self.selectMenu = 1
+        self.StopElseSpeak()
+        self.say(self.TITLE_TEXT)
+        self.say(self.instructions(), interrupt=False)
+        self.say(self.row_text(1), interrupt=False)
+
+    def activate(self):
+        self.StopElseSpeak()
+        if self.selectMenu == 1:
+            self.goBackAction_()
+        return self.selectMenu
+
+    def move_weapon(self, step):
+        """Shift with an arrow, or a bumper: move the weapon under the cursor one place.
+        The cursor follows it, so holding the key walks it up or down the list."""
+        slot = self.slot_for(self.selectMenu)
+        if slot is None:
+            return None
+        self.StopElseSpeak()
+        passed = weapon_order.move(slot, step, self.app, self.defaults)
+        name = SLOTS[slot]['name']
+        if passed is None:
+            self.say('%s is already %s.' % (name, 'first' if step < 0 else 'last'))
+            return None
+        self.selectMenu += step
+        self.say('%s moved %s %s.' % (name, 'above' if step < 0 else 'below',
+                                      SLOTS[passed]['name']))
+        return passed

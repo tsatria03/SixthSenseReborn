@@ -15,6 +15,31 @@ log = logging.getLogger('menu.input')
 #: one steps it.  The menu, the shop and the inventory only; a stage has its own keyboard.
 MENU_MUSIC_KEYS = {'page up': 1, 'page down': -1}
 
+#: PORT ADDITION (2026-10-06): the pad's bumpers, as ui/controller.py sends them, and
+#: which way each moves a weapon on the reorder screen: left up, right down.
+MOVE_BUMPERS = {'f13': -1, 'f14': 1}
+
+
+def move_weapon_key(name, event, pygame, screen):
+    """PORT ADDITION (2026-10-06): moving a weapon on the reorder screen
+    (game/weapon_order.py).  Shift with an arrow on the keyboard, and the two bumpers on a
+    pad, which reach here as F13 and F14 (ui/controller.py).
+
+    Only the reorder screen has ``move_weapon``, so everywhere else Shift and an arrow is
+    just the arrow, and a bumper does nothing at all.  True when ``name`` was handled, so
+    both keyboards (this one and screen_input.py) can call it first and go no further.
+    """
+    move = getattr(screen, 'move_weapon', None)
+    if move is None:
+        return name in MOVE_BUMPERS      # a bumper is still swallowed, so it does nothing
+    if name in MOVE_BUMPERS:
+        move(MOVE_BUMPERS[name])
+        return True
+    if name in ('up', 'down') and (event.mod & pygame.KMOD_SHIFT):
+        move(-1 if name == 'up' else 1)
+        return True
+    return False
+
 
 def menu_music_key(name, app, say):
     """Page Up or Page Down on a menu screen: step the menu music's volume.  With voice
@@ -44,6 +69,8 @@ class MenuInput:
             return
         name = pygame.key.name(event.key)
         if menu_music_key(name, self.menu.app, self.menu._say):
+            return
+        if move_weapon_key(name, event, pygame, self.menu):
             return
         if name == 'escape':
             self.quit = True
