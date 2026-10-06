@@ -71,6 +71,15 @@ log = logging.getLogger('stage')
 #: PORT DIVERGENCE: the most presses of the shake key a grab can need; each grab
 #: draws 1 to this many.  The original took ten shakes of the phone.
 SHAKES_MAX = 5
+#: PORT ADDITION (tunmi13productions, 2026-10-06): what one real shake of a controller is
+#: worth against that count.  **A shake is a real gesture, so it should not have to be
+#: aggressive**: a button can be tapped five times for nothing, but shaking a pad five
+#: times is a workout, and asking for it would make the kinder control the harder one.
+#: The dev: "for the controller, it shouldn't take multiple shakes. maybe one or two."
+#: At 3, a grab needing 1 to 3 breaks on one shake and one needing 4 or 5 on two, so a
+#: shake never takes more than two.  Presses and shakes count together, so mixing them
+#: works as it reads (aidocks/completed/controller_shake_plan.md).
+MOTION_SHAKE_WORTH = 3
 
 
 def arc4random():
@@ -1411,7 +1420,7 @@ class Stage_1_E:
             weapon.BulletCount = weapon.ReloadGun()
 
     # -[Stage_1_E accelerometer:didAccelerate:] 0x3c84c - the shake-free struggle.
-    def shake_step(self):
+    def shake_step(self, worth=1):
         """-[Stage_1_E accelerometer:didAccelerate:] 0x3c84c
 
             if (isShake != 1)            return;
@@ -1422,12 +1431,16 @@ class Stage_1_E:
         Clearing ``shakeFlag`` is all it does; ``shakingFind``, polling every 0.1 s,
         is what notices and performs the escape.  The port counts to ``shakesNeeded``,
         1 to 5, in place of ten (see ``_grabbed_by``).
+
+        ``worth`` is how much this one counts for: 1 for a button press, and
+        ``MOTION_SHAKE_WORTH`` for a real shake of the controller, which is far more work
+        than a tap.
         """
         if not self.isShake:
             return
         if self.shakeFlag == 0:
             return
-        self.shakeCount += 1
+        self.shakeCount += worth
         if self.shakeCount >= self.shakesNeeded:    # 0x3c8b0 counts to 10
             self.shakeFlag = 0
 

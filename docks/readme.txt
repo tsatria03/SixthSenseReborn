@@ -35,7 +35,7 @@ The skip the opening screens row takes you straight to the main menu when you st
 The spoken headshot row turns the "Headshot!" call on or off. It starts on.
 The headshot beep row turns on a beep that plays where the zombie is on every headshot. It starts off, and turning it on plays it once.
 The vibration row switches the controller's vibration. It starts on, and turning it on buzzes once so you can feel it.
-The shake to break free row lets you shake a controller that can sense being shaken, such as a PlayStation DualSense, to shake the animal zombie off. It starts on, and the A button always works whether it is on or not.
+The shake to break free row lets you shake a controller that can sense being shaken, such as a PlayStation DualSense, to shake the animal zombie off, which takes one shake or two. It starts on, and the A button always works whether it is on or not.
 The controller row says which controller the game is using, and Enter on it moves to the next one you have plugged in. The game plays with that one only, and remembers it by name, so unplugging things and plugging them back in does not lose your choice.
 A row the game cannot use says so instead of its setting, such as "Vibration, not supported", and Enter on it tells you why rather than changing anything. That happens when no controller is plugged in, or when the controller cannot do that thing, such as a controller with no motion sensor for the shake. Your setting is kept underneath, so a controller that can do it later finds your old choice.
 The game remembers every setting in settings.json.
@@ -83,7 +83,7 @@ The D-pad does the same as the arrow keys: left, up and right, left and up toget
 X reloads, the right bumper changes to the next weapon, and the left bumper to the previous one.
 On the reorder screen the same two bumpers move a weapon down and up the list.
 A shakes you free when the animal zombie grabs you.
-A controller that can sense motion, such as a PlayStation DualSense, can also be shaken for the same thing.
+A controller that can sense motion, such as a PlayStation DualSense, can also be shaken for the same thing. One shake is usually enough, and it never takes more than two, since shaking is a real movement rather than a button. Presses of A and shakes count together.
 An Xbox controller has no motion sensor, so it only has the button.
 B or Start pauses the game, and resumes it.
 The controller vibrates when a zombie hits you, in its own way for each zombie, when you shoot the girl by mistake, and when you die.

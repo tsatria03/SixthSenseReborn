@@ -920,6 +920,40 @@ def test_the_debug_keys_are_live_only_with_debug():
         st.teardown()
 
 
+def test_a_real_shake_of_the_pad_is_worth_more_than_a_tap():
+    """PORT ADDITION (tunmi13productions, 2026-10-06): a shake is a real gesture, so it
+    should not have to be aggressive.  At MOTION_SHAKE_WORTH it never takes more than two,
+    where a button can be tapped up to five times (game/stage_1_e.py)."""
+    import math
+
+    from sixthsense.game.stage_1_e import MOTION_SHAKE_WORTH, SHAKES_MAX
+    st, inp = _stage()
+    try:
+        for needed in range(1, SHAKES_MAX + 1):
+            st.isShake = True
+            st.shakeFlag = 1
+            st.shakeCount = 0
+            st.shakesNeeded = needed
+            shakes = 0
+            while st.shakeFlag != 0:
+                inp.perform('shake_motion')
+                shakes += 1
+                assert shakes <= 2, 'needing %d took %d shakes' % (needed, shakes)
+            assert shakes == math.ceil(needed / MOTION_SHAKE_WORTH), needed
+        # a button press is still worth one, so the two count together
+        st.isShake = True
+        st.shakeFlag = 1
+        st.shakeCount = 0
+        st.shakesNeeded = 1 + MOTION_SHAKE_WORTH
+        inp.perform('shake')
+        assert st.shakeCount == 1 and st.shakeFlag == 1, 'a tap alone freed you'
+        inp.perform('shake_motion')
+        assert st.shakeCount == 1 + MOTION_SHAKE_WORTH
+        assert st.shakeFlag == 0, 'a tap and a shake together did not free you'
+    finally:
+        st.teardown()
+
+
 if __name__ == '__main__':
     fns = [v for k, v in sorted(globals().items()) if k.startswith('test_')]
     bad = 0

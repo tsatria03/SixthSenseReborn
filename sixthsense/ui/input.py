@@ -40,6 +40,7 @@ import logging
 import math
 import time
 
+from ..game.stage_1_e import MOTION_SHAKE_WORTH
 from ..game.weapon_control import MG80_NUMBER
 from ..platform import volume
 from ..platform.keymap import CHORD_WINDOW, KeyMap
@@ -285,6 +286,9 @@ class Input:
             st.threeTapChangeWeapon_()
         elif action == 'shake':
             st.shake_step()
+        elif action == 'shake_motion':
+            # a real shake of the pad, worth more than a tap (game/stage_1_e.py)
+            st.shake_step(MOTION_SHAKE_WORTH)
         elif action == 'pause':
             st.StopPlayAction_()
         elif action.startswith('debug_'):

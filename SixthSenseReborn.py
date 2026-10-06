@@ -261,10 +261,12 @@ def main(argv=None):
         if hasattr(inp, 'pump'):
             inp.pump()
         app.vibration.tick()
-        # a pad that can sense it can be shaken to shake the animal zombie off, as A does
+        # a pad that can sense it can be shaken to shake the animal zombie off, as A does.
+        # 'shake_motion', not 'shake': a real shake is worth more than a tap, so it never
+        # takes more than two (game/stage_1_e.py's MOTION_SHAKE_WORTH)
         app.shake.tick(kind in STAGES and bool(getattr(obj, 'isShake', False))
                        and getattr(obj, 'gameState', 0) == 0,
-                       lambda: inp.perform('shake'))
+                       lambda: inp.perform('shake_motion'))
         loop.pump()
 
         # ---- screen changes ---------------------------------------------
