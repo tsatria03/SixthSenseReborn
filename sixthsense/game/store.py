@@ -13,14 +13,16 @@ in-app purchases no longer exist, and there are no recordings for buying any of 
 gold instead.
 
 The weapon table below is not data: ``-[DetailStoreController viewDidLoad]`` sets it
-out weaponType by weaponType in code (0x192f2..0x1a0ec), and the numbers here are the
-literals from those branches.
+out weaponType by weaponType in code (0x192f2..0x1a0ec).  The original's numbers there
+were not the ones it played with; since 2026-10-05 a weapon's page reads its stats from
+the save instead, the real ones unless the player changed them (``weapon_stats.py``).
 """
 from __future__ import annotations
 
 import logging
 
 from ..platform.defaults import UserDefaults
+from . import weapon_stats
 from .blind_screen import BlindScreen, whole
 
 log = logging.getLogger('store')
@@ -31,23 +33,39 @@ log = logging.getLogger('store')
 #:   name sound   the WAV that names the weapon, played when the row is read
 #:   image sound  the WAV the weapon's own page opens with
 #:   key          the NSUserDefaults key that means "owned"
+#:   use          the key that means "equipped"; without its USE, the weapon's name in
+#:                the save's stats keys (weapon_stats.py)
 #:
 #: 0x19318 (shotgun), 0x194da (M4A1), 0x196a8 (AK47), 0x19872 (MG80),
-#: 0x19ce0 (japanese sword) and 0x19ea4 (grenade).
+#: 0x19ce0 (japanese sword) and 0x19ea4 (grenade).  The original's stats for each,
+#: which it spoke and never played with, went on 2026-10-05; the prices it charged
+#: are weapon_stats.REAL's.
 SHOP = {
-    1: dict(name='Shotgun', image=249, label=241, ammo=10, rng=50,
-            damage=45, price=7000, key='SHOTGUN', use='SHOTGUNUSE'),
-    2: dict(name='M4A1', image=250, label=242, ammo=25, rng=300,
-            damage=50, price=13000, key='M4', use='M4USE'),
-    3: dict(name='AK47', image=251, label=243, ammo=30, rng=300,
-            damage=50, price=15000, key='AK47', use='AK47USE'),
-    4: dict(name='MG80', image=252, label=244, ammo=50, rng=1500,
-            damage=80, price=45000, key='MG80', use='MG80USE'),
-    5: dict(name='Japanese sword', image=253, label=245, ammo=0, rng=3,
-            damage=100, price=50000, key='JAPAN', use='JAPANUSE'),
-    0: dict(name='Grenade', image=47, label=348, ammo=None, rng=10,
-            damage=150, price=1000, key='GRENADECOUNT', use='GRENADEUSE'),
+    1: dict(name='Shotgun', image=249, label=241, key='SHOTGUN', use='SHOTGUNUSE'),
+    2: dict(name='M4A1', image=250, label=242, key='M4', use='M4USE'),
+    3: dict(name='AK47', image=251, label=243, key='AK47', use='AK47USE'),
+    4: dict(name='MG80', image=252, label=244, key='MG80', use='MG80USE'),
+    5: dict(name='Japanese sword', image=253, label=245, key='JAPAN', use='JAPANUSE'),
+    0: dict(name='Grenade', image=47, label=348, key='GRENADECOUNT', use='GRENADEUSE'),
 }
+
+
+def stats_name(item):
+    """The weapon's name in the save's stats keys: its ``use`` key without ``USE``."""
+    return item['use'][:-len('USE')]
+
+
+def load_stats(page, item):
+    """Set a weapon's page, shop or inventory, to the stats the save holds: range in
+    centimetres, and None for an ammo capacity or a price the weapon has none of."""
+    name = stats_name(item)
+    page.effetiverange = weapon_stats.value(name, 'range')
+    page.power = weapon_stats.value(name, 'damage')
+    page.price = weapon_stats.value(name, 'price')
+    if name == 'GRENADE':
+        page.ammocapacity = UserDefaults.standardUserDefaults().intForKey_('GRENADECOUNT')
+    else:
+        page.ammocapacity = weapon_stats.value(name, 'ammo_capacity')
 
 #: 0x19b32..0x19b66 - the four WAVs that name a number on a weapon's page.
 SOUND_AMMO_CAPACITY = 255
@@ -76,12 +94,16 @@ def detail_row_text(page, row, name):
     if row == 3:
         if page.weaponType == 0:
             return 'Number of grenades, %s' % whole(page.ammocapacity)
+        if page.ammocapacity is None:                 # the knife and the sword
+            return 'Ammo capacity, none'
         return 'Ammo capacity, %s' % whole(page.ammocapacity)
     if row == 4:
-        return 'Effective range, %s' % whole(page.effetiverange)
+        return 'Effective range, %s' % weapon_stats.range_text(page.effetiverange)
     if row == 5:
         return 'Damage, %s' % whole(page.power)
     if row == 6:
+        if page.price is None:                        # the knife and the colt
+            return 'Price, free'
         return 'Price, %s' % whole(page.price)
     return ''
 
@@ -242,13 +264,9 @@ class DetailStoreController(BlindScreen):
         item = SHOP[self.weaponType]
         self.type_image_sound = item['image']                 # 0x19318
         self.names = item['label']
-        self.effetiverange = item['rng']
-        self.power = item['damage']
-        self.price = item['price']
-        if self.weaponType == 0:                              # 0x19ea4, the grenade
-            self.ammocapacity = self.defaults.intForKey_('GRENADECOUNT')
-        else:
-            self.ammocapacity = item['ammo']
+        # 0x19ea4: the grenade's ammo capacity is GRENADECOUNT.  PORT DIVERGENCE: the
+        # rest come from the save (weapon_stats.py), not the original's literals.
+        load_stats(self, item)
         self.type_ammocapacity = SOUND_AMMO_CAPACITY          # 0x19b66
         self.type_effectiverange = SOUND_EFFECTIVE_RANGE      # 0x19b56
         self.type_power = SOUND_DAMAGE                        # 0x19b32

@@ -161,12 +161,14 @@ def test_the_weapon_list_opens_each_weapons_page():
 
 
 def test_a_weapon_page_reads_its_own_numbers():
-    """0x19318: the shotgun is 10 rounds, 50 m, 45 damage, 7000 gold."""
+    """The shotgun's real numbers, since 2026-10-05: 10 rounds, 1000 cm, 35 damage and
+    the 7000 gold buying charges (the original's page said 50 and 45, 0x19318)."""
     app = _app()
     p = DetailStoreController(1)
     try:
         assert (p.ammocapacity, p.effetiverange, p.power, p.price) == \
-            (10, 50, 45, 7000)
+            (10, 1000, 35, 7000)
+        assert p.row_text(4) == 'Effective range, 10 metres', p.row_text(4)
         assert p.row_sound(2) == 249                    # shotgun image
         assert p.row_sound(3) == 255                    # ammo capacity
         assert p.row_sound(6) == 258                    # price
@@ -350,14 +352,20 @@ def test_a_screen_says_which_one_it_is():
         p.teardown()
 
 
-def test_the_inventory_and_the_shop_disagree_about_prices():
-    """Reproduced, not fixed: -[DetailInventoryController viewDidLoad] hard-codes a
-    different price, and for the sword a different damage, from the shop's."""
-    assert SHOP[1]['price'] == 7000 and SLOTS[3]['price'] == 50000    # shotgun
-    assert SHOP[4]['price'] == 45000 and SLOTS[6]['price'] == 10000   # MG80
-    assert SHOP[5]['price'] == 50000 and SLOTS[7]['price'] == 150000  # sword
-    assert SHOP[5]['damage'] == 100 and SLOTS[7]['damage'] == 80
-    assert SHOP[1]['ammo'] == 10 and SLOTS[3]['ammo'] == 9
+def test_the_inventory_and_the_shop_agree():
+    """The original's two pages hard-coded different numbers for the same weapons (the
+    shotgun's price 7000 and 50000, the sword's damage 100 and 80).  Since 2026-10-05
+    both read the save, so every weapon's page says the same in both."""
+    _app()
+    for weapon_type, item in SHOP.items():
+        slot = next(w for w, s in SLOTS.items() if s['use'] == item['use'])
+        shop, inv = DetailStoreController(weapon_type), DetailInventoryController(slot)
+        try:
+            for row in (3, 4, 5, 6):
+                assert shop.row_text(row) == inv.row_text(row), (item['name'], row)
+        finally:
+            shop.teardown()
+            inv.teardown()
 
 
 def test_escape_backs_out_of_every_screen():

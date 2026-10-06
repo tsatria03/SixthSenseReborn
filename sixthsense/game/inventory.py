@@ -8,8 +8,9 @@ and ``-[Stage_1_E gunChangeAction:]`` cycles through, so what is equipped here i
 the stage hands you.
 
 The table is read out of ``-[DetailInventoryController viewDidLoad]`` (0x27632
-onward), which sets it out slot by slot in code.  Its numbers do **not** agree with
-the shop's for the same weapons; both are kept as they stand.
+onward), which sets it out slot by slot in code.  Its numbers did not agree with the
+shop's for the same weapons, nor with what the game played; since 2026-10-05 both pages
+read the stats from the save (``weapon_stats.py``), so they always agree.
 """
 from __future__ import annotations
 
@@ -19,7 +20,7 @@ from ..platform.defaults import UserDefaults
 from .blind_screen import BlindScreen
 from .store import (BACK_TEXT, SOUND_AMMO_CAPACITY, SOUND_BACK, SOUND_DAMAGE,
                     SOUND_EFFECTIVE_RANGE, SOUND_GRENADE_COUNT, SOUND_PRICE,
-                    detail_row_text)
+                    detail_row_text, load_stats)
 
 log = logging.getLogger('inventory')
 
@@ -31,24 +32,17 @@ SOUND_USE = 350
 
 #: weaponType -> the slot's page.  0x27664 (knife), 0x27874 (grenade),
 #: 0x27b1c (colt), 0x27d42 (shotgun), 0x27f5e (M4A1), 0x28184 (AK47),
-#: 0x283aa (MG80), 0x285cc (japanese sword).
+#: 0x283aa (MG80), 0x285cc (japanese sword).  The original's stats for each went on
+#: 2026-10-05; the page reads the save's (weapon_stats.py).
 SLOTS = {
-    0: dict(name='Grenade', image=47, label=348, ammo=None, rng=10,
-            damage=150, price=1000, use='GRENADEUSE'),
-    1: dict(name='Knife', image=247, label=239, ammo=0, rng=2,
-            damage=30, price=0, use='KNIFEUSE'),
-    2: dict(name='Colt', image=248, label=240, ammo=7, rng=50,
-            damage=30, price=0, use='COLTUSE'),
-    3: dict(name='Shotgun', image=249, label=241, ammo=9, rng=50,
-            damage=45, price=50000, use='SHOTGUNUSE'),
-    4: dict(name='M4A1', image=250, label=242, ammo=30, rng=300,
-            damage=50, price=70000, use='M4USE'),
-    5: dict(name='AK47', image=251, label=243, ammo=30, rng=300,
-            damage=50, price=70000, use='AK47USE'),
-    6: dict(name='MG80', image=252, label=244, ammo=50, rng=1500,
-            damage=80, price=10000, use='MG80USE'),
-    7: dict(name='Japanese sword', image=253, label=245, ammo=0, rng=3,
-            damage=80, price=150000, use='JAPANUSE'),
+    0: dict(name='Grenade', image=47, label=348, use='GRENADEUSE'),
+    1: dict(name='Knife', image=247, label=239, use='KNIFEUSE'),
+    2: dict(name='Colt', image=248, label=240, use='COLTUSE'),
+    3: dict(name='Shotgun', image=249, label=241, use='SHOTGUNUSE'),
+    4: dict(name='M4A1', image=250, label=242, use='M4USE'),
+    5: dict(name='AK47', image=251, label=243, use='AK47USE'),
+    6: dict(name='MG80', image=252, label=244, use='MG80USE'),
+    7: dict(name='Japanese sword', image=253, label=245, use='JAPANUSE'),
 }
 
 
@@ -113,14 +107,10 @@ class DetailInventoryController(BlindScreen):
         slot = SLOTS[self.weaponType]
         self.type_image_sound = slot['image']
         self.names = slot['label']
-        self.effetiverange = slot['rng']
-        self.power = slot['damage']
-        self.price = slot['price']
+        # 0x278dc: the grenade's ammo capacity is GRENADECOUNT.  PORT DIVERGENCE: the
+        # rest come from the save (weapon_stats.py), not the original's literals.
+        load_stats(self, slot)
         d = UserDefaults.standardUserDefaults()
-        if self.weaponType == 0:                              # 0x278dc
-            self.ammocapacity = d.intForKey_('GRENADECOUNT')
-        else:
-            self.ammocapacity = slot['ammo']
         self.used = d.intForKey_(slot['use'])                 # 0x27820 and its copies
         self.message = ''                                     # maskLabel, for the window
         self.type_ammocapacity = SOUND_AMMO_CAPACITY          # 0x2888c

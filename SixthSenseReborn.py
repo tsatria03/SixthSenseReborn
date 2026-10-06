@@ -392,9 +392,12 @@ def _screen_lines(kind, screen):
     out = ['Sixth Sense Reborn   %s' % SCREEN_TITLE[kind], '',
            'gold %d' % screen.app.haveGold]
     if kind in ('store_detail', 'inventory_detail'):
-        out.append('%s   ammo %s   range %dm   damage %d   price %dG'
-                   % (screen.__class__.__name__, screen.ammocapacity,
-                      screen.effetiverange, screen.power, screen.price))
+        from sixthsense.game.weapon_stats import range_text
+        out.append('%s   ammo %s   range %s   damage %d   price %s'
+                   % (screen.__class__.__name__,
+                      'none' if screen.ammocapacity is None else screen.ammocapacity,
+                      range_text(screen.effetiverange), screen.power,
+                      'free' if screen.price is None else '%dG' % screen.price))
         if hasattr(screen, 'used'):
             out.append('state: %s' % ('equipped' if screen.used else 'unequipped'))
         if getattr(screen, 'message', ''):
