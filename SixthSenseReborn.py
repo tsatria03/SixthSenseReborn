@@ -428,12 +428,12 @@ def _screen_lines(kind, screen):
     return out
 
 
-#: What each row of the panel is called, for the screen.  The player hears the
-#: original's own WAV; this is only for anyone who can see the window.
+#: What each row of the panel is called, for the screen.  The screen reader speaks the
+#: rows itself (``Stage_1_E``); this is only for anyone who can see the window.
 PANEL_ROWS = {
     1: 'paused / game over', 2: 'zombies killed', 3: 'headshots', 4: 'score',
     5: 'gold', 10: 'top score', 6: 'continue / next stage',
-    7: 'restart (costs a coin)', 8: 'main menu',
+    7: 'restart', 8: 'main menu',
 }
 PANEL_TITLE = {1: 'PAUSED', 2: 'MISSION COMPLETE', 3: 'GAME OVER'}
 

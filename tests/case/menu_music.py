@@ -75,8 +75,7 @@ def _menu(saved=None):
     """The main menu, with its music playing, at the saved volume ``saved``."""
     _set_saved(saved)
     d = UserDefaults.standardUserDefaults()
-    for key, value in (('FIREST', '1'), ('COIN', '3'), ('TUTORIAL', '1')):
-        d.setObject_forKey_(value, key)
+    d.setObject_forKey_('1', 'TUTORIAL')
     d.synchronize()
     app = AppDelegate.shared()
     if app.playback is None:

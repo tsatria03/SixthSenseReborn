@@ -160,6 +160,18 @@ def test_the_old_voice_over_setting_is_dropped():
         assert f.read('settings.json') == {'MASTERVOLUME': 80}
 
 
+def test_the_old_coins_are_dropped():
+    """The coins went on 2026-10-05; a save from before keeps its other progress."""
+    with _Folder() as f:
+        f.write('save.json', json.dumps({'GOLD': '7', 'FIREST': '1', 'COIN': '3',
+                                         'COIN_TIMER': '2026-10-01 12:00:00',
+                                         'COIN_TIMER_START': '1'}))
+        d = UserDefaults()
+        for key in ('FIREST', 'COIN', 'COIN_TIMER', 'COIN_TIMER_START'):
+            assert d.objectForKey_(key) is None, key
+        assert f.read() == {'GOLD': '7'}
+
+
 def test_an_old_defaults_json_is_moved_over_and_kept():
     with _Folder() as f:
         f.write('defaults.json', json.dumps({'GOLD': '7000', 'COIN': '3', 'M4': '1',
@@ -167,7 +179,7 @@ def test_an_old_defaults_json_is_moved_over_and_kept():
         d = UserDefaults()
         assert d.intForKey_('GOLD') == 7000 and d.intForKey_('M4') == 1
         assert d.intForKey_('VIBRATION') == 0 and d.objectForKey_('MENUMUSICVOLUME') == 40
-        assert f.read() == {'COIN': '3', 'GOLD': '7000', 'M4': '1'}
+        assert f.read() == {'GOLD': '7000', 'M4': '1'}, 'the old coins were carried over'
         assert f.read('settings.json') == {'MENUMUSICVOLUME': 40, 'VIBRATION': '0'}
         assert not os.path.exists(f.file('defaults.json')), 'the old file was left in place'
         assert json.loads(open(f.file('defaults.json.old'), encoding='utf-8').read())['GOLD'] \

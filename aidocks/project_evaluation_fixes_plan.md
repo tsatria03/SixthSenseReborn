@@ -20,7 +20,7 @@ metadata:
 ## The groups, in the order they will be done
 Item numbers are the 19 of the evaluation's list, ranked high to low.
 
-1. **Coin leftovers** (items 5, 7, 10, and the coin docstrings of 13). Player-facing.
+1. **Coin leftovers** (items 5, 7, 10, and the coin docstrings of 13). Player-facing. **Built 2026-10-06, not yet confirmed**: save, menu, menu_music, pause, window, settings_menu and intro pass 107 of 107, with the new `save.test_the_old_coins_are_dropped`; `save.py`'s old defaults.json test no longer expects `COIN` to be carried over, and `menu_music.py` no longer sets `FIREST` and `COIN`.
    - `SixthSenseReborn.py`: the panel row label "restart (costs a coin)" becomes "restart"; the comment above `PANEL_ROWS` saying the player hears a WAV is corrected.
    - `main_controller.py`: remove `SOUND_COIN_COUNT`, `SOUND_NO_COIN`, `READ_COIN_COUNT_DELAY` and the `readNumberOfCoin` cancel; the module docstring describes the free games, keeping the binary's coin logic only as a short note of what the original did.
    - `defaults.RETIRED_KEYS` gains `COIN`, `COIN_TIMER`, `COIN_TIMER_START` and `FIREST`, so an old save drops them; a test in `save.py` checks it, beside the one for `EYEMODE`.

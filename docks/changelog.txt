@@ -1,4 +1,6 @@
 unrelease:
+The pause and result panel in the game window no longer says that restarting costs a coin. Games have been free since the coins were removed, but the window's label had not caught up.
+Old saves no longer keep the coin settings, which the game stopped using when games became free. They are taken out of the save the next time the game starts, and the rest of your progress stays as it was.
 Shaking a controller to get free of the animal zombie now takes one shake, or two at most, instead of up to five. Shaking is a real movement rather than a button, so it should not have to be aggressive. The A button still takes up to five presses as before, and presses and shakes count together.
 The tutorial's first message now says that you can hear any message again at any time, not just that one. It told you which key repeats the message, but never that the same key keeps working for every message after it.
 The tutorial's reloading lesson now mentions the D-pad. With a controller it said to pull the left stick down or press X, and left out that pressing the D-pad down reloads as well, which it always did. Every other lesson already named the D-pad.

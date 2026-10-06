@@ -12,6 +12,7 @@ The eight rows, in screen order, with the flag and sound each one owns:
 
     selectMenu  flag              sound
      1          coin_flag         334  "number of coins"
+         (gone with the coins: games are free in the port)
      2          main_title_flag    16  "Six Sense _ The Zombies"
      3          start_game_flag    17  "Game Start Button"
      4          tutorial_flag      23  "Tutorial Button"
@@ -32,21 +33,13 @@ original's numbers.
 reachable from the blind menu at all. Reproduced: the port has no Exit row either, and
 Escape quits.
 
-**A game costs a coin.** ``-[MainController StartGameAction:]`` (0xb2ed):
-
-    if (Coin >= 1) { Coin--; save COIN; [self coinTiemrControlStart]; push the stage; }
-    else           { play 358 "no coin"; show "No coin. You can buy coin at the store
-                     or share with friends at the ranking page." }
-
-and the coins come back on a timer, but only while none is already counting down.
-``coinTiemrControlStart`` (0xbe01) returns at once if ``coinTimer`` already exists;
-otherwise it writes ``COIN_TIMER`` (now, "yyyy-MM-dd HH:mm:ss"), sets
-``COIN_TIMER_START`` to "1", starts the clock, and stops if ``Coin >= 5``.
-``coinUpTimer`` (0xc0b1) counts that down and, at zero, grants one coin, clears
-``COIN_TIMER_START`` and restarts the clock while ``Coin <= 4``. The interval is
-1800 s, not the "10:00" the original's label text shows (0xc1ee). So: one coin
-per thirty minutes, five at most, one per game. ``viewDidLoad`` also grants
-coins for time spent away, at the same rate and cap (0x8aca-0x8b14).
+**PORT DIVERGENCE: games are free.** In the original a game cost a coin:
+``-[MainController StartGameAction:]`` (0xb2ed) spent one, or played 358 "no coin" when
+there were none, and the coins came back one every 1800 s up to five
+(``coinTiemrControlStart`` 0xbe01, ``coinUpTimer`` 0xc0b1, and for time away
+``viewDidLoad`` 0x8aca-0x8b14), kept in ``COIN``, ``COIN_TIMER`` and
+``COIN_TIMER_START``.  None of that is ported (aidocks/completed/free_games_plan.md), and
+an old save's coin keys are dropped (``defaults.RETIRED_KEYS``).
 """
 from __future__ import annotations
 
@@ -63,10 +56,6 @@ SOUND_TITLE = 16
 SOUND_GAME_START = 17
 SOUND_STORE = 18
 SOUND_TUTORIAL = 23
-SOUND_COIN_COUNT = 334
-#: How long after "number of coins" the count is read (0x9bec..0x9c0c): 1.6 s.
-READ_COIN_COUNT_DELAY = 1.6
-SOUND_NO_COIN = 358
 SOUND_RANKING_NOTICE = 364
 
 # selectMenu, flag, sound, what it does
@@ -117,13 +106,9 @@ class MainController:
         for _n, _f, sound, _a in ROWS:
             if sound is not None:
                 self.app.stopSoundBufNumber_(sound)
-        for sound in (SOUND_NO_COIN, SOUND_RANKING_NOTICE):
-            self.app.stopSoundBufNumber_(sound)
+        self.app.stopSoundBufNumber_(SOUND_RANKING_NOTICE)
         if self.speech is not None:
             self.speech.stop()
-        # 0x97e2: also cancel a pending readNumberOfCoin, or it fires over
-        # whatever row the player has since moved to.
-        RunLoop.main().cancelPerform(self, 'readNumberOfCoin')
 
     # =============================================================== moving
     def _row(self, n=None):
@@ -189,8 +174,7 @@ class MainController:
     # -[MainController StartGame:] 0xac50
     def StartGame_(self, *_):
         """Stop what is speaking, click (0xad32, 10 at 0.2) and go on to
-        ``StartGameAction:`` - coin or no coin, so an empty purse clicks before its
-        "no coin".  The headphone and VoiceOver checks in front (0xac60..0xacfa) belong
+        ``StartGameAction:``.  The headphone and VoiceOver checks in front (0xac60..0xacfa) belong
         to the phone and are left out."""
         self.StopElseSpeak()
         self.app.playSound_Gain_Pos_z_reprats_(SOUND_UI_SELECT, 0.2, (0.0, 0.0), 0, False)

@@ -5,7 +5,7 @@ The keys are the ones the binary writes, with the classes that own them:
     TUTORIAL        int    ``-[Stage_1_E viewDidLoad]``     0 until the tutorial is finished
     GOLD            int    ``AppDelegate.haveGold``
     (FIREST, COIN, COIN_TIMER and COIN_TIMER_START belonged to the coins, which are gone:
-    games are free.  An old save may still hold them; nothing reads them.)
+    games are free.  An old save's are dropped, as RETIRED_KEYS.)
     GRENADECOUNT    int    ``-[Stage_1_E MovingShot:]``     grenades in hand
     STAGE           int    ``-[MainController ...]``        highest stage unlocked
     SHOTGUN, M4, AK47, MG80, JAPAN
@@ -69,8 +69,10 @@ SETTINGS_KEYS = ('MASTERVOLUME', 'MENUMUSICVOLUME', 'LEVELMUSICVOLUME', 'AMBIENC
 #: Keys the game no longer reads, dropped from both files when the save is opened, so an
 #: old value cannot linger there.  ENTITYVOLUME went on 2026-09-28: the zombies are always
 #: at full volume (aidocks/completed/entity_full_volume_plan.md).  EYEMODE went on 2026-10-05
-#: with the voice over row (aidocks/completed/screen_reader_only_plan.md).
-RETIRED_KEYS = ('ENTITYVOLUME', 'EYEMODE')
+#: with the voice over row (aidocks/completed/screen_reader_only_plan.md).  The four coin
+#: keys went on 2026-10-06; games had been free since 2026-10-05
+#: (aidocks/completed/free_games_plan.md), but an old save still carried them.
+RETIRED_KEYS = ('ENTITYVOLUME', 'EYEMODE', 'FIREST', 'COIN', 'COIN_TIMER', 'COIN_TIMER_START')
 
 
 def _read(path):
