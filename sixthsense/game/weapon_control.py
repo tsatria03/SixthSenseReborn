@@ -89,6 +89,9 @@ class WeaponControl:
         self.Damage = 0
         self.Range = 0
         self.BulletCount = 0
+        #: PORT ADDITION: the save's magazine (weapon_stats.apply), which ReloadGun fills
+        #: to; None keeps the plist's.
+        self.AmmoCapacity = None
         self.ShotSpeed = 0.0
         self.ShotSoundNumber = 0
         self.ShotSoundgain = 0.0
@@ -176,6 +179,8 @@ class WeaponControl:
     # It only *returns* the default count; the caller assigns it, e.g.
     # -[Stage_1_E startWeapon] 0x358b4: [w setBulletCount:[w ReloadGun]].
     def ReloadGun(self):
+        if self.AmmoCapacity is not None:        # PORT ADDITION: the save's magazine
+            return self.AmmoCapacity
         if not self.array:
             return 0
         return obj_int(self.array[7])

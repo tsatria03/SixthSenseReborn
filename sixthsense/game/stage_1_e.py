@@ -62,6 +62,7 @@ from .make_maps import MakeMaps
 from .monster_control import MonsterControl, lane_bearing
 from .moving_accelerometer import MovingAccelerometer
 from .player_control import PlayerControl
+from . import weapon_stats
 from .weapon_control import WeaponControl, WEAPON_FILES, WEAPON_NAMES, WEAPON_SLOTS
 
 log = logging.getLogger('stage')
@@ -411,6 +412,9 @@ class Stage_1_E:
         for i in range(WEAPON_SLOTS):            # 0x3512c: `cmp r4, 8`
             w = WeaponControl()
             w.loadWeaponForGun_fileType_(WEAPON_FILES[i], 'plist')
+            # PORT ADDITION (2026-10-05): the save's damage, range and magazine
+            # replace the plist's (weapon_stats.py).
+            weapon_stats.apply(w, i)
             self.weaponSource[i] = w
 
     # -[Stage_1_E startWeapon] 0x35708
@@ -1052,8 +1056,12 @@ class Stage_1_E:
             # the per-kind tally the score is made of, sent before the HP check, so a
             # zombie that lives through the blast still adds to the score - and then
             # MonsterHitSound:.  Only a death adds to the kills (0x3a636..0x3a642).
+            # PORT DIVERGENCE (2026-10-05): only the monsters within the grenade's range;
+            # the original never checks it (weapon_stats.py).
             nearest = None
             for m in list(self.MonsterBuffer):
+                if m.monsterRange > float(weapon.Range):
+                    continue
                 m.HP -= weapon.Damage
                 self.gamePlayer.gunEggCountShot += 1
                 if not self.app.debug:

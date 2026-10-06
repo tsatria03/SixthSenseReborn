@@ -17,8 +17,10 @@ The keys are the ones the binary writes, with the classes that own them:
                            the result panel's records, ``-[Stage_1_E SuccessOrFailMission]``
 
 and the port's own: ``MENUMUSICVOLUME`` (the menu music's volume), and each weapon's
-spoken stats, ``<W>AMMOCAPACITY``, ``<W>RANGE``, ``<W>DAMAGE`` and ``<W>PRICE``, written and
-never read (``game/weapon_stats.py``).
+stats, with underscores: ``<W>_AMMO_CAPACITY``, ``<W>_RANGE`` (in centimetres),
+``<W>_DAMAGE`` and ``<W>_PRICE``, which the game reads and plays with, and
+``WEAPON_STATS_REAL``, set once an older save's shop numbers were replaced by the real
+ones (``game/weapon_stats.py``).
 
 ``synchronize`` writes the files; the original's does the same thing.
 

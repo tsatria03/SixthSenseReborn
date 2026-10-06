@@ -172,6 +172,32 @@ def test_a_grenade_scores_every_zombie_it_hurts():
         st.teardown()
 
 
+def test_a_grenade_hits_only_within_its_range():
+    """PORT DIVERGENCE (2026-10-05): the original's blast hits every live monster; now
+    only those within the grenade's range, GRENADERANGE in the save (weapon_stats.py)."""
+    app, st = _new_stage()
+    was_debug = app.debug
+    app.debug = False
+    try:
+        st.MonsterInit_(1)
+        st.MonsterInit_(2)
+        near, far = st.MonsterBuffer[0], st.MonsterBuffer[1]
+        near.monsterRange, far.monsterRange = 300.0, 900.0
+        near.HP = far.HP = 1000
+        grenade = st.weaponSource[0]
+        grenade.Range = 500
+        st.gamePlayer.useWepon = 0
+        st.MonsterDamage()
+        assert near.HP == 1000 - grenade.Damage, 'the near zombie was not hit'
+        assert far.HP == 1000, 'the far zombie was hit beyond the range'
+        grenade.Range = 1600                    # the real range reaches both
+        st.MonsterDamage()
+        assert far.HP == 1000 - grenade.Damage
+    finally:
+        app.debug = was_debug
+        st.teardown()
+
+
 def test_a_zombie_hitting_you_is_heard_in_the_middle():
     """-[MonsterControl hitPlayer] 0x11f92..0x11fa2 plays playerHitSound at 1.0, (0, 0),
     z 40 - the middle of your head, not where the zombie is.  It is the girl's thank

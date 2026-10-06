@@ -304,10 +304,11 @@ class AppDelegate:
             d.synchronize()
             self.useWeapon[0] = self.useWeapon[1] = self.useWeapon[2] = '1'
 
-        # PORT ADDITION (2026-09-25): the stats a weapon's page speaks, written into the
-        # save for every weapon owned or equipped that has none yet, and never read back
-        # (weapon_stats.py).  This runs on every start, after buying and after equipping.
-        if weapon_stats.fill(d, self.haveWeapon, self.useWeapon):
+        # PORT ADDITION (2026-10-05): every weapon's stats in the save, which the pages
+        # read out and the stage plays with; missing or unusable ones are put back to the
+        # real numbers (weapon_stats.py).  This runs on every start, after buying and
+        # after equipping.
+        if weapon_stats.fill(d):
             d.synchronize()
 
     # ================================================================== music
