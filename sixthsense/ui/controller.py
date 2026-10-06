@@ -14,6 +14,12 @@ keyboard event the screen already takes, so no screen changes:
 The stage reads the controller itself (``Input.controller``), except for the pause and
 result panels, which take these keys.  Nothing is translated while the key bindings screen
 is open, where a key press would be captured as a binding.
+
+Settings' **Controller support** row (2026-10-06,
+aidocks/completed/controller_support_plan.md) turns all of this off: no pad is opened and no
+pad event is read, so nothing in the game can tell a controller is attached, and the
+keyboard plays.  Turning it back on finds the pads
+attached and announces each, as the game does at startup.
 """
 from __future__ import annotations
 
@@ -82,6 +88,13 @@ _STICK_AXES = (('CONTROLLER_AXIS_LEFTX', 'K_LEFT', 'K_RIGHT'),
                ('CONTROLLER_AXIS_LEFTY', 'K_UP', 'K_DOWN'))
 
 
+def controller_events(pygame):
+    """Every event type a pad sends, so Controller support being off can ignore the lot."""
+    return frozenset((pygame.CONTROLLERDEVICEADDED, pygame.CONTROLLERDEVICEREMOVED,
+                      pygame.CONTROLLERBUTTONDOWN, pygame.CONTROLLERBUTTONUP,
+                      pygame.CONTROLLERAXISMOTION))
+
+
 def axis_value(value):
     """An axis event's value as -1.0 to 1.0, whether pygame gave it so or in SDL's raw
     units."""
@@ -102,7 +115,8 @@ class Controllers:
         self._buttons = {getattr(pygame, b): getattr(pygame, k) for b, k in _BUTTON_KEYS}
         self._axes = {getattr(pygame, a): (getattr(pygame, n), getattr(pygame, p))
                       for a, n, p in _STICK_AXES}
-        self.just_lost = False          # the last event took away a pad that was open
+        self._events = controller_events(pygame)
+        self.lost_active = False        # the last event took away the pad the game plays with
         self._sdl = None
         try:
             controller = sdl
@@ -110,10 +124,55 @@ class Controllers:
                 from pygame._sdl2 import controller
             controller.init()
             self._sdl = controller
-            for index in range(controller.get_count()):
-                self._open(index, announce=False)
+            self.open_attached(announce=False)
         except Exception:
             log.exception('controller support is off')
+
+    def open_attached(self, announce=True):
+        """Open every pad SDL lists now.  At startup nothing is announced, since no sound
+        can play yet (``announce_attached`` does that); turning Controller support back on
+        announces each pad it finds, as if the game had just started."""
+        if self._sdl is None:
+            return
+        try:
+            count = self._sdl.get_count()
+        except Exception:
+            log.exception('asking SDL what is attached')
+            return
+        for index in range(count):
+            self._open(index, announce=announce)
+
+    def release(self):
+        """Let go of every pad, for Controller support being turned off.
+
+        **The lost sound plays once if any pad was open** (tunmi13productions, 2026-10-06):
+        as far as the game is concerned those pads have just gone, so the player hears the
+        same sound as unplugging one.  Once, not once a pad, since what went is the
+        controller support rather than a particular pad; turning it back on announces each
+        pad it finds, which is a separate find each time.  With nothing attached there is
+        nothing to say.
+
+        SDL's layer stays up, so turning it on again finds the pads with nothing to
+        re-initialise."""
+        had = bool(self._pads)
+        for pad in list(self._pads.values()):
+            try:
+                pad.quit()
+            except Exception:
+                log.debug('%s did not close', getattr(pad, 'name', 'a pad'))
+        self._pads.clear()
+        self._lean.clear()
+        self.lost_active = False
+        if had:
+            self._play(SOUND_NOT_DETECTED)
+
+    def refresh(self):
+        """Controller support was just turned on or off (``app.set_controller_support``):
+        find the pads attached and announce each, or let them all go with the lost sound."""
+        if self._support():
+            self.open_attached(announce=True)
+        else:
+            self.release()
 
     def close(self):
         """Let go of every pad and of SDL's controller layer, before ``pygame.quit()``.  A pad
@@ -189,6 +248,15 @@ class Controllers:
                 seen.append(name)
         return seen
 
+    def _support(self):
+        """Whether the game uses a controller at all (``app.controller_support``,
+        aidocks/completed/controller_support_plan.md).  Read live, like the chosen name, so the
+        Settings row takes effect the moment it is pressed.  Without an app, which is every
+        test that passes none, a controller is used."""
+        if self.app is None:
+            return True
+        return bool(getattr(self.app, 'controller_support', True))
+
     def _chosen_name(self):
         """The name the save asks for, or '' for whichever pad is found first."""
         if self.app is None:
@@ -237,6 +305,10 @@ class Controllers:
         return not ids or instance_id in ids
 
     def _open(self, index, announce=True):
+        # Controller support off: no pad is opened, which is the one gate everything else
+        # reads through, so nothing in the game can tell a controller is attached
+        if not self._support():
+            return
         try:
             if not self._sdl.is_controller(index):
                 return
@@ -253,8 +325,21 @@ class Controllers:
             self._found(pad)
 
     def _close(self, instance_id):
-        if self._pads.pop(instance_id, None) is not None:
-            self.just_lost = True
+        """A pad was unplugged.  Only the pad the game plays with sets ``lost_active``, so
+        another pad coming and going does nothing to a game in progress (PORT ADDITION,
+        2026-10-06).  Whether it was the active one is asked before it is dropped, since
+        dropping it hands the title to the next pad attached.
+
+        A pad whose name is still attached has not really gone: that is SDL's double
+        listing of a DualSense on Windows, and two identical pads are one pad to the game
+        anyway, which is all a saved name can tell apart (see ``names``).  The sound plays
+        for any listing that goes, as the found sound does for any that arrives."""
+        pad = self._pads.get(instance_id)
+        if pad is not None:
+            name = getattr(pad, 'name', None) or 'controller'
+            was_active = instance_id in self.active_pad_ids
+            del self._pads[instance_id]
+            self.lost_active = was_active and name not in self.names
             self._play(SOUND_NOT_DETECTED)
         for key in [k for k in self._lean if k[0] == instance_id]:
             del self._lean[key]
@@ -271,7 +356,9 @@ class Controllers:
         it stands for (possibly none).  Device changes are handled here."""
         pg = self.pygame
         t = event.type
-        self.just_lost = False
+        self.lost_active = False
+        if t in self._events and not self._support():
+            return []                   # the keyboard plays; a pad is not even listened to
         if t == pg.CONTROLLERDEVICEADDED:
             if self._sdl is not None and getattr(event, 'device_index', None) is not None:
                 self._open(event.device_index)

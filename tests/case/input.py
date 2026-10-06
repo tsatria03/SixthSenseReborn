@@ -434,7 +434,7 @@ def _pad_event(kind, **kw):
 def _pad(inp, event):
     """What the frame loop does with a controller event over a stage."""
     keys = _PAD.feed(event)
-    inp.controller(event, pygame, keys, _PAD.just_lost)
+    inp.controller(event, pygame, keys, _PAD.lost_active)
 
 
 def _lean(inp, x, y):
@@ -700,6 +700,25 @@ def test_losing_something_that_was_not_a_pad_does_not_pause():
         st.teardown()
 
 
+def test_losing_another_pad_leaves_the_game_alone():
+    """2026-10-06: a second pad being unplugged is not the pad in your hands, so it neither
+    pauses nor lets go of the aim or a burst."""
+    st, inp = _stage()
+    try:
+        st.gamePlayer.useWepon = 6
+        _lean(inp, 0.0, -1.0)
+        _settle_stick(inp)
+        inp.controller(_pad_event(pygame.CONTROLLERDEVICEREMOVED), pygame, [], lost=False)
+        assert st.gameState == 0, 'another pad being unplugged paused the game'
+        log = _recorded(st, inp)
+        for _ in range(3):
+            st.shotFlag = False
+            inp.pump()
+        assert log['angles'], 'the burst was dropped'
+    finally:
+        st.teardown()
+
+
 def test_losing_the_pad_while_already_paused_changes_nothing():
     st, inp = _stage()
     try:
@@ -717,7 +736,7 @@ def test_unplugging_the_pad_ends_a_burst():
         st.gamePlayer.useWepon = 6
         _lean(inp, 0.0, -1.0)
         _settle_stick(inp)
-        _pad(inp, _pad_event(pygame.CONTROLLERDEVICEREMOVED))
+        inp.controller(_pad_event(pygame.CONTROLLERDEVICEREMOVED), pygame, [], lost=True)
         log = _recorded(st, inp)
         for _ in range(3):
             st.shotFlag = False

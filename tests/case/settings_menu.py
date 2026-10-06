@@ -22,8 +22,9 @@ import _scratch_save                                             # noqa: E402,F4
 from sixthsense import paths                                     # noqa: E402
 from sixthsense.game.app_delegate import AppDelegate             # noqa: E402
 from sixthsense.game.settings_screen import (BEEP_ROW, CONTROLLER_ROW,   # noqa: E402
-                                             SHAKE_ROW, SKIP_INTRO_ROW, SPEECH_ROW,
-                                             VIBRATION_ROW, SettingsController)
+                                             CONTROLLER_SUPPORT_ROW, SHAKE_ROW,
+                                             SKIP_INTRO_ROW, SPEECH_ROW, VIBRATION_ROW,
+                                             SettingsController)
 from sixthsense.platform.defaults import UserDefaults            # noqa: E402
 from sixthsense.platform.runloop import RunLoop                  # noqa: E402
 
@@ -56,6 +57,7 @@ class _Pads:
     def __init__(self, *names, choice=lambda: ''):
         self._pads = [_Pad(n) for n in names]
         self._choice = choice
+        self.refreshed = 0
 
     @property
     def names(self):
@@ -83,6 +85,11 @@ class _Pads:
     def active_pads(self):
         pad = self.active_pad
         return [] if pad is None else [pad]
+
+    def refresh(self):
+        """Controller support was turned on or off; the real one opens or lets go of the
+        pads here (2026-10-06)."""
+        self.refreshed += 1
 
 
 class _NewSave:
@@ -136,10 +143,10 @@ class _NewSave:
         shutil.rmtree(self.top, ignore_errors=True)
 
 
-def test_the_rows_are_back_the_five_settings_and_the_picker():
+def test_the_rows_are_back_the_six_settings_and_the_picker():
     with _NewSave() as s:
         page = s.page()
-        assert page.rows() == (1, 2, 3, 4, 5, 6, 7)
+        assert page.rows() == (1, 2, 3, 4, 5, 6, 7, 8)
         assert page.title_text() == 'Settings.'
         assert page.row_text(1) == 'Back, Button'
 
@@ -168,7 +175,7 @@ def test_a_new_settings_json_shows_every_setting():
     from sixthsense.platform import volume
     from sixthsense.platform.defaults import SETTINGS_KEYS
     readers = ('vibration_on', 'headshot_speech_on', 'headshot_beep_on', 'shake_on',
-               'skip_intro_on', 'controller_choice')
+               'skip_intro_on', 'controller_support', 'controller_choice')
     with _NewSave() as s:
         for key in SETTING_DEFAULTS:
             s.d.removeObjectForKey_(key)
@@ -194,6 +201,8 @@ def test_each_toggle_flips_saves_and_says_the_new_state():
                                       'Skip the opening screens', False),
                                      (SPEECH_ROW, 'HEADSHOTSPEECH', 'Spoken headshot', True),
                                      (BEEP_ROW, 'HEADSHOTBEEP', 'Headshot beep', False),
+                                     (CONTROLLER_SUPPORT_ROW, 'CONTROLLERSUPPORT',
+                                      'Controller support', True),
                                      (VIBRATION_ROW, 'VIBRATION', 'Vibration', True),
                                      (SHAKE_ROW, 'SHAKE', 'Shake to break free', True)):
             page.selectMenu = row
@@ -251,7 +260,8 @@ def test_with_no_pad_the_rows_stay_but_say_not_supported():
     not supported. so it won't let you toggle it on"."""
     with _NewSave() as s:
         page = s.page()
-        assert page.rows() == (1, 2, 3, 4, 5, 6, 7), 'a row went missing'
+        assert page.rows() == (1, 2, 3, 4, 5, 6, 7, 8), 'a row went missing'
+        assert page.row_text(CONTROLLER_SUPPORT_ROW) == 'Controller support, currently on.'
         assert page.row_text(VIBRATION_ROW) == 'Vibration, not supported.'
         assert page.row_text(SHAKE_ROW) == 'Shake to break free, not supported.'
         assert page.row_text(CONTROLLER_ROW) == 'Controller, none attached.'
@@ -272,6 +282,63 @@ def test_an_unsupported_row_will_not_turn_anything_on():
         assert s.d.stringForKey_('VIBRATION') == '0', 'vibration was turned on anyway'
         assert s.d.stringForKey_('SHAKE') == '0', 'the shake was turned on anyway'
         assert s.d.stringForKey_('CONTROLLER') in (None, ''), 'a pad was chosen'
+
+
+# ------------------------------------- Controller support (2026-10-06)
+# aidocks/completed/controller_support_plan.md: a player with a pad plugged in who does
+# not want to play with it turns the whole thing off, and the keyboard plays.
+
+def test_controller_support_starts_on_and_turning_it_off_lets_go_of_the_pads():
+    with _NewSave() as s:
+        pads = s.pads('Xbox Wireless Controller')
+        assert s.app.controller_support, 'a save that never set it should use a pad'
+        page = s.page()
+        page.selectMenu = CONTROLLER_SUPPORT_ROW
+        page.activate()
+        assert not s.app.controller_support
+        assert s.d.stringForKey_('CONTROLLERSUPPORT') == '0'
+        assert page.speech.said[-1] == 'Controller support, off.'
+        assert pads.refreshed == 1, 'the pads were not let go of'
+        page.activate()
+        assert s.app.controller_support and pads.refreshed == 2
+
+
+def test_with_the_support_off_the_pad_rows_say_so_and_will_not_turn_on():
+    """A pad is plugged in, so "No controller is attached." would be a lie; the rows say
+    what is really stopping them."""
+    with _NewSave() as s:
+        s.pads('Xbox Wireless Controller', 'PS5 Controller')
+        s.can_shake(True)
+        s.d.setObject_forKey_('0', 'CONTROLLERSUPPORT')
+        s.d.setObject_forKey_('0', 'VIBRATION')
+        s.d.setObject_forKey_('0', 'SHAKE')
+        page = s.page()
+        assert page.rows() == (1, 2, 3, 4, 5, 6, 7, 8), 'a row went missing'
+        assert page.row_text(CONTROLLER_SUPPORT_ROW) == 'Controller support, currently off.'
+        assert page.row_text(VIBRATION_ROW) == 'Vibration, not supported.'
+        assert page.row_text(SHAKE_ROW) == 'Shake to break free, not supported.'
+        assert page.row_text(CONTROLLER_ROW) == 'Controller, not supported.'
+        for row in (VIBRATION_ROW, SHAKE_ROW, CONTROLLER_ROW):
+            page.selectMenu = row
+            assert page.activate() == row
+            assert page.speech.said[-1] == 'Controller support is off.', row
+        assert s.d.stringForKey_('VIBRATION') == '0', 'vibration was turned on anyway'
+        assert s.d.stringForKey_('SHAKE') == '0', 'the shake was turned on anyway'
+        assert s.d.stringForKey_('CONTROLLER') in (None, ''), 'a pad was chosen'
+
+
+def test_the_pad_rows_come_back_when_the_support_does():
+    """The settings underneath are untouched, as with an unsupported shake."""
+    with _NewSave() as s:
+        s.pads('Xbox Wireless Controller')
+        s.can_shake(True)
+        s.d.setObject_forKey_('0', 'CONTROLLERSUPPORT')
+        page = s.page()
+        page.selectMenu = CONTROLLER_SUPPORT_ROW
+        page.activate()
+        assert page.row_text(VIBRATION_ROW) == 'Vibration, currently on.'
+        assert page.row_text(SHAKE_ROW) == 'Shake to break free, currently on.'
+        assert page.row_text(CONTROLLER_ROW) == 'Controller, Xbox Wireless Controller.'
 
 
 def test_a_pad_with_no_sensor_says_why_the_shake_will_not_turn_on():

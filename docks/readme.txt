@@ -29,11 +29,12 @@ Escape in the main menu quits the game.
 Settings
 
 Enter on the Settings row opens the settings, and Escape goes back to the menu.
-It has six rows after Back: skip the opening screens, spoken headshot, headshot beep, vibration, shake to break free, and controller.
+It has seven rows after Back: skip the opening screens, spoken headshot, headshot beep, controller support, vibration, shake to break free, and controller.
 Each row says what it is and what it is set to, such as "Vibration, currently on", and Enter on it changes it.
 The skip the opening screens row takes you straight to the main menu when you start the game, instead of the publisher's logo and the earphone warning. It starts off, so you see them as before.
 The spoken headshot row turns the "Headshot!" call on or off. It starts on.
 The headshot beep row turns on a beep that plays where the zombie is on every headshot. It starts off, and turning it on plays it once.
+The controller support row switches whether the game uses a controller at all. Turning it off plays the controller lost sound if you had one plugged in, and after that the game does not notice a controller at all: the keyboard plays the game, nothing vibrates, and no controller sound plays. Turning it back on looks for the controllers you have plugged in, as starting the game does, and plays the found sound for each one. It starts on, and the three rows after it say they are not supported while it is off.
 The vibration row switches the controller's vibration. It starts on, and turning it on buzzes once so you can feel it.
 The shake to break free row lets you shake a controller that can sense being shaken, such as a PlayStation DualSense, to shake the animal zombie off, which takes one shake or two. It starts on, and the A button always works whether it is on or not.
 The controller row says which controller the game is using, and Enter on it moves to the next one you have plugged in. The game plays with that one only, and remembers it by name, so unplugging things and plugging them back in does not lose your choice.
@@ -74,9 +75,10 @@ Switching away from the game window pauses the game as well.
 Game controller
 
 Any controller your computer recognizes works, an Xbox, PlayStation or Switch one, on Windows, Linux and macOS.
+The Settings screen's controller support row turns all of this off if you would rather play on the keyboard with a controller plugged in.
 A sound and a short buzz tell you when one is found, and another sound when it is lost. The buzz is left out when you have vibration turned off.
 With more than one plugged in you hear those sounds for any of them, not only the one the game is playing with, so a controller arriving does not mean the game has changed to it. The Settings screen's controller row says which one it is using.
-Losing it in a game pauses the game, and plugging it back in does not resume it.
+Losing the controller you are playing with pauses the game, and plugging it back in does not resume it. Unplugging any other controller leaves your game alone.
 In the menus, the D-pad or the left stick moves, A chooses and B goes back.
 In a game, the left stick aims like a swipe: up is 12 o'clock, left 9, right 3, the diagonals 10:30 and 1:30, and down reloads.
 Lean the stick for one shot, and bring it back to the middle before the next. The MG80 keeps firing while the stick is held.

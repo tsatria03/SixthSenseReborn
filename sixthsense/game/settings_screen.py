@@ -3,7 +3,9 @@
 tunmi13productions, 2026-10-06 (aidocks/completed/settings_menu_plan.md).  The main menu
 had grown three setting rows of its own - vibration and the two headshot settings - so
 they moved in here behind one Settings row, and the screen gained two more: the shake,
-and which controller the game plays with.
+and which controller the game plays with.  Controller support joined them on 2026-10-06
+(aidocks/completed/controller_support_plan.md): off, the game opens no pad at all, so a
+player with a pad plugged in for something else plays on the keyboard.
 
 **A row the attached pad cannot do stays where it is and says so.**  It reads
 "Vibration, not supported." and will not turn on; pressing it says why instead.
@@ -30,16 +32,21 @@ BACK_ROW = 1
 SKIP_INTRO_ROW = 2
 SPEECH_ROW = 3
 BEEP_ROW = 4
-VIBRATION_ROW = 5
-SHAKE_ROW = 6
+#: the gate for the three rows after it, which is why it comes before them and needs no
+#: pad itself (2026-10-06, aidocks/completed/controller_support_plan.md)
+CONTROLLER_SUPPORT_ROW = 5
+VIBRATION_ROW = 6
+SHAKE_ROW = 7
 #: the picker, which is not a toggle
-CONTROLLER_ROW = 7
+CONTROLLER_ROW = 8
 
 #: row -> (what it is called, the attribute that reads it, the attribute that sets it)
 TOGGLES = {
     SKIP_INTRO_ROW: ('Skip the opening screens', 'skip_intro_on', 'set_skip_intro'),
     SPEECH_ROW: ('Spoken headshot', 'headshot_speech_on', 'set_headshot_speech'),
     BEEP_ROW: ('Headshot beep', 'headshot_beep_on', 'set_headshot_beep'),
+    CONTROLLER_SUPPORT_ROW: ('Controller support', 'controller_support',
+                             'set_controller_support'),
     VIBRATION_ROW: ('Vibration', 'vibration_on', 'set_vibration'),
     SHAKE_ROW: ('Shake to break free', 'shake_on', 'set_shake'),
 }
@@ -48,10 +55,10 @@ NEED_PAD = (VIBRATION_ROW, SHAKE_ROW, CONTROLLER_ROW)
 
 
 class SettingsController(BlindScreen):
-    """Back, the four toggles, then the controller picker."""
+    """Back, the five toggles, then the controller picker."""
 
-    ROWS = (BACK_ROW, SKIP_INTRO_ROW, SPEECH_ROW, BEEP_ROW, VIBRATION_ROW, SHAKE_ROW,
-            CONTROLLER_ROW)
+    ROWS = (BACK_ROW, SKIP_INTRO_ROW, SPEECH_ROW, BEEP_ROW, CONTROLLER_SUPPORT_ROW,
+            VIBRATION_ROW, SHAKE_ROW, CONTROLLER_ROW)
     TITLE_TEXT = 'Settings.'
 
     def __init__(self, speech=None):
@@ -70,8 +77,12 @@ class SettingsController(BlindScreen):
 
         A row needing a pad with nothing attached, and the shake on a pad with no motion
         sensor, are the two cases.  The picker is a third: one pad is nothing to choose
-        between.
+        between.  Controller support being off is a fourth, and it answers before the
+        others: with the support off no pad is open, so "No controller is attached." would
+        be a lie to a player who has one plugged in (2026-10-06).
         """
+        if row in NEED_PAD and not self.app.controller_support:
+            return 'Controller support is off.'
         names = self._names()
         if row in NEED_PAD and not names:
             return 'No controller is attached.'
@@ -86,7 +97,7 @@ class SettingsController(BlindScreen):
         but has nothing to change, so it still reads its name; only a row that cannot work
         at all reads "not supported"."""
         if row == CONTROLLER_ROW:
-            return bool(self._names())
+            return self.app.controller_support and bool(self._names())
         return row not in NEED_PAD or self.why_not(row) is None
 
     # ---- the rows ---------------------------------------------------------------------
@@ -94,6 +105,10 @@ class SettingsController(BlindScreen):
         if row == BACK_ROW:
             return BACK_TEXT
         if row == CONTROLLER_ROW:
+            if not self.app.controller_support:
+                # with the support off it reads like the three rows above it, rather than
+                # "none attached", which would be a lie with a pad plugged in
+                return 'Controller, not supported.'
             name = self.app.controllers.active_name if self.app.controllers else None
             return 'Controller, %s.' % (name or 'none attached')
         label, reads, _writes = TOGGLES[row]

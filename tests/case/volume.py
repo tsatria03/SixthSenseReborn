@@ -184,7 +184,7 @@ def test_settings_json_lists_them_in_the_devs_order():
     assert SETTINGS_KEYS == ('MASTERVOLUME', 'MENUMUSICVOLUME', 'LEVELMUSICVOLUME',
                              'AMBIENCEVOLUME', 'GAMEPLAYGAIN', 'WEAPONVOLUME',
                              'PLAYERVOLUME', 'VIBRATION', 'HEADSHOTSPEECH', 'HEADSHOTBEEP',
-                             'SHAKE', 'CONTROLLER', 'SKIPINTRO')
+                             'SHAKE', 'CONTROLLERSUPPORT', 'CONTROLLER', 'SKIPINTRO')
 
 
 def test_the_gameplay_gain_is_whole_decibels_from_0_to_6():

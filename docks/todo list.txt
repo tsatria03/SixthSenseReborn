@@ -5,6 +5,8 @@ On a Mac, Sixth Sense Reborn shares its app identity with the original Sixth Sen
 
 ##Finished.
 
+A controller support setting turns the game's use of a controller off, for a controller you have plugged in but do not want to play with, and turning it back on finds your controllers again.
+Unplugging a controller the game is not playing with no longer pauses your game; only losing the one in your hands does.
 The download carries only the sounds the game plays, without the old speech recordings or the blooper clip, so it is about 70 megabytes smaller.
 Every setting is in settings.json from the first start, not only the volumes.
 Old saves no longer keep the coin settings, which the game stopped using when games became free.

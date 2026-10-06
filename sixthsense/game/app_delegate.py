@@ -70,6 +70,7 @@ SETTING_DEFAULTS = {
     'HEADSHOTSPEECH': '1',
     'HEADSHOTBEEP': '0',
     'SHAKE': '1',
+    'CONTROLLERSUPPORT': '1',
     'CONTROLLER': '',
     'SKIPINTRO': '0',
 }
@@ -198,6 +199,29 @@ class AppDelegate:
         d = UserDefaults.standardUserDefaults()
         d.setObject_forKey_('1' if on else '0', 'SHAKE')
         d.synchronize()
+
+    @property
+    def controller_support(self):
+        """PORT ADDITION (tunmi13productions, 2026-10-06,
+        aidocks/completed/controller_support_plan.md): ``CONTROLLERSUPPORT`` in settings.json, '1' or '0': whether the game uses a
+        controller at all.  A save that has never set it does, as it always did.
+
+        Off, no pad is opened, so nothing in the game can tell one is plugged in: the
+        keyboard plays, nothing vibrates, and no found or lost sound ever plays.  It is for
+        a player who has a pad attached for something else and does not want it here."""
+        return UserDefaults.standardUserDefaults().stringForKey_('CONTROLLERSUPPORT') != '0'
+
+    def set_controller_support(self, on):
+        """Save the setting and act on it at once: turning it on finds the pads attached
+        and announces each, as the game does at startup; turning it off silences the motors
+        and lets go of them, with the lost sound if any were attached."""
+        d = UserDefaults.standardUserDefaults()
+        d.setObject_forKey_('1' if on else '0', 'CONTROLLERSUPPORT')
+        d.synchronize()
+        if not on:
+            self.vibrate_stop()
+        if self.controllers is not None:
+            self.controllers.refresh()
 
     @property
     def controller_choice(self):

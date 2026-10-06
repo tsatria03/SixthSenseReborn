@@ -140,10 +140,14 @@ class _App:
 class _FakePad:
     def __init__(self, ident, name='Fake pad'):
         self.id, self.name, self.buzzed = ident, name, []
+        self.closed = 0
 
     def rumble(self, low, high, ms):
         self.buzzed.append((low, high, ms))
         return True
+
+    def quit(self):
+        self.closed += 1
 
 
 class _FakeSdl(_NoSdl):
@@ -210,17 +214,17 @@ def test_losing_a_controller_plays_the_other_sound():
 def test_losing_something_that_was_never_found_plays_nothing():
     c, app = _with()
     _removed(c, 9)
-    assert app.played == [] and not c.just_lost
+    assert app.played == [] and not c.lost_active
 
 
-def test_just_lost_is_true_only_for_the_event_that_lost_a_pad():
+def test_lost_active_is_true_only_for_the_event_that_lost_a_pad():
     c, _app = _with(_FakePad(3))
     _added(c, 0)
-    assert not c.just_lost
+    assert not c.lost_active
     _removed(c, 3)
-    assert c.just_lost
+    assert c.lost_active
     c.feed(pygame.event.Event(pygame.CONTROLLERBUTTONUP, button=0, instance_id=0))
-    assert not c.just_lost
+    assert not c.lost_active
 
 
 def test_the_pads_attached_at_start_are_announced_once():
@@ -287,7 +291,7 @@ def test_unplugging_a_pad_whose_index_is_not_its_instance_is_noticed():
     _added(c, 0)
     _removed(c, 1)                                   # the removal carries the instance id
     assert app.played == [SOUND_DETECTED, SOUND_NOT_DETECTED], app.played
-    assert c.pads == [] and c.just_lost
+    assert c.pads == [] and c.lost_active
 
 
 def test_the_same_pad_announced_twice_is_one_pad():
@@ -409,11 +413,145 @@ def test_a_saved_name_that_is_not_attached_falls_back_without_clearing():
                                      button=pygame.CONTROLLER_BUTTON_A, instance_id=0))
 
 
+def test_only_losing_the_chosen_pad_counts_as_losing_a_pad():
+    """2026-10-06: unplugging any other pad must not stop a game in progress, while the
+    lost sound still plays for whichever pad went."""
+    c, app = _choosing('PS5 Controller', _FakePad(0, 'Xbox Wireless Controller'),
+                       _FakePad(1, 'PS5 Controller'))
+    app.played = []
+    _removed(c, 0)                                   # the pad nobody is playing with
+    assert not c.lost_active, 'another pad being unplugged stopped the game'
+    assert app.played == [SOUND_NOT_DETECTED], app.played
+    _removed(c, 1)                                   # the pad in your hands
+    assert c.lost_active
+
+
+def test_losing_the_chosen_pad_counts_even_with_another_pad_left_attached():
+    """The pad dropping out hands the title to the one still attached, so what was active
+    is asked before it is dropped."""
+    c, _app = _choosing('', _FakePad(0, 'Xbox Wireless Controller'),
+                        _FakePad(1, 'PS5 Controller'))
+    assert c.active_pad_ids == [0]
+    _removed(c, 0)
+    assert c.lost_active, 'losing the pad being played with went unnoticed'
+    assert c.active_name == 'PS5 Controller', 'the other pad did not take over'
+
+
+def test_losing_one_listing_of_a_pad_sdl_listed_twice_does_not_count():
+    """SDL lists a DualSense on Windows twice and then takes one listing away.  The pad is
+    still in your hands either way, so neither removal stops the game."""
+    for gone in (0, 1):
+        c, _app = _choosing('', _FakePad(0, 'DualSense Wireless Controller'),
+                            _FakePad(1, 'DualSense Wireless Controller'))
+        assert c.active_pad_ids == [0]
+        _removed(c, gone)
+        assert not c.lost_active, 'listing %d going stopped the game' % gone
+        assert c.active_name == 'DualSense Wireless Controller'
+
+
 def test_with_no_pad_nothing_is_refused():
     """So a game is never left unplayable by the filter itself."""
     c, _app = _choosing('PS5 Controller')
     assert c.active_pad is None and c.active_pads == [] and c.active_pad_ids == []
     assert c._is_active(0) and c._is_active(5)
+
+
+# -------------------------------------- Controller support off (2026-10-06)
+# aidocks/completed/controller_support_plan.md: with the Settings row off, no pad is
+# opened and no pad event is read, so nothing in the game can tell a pad is attached.
+
+class _SupportApp(_App):
+    def __init__(self, support=True):
+        _App.__init__(self)
+        self.controller_support = support
+
+
+def _supported(support, *pads):
+    app = _SupportApp(support)
+    c = Controllers(pygame, app, sdl=_FakeSdl())
+    c._sdl = _FakeSdl(pads)
+    return c, app
+
+
+def test_with_the_support_off_nothing_is_opened_and_nothing_is_played():
+    pad = _FakePad(3)
+    c, app = _supported(False, pad)
+    _added(c, 0)
+    c.announce_attached()
+    assert c.pads == [] and c.names == [] and c.active_pad is None
+    assert app.played == [] and pad.buzzed == []
+
+
+def test_with_the_support_off_a_pad_attached_at_startup_is_not_opened():
+    app = _SupportApp(False)
+    pad = _FakePad(3)
+    c = Controllers(pygame, app, sdl=_FakeSdl([pad]))
+    assert c.pads == [], 'a pad was opened with the support off'
+
+
+def test_with_the_support_off_no_pad_event_does_anything():
+    c, _app = _supported(False, _FakePad(3))
+    for event in (_button(pygame.CONTROLLER_BUTTON_A),
+                  _button(pygame.CONTROLLER_BUTTON_DPAD_UP),
+                  _axis(pygame.CONTROLLER_AXIS_LEFTY, -1.0),
+                  pygame.event.Event(pygame.CONTROLLERDEVICEREMOVED, instance_id=3)):
+        assert c.feed(event) == [], event
+    assert not c.lost_active
+    # and a key is still a key, so the keyboard plays
+    assert c.feed(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_UP)) is None
+
+
+def test_turning_the_support_on_finds_the_pads_and_announces_them():
+    """tunmi13productions: "it will look for any controllers connected like it would do at
+    startup and play the traditional connect sound if it finds any"."""
+    pad = _FakePad(3)
+    c, app = _supported(False, pad)
+    assert c.pads == []
+    app.controller_support = True
+    c.refresh()
+    assert [p.id for p in c.pads] == [3]
+    assert app.played == [SOUND_DETECTED] and pad.buzzed == [CONNECT_BUZZ]
+
+
+def test_turning_the_support_off_lets_go_of_the_pads_and_plays_the_lost_sound():
+    """tunmi13productions, 2026-10-06: "it should play the disconnect sound if controllers
+    were connected when controller support was turned off"."""
+    pad = _FakePad(3)
+    c, app = _supported(True, pad)
+    _added(c, 0)
+    app.played = []
+    app.controller_support = False
+    c.refresh()
+    assert c.pads == [] and c.names == []
+    assert pad.closed == 1, 'the pad was not let go of'
+    assert app.played == [SOUND_NOT_DETECTED], app.played
+
+
+def test_turning_the_support_off_says_nothing_with_no_pad_attached():
+    c, app = _supported(True)
+    app.controller_support = False
+    c.refresh()
+    assert app.played == [], app.played
+
+
+def test_two_pads_let_go_of_at_once_play_the_lost_sound_once():
+    """What went is the controller support, not a particular pad."""
+    c, app = _supported(True, _FakePad(3), _FakePad(4))
+    _added(c, 0)
+    _added(c, 1)
+    app.played = []
+    app.controller_support = False
+    c.refresh()
+    assert app.played == [SOUND_NOT_DETECTED], app.played
+
+
+def test_refreshing_twice_does_not_announce_a_pad_twice():
+    pad = _FakePad(3)
+    c, app = _supported(True, pad)
+    c.refresh()
+    assert app.played == [SOUND_DETECTED]
+    c.refresh()
+    assert app.played == [SOUND_DETECTED], app.played
 
 
 if __name__ == '__main__':

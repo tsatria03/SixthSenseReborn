@@ -148,17 +148,24 @@ class Input:
     # ---- the controller (PORT ADDITION, aidocks/completed/joystick_plan.md) -------
     def controller(self, event, pygame, keys, lost=False):
         """A controller event, with the key events ``Controllers.feed`` made of it, and
-        ``lost``: it took away a pad that was open.  The panels take those keys, as the
-        menus do.  In play the left stick aims like the swipe, and the buttons are reload,
-        weapon change, shake and pause; losing the pad pauses, so nothing happens to you
-        while you plug it back in.  The tutorial has no pause and is left running."""
+        ``lost``: it took away the pad the game plays with.  The panels take those keys, as
+        the menus do.  In play the left stick aims like the swipe, and the buttons are
+        reload, weapon change, shake and pause; losing the pad pauses, so nothing happens to
+        you while you plug it back in.  The tutorial has no pause and is left running.
+
+        Unplugging any other pad is ignored outright (2026-10-06): it neither pauses nor
+        lets go of the aim, the D-pad or a burst, so a second pad on the desk, or one SDL
+        listed twice, cannot interrupt the pad in your hands."""
         st = self.stage
         if event.type == pygame.CONTROLLERDEVICEREMOVED:
+            if not lost:
+                return
             self._stick = {}
             self._aim_reset()
             self._dpad_reset()
-            if lost and st.gameState == 0 and not getattr(st, 'ESCAPE_LEAVES', False):
+            if st.gameState == 0 and not getattr(st, 'ESCAPE_LEAVES', False):
                 st.StopPlayAction_()
+            return
         if st.gameState != 0:
             self._aim_reset()
             self._dpad_reset()
