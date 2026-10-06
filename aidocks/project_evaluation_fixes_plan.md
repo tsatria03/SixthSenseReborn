@@ -34,7 +34,7 @@ Item numbers are the 19 of the evaluation's list, ranked high to low.
    - `level_chooser.py`, `tutorial_chooser.py` and `headshot_tester.py` use it instead of changing `APPDATA`.
    - Their "SixthSense Reborn" text becomes "Sixth Sense Reborn".
    - A test in `tests/case/paths.py` checks that no file in `tests/interact/` sets `APPDATA`.
-4. **Settings written on the first start** (item 18). Player-facing.
+4. **Settings written on the first start** (item 18). Player-facing. **Built 2026-10-06, not yet confirmed**: `app_delegate.SETTING_DEFAULTS` and `fill_settings`, called in `didFinishLaunching` beside `volume.load`, write each missing toggle at the value its reader already assumed (VIBRATION 1, HEADSHOTSPEECH 1, HEADSHOTBEEP 0, SHAKE 1, CONTROLLER empty, SKIPINTRO 0). The new `settings_menu.test_a_new_settings_json_shows_every_setting` checks the order, that play does not change and that a player's value is kept; 13 files pass 277 of 277. To check: a fresh save's settings.json lists all thirteen settings.
    - `VIBRATION`, `SHAKE`, `SKIPINTRO`, `CONTROLLER`, `HEADSHOTSPEECH` and `HEADSHOTBEEP` are written with their defaults on the first start, like the volumes, so settings.json shows every setting.
    - A test checks a fresh settings.json holds every key of `SETTINGS_KEYS`, in order.
 5. **What builds ship** (item 3). Player-facing: a smaller download.

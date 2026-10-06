@@ -160,6 +160,30 @@ def test_the_defaults_are_what_they_were_before_the_screen_existed():
         assert not s.app.skip_intro_on, 'the opening screens were skipped by default'
 
 
+def test_a_new_settings_json_shows_every_setting():
+    """2026-10-06: the toggles and the pad are written on the first start, as the volumes
+    are, so settings.json lists every setting in the dev's order.  Writing them changes
+    nothing a player hears, and a value already there is never replaced."""
+    from sixthsense.game.app_delegate import SETTING_DEFAULTS, fill_settings
+    from sixthsense.platform import volume
+    from sixthsense.platform.defaults import SETTINGS_KEYS
+    readers = ('vibration_on', 'headshot_speech_on', 'headshot_beep_on', 'shake_on',
+               'skip_intro_on', 'controller_choice')
+    with _NewSave() as s:
+        for key in SETTING_DEFAULTS:
+            s.d.removeObjectForKey_(key)
+        s.d.setObject_forKey_('0', 'HEADSHOTSPEECH')        # the player's own, kept
+        before = {r: getattr(s.app, r) for r in readers}
+        volume.load(s.d)
+        assert fill_settings(s.d), 'nothing was written'
+        s.d.synchronize()
+        assert {r: getattr(s.app, r) for r in readers} == before, 'a default changed play'
+        assert s.d.stringForKey_('HEADSHOTSPEECH') == '0', "the player's value was replaced"
+        with open(os.path.join(paths.user_dir(), 'settings.json'), encoding='utf-8') as fh:
+            assert list(json.load(fh)) == list(SETTINGS_KEYS)
+        assert not fill_settings(s.d), 'a complete file was filled again'
+
+
 def test_each_toggle_flips_saves_and_says_the_new_state():
     with _NewSave() as s:
         s.pads('Xbox Wireless Controller')

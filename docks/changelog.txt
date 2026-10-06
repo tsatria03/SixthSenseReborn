@@ -1,4 +1,5 @@
 unrelease:
+Every setting is now in settings.json from the first start, not only the volumes. Vibration, the spoken headshot, the headshot beep, shake to break free, the controller and skipping the opening screens used to appear there only once you changed them on the Settings screen. They start at the same values as before, so nothing sounds different, and a setting you have already changed is kept.
 The pause and result panel in the game window no longer says that restarting costs a coin. Games have been free since the coins were removed, but the window's label had not caught up.
 Old saves no longer keep the coin settings, which the game stopped using when games became free. They are taken out of the save the next time the game starts, and the rest of your progress stays as it was.
 Shaking a controller to get free of the animal zombie now takes one shake, or two at most, instead of up to five. Shaking is a real movement rather than a button, so it should not have to be aggressive. The A button still takes up to five presses as before, and presses and shakes count together.

@@ -60,6 +60,30 @@ log = logging.getLogger('app')
 MENU_MUSIC_TRACK = 'bgm_main_menu'
 MENU_MUSIC_KEY = volume.MENU_MUSIC_KEY
 
+#: PORT ADDITION (2026-10-06): the Settings screen's settings as a new save has them, each
+#: the value its reader below assumes when the key is missing, so writing them changes
+#: nothing in play.  ``didFinishLaunching`` writes any that are missing, as the volumes are,
+#: so settings.json shows a player every setting from the first start
+#: (aidocks/project_evaluation_fixes_plan.md).
+SETTING_DEFAULTS = {
+    'VIBRATION': '1',
+    'HEADSHOTSPEECH': '1',
+    'HEADSHOTBEEP': '0',
+    'SHAKE': '1',
+    'CONTROLLER': '',
+    'SKIPINTRO': '0',
+}
+
+
+def fill_settings(d):
+    """Write each of ``SETTING_DEFAULTS`` the save does not have; one it has, whatever its
+    value, is left alone.  True when anything was written."""
+    wrote = False
+    for key, value in SETTING_DEFAULTS.items():
+        if d.objectForKey_(key) is None:
+            d.setObject_forKey_(value, key)
+            wrote = True
+    return wrote
 
 
 class AppDelegate:
@@ -117,6 +141,8 @@ class AppDelegate:
         # every one at its default, so a player sees what they can change
         # (aidocks/completed/volume_settings_plan.md)
         wrote = volume.load(d)
+        # and the Settings screen's toggles and pad, the same way (2026-10-06)
+        wrote = fill_settings(d) or wrote
         # PORT ADDITION (2026-10-05): the gold a game pays, editable (gold_rates.py)
         wrote = gold_rates.fill(d) or wrote
         # and the upgrade levels, caps and settings (weapon_upgrades.py)
