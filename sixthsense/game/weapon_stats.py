@@ -138,6 +138,13 @@ def fill(defaults):
     if first:
         defaults.setInteger_forKey_(1, REAL_MARKER)
         wrote = True
+    # The grenade's count, its ammo, is written only when it changes (buying, 0x1c144;
+    # throwing, 0x2f288), so until the first grenade a save had no key to see or edit.
+    # PORT ADDITION (tsatria03, 2026-10-05): a missing one is written as '0', in the
+    # original's text form; the count already in a save is never touched.
+    if defaults.objectForKey_('GRENADECOUNT') is None:
+        defaults.setObject_forKey_('0', 'GRENADECOUNT')
+        wrote = True
     return wrote
 
 

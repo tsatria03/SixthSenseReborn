@@ -110,6 +110,19 @@ def test_a_new_save_has_every_weapons_stats_and_no_others():
         assert saved['MG80_RANGE'] == 1600 and saved['WEAPON_STATS_REAL'] == 1, saved
 
 
+def test_the_grenade_count_is_always_in_the_save():
+    """GRENADECOUNT was written only on buying or throwing a grenade; a save without one
+    now gets '0' on the start, and a count already there is kept."""
+    with _NewSave() as s:
+        s.app.weaponHave()
+        assert s.d.objectForKey_('GRENADECOUNT') == '0'
+        s.d.setObject_forKey_('4', 'GRENADECOUNT')
+        s.restart()
+        assert s.d.objectForKey_('GRENADECOUNT') == '4', 'the count was written over'
+        with open(s.d.path, encoding='utf-8') as fh:
+            assert json.load(fh)['GRENADECOUNT'] == '4'
+
+
 def test_an_older_saves_shop_numbers_are_replaced_once():
     with _NewSave() as s:
         for name, numbers in OLD_SHOP.items():
