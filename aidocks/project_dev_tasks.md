@@ -11,6 +11,7 @@ Since 2026-09-23, `todo list.txt` holds only what a player notices ([[feedback_t
 
 ## Open
 
+- Remove the code left from the publisher's ranking server, which is gone (the dev, 2026-10-06): the rank (`NOWRANK` read into `RankLabel` in `Stage_1_E.updateTopscoreRank`, which nothing shows, and row 9's text in `pause_row_text`, a row the panel leaves out), and the week's best score (`TOPSCOREWEEK`, kept for uploading, and `WEEKTIME`, which nothing sets, cleared by `intro._expire_week`), with the `defaults.py` docstring's lines for them. The player-facing half, the unused keys in save.json, is in `todo list.txt`.
 The seven lines below are from the 2026-10-06 evaluation ([[project_evaluation_fixes_plan]]).
 - Fix the level chooser, tutorial chooser and headshot tester so they keep off the real save on Linux and macOS too, through one shared helper, and spell the game's name right in them.
 - Make the release workflow run the tests before it builds, and pin the PyInstaller version.
