@@ -6,41 +6,51 @@ it by one, and the level adds to the weapon's own stats (``weapon_stats.py``): d
 ammo capacity and range all at once.  The grenade, the knife and the sword have no
 magazine, so they gain damage and range only.
 
-What a level adds grows: level 1 adds the step and each level after adds
-``UPGRADE_GROWTH`` times the one before, so the total at level n is
+What a level adds is a share of the weapon's own stat, not a flat count, so each weapon
+keeps its character: a maxed MG80 still out-ammos a maxed colt.  The total added at
+level n is
 
-    step * (growth ** n - 1) / (growth - 1)        (step * n when growth is 1)
+    base * share / 100 * n
 
-rounded half up, with the steps ``UPGRADE_DAMAGE`` (10), ``UPGRADE_AMMO`` (10) and
-``UPGRADE_RANGE`` (100 cm), and the growth 1.2.  Level n costs
+rounded half up, with the shares ``UPGRADE_DAMAGE_SHARE``, ``UPGRADE_AMMO_SHARE`` and
+``UPGRADE_RANGE_SHARE`` all 10 per cent, so level 10 doubles the weapon: a colt of 7
+rounds and 30 damage holds 14 and does 60.  The base is the save's own stat, so one
+edited there scales with it.  Retuned this way on 2026-10-06, the dev having found a
+level 10 colt holding 267 rounds: the shares were flat steps shared by all eight
+weapons, compounded by a growth, and every weapon gained the same +260.  Level n costs
 
     UPGRADE_START_PRICE * UPGRADE_PRICE_GROWTH ** (n - 1)
 
 rounded half up, from 100 growing 1.2 times a level: 100, 120, 144, 173 ... 516, 2,596
-to reach level 10.  The six settings are for all weapons at once; the level and the cap
-are each weapon's.  ``fill`` writes them on every start where missing or unusable.
+to reach level 10.  The five settings are for all weapons at once; the level and the cap
+are each weapon's.  ``fill`` writes them on every start where missing or unusable, and
+clears the keys the retune left behind.
 """
 from __future__ import annotations
 
 import logging
 import math
 
-from .weapon_stats import NAMES, REAL, STATS, _usable, key
+from .weapon_stats import NAMES, REAL, STATS, _usable, key, value
 
 log = logging.getLogger('weapon_upgrades')
 
 START_PRICE = 'UPGRADE_START_PRICE'
 PRICE_GROWTH = 'UPGRADE_PRICE_GROWTH'
-GROWTH = 'UPGRADE_GROWTH'
-#: the stat each step raises, by its key
-STEPS = {'damage': 'UPGRADE_DAMAGE', 'ammo_capacity': 'UPGRADE_AMMO',
-         'range': 'UPGRADE_RANGE'}
+#: the stat each share raises, by its key.  The names say share because the value is a
+#: percentage of the weapon's own stat; until 2026-10-06 they were flat counts named
+#: UPGRADE_DAMAGE, UPGRADE_AMMO and UPGRADE_RANGE, which fill() now clears.
+SHARES = {'damage': 'UPGRADE_DAMAGE_SHARE', 'ammo_capacity': 'UPGRADE_AMMO_SHARE',
+          'range': 'UPGRADE_RANGE_SHARE'}
 
-#: the six settings for all weapons, and their defaults
-SETTINGS = {START_PRICE: 100, PRICE_GROWTH: 1.2, STEPS['damage']: 10,
-            STEPS['ammo_capacity']: 10, STEPS['range']: 100, GROWTH: 1.2}
-#: the two that may be fractions
-GROWTHS = (PRICE_GROWTH, GROWTH)
+#: the five settings for all weapons, and their defaults
+SETTINGS = {START_PRICE: 100, PRICE_GROWTH: 1.2, SHARES['damage']: 10,
+            SHARES['ammo_capacity']: 10, SHARES['range']: 10}
+#: the one that may be a fraction
+GROWTHS = (PRICE_GROWTH,)
+#: what the retune of 2026-10-06 left in older saves, removed by fill(): the flat steps,
+#: whose values mean something else as shares, and the growth the shares do without
+STALE = ('UPGRADE_DAMAGE', 'UPGRADE_AMMO', 'UPGRADE_RANGE', 'UPGRADE_GROWTH')
 MAX_LEVEL = 10
 #: the most any total or price can be, so an absurd hand edit cannot overflow
 CEILING = 10 ** 9
@@ -83,6 +93,12 @@ def fill(defaults):
                             k, have, default)
             defaults.setObject_forKey_(default, k)
             wrote = True
+    for k in STALE:
+        if defaults.objectForKey_(k) is not None:
+            # the value is no use: a step of 100 cm is not a share of 100 per cent
+            log.info('%s is from before the upgrade retune; removing it', k)
+            defaults.removeObjectForKey_(k)
+            wrote = True
     return wrote
 
 
@@ -94,7 +110,7 @@ def _defaults(defaults):
 
 
 def setting(k, defaults=None):
-    """One of the six settings, or its default when the save has none it can use."""
+    """One of the five settings, or its default when the save has none it can use."""
     good = _check(k, _defaults(defaults).objectForKey_(k))
     return SETTINGS[k] if good is None else good
 
@@ -113,27 +129,26 @@ def _half_up(x):
     return min(CEILING, int(math.floor(x + 0.5)))
 
 
-def total(step, growth, n):
-    """What n levels add, the first adding ``step`` and each after ``growth`` times the
-    last, rounded half up."""
-    if n <= 0 or step == 0:
+def total(base, share, n):
+    """What n levels add to a stat of ``base``, each adding ``share`` per cent of it,
+    rounded half up.  At the default 10 per cent, level 10 doubles the stat."""
+    if n <= 0 or base == 0 or share == 0:
         return 0
     try:
-        if growth == 1:
-            return _half_up(step * n)
-        return _half_up(step * (growth ** n - 1) / (growth - 1))
+        return _half_up(base * share / 100.0 * n)
     except OverflowError:
         return CEILING
 
 
 def added(name, stat, defaults=None, at=None):
     """What the weapon's level (or level ``at``) adds to one of its stats; 0 for a stat
-    it has none of (the grenade's and the blades' ammo) or the price."""
-    if stat not in STEPS or REAL[name][STATS.index(stat)] is None:
+    it has none of (the grenade's and the blades' ammo) or the price.  The share is of
+    the save's own number, so a stat edited there scales with it."""
+    if stat not in SHARES or REAL[name][STATS.index(stat)] is None:
         return 0
     d = _defaults(defaults)
     n = level(name, d) if at is None else at
-    return total(setting(STEPS[stat], d), setting(GROWTH, d), n)
+    return total(value(name, stat, d), setting(SHARES[stat], d), n)
 
 
 def price(n, defaults=None):

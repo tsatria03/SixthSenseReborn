@@ -142,11 +142,12 @@ per kill and per headshot hit, raised from the original's 12 and 2 and editable 
 way; the weapon test range keeps its own 12% of the score.
 Weapon upgrades: each weapon has `<W>_LEVEL` (0) and `<W>_MAX_LEVEL` (10), and one
 upgrade button on its pages raises the level, adding to its damage, ammo capacity and
-range at once (not the grenade's or the blades' ammo). Six keys apply to every weapon:
+range at once (not the grenade's or the blades' ammo). Five keys apply to every weapon:
 `UPGRADE_START_PRICE` (100) and `UPGRADE_PRICE_GROWTH` (1.2), so level n costs
-100 × 1.2^(n-1); `UPGRADE_DAMAGE` (10), `UPGRADE_AMMO` (10) and `UPGRADE_RANGE` (100 cm),
-what level 1 adds, and `UPGRADE_GROWTH` (1.2), each level adding that much more than the
-last. The two growths may be fractions; everything else is a whole number.
+100 × 1.2^(n-1); and `UPGRADE_DAMAGE_SHARE`, `UPGRADE_AMMO_SHARE` and
+`UPGRADE_RANGE_SHARE` (10 each), the percentage of the weapon's own stat a level adds,
+so at 10 level 10 doubles it: a colt of 7 rounds and 30 damage holds 14 and does 60.
+The price growth may be a fraction; everything else is a whole number.
 
 ## Controls
 

@@ -1,8 +1,9 @@
 """Weapon upgrades: one level per weapon, adding to its stats, every number in save.json.
 
-A PORT ADDITION (tsatria03, 2026-10-05; aidocks/completed/weapon_upgrades_plan.md).  The
-totals and prices are checked against the tables the dev agreed: damage and ammo from 10,
-range from 100 cm, growing 1.2 times a level; prices from 100, growing 1.2 times.
+A PORT ADDITION (tsatria03, 2026-10-05; aidocks/completed/weapon_upgrades_plan.md), retuned
+on 2026-10-06.  The totals and prices are checked against the tables the dev agreed: a
+level adds 10 per cent of the weapon's own stat, so level 10 doubles it; prices from 100,
+growing 1.2 times.
 
 Each test runs on a new, empty save folder of its own.
 """
@@ -27,9 +28,12 @@ from sixthsense.game.store import (LEVEL_ROW, UPGRADE_ROW,       # noqa: E402
 from sixthsense.platform.defaults import UserDefaults            # noqa: E402
 from sixthsense.platform.runloop import RunLoop                  # noqa: E402
 
-#: the agreed tables, levels 1 to 10
-TOTALS = [10, 22, 36, 54, 74, 99, 129, 165, 208, 260]
-RANGE_TOTALS = [100, 220, 364, 537, 744, 993, 1292, 1650, 2080, 2596]
+#: the agreed tables, levels 1 to 10.  A tenth of the colt's 7 rounds is 0.7, so rounding
+#: swallows some of its levels; its damage and range move at every one.
+COLT_AMMO = [1, 1, 2, 3, 4, 4, 5, 6, 6, 7]
+COLT_DAMAGE = [3, 6, 9, 12, 15, 18, 21, 24, 27, 30]
+COLT_RANGE = [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]
+MG80_AMMO = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50]
 PRICES = [100, 120, 144, 173, 207, 249, 299, 358, 430, 516]
 
 
@@ -80,13 +84,27 @@ class _NewSave:
 
 
 def test_the_tables_are_the_agreed_ones():
-    assert [U.total(10, 1.2, n) for n in range(1, 11)] == TOTALS
-    assert [U.total(100, 1.2, n) for n in range(1, 11)] == RANGE_TOTALS
-    with _NewSave():
+    with _NewSave() as s:
+        assert [U.added('COLT', 'ammo_capacity', s.d, n) for n in range(1, 11)] == COLT_AMMO
+        assert [U.added('COLT', 'damage', s.d, n) for n in range(1, 11)] == COLT_DAMAGE
+        assert [U.added('COLT', 'range', s.d, n) for n in range(1, 11)] == COLT_RANGE
+        assert [U.added('MG80', 'ammo_capacity', s.d, n) for n in range(1, 11)] == MG80_AMMO
+        assert U.added('COLT', 'ammo_capacity', s.d, 10) == 7, 'level 10 did not double it'
+        assert U.added('KNIFE', 'ammo_capacity', s.d, 10) == 0, 'a blade gained a magazine'
+        assert U.added('COLT', 'price', s.d, 10) == 0, 'the price was upgraded'
         assert [U.price(n) for n in range(1, 11)] == PRICES
         assert sum(PRICES) == 2596
-    assert U.total(10, 1.2, 0) == 0
-    assert U.total(10, 1, 4) == 40, 'a growth of 1 is an even step'
+    assert U.total(7, 10, 0) == 0
+    assert U.total(0, 10, 4) == 0, 'a stat of 0 gained something'
+    assert U.total(50, 0, 4) == 0, 'a share of 0 gained something'
+
+
+def test_a_share_follows_a_stat_edited_in_the_save():
+    with _NewSave() as s:
+        s.d.setObject_forKey_(100, 'COLT_AMMO_CAPACITY')
+        assert U.added('COLT', 'ammo_capacity', s.d, 10) == 100
+        s.d.setObject_forKey_(20, 'UPGRADE_AMMO_SHARE')
+        assert U.added('COLT', 'ammo_capacity', s.d, 10) == 200, 'the share was ignored'
 
 
 def test_a_new_save_has_every_setting_level_and_cap():
@@ -95,8 +113,9 @@ def test_a_new_save_has_every_setting_level_and_cap():
         with open(s.d.path, encoding='utf-8') as fh:
             saved = json.load(fh)
         assert saved['UPGRADE_START_PRICE'] == 100 and saved['UPGRADE_PRICE_GROWTH'] == 1.2
-        assert saved['UPGRADE_DAMAGE'] == 10 and saved['UPGRADE_AMMO'] == 10
-        assert saved['UPGRADE_RANGE'] == 100 and saved['UPGRADE_GROWTH'] == 1.2
+        assert saved['UPGRADE_DAMAGE_SHARE'] == 10 and saved['UPGRADE_AMMO_SHARE'] == 10
+        assert saved['UPGRADE_RANGE_SHARE'] == 10
+        assert not [k for k in U.STALE if k in saved], 'a key from before the retune'
         for name in ('GRENADE', 'KNIFE', 'COLT', 'SHOTGUN', 'M4', 'AK47', 'MG80', 'JAPAN'):
             assert saved[name + '_LEVEL'] == 0 and saved[name + '_MAX_LEVEL'] == 10, name
         assert U.fill(s.d) is False, 'a second start wrote again'
@@ -104,22 +123,33 @@ def test_a_new_save_has_every_setting_level_and_cap():
 
 def test_unusable_values_are_put_back_and_edits_kept():
     with _NewSave() as s:
-        for k, bad in (('UPGRADE_GROWTH', 0), ('UPGRADE_PRICE_GROWTH', 'fast'),
-                       ('UPGRADE_DAMAGE', -1), ('COLT_LEVEL', 1.5),
-                       ('KNIFE_MAX_LEVEL', True)):
+        for k, bad in (('UPGRADE_PRICE_GROWTH', 'fast'), ('UPGRADE_DAMAGE_SHARE', -1),
+                       ('COLT_LEVEL', 1.5), ('KNIFE_MAX_LEVEL', True)):
             s.d.setObject_forKey_(bad, k)
-        s.d.setObject_forKey_(1.5, 'UPGRADE_GROWTH')
-        s.d.setObject_forKey_(0, 'UPGRADE_GROWTH')
         assert U.fill(s.d) is True
-        assert s.d.objectForKey_('UPGRADE_GROWTH') == 1.2
         assert s.d.objectForKey_('UPGRADE_PRICE_GROWTH') == 1.2
-        assert s.d.objectForKey_('UPGRADE_DAMAGE') == 10
+        assert s.d.objectForKey_('UPGRADE_DAMAGE_SHARE') == 10
         assert s.d.objectForKey_('COLT_LEVEL') == 0
         assert s.d.objectForKey_('KNIFE_MAX_LEVEL') == 10
-        s.d.setObject_forKey_(1.05, 'UPGRADE_GROWTH')          # a fraction is fine here
+        s.d.setObject_forKey_(1.05, 'UPGRADE_PRICE_GROWTH')    # a fraction is fine here
+        s.d.setObject_forKey_(25, 'UPGRADE_AMMO_SHARE')
         s.d.setObject_forKey_(3, 'COLT_MAX_LEVEL')
         assert U.fill(s.d) is False
-        assert U.setting('UPGRADE_GROWTH', s.d) == 1.05
+        assert U.setting('UPGRADE_PRICE_GROWTH', s.d) == 1.05
+        assert U.setting('UPGRADE_AMMO_SHARE', s.d) == 25
+
+
+def test_the_keys_from_before_the_retune_are_cleared():
+    """The flat steps and their growth mean something else as shares: a step of 100 cm is
+    not a share of 100 per cent, which would be eleven times the range at the cap."""
+    with _NewSave() as s:
+        for k in U.STALE:
+            s.d.setObject_forKey_(100, k)
+        assert U.fill(s.d) is True
+        for k in U.STALE:
+            assert s.d.objectForKey_(k) is None, k
+        assert U.added('COLT', 'range', s.d, 10) == 1000, 'an old key was still read'
+        assert U.fill(s.d) is False
 
 
 def test_upgrading_pays_and_raises_the_level_up_to_the_cap():
@@ -147,10 +177,10 @@ def test_the_level_adds_to_what_the_stage_plays_with():
         try:
             st.weaponInit()
             colt, knife, grenade = st.weaponSource[2], st.weaponSource[1], st.weaponSource[0]
-            assert (colt.Damage, colt.Range, colt.ReloadGun()) == (30 + 22, 1000 + 220, 7 + 22)
-            assert (knife.Damage, knife.Range) == (30 + 36, 200 + 364)
+            assert (colt.Damage, colt.Range, colt.ReloadGun()) == (30 + 6, 1000 + 200, 7 + 1)
+            assert (knife.Damage, knife.Range) == (30 + 9, 200 + 60)
             assert knife.AmmoCapacity is None, 'a blade gained a magazine'
-            assert (grenade.Damage, grenade.Range) == (160, 1700)
+            assert (grenade.Damage, grenade.Range) == (165, 1760)
             shotgun = st.weaponSource[3]
             assert (shotgun.Damage, shotgun.Range) == (35, 1000), 'level 0 added something'
         finally:
@@ -193,9 +223,9 @@ def test_the_button_says_what_it_does_and_the_page_reads_the_new_numbers():
         s.app.haveGold = 1000
         colt.activate()
         assert colt.speech.said[-1] == 'Upgraded to level 1.', colt.speech.said
-        assert colt.row_text(3) == 'Ammo capacity, 17'
+        assert colt.row_text(3) == 'Ammo capacity, 8'
         assert colt.row_text(4) == 'Effective range, 11 metres'
-        assert colt.row_text(5) == 'Damage, 40'
+        assert colt.row_text(5) == 'Damage, 33'
         assert colt.row_text(LEVEL_ROW) == 'Level, 1 of 10'
         assert colt.row_text(UPGRADE_ROW) == 'Upgrade stats to level 2 for 120 gold, Button'
         s.d.setObject_forKey_(1, 'COLT_MAX_LEVEL')
@@ -214,7 +244,7 @@ def test_a_bought_weapons_shop_and_inventory_pages_agree():
         shop, inv = s.page(DetailStoreController, 3), s.page(DetailInventoryController, 5)
         for row in (3, 4, 5, LEVEL_ROW, UPGRADE_ROW):
             assert shop.row_text(row) == inv.row_text(row), row
-        assert shop.row_text(5) == 'Damage, %d' % (40 + 54)
+        assert shop.row_text(5) == 'Damage, %d' % (40 + 16)
 
 
 if __name__ == '__main__':
