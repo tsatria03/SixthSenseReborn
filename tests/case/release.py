@@ -745,6 +745,19 @@ def test_the_workflow_file_names_the_same_calls():
     assert releaser.cli(['--ci-build']) is None and releaser.cli([]) is None, 'a bare flag opens the menu'
 
 
+def test_the_workflow_tests_before_it_builds_with_a_pinned_pyinstaller():
+    """tsatria03, 2026-10-06: every test runs on each system before its build, and the build
+    uses the PyInstaller the dev builds with, never whatever is newest."""
+    text = open(os.path.join(ROOT, '.github', 'workflows', 'release.yml'), encoding='utf-8').read()
+    tests, build = text.index('name: Run the tests'), text.index('name: Build and pack')
+    assert tests < build, 'the tests run after the build'
+    step = text[tests:build]
+    assert 'tests/case/*.py' in step and '_*) continue' in step and 'exit $failed' in step
+    install = text[text.index('name: Install'):tests]
+    assert 'pyinstaller==' in install and 'pyinstaller-hooks-contrib==' in install, install
+    assert ' pyinstaller\n' not in install, 'an unpinned pyinstaller is installed too'
+
+
 def test_a_test_run_checks_the_release_and_touches_nothing_on_github():
     def test(_folder):
         with open(releaser.CHANGELOG, 'w', encoding='utf-8', newline='\n') as fh:

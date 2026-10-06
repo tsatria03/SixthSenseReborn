@@ -35,5 +35,5 @@ metadata:
 - Nothing runs until a real tag is pushed, so the workflow is only proved by the first release made through it. The macOS archives are unsigned, as the compiler leaves them.
 
 ## Left out
-- No test run in the workflow: the dev runs the tests ([[feedback_dont_run_or_build]]).
+- No test run in the workflow: the dev runs the tests ([[feedback_dont_run_or_build]]). **Reversed 2026-10-06 by tsatria03** ([[project_evaluation_fixes_plan]] group 7): each build job runs every `tests/case` file before building, and a failure stops that system's build and so the release. The tests are silent and keep off any save by themselves, so running them on GitHub's machines touches nothing of the dev's. PyInstaller is pinned to the dev's 6.22.3, with pyinstaller-hooks-contrib 2026.7.
 - No code signing or notarising of the macOS app.
