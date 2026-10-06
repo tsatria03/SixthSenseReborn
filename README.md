@@ -128,6 +128,16 @@ own names, split by key; the original kept them all in one plist. A `defaults.js
 before the split is moved into the new files on the first start and kept as
 `defaults.json.old`.
 
+`save.json` also holds each weapon's stats, which the game plays with and the shop and
+inventory read out: `<W>_AMMO_CAPACITY` (the magazine), `<W>_RANGE` (centimetres, read
+out in metres), `<W>_DAMAGE` and `<W>_PRICE` (what the shop charges), where `<W>` is
+`GRENADE`, `KNIFE`, `COLT`, `SHOTGUN`, `M4`, `AK47`, `MG80` or `JAPAN`, so
+`SHOTGUN_DAMAGE` is the shotgun's damage. An older save's keys without underscores
+(`SHOTGUNDAMAGE`) are renamed on the first start, values kept. They start as the weapon
+files' numbers and the shop's prices; there is no key where nothing could use one (the
+grenade's count is `GRENADECOUNT`, the blades have no magazine, the knife and colt are
+not sold). A value that is not a whole number of 0 or more is put back on the next start.
+
 ## Controls
 
 The tutorial teaches the five lanes as **clock positions** — 9, 10:30, 12, 1:30, 3 —
@@ -304,7 +314,7 @@ python tests/case/digits.py         # numbers spoken digit by digit, in the righ
 python tests/case/pause.py          # the pause and result panel
 python tests/case/store.py          # the shop, buying, and the inventory
 python tests/case/inventory.py      # equipping through the inventory's screens, step by step
-python tests/case/weapon_stats.py   # each weapon's spoken stats in the save, written and never read
+python tests/case/weapon_stats.py   # each weapon's stats in the save, read by the pages and the stage
 python tests/case/weapon_range.py   # the weapon test range behind the shop's Try button
 python tests/case/intro.py          # the logo, the splash, the warning, the story, skipping
 python tests/case/speech.py         # who speaks what no WAV covers (stand-ins, silent)

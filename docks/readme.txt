@@ -141,6 +141,11 @@ MASTERVOLUME is everything, MENUMUSICVOLUME the menu music, LEVELMUSICVOLUME the
 GAMEPLAYGAIN is the gain during a game, from 0 to 6 decibels, where 0 is the original's mix; a number it cannot use counts as 0.
 Change a number in a text editor, save the file and start the game again to hear it.
 A number the game cannot use counts as 100.
+In save.json each weapon has its numbers, which the game plays with: AMMO_CAPACITY is the magazine, RANGE how far it reaches in centimetres, DAMAGE what a hit takes off, and PRICE what the shop charges.
+The key starts with the weapon's name, so SHOTGUN_DAMAGE is the shotgun's damage, and the names are GRENADE, KNIFE, COLT, SHOTGUN, M4, AK47, MG80 and JAPAN, the Japanese sword.
+The shop and the inventory read the same numbers out, with the range in metres, so a range of 1000 is 10 metres.
+The grenade's count is GRENADECOUNT, the knife and the sword have no magazine, and the knife and the colt are free, so those have no key.
+Close the game before you change them, since it writes the file while it runs, and a number it cannot use is put back to the weapon's own.
 If a save from an older version is there, called defaults.json, the game moves it into the new files by itself and keeps the old one as defaults.json.old.
 If one of the files is ever damaged, the game keeps it with .damaged on the end of its name and carries on from a backup.
 

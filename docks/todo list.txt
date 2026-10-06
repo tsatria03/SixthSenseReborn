@@ -2,10 +2,10 @@
 
 Make weapons upgradeable, so that they can do more damage.
 Raise the gold you earn after a death a little, so weapons are a bit easier to get.
-Make the weapon stats in save.json, the ammo capacity, effective range, damage and price that the shop and the inventory read out, count when you change them, since right now the game writes them but never reads them back.
 
 ##Finished.
 
+The weapon stats in save.json are the real ones and count when you change them: the magazine, the range, the damage and the price, which the shop and the inventory read out, with the range in metres.
 After buying a weapon, the screen reader says "Purchase has completed", the same words as the window.
 In the weapon test range, two zombies that reach you at once on your last heart kill you instead of leaving you below zero hearts.
 A volume in settings.json written with an unusual digit, such as a superscript two, no longer stops the game from starting.

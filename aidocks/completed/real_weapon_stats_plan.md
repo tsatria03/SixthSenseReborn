@@ -1,11 +1,13 @@
 ---
-name: project_real_weapon_stats_plan
-description: "PLANNED 2026-10-05: each weapon's stats in save.json become the real ones and the game reads them: damage, range (in cm) and ammo capacity drive play, price is what the shop charges, and the shop and inventory read them out, range in metres. Replaces the never-read keys of [[weapon_stats_in_save_plan]]."
+name: real_weapon_stats_plan
+description: "FINISHED 2026-10-05, confirmed by the dev: each weapon's stats in save.json become the real ones and the game reads them: damage, range (in cm) and ammo capacity drive play, price is what the shop charges, and the shop and inventory read them out, range in metres. Replaces the never-read keys of [[weapon_stats_in_save_plan]]."
 metadata:
   type: project
 ---
 
-**Status: PLANNED, agreed with the dev on 2026-10-05, not built.** Recorded before any code ([[feedback_record_plans_first]]). The todo list has it as unfinished. Mark it finished only once the dev says it works, then move it to `completed/` ([[feedback_completed_projects]]).
+**Status: FINISHED 2026-10-05, confirmed by the dev** ("Everything works now", then, after the key names with underscores, "Everything past"). Moved to `completed/` the same day. `game/weapon_stats.py` (`REAL`, `key`, `fill`, `value`, `apply`, `range_text`, marker `WEAPON_STATS_REAL`); `WeaponControl.AmmoCapacity`, which `ReloadGun` fills to; `Stage_1_E.weaponInit` applies the save and the grenade's blast skips monsters beyond its range; `store.load_stats` feeds both pages, and `SHOP` and `SLOTS` lost their stat fields. Tests: `weapon_stats.py` rewritten (10 after the rename), `store.py` (the two pages agree), `gameplay.py` (the grenade's range); the covering files passed on 2026-10-05: weapon_stats 10, store 20, inventory 2, data 19, save 13, window 10, menu 20, weapon_range 15, input 48, pause 29, tutorial 31, gameplay 58.
+
+Agreed with the dev on 2026-10-05 and recorded before any code ([[feedback_record_plans_first]]). The todo list has it as unfinished. Mark it finished only once the dev says it works, then move it to `completed/` ([[feedback_completed_projects]]).
 
 **Why:** [[weapon_stats_in_save_plan]] (2026-09-25) wrote the shop's numbers into the save and never read them back. Those numbers are not the ones the game plays with: the original typed the shop's into its code (`store.SHOP`, `inventory.SLOTS`, which disagree with each other too), while play reads the weapon plists. The shotgun reads 45 damage and range 50, and plays at 35 damage and 1000 cm. Reborn need not be faithful ([[project_two_repos]]). The dev: "I want the shop to read the real numbers, but also, modifying the stat in the save file should effect the game as well."
 
@@ -23,7 +25,7 @@ Each line is ammo capacity, range, damage, price:
 - JAPAN: none, 300, 100, 50000
 
 - **"none" means no key**, because nothing could ever use it (the dev agreed each): the grenade's count is `GRENADECOUNT`, already real; the knife and sword spend no ammo; the shop never sells the knife or colt.
-- Keys keep the existing names, `<W>AMMOCAPACITY`, `<W>RANGE`, `<W>DAMAGE`, `<W>PRICE`, in `save.json`.
+- Keys are capitals with underscores, `<W>_AMMO_CAPACITY`, `<W>_RANGE`, `<W>_DAMAGE`, `<W>_PRICE` (`MG80_RANGE`), and the marker `WEAPON_STATS_REAL`, in `save.json`. The naming went through three builds on 2026-10-05: the first used run-together capitals (`MG80RANGE`, `WEAPONSTATSREAL`), which the dev found hard to read; they chose "all lower case with underscores" (`mg80_range`), then "please capitalize the stats... Keep the underscores." Weapon stats only, not the original's keys. `_rename_old_keys` moves either earlier name to the current one on the start, values and edits kept, the current name winning if both exist; the dev confirmed the lower case rename moved their save properly.
 
 ## What the game does with them
 - **All eight weapons, from the start**, owned or not, so a price can be edited before buying (the dev: "Yes"). Written on every start where a key is missing.
