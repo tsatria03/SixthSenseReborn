@@ -21,7 +21,9 @@ stats, with underscores: ``<W>_AMMO_CAPACITY``, ``<W>_RANGE`` (in centimetres),
 ``<W>_DAMAGE`` and ``<W>_PRICE``, which the game reads and plays with, and
 ``WEAPON_STATS_REAL``, set once an older save's shop numbers were replaced by the real
 ones (``game/weapon_stats.py``), and ``GOLD_PER_KILL`` and ``GOLD_PER_HEADSHOT``, the
-gold a game pays (``game/gold_rates.py``).
+gold a game pays (``game/gold_rates.py``), and the upgrades: ``<W>_LEVEL``,
+``<W>_MAX_LEVEL`` and six ``UPGRADE_...`` settings for every weapon
+(``game/weapon_upgrades.py``).
 
 ``synchronize`` writes the files; the original's does the same thing.
 

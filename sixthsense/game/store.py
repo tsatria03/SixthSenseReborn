@@ -22,7 +22,7 @@ from __future__ import annotations
 import logging
 
 from ..platform.defaults import UserDefaults
-from . import weapon_stats
+from . import weapon_stats, weapon_upgrades
 from .blind_screen import BlindScreen, whole
 
 log = logging.getLogger('store')
@@ -56,16 +56,63 @@ def stats_name(item):
 
 
 def load_stats(page, item):
-    """Set a weapon's page, shop or inventory, to the stats the save holds: range in
-    centimetres, and None for an ammo capacity or a price the weapon has none of."""
+    """Set a weapon's page, shop or inventory, to the stats the save holds with what its
+    upgrade level adds: range in centimetres, and None for an ammo capacity or a price
+    the weapon has none of."""
     name = stats_name(item)
-    page.effetiverange = weapon_stats.value(name, 'range')
-    page.power = weapon_stats.value(name, 'damage')
+    page.effetiverange = weapon_stats.upgraded(name, 'range')
+    page.power = weapon_stats.upgraded(name, 'damage')
     page.price = weapon_stats.value(name, 'price')
     if name == 'GRENADE':
         page.ammocapacity = UserDefaults.standardUserDefaults().intForKey_('GRENADECOUNT')
     else:
-        page.ammocapacity = weapon_stats.value(name, 'ammo_capacity')
+        page.ammocapacity = weapon_stats.upgraded(name, 'ammo_capacity')
+
+
+# -------------------------------------------------- upgrades, on both weapon pages
+#: PORT ADDITION (2026-10-05, weapon_upgrades.py): the two rows a weapon's page gains,
+#: numbered past the original's eight.
+LEVEL_ROW = 9
+UPGRADE_ROW = 10
+
+
+def owns(app, name):
+    """Whether the weapon has been bought: the grenade, the knife and the colt always."""
+    slot = weapon_stats.NAMES.index(name)
+    have = app.haveWeapon
+    return slot < len(have) and have[slot] == '1'
+
+
+def level_row_text(name):
+    return 'Level, %d of %d' % (weapon_upgrades.level(name),
+                                weapon_upgrades.max_level(name))
+
+
+def upgrade_row_text(name):
+    n = weapon_upgrades.level(name)
+    if n >= weapon_upgrades.max_level(name):
+        return 'Fully upgraded, Button'
+    return 'Upgrade stats to level %d for %s gold, Button' % (
+        n + 1, whole(weapon_upgrades.price(n + 1)))
+
+
+def upgrade_action(page, item):
+    """The upgrade button on a weapon's page, shop or inventory: raise the weapon one
+    level, or say why not, and read the page's numbers anew."""
+    name = stats_name(item)
+    page.ui_select()
+    result = weapon_upgrades.upgrade(name, page.app)
+    if result == 'max':
+        page.message = 'Fully upgraded.'
+        page.say(page.message)
+    elif result == 'gold':
+        page.play(SOUND_GOLD_LACKING)                 # "Gold is lacking.", as buying says
+        page.message = 'Gold is lacking.'
+    else:
+        load_stats(page, item)
+        page.message = 'Upgraded to level %d.' % result
+        page.say(page.message)
+    return result
 
 #: 0x19b32..0x19b66 - the four WAVs that name a number on a weapon's page.
 SOUND_AMMO_CAPACITY = 255
@@ -277,11 +324,30 @@ class DetailStoreController(BlindScreen):
     def title_text(self):
         return '%s.' % SHOP[self.weaponType]['name']
 
+    @property
+    def stats_name(self):
+        return stats_name(SHOP[self.weaponType])
+
+    def rows(self):
+        """PORT ADDITION (2026-10-05): the level after the four numbers, and once the
+        weapon is bought, the upgrade button in Buy's place.  The grenade, bought again
+        and again, keeps Buy and has the upgrade button after it."""
+        name = self.stats_name
+        if name == 'GRENADE':
+            return (1, 2, 3, 4, 5, 6, LEVEL_ROW, 7, UPGRADE_ROW, 8)
+        if owns(self.app, name):
+            return (1, 2, 3, 4, 5, 6, LEVEL_ROW, UPGRADE_ROW, 8)
+        return (1, 2, 3, 4, 5, 6, LEVEL_ROW, 7, 8)
+
     def row_text(self, row):
         if row == 7:
             return 'Buy, Button'
         if row == 8:
             return 'Try, Button'
+        if row == LEVEL_ROW:
+            return level_row_text(self.stats_name)
+        if row == UPGRADE_ROW:
+            return upgrade_row_text(self.stats_name)
         return detail_row_text(self, row, SHOP[self.weaponType]['name'])
 
     def row_sound(self, row):
@@ -305,11 +371,18 @@ class DetailStoreController(BlindScreen):
         row = self.selectMenu
         if row == 1:
             self.goBackAction_()
-        elif row == 7:
-            self.buyAction_()
+        elif row == 7 and row in self.rows():
+            if self.buyAction_() and UPGRADE_ROW in self.rows() and 7 not in self.rows():
+                self.selectMenu = UPGRADE_ROW     # Buy is gone; stand on what replaced it
         elif row == 8:
             self.testAction_()
+        elif row == UPGRADE_ROW and row in self.rows():
+            self.upgradeAction_()
         return row
+
+    def upgradeAction_(self, *_):
+        """PORT ADDITION: raise the weapon one level (weapon_upgrades.py)."""
+        return upgrade_action(self, SHOP[self.weaponType])
 
     # -[DetailStoreController buyAction:] 0x1b9e4
     def buyAction_(self, *_):

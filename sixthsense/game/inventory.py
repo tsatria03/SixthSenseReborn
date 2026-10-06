@@ -18,9 +18,10 @@ import logging
 
 from ..platform.defaults import UserDefaults
 from .blind_screen import BlindScreen
-from .store import (BACK_TEXT, SOUND_AMMO_CAPACITY, SOUND_BACK, SOUND_DAMAGE,
-                    SOUND_EFFECTIVE_RANGE, SOUND_GRENADE_COUNT, SOUND_PRICE,
-                    detail_row_text, load_stats)
+from .store import (BACK_TEXT, LEVEL_ROW, SOUND_AMMO_CAPACITY, SOUND_BACK, SOUND_DAMAGE,
+                    SOUND_EFFECTIVE_RANGE, SOUND_GRENADE_COUNT, SOUND_PRICE, UPGRADE_ROW,
+                    detail_row_text, level_row_text, load_stats, owns, stats_name,
+                    upgrade_action, upgrade_row_text)
 
 log = logging.getLogger('inventory')
 
@@ -122,12 +123,24 @@ class DetailInventoryController(BlindScreen):
     def title_text(self):
         return '%s.' % SLOTS[self.weaponType]['name']
 
+    def rows(self):
+        """PORT ADDITION (2026-10-05): the level after the four numbers, and for a weapon
+        that is owned, the upgrade button after Equip.  The knife and the colt, never
+        sold, are upgraded only here."""
+        if owns(self.app, stats_name(SLOTS[self.weaponType])):
+            return (1, 2, 3, 4, 5, 6, LEVEL_ROW, 7, 8, UPGRADE_ROW)
+        return (1, 2, 3, 4, 5, 6, LEVEL_ROW, 7, 8)
+
     def row_text(self, row):
         if row == 7:
             return 'State, %s' % ('equipped' if self.used else 'not equipped')
         if row == 8:
             # the button says what pressing it would do, as row_sound's does
             return 'Unequip, Button' if self.used else 'Equip, Button'
+        if row == LEVEL_ROW:
+            return level_row_text(stats_name(SLOTS[self.weaponType]))
+        if row == UPGRADE_ROW:
+            return upgrade_row_text(stats_name(SLOTS[self.weaponType]))
         return detail_row_text(self, row, SLOTS[self.weaponType]['name'])
 
     def row_sound(self, row):
@@ -155,7 +168,13 @@ class DetailInventoryController(BlindScreen):
             self.goBackAction_()
         elif row == 8:
             self.equipToggleAction_()
+        elif row == UPGRADE_ROW and row in self.rows():
+            self.upgradeAction_()
         return row
+
+    def upgradeAction_(self, *_):
+        """PORT ADDITION: raise the weapon one level (weapon_upgrades.py)."""
+        return upgrade_action(self, SLOTS[self.weaponType])
 
     # -[DetailInventoryController equipToggleAction:] 0x2a620
     def equipToggleAction_(self, *_):

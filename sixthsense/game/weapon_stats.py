@@ -162,15 +162,24 @@ def value(name, stat, defaults=None):
 
 
 def apply(weapon, slot, defaults=None):
-    """Give a loaded ``WeaponControl`` the save's damage, range and magazine.  A weapon
-    with no ammo capacity key (the grenade, the blades) keeps its plist's."""
+    """Give a loaded ``WeaponControl`` the save's damage, range and magazine, with what
+    its upgrade level adds (``weapon_upgrades.py``).  A weapon with no ammo capacity key
+    (the grenade, the blades) keeps its plist's."""
     name = NAMES[slot]
-    weapon.Damage = value(name, 'damage', defaults)
-    weapon.Range = value(name, 'range', defaults)
-    ammo = value(name, 'ammo_capacity', defaults)
+    weapon.Damage = upgraded(name, 'damage', defaults)
+    weapon.Range = upgraded(name, 'range', defaults)
+    ammo = upgraded(name, 'ammo_capacity', defaults)
     if ammo is not None:
         weapon.AmmoCapacity = ammo
         weapon.BulletCount = ammo
+
+
+def upgraded(name, stat, defaults=None):
+    """The number the game plays with: the save's stat and what the weapon's upgrade
+    level adds to it.  None for a stat the weapon has no key for."""
+    from .weapon_upgrades import added
+    base = value(name, stat, defaults)
+    return None if base is None else base + added(name, stat, defaults)
 
 
 def range_text(cm):
