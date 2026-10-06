@@ -161,7 +161,7 @@ Close the game before you change them, since it writes the file while it runs, a
 GOLD_PER_KILL and GOLD_PER_HEADSHOT in save.json are the gold a game pays when it ends, 15 for each zombie you kill and 5 for each headshot, and you can change them the same way.
 Each weapon's level is its name and _LEVEL, such as SHOTGUN_LEVEL, and its top level is its name and _MAX_LEVEL, 10 to start with.
 UPGRADE_START_PRICE is the first level's price, 100, and UPGRADE_PRICE_GROWTH how much each level's price grows, 1.2, which is a fifth more each time.
-UPGRADE_DAMAGE_SHARE, UPGRADE_AMMO_SHARE and UPGRADE_RANGE_SHARE are how much of the weapon's own damage, magazine and range one level adds, as a percentage, 10 each, so at 10 the top level doubles the weapon: a colt of 7 rounds and 30 damage holds 14 and does 60 at level 10.
+UPGRADE_DAMAGE_SHARE, UPGRADE_AMMO_SHARE and UPGRADE_RANGE_SHARE are how much of the weapon's own damage, magazine and range one level adds, as a percentage, 15 each, so at 15 the top level is two and a half times the weapon: a colt of 7 rounds, 30 damage and 10 metres holds 18, does 75 and reaches 25 metres at level 10. The range goes up a whole metre at a time, since it is read out in metres.
 These five are for every weapon at once, and the price growth can have decimals.
 If a save from an older version is there, called defaults.json, the game moves it into the new files by itself and keeps the old one as defaults.json.old.
 If one of the files is ever damaged, the game keeps it with .damaged on the end of its name and carries on from a backup.

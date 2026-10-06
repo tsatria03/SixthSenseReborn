@@ -145,9 +145,11 @@ upgrade button on its pages raises the level, adding to its damage, ammo capacit
 range at once (not the grenade's or the blades' ammo). Five keys apply to every weapon:
 `UPGRADE_START_PRICE` (100) and `UPGRADE_PRICE_GROWTH` (1.2), so level n costs
 100 × 1.2^(n-1); and `UPGRADE_DAMAGE_SHARE`, `UPGRADE_AMMO_SHARE` and
-`UPGRADE_RANGE_SHARE` (10 each), the percentage of the weapon's own stat a level adds,
-so at 10 level 10 doubles it: a colt of 7 rounds and 30 damage holds 14 and does 60.
-The price growth may be a fraction; everything else is a whole number.
+`UPGRADE_RANGE_SHARE` (15 each), the percentage of the weapon's own stat a level adds,
+so at 15 level 10 is two and a half times the weapon: a colt of 7 rounds, 30 damage and
+10 metres holds 18, does 75 and reaches 25. The range is rounded to a whole metre, since
+it is read out in metres. The price growth may be a fraction; everything else is a whole
+number.
 
 ## Controls
 

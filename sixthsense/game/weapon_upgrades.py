@@ -13,11 +13,13 @@ level n is
     base * share / 100 * n
 
 rounded half up, with the shares ``UPGRADE_DAMAGE_SHARE``, ``UPGRADE_AMMO_SHARE`` and
-``UPGRADE_RANGE_SHARE`` all 10 per cent, so level 10 doubles the weapon: a colt of 7
-rounds and 30 damage holds 14 and does 60.  The base is the save's own stat, so one
-edited there scales with it.  Retuned this way on 2026-10-06, the dev having found a
-level 10 colt holding 267 rounds: the shares were flat steps shared by all eight
-weapons, compounded by a growth, and every weapon gained the same +260.  Level n costs
+``UPGRADE_RANGE_SHARE`` all 15 per cent, so level 10 is two and a half times the weapon:
+a colt of 7 rounds and 30 damage holds 18 and does 75.  The base is the save's own stat,
+so one edited there scales with it.  The range is rounded to a whole metre rather than
+to the centimetre (``ROUNDING``), since it is read out in metres and 14.95 of them is an
+odd thing to hear.  Retuned this way on 2026-10-06, the dev having found a level 10 colt
+holding 267 rounds: the shares were flat steps shared by all eight weapons, compounded
+by a growth, and every weapon gained the same +260.  Level n costs
 
     UPGRADE_START_PRICE * UPGRADE_PRICE_GROWTH ** (n - 1)
 
@@ -44,8 +46,13 @@ SHARES = {'damage': 'UPGRADE_DAMAGE_SHARE', 'ammo_capacity': 'UPGRADE_AMMO_SHARE
           'range': 'UPGRADE_RANGE_SHARE'}
 
 #: the five settings for all weapons, and their defaults
-SETTINGS = {START_PRICE: 100, PRICE_GROWTH: 1.2, SHARES['damage']: 10,
-            SHARES['ammo_capacity']: 10, SHARES['range']: 10}
+SETTINGS = {START_PRICE: 100, PRICE_GROWTH: 1.2, SHARES['damage']: 15,
+            SHARES['ammo_capacity']: 15, SHARES['range']: 15}
+#: what a stat's gain is rounded to.  The range is in centimetres but read out in metres
+#: (``weapon_stats.range_text``), so it moves a whole metre at a time: the dev, 2026-10-06,
+#: "it might read a little odd to someone like 14.95. just say 15".  A short blade gains
+#: nothing on some levels because of it, which the dev accepted.
+ROUNDING = {'range': 100}
 #: the one that may be a fraction
 GROWTHS = (PRICE_GROWTH,)
 #: what the retune of 2026-10-06 left in older saves, removed by fill(): the flat steps,
@@ -129,13 +136,14 @@ def _half_up(x):
     return min(CEILING, int(math.floor(x + 0.5)))
 
 
-def total(base, share, n):
+def total(base, share, n, unit=1):
     """What n levels add to a stat of ``base``, each adding ``share`` per cent of it,
-    rounded half up.  At the default 10 per cent, level 10 doubles the stat."""
+    rounded half up to a multiple of ``unit``.  At the default 15 per cent, level 10 is
+    two and a half times the stat."""
     if n <= 0 or base == 0 or share == 0:
         return 0
     try:
-        return _half_up(base * share / 100.0 * n)
+        return min(CEILING, _half_up(base * share / 100.0 * n / unit) * unit)
     except OverflowError:
         return CEILING
 
@@ -148,7 +156,8 @@ def added(name, stat, defaults=None, at=None):
         return 0
     d = _defaults(defaults)
     n = level(name, d) if at is None else at
-    return total(value(name, stat, d), setting(SHARES[stat], d), n)
+    return total(value(name, stat, d), setting(SHARES[stat], d), n,
+                 ROUNDING.get(stat, 1))
 
 
 def price(n, defaults=None):

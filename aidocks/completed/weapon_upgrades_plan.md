@@ -1,6 +1,6 @@
 ---
 name: weapon_upgrades_plan
-description: "FINISHED 2026-10-05, confirmed by the dev: one upgrade button per weapon raises its level, adding damage, ammo and range on top of its stats; prices start at 100 and grow 1.2x; cap 10 per weapon; every number editable in save.json. Answers the todo item about upgradeable weapons. RETUNED 2026-10-06 (built, not yet confirmed): a level adds a share of the weapon's own stat, 10% a level, so level 10 doubles it, in place of the flat steps that made every weapon gain +260."
+description: "FINISHED 2026-10-05, confirmed by the dev: one upgrade button per weapon raises its level, adding damage, ammo and range on top of its stats; prices start at 100 and grow 1.2x; cap 10 per weapon; every number editable in save.json. Answers the todo item about upgradeable weapons. RETUNED 2026-10-06 (built, not yet confirmed): a level adds a share of the weapon's own stat, 15% a level, so level 10 is two and a half times the weapon, in place of the flat steps that made every weapon gain +260; the range moves a whole metre at a time."
 metadata:
   type: project
 ---
@@ -49,27 +49,28 @@ Agreed with the dev on 2026-10-05 and recorded before any code ([[feedback_recor
 **Decided with the dev, one question at a time:**
 - **A share of the weapon's own stat, not a flat count.** `UPGRADE_AMMO`, `UPGRADE_DAMAGE` and `UPGRADE_RANGE` become percentages, all 10, so each weapon keeps its character and a maxed MG80 still out-ammos a maxed colt. The dev chose this over smaller flat steps and over a per-weapon step for each stat (24 more keys).
 - **All three stats retuned, not ammo alone.** The dev's choice: the damage was the same problem less visibly, and 36 m of range let you shoot what you cannot yet hear.
-- **10% a level, so level 10 doubles the weapon.** The dev looked at 20% (triple at max) and 5% (half again) first. A maxed colt holds 14 and does 60 damage, so it still takes 2 shots on a 100 HP zombie and 34 on a boss.
+- **15% a level, so level 10 is two and a half times the weapon.** The dev first chose 10% (double at max), then said doubling "seems too small. maybe 2.5?" A maxed colt holds 18 and does 75 damage, so it still takes 2 shots on a 100 HP zombie and 27 on a boss; a maxed MG80 holds 125.
+- **The range moves a whole metre at a time.** It is kept in centimetres but read out in metres, and at 15% the M4, the AK47 and the sword landed on two decimals: "Effective range, 14.95 metres". The dev: "I would actually round them. it might read a little odd to someone like 14.95. just say 15." Rounding the gain to the nearest 10 cm instead, which gives one decimal at most, was offered and declined. The cost, which the dev accepted: the knife (2 m) and the sword (3 m) are too short for 15% to make a whole metre, so their range stands still on several levels, the knife reading 2, 2, 3, 3, 3, 4, 4, 4, 4, 5, 5. Only the range is rounded this way; ammo and damage are whole numbers already.
 - **`UPGRADE_GROWTH` is dropped; `UPGRADE_PRICE_GROWTH` stays 1.2.** The prices do not change (100, 120, 144 ... 516, 2,596 to max): accelerating cost is the point of a price, while a growing share is a trap on a small weapon. To still only double at max with the growth kept, the share would have to be 3.85% a level, which on a colt is 0.27 rounds at level 1 and rounds away to nothing, so the first upgrades would visibly do nothing.
 
 **The totals, a share of the base, rounded half up:**
 
 ```
-weapon   ammo 0/5/10   damage 0/5/10   range m 0/5/10
-GRENADE  no magazine   150/225/300     16.00/24.00/32.00
-KNIFE    no magazine    30/ 45/ 60      2.00/ 3.00/ 4.00
-COLT       7/11/14      30/ 45/ 60     10.00/15.00/20.00
-SHOTGUN   10/15/20      35/ 53/ 70     10.00/15.00/20.00
-M4        25/38/50      40/ 60/ 80     13.00/19.50/26.00
-AK47      30/45/60      40/ 60/ 80     13.00/19.50/26.00
-MG80      50/75/100     45/ 68/ 90     16.00/24.00/32.00
-JAPAN    no magazine    100/150/200     3.00/ 4.50/ 6.00
+weapon   ammo 0/5/10    damage 0/5/10   range m 0/5/10
+GRENADE  no magazine    150/263/375     16/28/40
+KNIFE    no magazine     30/ 53/ 75      2/ 4/ 5
+COLT       7/12/18       30/ 53/ 75     10/18/25
+SHOTGUN   10/18/25       35/ 61/ 88     10/18/25
+M4        25/44/63       40/ 70/100     13/23/33
+AK47      30/53/75       40/ 70/100     13/23/33
+MG80      50/88/125      45/ 79/113     16/28/40
+JAPAN    no magazine     100/175/250     3/ 5/ 8
 ```
 
-A 7-round colt gains a round roughly every other level (7, 8, 8, 9, 10, 11, 11, 12, 13, 13, 14): a tenth of 7 is 0.7, so rounding swallows some levels. Its damage and range move at every level, and the level row says the real level, so nothing looks broken.
+The colt gains a round at every level but the last, where 10.5 rounds up to 11: 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18. Its range, in whole metres, is 10, 12, 13, 15, 16, 18, 19, 21, 22, 24, 25.
 
 **Build:**
-- `weapon_upgrades.py`: `SHARES` in place of `STEPS`, the share read as a percentage; `total(step, growth, n)` becomes `total(base, share, n)` returning `half_up(base * share / 100 * n)`; `GROWTH` and its default gone; `added` takes the base from `weapon_stats.value(name, stat, defaults)`, so a base edited in save.json scales with it.
+- `weapon_upgrades.py`: `SHARES` in place of `STEPS`, the share read as a percentage, all three 15; `total(step, growth, n)` becomes `total(base, share, n, unit=1)` returning `half_up(base * share / 100 * n / unit) * unit`, capped at `CEILING`; `ROUNDING` gives the range its unit of 100 cm; `GROWTH` and its default gone; `added` takes the base from `weapon_stats.value(name, stat, defaults)`, so a base edited in save.json scales with it.
 - **The keys are renamed**, since an old value means something else under the new reading and `UPGRADE_RANGE` of 100 would be 100% a level, eleven times the range at max. `UPGRADE_AMMO_SHARE`, `UPGRADE_DAMAGE_SHARE` and `UPGRADE_RANGE_SHARE` replace them, each 10; `fill` removes the three old keys and `UPGRADE_GROWTH` from an existing save, as `weapon_stats._rename_old_keys` does for its own, but without carrying the value over. The name says percentage, so no marker key is needed.
 - **No save migration for levels.** The level is what is stored, never the total, so the dev's level 10 colt reads 14 rounds on the next start by itself.
 - `weapon_stats.upgraded` and `store.py` call `added()` and need no change.
