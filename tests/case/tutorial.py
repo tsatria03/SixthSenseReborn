@@ -801,15 +801,18 @@ def test_the_prompt_says_how_to_hear_it_again_only_the_first_time():
     try:
         app.controllers = None
         st.told_repeat = False
+        # and it says that the repeat key keeps working, since it is named only
+        # here (tunmi13productions, 2026-10-06)
         assert st.continue_prompt() == ('Press Enter to continue, or any other key '
-                                        'to hear this again.')
+                                        'to hear this again. ' + T.REPEAT_ALWAYS)
         assert st.continue_prompt() == 'Press Enter to continue.'
         app.controllers = _Pads('PS5 Controller')
         st.told_repeat = False
         assert st.continue_prompt() == ('Press Cross to continue, or Triangle to '
-                                        'hear this again.')
+                                        'hear this again. ' + T.REPEAT_ALWAYS)
         app.controllers = _Pads('Xbox One Controller')
         assert st.continue_prompt() == 'Press A to continue.'
+        assert T.REPEAT_ALWAYS not in st.continue_prompt(), 'it was said twice'
     finally:
         app.controllers = saved
         st.teardown()

@@ -122,6 +122,13 @@ BEATS = [
 ]
 BEAT_NAMES = [b[0] for b in BEATS]
 
+#: PORT ADDITION (tunmi13productions, 2026-10-06): said once, after the first prompt names
+#: the repeat key, so the player knows it keeps working rather than guessing.  It read
+#: "That works at every prompt in the tutorial, so it is only mentioned here." first, which
+#: the dev found dismissive: "I'd do it more kindly".  The key is not named again here,
+#: since the clause just before it has only this moment said what it is.
+REPEAT_ALWAYS = 'You can repeat any message this way at any time.'
+
 #: PORT ADDITION: what the screen reader says after a beat's words, naming the player's own
 #: keys for the gesture it teaches.  FiveHalf teaches no new gesture, so it has none.
 KEY_HINTS = {
@@ -280,7 +287,12 @@ class Stage_Tutorial(Stage_1_E):
         log.info('tutorial %s: %s', name, self.line)
 
     def continue_prompt(self):
-        """How to go on, and the first time how to hear the beat again."""
+        """How to go on, and the first time how to hear the beat again.
+
+        The repeat key works on every prompt, not only the first, but it is named once:
+        so the first prompt says as much, rather than leaving the player to guess whether
+        it still works later (tunmi13productions, 2026-10-06).
+        """
         pad = self.app.controller_name()
         if pad is not None:
             names = button_names(pad)
@@ -292,7 +304,7 @@ class Stage_Tutorial(Stage_1_E):
         if self.told_repeat:
             return prompt + '.'
         self.told_repeat = True
-        return prompt + again
+        return prompt + again + ' ' + REPEAT_ALWAYS
 
     def tutorial_advance(self):
         """Enter, or a pad's A, on a beat that waits: cut the speech and send its zombie."""
