@@ -208,8 +208,7 @@ def test_the_bullet_hit_is_heard_where_the_zombie_is():
 
 def _headshot(app, st, speech=True, beep=False):
     """Fire one headshot at a zombie far down lane 1 and let it land; returns what was
-    said and the calls to playHitSound, and the zombie.  The calls to playSound go to
-    ``st.plays``."""
+    said and the calls to playHitSound, and the zombie."""
     from sixthsense.platform.defaults import UserDefaults
     d = UserDefaults.standardUserDefaults()
     d.setObject_forKey_('1' if speech else '0', 'HEADSHOTSPEECH')
@@ -218,9 +217,6 @@ def _headshot(app, st, speech=True, beep=False):
     st._say = said.append
     real = app.playHitSound_Gain_Pos_z_
     app.playHitSound_Gain_Pos_z_ = lambda *a: (hits.append(a), real(*a))[-1]
-    st.plays = []
-    real_play = app.playSound_Gain_Pos_z_reprats_
-    app.playSound_Gain_Pos_z_reprats_ = lambda *a: (st.plays.append(a), real_play(*a))[-1]
     loop = RunLoop.main()
     st.MonsterInit_(1)                      # lane 1, hard left, far out
     m = st.MonsterBuffer[0]
@@ -249,7 +245,6 @@ def _headshot_done(app, st):
     d.removeObjectForKey_('HEADSHOTSPEECH')
     d.removeObjectForKey_('HEADSHOTBEEP')
     app.__dict__.pop('playHitSound_Gain_Pos_z_', None)
-    app.__dict__.pop('playSound_Gain_Pos_z_reprats_', None)
     st.teardown()
 
 
@@ -262,7 +257,7 @@ def test_a_headshot_is_announced_by_the_screen_reader():
         said, hits, _m = _headshot(app, st)
         assert said == ['Headshot!'], said
         assert app.CheckSoundBuf_(330) == -1, 'the recording still played'
-        assert not [h for h in hits + st.plays if h[0] == 374], 'the beep played by default'
+        assert not [h for h in hits if h[0] == 374], 'the beep played by default'
         pb = app.playback
         # the gun's hit fades as the zombie does (a PORT DIVERGENCE of 2026-09-27):
         # the zombie's own 100 and 1600, not playSound:'s 40 and 800
@@ -282,17 +277,16 @@ def test_spoken_headshot_can_be_turned_off():
         _headshot_done(app, st)
 
 
-def test_the_headshot_beep_plays_in_the_middle_with_the_speech():
+def test_the_headshot_beep_plays_where_the_zombie_is():
     """PORT ADDITION (2026-10-05): with the beep on, every headshot hit plays headshot_beep
-    (374) in the middle of your head at full gain, beside the spoken "Headshot!".  It
-    first played where the zombie was and faded with the distance, so far off it was
-    lost (tsatria03, the same day)."""
+    (374) at the zombie's position, through the call the gun's hit uses so it fades as the
+    zombie does."""
     app, st = _new_stage()
     try:
         said, hits, m = _headshot(app, st, speech=True, beep=True)
-        assert not [h for h in hits if h[0] == 374], 'the beep still plays at the zombie'
-        beeps = [p for p in st.plays if p[0] == 374]
-        assert beeps == [(374, 1.0, (0.0, 0.0), 0, False)], st.plays
+        beeps = [h for h in hits if h[0] == 374]
+        assert len(beeps) == 1, hits
+        assert beeps[0][2] == m.Pos, (beeps[0], m.Pos)
         assert said == ['Headshot!'], said
     finally:
         _headshot_done(app, st)
