@@ -14,7 +14,7 @@ metadata:
 - One commit per group below, each with its own changelog line when a player notices it ([[feedback_changelog]]), and the todo or [[project_dev_tasks]] line moved to finished only when the dev confirms ([[feedback_todo_list_format]]).
 - **Nothing is pushed** until every group is done, the full suite passes ([[project_safe_test_run]]), and the dev has checked by ear. Then everything goes out in one push, including the two commits made before this plan (the `volume.py` test fix and the evaluation notes).
 - After each group, only the test files covering the changed code are run ([[feedback_dont_run_or_build]]); the full suite runs once at the end.
-- If tunmi13productions pushes in the meantime, report the incoming commits and wait; with local commits held, bringing theirs in needs a rebase of ours (unpushed, so no published history changes), and that needs the dev's go-ahead ([[feedback_git_commits]]).
+- `git fetch` after every few commits (the dev's rule, 2026-10-06). If tunmi13productions pushes in the meantime, report the incoming commits and wait; with local commits held, bringing theirs in needs a rebase of ours (unpushed, so no published history changes), and that needs the dev's go-ahead ([[feedback_git_commits]]).
 - Open questions are asked one at a time, each with a recommendation, as its group comes up ([[feedback_one_question_at_a_time]]).
 
 ## The groups, in the order they will be done

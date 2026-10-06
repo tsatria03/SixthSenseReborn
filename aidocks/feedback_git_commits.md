@@ -13,6 +13,8 @@ metadata:
 
 **Fetching is fine without asking; bringing commits in is not** (the dev, 2026-09-24, refining a stricter rule from the same day: "You are allowed to fetch without asking, but never pull/merge/rebase commits unless I give you the goahead"). `git fetch` only updates what is known about GitHub and changes no branch, so run it freely, for example before a commit, to see what others such as tunmi13productions have pushed. **Never pull, merge, rebase, cherry-pick or reset onto incoming commits without the dev's go-ahead**, each time. When the branch is behind, report the incoming commits (who, what) and wait.
 
+**Fetch after every few commits** (the dev, 2026-10-06: "Just to be safe, you should do a git fetch after every few commits or so"), above all while holding a batch of unpushed commits, so anything tunmi13productions pushes is reported before more local work piles up on top. Report incoming commits and wait, as below.
+
 **Rewriting published history still needs an explicit go-ahead every time.** That covers force pushes, amending or rebasing pushed commits, and changing authors. When it is approved, push with `--force-with-lease=main:<expected hash>`, and keep a local backup branch until the dev is happy.
 
 **Why:** The dev approves what goes into a commit, and after that, pushing is routine for them. History rewrites can lose work, so they stay a deliberate choice.
