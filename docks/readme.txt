@@ -74,7 +74,8 @@ Switching away from the game window pauses the game as well.
 Game controller
 
 Any controller your computer recognizes works, an Xbox, PlayStation or Switch one, on Windows, Linux and macOS.
-A sound and a short buzz tell you when one is found, and another sound when it is lost.
+A sound and a short buzz tell you when one is found, and another sound when it is lost. The buzz is left out when you have vibration turned off.
+With more than one plugged in you hear those sounds for any of them, not only the one the game is playing with, so a controller arriving does not mean the game has changed to it. The Settings screen's controller row says which one it is using.
 Losing it in a game pauses the game, and plugging it back in does not resume it.
 In the menus, the D-pad or the left stick moves, A chooses and B goes back.
 In a game, the left stick aims like a swipe: up is 12 o'clock, left 9, right 3, the diagonals 10:30 and 1:30, and down reloads.

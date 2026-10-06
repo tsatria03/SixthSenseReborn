@@ -9,6 +9,8 @@ metadata:
 
 Two commits: the screen itself, and the skip-the-opening-screens row added to it afterwards.
 
+**The one-entry-per-name rule was tried on the pad it was written for, 2026-10-06.** tunmi13productions had a DualSense attached and said it "isn't listed twice in the settings menu", so the deduplication really does hide SDL's double listing on Windows ([[controller_shake_plan]]) rather than only hiding it in the tests' stand-ins.
+
 The ask, in tunmi13productions' words: "let's move all the rows involving settings (vibration and headshots so far) under a new row called Settings. because now I want to add a shake option for supported controllers. it'd be off by default if a controller does not have an ability. it wouldn't appear as a changeable option, it'd be hidden. not removed from the row, just invisible. that can apply with anything the controller doesn't support. you can also change the controller in this menu if you have multiple connected (be careful of sdl detecting the same controller twice). save the controler by name, as ID's are unreliable. this is because someone could disconnect the controller in ID 0, which means the next time they plug it in it'd be ID 1, not 0, because they swapped positions."
 
 ## Where things stand
