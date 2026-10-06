@@ -253,8 +253,8 @@ aidocks/                 GAME_STRUCTURE.md (how the original works), and
                          the notes for AI-assisted work (see CLAUDE.md)
 docks/                   readme.txt, changelog.txt and todo list.txt, which ship in a docks folder
 tests/case/              the tests, one plain script each
-tests/interact/          level_chooser.py and tutorial_chooser.py, which start the real
-                         game at any level, or the tutorial at any lesson, to play
+tests/interact/          tools to play by ear: the level and tutorial choosers, the
+                         headshot tester and the controller tester
 compiler.py              builds the game with PyInstaller
 releaser.py              sets the version, files the changelog, builds, zips, tags and uploads a release
 .github/workflows/       release.yml: builds and publishes a release when a V<version> tag is pushed
@@ -298,10 +298,11 @@ reproducible without the IPA.
 - **`tests/case/`** holds the tests: 24 plain scripts, each checking one part of the
   game against the original and printing `ok` or `FAIL` for every check, then a total.
   Run any of them on its own; there is nothing to install beyond what the game needs.
-- **`tests/interact/`** holds two tools you play rather than tests: `level_chooser.py`
+- **`tests/interact/`** holds tools you play rather than tests: `level_chooser.py`
   and `tutorial_chooser.py`, which open the real game at any level or the tutorial at
-  any lesson, for checking something by ear. See "Starting at any level" and "Starting
-  the tutorial at any lesson" below.
+  any lesson, `headshot_tester.py`, a game where every gun hit is a headshot, and
+  `controller_tester.py`, for checking something by ear. See "Starting at any level",
+  "Starting the tutorial at any lesson" and "Hearing a headshot" below.
 
 The tests, one line each:
 
@@ -482,6 +483,22 @@ python tests/interact/tutorial_chooser.py --voice off                  # with th
 The lessons before the one you choose count as done, so the tutorial carries on from
 there as it would have. It plays on its own save in
 `%APPDATA%\SixthSenseReborn\tutorial_chooser`, so your own save is never touched.
+
+### Hearing a headshot
+
+`tests/interact/headshot_tester.py` is not a test either. It opens a real game where every
+gun hit is a headshot, so you can hear what one does with the spoken headshot and the
+headshot beep each on or off. Opened on its own, it asks for both; Enter keeps your own
+setting. The knife, the sword and the grenade have no headshots, as in the game.
+
+```bash
+python tests/interact/headshot_tester.py                          # asks
+python tests/interact/headshot_tester.py --speech on --beep on    # both
+python tests/interact/headshot_tester.py --speech off --beep on   # the beep alone
+```
+
+It plays on its own save in `%APPDATA%\SixthSenseReborn\headshot_tester`, with copies of
+your key bindings and settings, so your own save is never touched.
 
 ## Where this came from
 
