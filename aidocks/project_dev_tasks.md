@@ -11,6 +11,14 @@ Since 2026-09-23, `todo list.txt` holds only what a player notices ([[feedback_t
 
 ## Open
 
+The seven lines below are from the 2026-10-06 evaluation ([[project_evaluation_fixes_plan]]).
+- Fix the level chooser, tutorial chooser and headshot tester so they keep off the real save on Linux and macOS too, through one shared helper, and spell the game's name right in them.
+- Make the release workflow run the tests before it builds, and pin the PyInstaller version.
+- Remove the code and comments left from voice over, define the headshot beep sound once, and correct the docstrings that still describe the recordings or Windows only.
+- Add tests for the weapon upgrade cap, a level above the cap in the save, the test range playing with upgraded stats, and the settings going to settings.json.
+- Rewrite the parts of README.md that still describe voice over, coins, the old gold rates, the old menu rows and the old tests.
+- Correct the sound and SoundList counts in CLAUDE.md, the old names and paths in MEMORY.md, and the list of tools in the tests layout note.
+- Decide whether to split the longest functions, main in the entry script and the biggest stage methods.
 - From the 2026-09-24 binary recheck: the walk never sets walkXFlag for its 0.6 seconds; (the docs lines behind the nine todo items were corrected with their fixes on 2026-09-24).
 - Bring the docs and notes up to date with the code, from the 2026-09-23 rescan. game/sounds/unused holds 27 files (26 WAV and one bloopers OGG), not the 25 in CLAUDE.md and these notes or the 26 in the README. CLAUDE.md still says the game opens on the splash, where it now opens on the logo, and that only the key bindings screen is synthesised, leaving out the screen reader mode. The README layout leaves out debug.py, stage_1_test.py and ui/focus.py, and CLAUDE.md says Python 3.12 where the README says 3.12 or newer. tests/case/paths.py line 6 and a few notes still use old test_*.py names. project_tests_layout.md opens with 17 files and 270 tests, feedback_changelog.md says unrelease starts at 0, and a finished line below says findings are listed in the todo list's unfinished section.
 - Update the outdated code comment about the zig-zag walks. (The README half was done on 2026-09-23, and the run loop's header about the timers on 2026-09-24.)

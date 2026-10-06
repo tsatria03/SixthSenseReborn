@@ -1,6 +1,10 @@
 ##Unfinished.
 
-Nothing is waiting here right now. New bugs, planned changes and anything still to be decided will be listed here as they come up.
+The download carries sounds the game never plays, including the old speech recordings and a blooper clip.
+On a Mac, Sixth Sense Reborn shares its app identity with the original Sixth Sense, so the system may mistake one for the other.
+The pause and result panel in the game window still says that restarting costs a coin.
+Old saves keep the coin settings, which the game no longer uses.
+Some settings only appear in settings.json once you change them on the Settings screen, unlike the volumes, which are there from the start.
 
 ##Finished.
 

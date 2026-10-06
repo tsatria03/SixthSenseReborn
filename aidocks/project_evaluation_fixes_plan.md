@@ -1,0 +1,65 @@
+---
+name: project_evaluation_fixes_plan
+description: "PLANNED 2026-10-06: fix all 19 findings of the 2026-10-06 evaluation in about ten local commits, none pushed until every item is done, tested and confirmed by the dev. Groups, order, open questions and what each commit carries."
+metadata:
+  type: project
+---
+
+**Status: planned, 2026-10-06.** Nothing built yet. The findings and their evidence are in [[project_evaluation_2026_10]]; this note is how they get fixed.
+
+**The dev's words (2026-10-06):** "I believe we'll need a bunche of non pushed commits to fix these. I say non pushed because I do not people seeing them untill we resolved all of them." And: "we might as well add some of these things to the todo list, asooming some of them are player facing." tunmi13productions said they would stop pushing for a few hours that day, so the shared files (`main_controller.py`, `stage_1_e.py`, `SixthSenseReborn.py`) go first, while no rebase is needed.
+
+## How the batch works
+- This note is committed first, on its own, with the todo list and developer task lines ([[feedback_record_plans_first]]).
+- One commit per group below, each with its own changelog line when a player notices it ([[feedback_changelog]]), and the todo or [[project_dev_tasks]] line moved to finished only when the dev confirms ([[feedback_todo_list_format]]).
+- **Nothing is pushed** until every group is done, the full suite passes ([[project_safe_test_run]]), and the dev has checked by ear. Then everything goes out in one push, including the two commits made before this plan (the `volume.py` test fix and the evaluation notes).
+- After each group, only the test files covering the changed code are run ([[feedback_dont_run_or_build]]); the full suite runs once at the end.
+- If tunmi13productions pushes in the meantime, report the incoming commits and wait; with local commits held, bringing theirs in needs a rebase of ours (unpushed, so no published history changes), and that needs the dev's go-ahead ([[feedback_git_commits]]).
+- Open questions are asked one at a time, each with a recommendation, as its group comes up ([[feedback_one_question_at_a_time]]).
+
+## The groups, in the order they will be done
+Item numbers are the 19 of the evaluation's list, ranked high to low.
+
+1. **Coin leftovers** (items 5, 7, 10, and the coin docstrings of 13). Player-facing.
+   - `SixthSenseReborn.py`: the panel row label "restart (costs a coin)" becomes "restart"; the comment above `PANEL_ROWS` saying the player hears a WAV is corrected.
+   - `main_controller.py`: remove `SOUND_COIN_COUNT`, `SOUND_NO_COIN`, `READ_COIN_COUNT_DELAY` and the `readNumberOfCoin` cancel; the module docstring describes the free games, keeping the binary's coin logic only as a short note of what the original did.
+   - `defaults.RETIRED_KEYS` gains `COIN`, `COIN_TIMER`, `COIN_TIMER_START` and `FIREST`, so an old save drops them; a test in `save.py` checks it, beside the one for `EYEMODE`.
+2. **Voice over leftovers** (items 11, 12, 13). Not player-facing.
+   - Remove `row_sound` / `ROW_SOUND` and the `type_*_sound` helpers from `blind_screen.py`, `main_controller.py`, `store.py`, `inventory.py`, `intro.py` and `settings_screen.py`, after checking each caller: if anything still plays from them (the evaluation saw `intro.select` reading them), that part stays and is renamed for what it does now.
+   - The tests that read them are updated in the same commit.
+   - `SOUND_HEADSHOT_BEEP` is defined once, in `stage_1_e.py`, and imported by `settings_screen.py`.
+   - Docstrings: `main_controller.py` ("self-voiced", the voice over rows), `speech.py` (the 269 WAVs), `stage_1_e.py` ("with voice over off"), `blind_screen.py` ("blind-mode"), `SixthSenseReborn.py` ("on Windows" only).
+3. **The by-ear tools' saves** (items 1, 14, 15). Not player-facing; the most severe item.
+   - One shared helper in `tests/interact/` that sets `SIXTHSENSE_USER_DIR` to the tool's own folder under `paths.save_base()` + `SixthSenseReborn`, and copies the key bindings, as `controller_tester.py` already does for its save. The Windows folders stay where they are (`%APPDATA%\SixthSenseReborn\level_chooser` and so on), so the dev's existing tester saves carry on.
+   - `level_chooser.py`, `tutorial_chooser.py` and `headshot_tester.py` use it instead of changing `APPDATA`.
+   - Their "SixthSense Reborn" text becomes "Sixth Sense Reborn".
+   - A test in `tests/case/paths.py` checks that no file in `tests/interact/` sets `APPDATA`.
+4. **Settings written on the first start** (item 18). Player-facing.
+   - `VIBRATION`, `SHAKE`, `SKIPINTRO`, `CONTROLLER`, `HEADSHOTSPEECH` and `HEADSHOTBEEP` are written with their defaults on the first start, like the volumes, so settings.json shows every setting.
+   - A test checks a fresh settings.json holds every key of `SETTINGS_KEYS`, in order.
+5. **What builds ship** (item 3). Player-facing: a smaller download.
+   - Open question: ship only `game/sounds/used/`, or `unused/` minus the old speech and the blooper? Recommendation: only `used/`, since `paths.path_for_resource` reaching into `unused/` would mean a sound in the wrong folder. Before deciding, a check (no game run) lists any `SoundList.plist` name the game plays that exists only in `unused/`.
+   - The `compiler.py` docstring counts are corrected in the same commit; `tests/case/release.py` checks the blooper is never shipped.
+6. **The macOS bundle identity** (item 8). Player-facing on a Mac.
+   - Open question: the new identifier. Recommendation: `org.sixthsense.reborn`.
+7. **The release workflow** (items 2, 4). Not player-facing.
+   - `release.yml` runs the whole test suite on each system before building, the same safe way (`_scratch_save` makes it silent), and stops the release on a failure.
+   - PyInstaller is pinned to the version the dev builds with now (read from their environment with `pip show`, not guessed).
+   - `tests/case/release.py` checks both.
+8. **Missing tests** (item 9). Not player-facing.
+   - The weapon upgrade cap, a level above the cap in save.json, the test range playing with upgraded stats, and the settings landing in settings.json rather than save.json.
+9. **README.md** (item 6). Not player-facing (players read `docks/readme.txt`, which is current).
+   - Remove voice over and coins, give the gold as 15 and 5, the main menu's real rows, the 34 test scripts with their real names, no `digits.py`, and the sound counts from the folders.
+10. **CLAUDE.md and the notes** (items 16, 17).
+    - CLAUDE.md: SoundList's 375 entries (372 to 374 added), the sound folder counts from the folders, the blooper under `unused/bloopers/`.
+    - MEMORY.md's finished-project lines: the Reborn names and paths, no `defaults.json`, `EYEMODE` or coins as current facts. [[project_tests_layout]] lists all four by-ear tools.
+    - Done last, so the counts and file names match the code after every other group.
+11. **Long functions** (item 19).
+    - Open question: refactor `main()` in `SixthSenseReborn.py` and the longest `stage_1_e.py` methods now, or leave them noted? Recommendation: leave them as a developer task; splitting them changes no behaviour and risks breaking timing the tests cover only partly.
+
+## Todo list and developer tasks
+- `docks/todo list.txt` ##Unfinished. gets the player-facing groups 1, 4, 5 and 6 (five lines; group 1 is two), replacing the "Nothing is waiting here" line.
+- [[project_dev_tasks]] Open gets one line for each of groups 2, 3, 7, 8, 9, 10 and 11.
+
+## Left out
+- Nothing from the evaluation is left out; item 19 may be, if the dev agrees.
