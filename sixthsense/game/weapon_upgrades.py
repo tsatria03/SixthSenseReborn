@@ -25,7 +25,7 @@ by a growth, and every weapon gained the same +260.  Level n costs
 
 rounded half up, from 100 growing 1.2 times a level: 100, 120, 144, 173 ... 516, 2,596
 to reach level 10.  The five settings are for all weapons at once; the level and the cap
-are each weapon's.  ``fill`` writes them on every start where missing or unusable, and
+are each weapon's, and a level past the cap counts only up to it.  ``fill`` writes them on every start where missing or unusable, and
 clears the keys the retune left behind.
 """
 from __future__ import annotations
@@ -123,8 +123,12 @@ def setting(k, defaults=None):
 
 
 def level(name, defaults=None):
-    good = _usable(_defaults(defaults).objectForKey_(level_key(name)))
-    return 0 if good is None else good
+    """The weapon's level, counted only up to its cap (tsatria03, 2026-10-06: "Count only
+    up to the cap").  A level edited past the cap stays in the save as written, so raising
+    the cap later lets it count again."""
+    d = _defaults(defaults)
+    good = _usable(d.objectForKey_(level_key(name)))
+    return min(0 if good is None else good, max_level(name, d))
 
 
 def max_level(name, defaults=None):

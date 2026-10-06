@@ -197,18 +197,25 @@ def test_an_absurd_hand_edit_is_capped_and_never_crashes():
         assert s.app.haveGold == U.CEILING - 1, 'gold went on a refused upgrade'
 
 
-def test_a_level_above_the_cap_cannot_be_upgraded_and_costs_nothing():
-    """A hand edit can put a weapon past its cap.  The game plays the level as written,
-    as it does every edited number, but the button never takes gold for it."""
+def test_a_level_above_the_cap_counts_only_up_to_the_cap():
+    """tsatria03, 2026-10-06: "Count only up to the cap."  A hand edit past the cap plays,
+    reads and upgrades as the cap; the number stays in the save as written, so raising the
+    cap lets it count again, and the button never takes gold for it."""
     with _NewSave() as s:
         s.d.setObject_forKey_(15, 'COLT_LEVEL')
         assert U.fill(s.d) is False, 'a level past the cap was put back'
-        assert U.level('COLT', s.d) == 15
+        assert U.level('COLT', s.d) == 10
+        assert U.added('COLT', 'damage', s.d) == COLT_DAMAGE[-1], 'more than 10 levels counted'
         s.app.haveGold = 100000
         assert U.upgrade('COLT', s.app) == 'max'
         assert s.app.haveGold == 100000 and s.d.objectForKey_('COLT_LEVEL') == 15
         colt = s.page(DetailInventoryController, 2)
+        assert colt.row_text(LEVEL_ROW) == 'Level, 10 of 10', colt.row_text(LEVEL_ROW)
         assert colt.row_text(UPGRADE_ROW) == 'Fully upgraded, Button'
+        s.d.setObject_forKey_(20, 'COLT_MAX_LEVEL')
+        assert U.level('COLT', s.d) == 15, 'a raised cap did not let the level count'
+        s.d.setObject_forKey_(3, 'COLT_MAX_LEVEL')
+        assert U.level('COLT', s.d) == 3, 'a lowered cap was not the limit'
 
 
 def test_the_test_range_plays_with_the_upgraded_stats():
