@@ -78,6 +78,30 @@ def test_the_level_waits_for_its_loading_delay():
         S1E.LOADING_SECONDS = _REAL_LOADING_SECONDS
 
 
+def test_starting_a_game_says_now_loading():
+    """The original played 46, "Now Loading", as a game started; since the recordings
+    went (2026-10-05) the screen reader says it, first and once."""
+    S1E.LOADING_SECONDS = 0.0
+    d = UserDefaults.standardUserDefaults()
+    d.setObject_forKey_('1', 'TUTORIAL')
+    d.synchronize()
+    app = AppDelegate.shared()
+    if app.playback is None:
+        app.didFinishLaunching()
+    RunLoop.main().reset()
+    st = Stage_1_E()
+    said = []
+    st._say = said.append
+    try:
+        st.viewDidLoad()
+        assert said == ['Now loading.'], said
+        RunLoop.main().pump()
+        assert said.count('Now loading.') == 1, said
+    finally:
+        st.teardown()
+        S1E.LOADING_SECONDS = _REAL_LOADING_SECONDS
+
+
 def test_the_menu_music_does_not_stop_before_the_level_loads():
     """viewDidLoad used to call BGMusicStop before Now Loading ever played, so the
     menu music could cut to silence before the player heard anything.  It must

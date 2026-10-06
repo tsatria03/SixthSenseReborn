@@ -168,6 +168,9 @@ SHAKE_SOUNDS = {8: ([197, 323, 324], [198, 325, 326])}
 
 #: PORT ADDITION: what the screen reader says for the recording the stage still played in play.
 HEADSHOT_TEXT = 'Headshot!'
+#: PORT ADDITION: said as a game starts loading, where the original played 46,
+#: "Now Loading".
+LOADING_TEXT = 'Now loading.'
 #: PORT ADDITION (tunmi13productions, 2026-10-05): headshot_beep, SoundList entry 374.
 SOUND_HEADSHOT_BEEP = 374
 #: 0x3a83a plays this on a gun's hit that kills, headshot or not (0x3a7fc: only when
@@ -320,7 +323,9 @@ class Stage_1_E:
         self._gameplay_gain_on()
         # PORT DIVERGENCE (tunmi13productions, 2026-10-05): the "Now loading" recording
         # (46) that played here is gone.  Nothing here touches audio, including cutting
-        # the menu music, until MapInitInBundle runs (below).
+        # the menu music, until MapInitInBundle runs (below).  The screen reader says it
+        # instead (tsatria03, 2026-10-05).
+        self._say(LOADING_TEXT)
         d = UserDefaults.standardUserDefaults()
         self.app.weaponHave()
         self.weaponInit()

@@ -134,7 +134,8 @@ def test_replaying_the_tutorial_does_not_read_it_as_finished():
 
 
 def test_the_first_prompt_waits_for_its_loading_delay():
-    """0x7d6a2: beat One's words must wait LOADING_SECONDS after the stage loads."""
+    """0x7d6a2: beat One's words must wait LOADING_SECONDS after the stage loads.  Only
+    "Now loading." comes before them (2026-10-05)."""
     _AUTO[0] = 0.4
     S1E.LOADING_SECONDS = 0.3
     d = UserDefaults.standardUserDefaults()
@@ -149,7 +150,8 @@ def test_the_first_prompt_waits_for_its_loading_delay():
     st._say = said.append
     try:
         st.viewDidLoad()
-        assert not said, 'beat One spoke before the loading delay'
+        assert said == [S1E.LOADING_TEXT], said
+        del said[:]
         _pump(RunLoop.main(), 0.15)
         assert not said, 'beat One started before LOADING_SECONDS was up'
         _pump(RunLoop.main(), 0.3)
