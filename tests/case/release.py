@@ -18,6 +18,7 @@ import _scratch_save                                             # noqa: E402,F4
 
 import compiler                                                      # noqa: E402
 import releaser                                                      # noqa: E402
+from sixthsense import paths                                         # noqa: E402
 
 CHANGELOG = ('unrelease:\n'
              'The newest change.\n'
@@ -473,11 +474,28 @@ def test_embedding_puts_the_sounds_and_the_data_inside_one_executable():
     added = [cmd[i + 1] for i, part in enumerate(cmd) if part == '--add-data']
     assert compiler.EMBED_STAGE + os.pathsep + 'game' in added
     assert os.path.join(bundle, 'sounds', 'used') + os.pathsep + 'game/sounds/used' in added
-    assert os.path.join(bundle, 'sounds', 'unused') + os.pathsep + 'game/sounds/unused' in added
+    assert not any('unused' in a for a in added), 'sounds/unused went inside: %s' % added
     # the text a player reads is never among what goes inside; only the third-party
     # licenses are (since 2026-09-25), never the port's own license.txt
     assert not any('changelog' in a or 'todo' in a or 'license.txt' in a.lower() for a in added)
     assert compiler.LICENSES_STAGE + os.pathsep + 'licenses' in added
+
+
+def test_a_build_carries_only_the_sounds_the_game_plays():
+    """tsatria03, 2026-10-06: "When I compile the game, it should only build with
+    sounds/used."  sounds/unused stays in the repository; the blooper was never to ship."""
+    with tempfile.TemporaryDirectory() as bundle:
+        for rel in ('sounds/used/sfx/misc/ui_select.wav',
+                    'sounds/unused/speech/game/paused.wav',
+                    'sounds/unused/sfx/misc/coin_sound.wav'):
+            p = os.path.join(bundle, *rel.split('/'))
+            os.makedirs(os.path.dirname(p), exist_ok=True)
+            open(p, 'wb').close()
+        assert compiler.sound_files(bundle) == [os.path.join('sounds', 'used', 'sfx', 'misc',
+                                                             'ui_select.wav')]
+    real = compiler.sound_files(paths.game())
+    assert real and not any('unused' in name or 'blooper' in name for name in real), \
+        [n for n in real if 'unused' in n or 'blooper' in n]
 
 
 def test_a_flat_bundle_embeds_its_top_folder_alone():

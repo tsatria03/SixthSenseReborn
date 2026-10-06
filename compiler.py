@@ -25,8 +25,9 @@ dist\\SixthSenseReborn-Win-<VERSION>.zip.
 
 The port and the vendored DLLs always go inside the build.  In the folder build the game's own files do
 not: the plists and the three map layers are copied next to the executable, into game\\, and the sounds
-into game\\sounds\\used and game\\sounds\\unused with their folders, which is where sixthsense/paths.py
-looks for them when frozen, used first.  With --embed the same files go inside the executable instead,
+into game\\sounds\\used with their folders, which is where sixthsense/paths.py looks for them when
+frozen.  game\\sounds\\unused, what the game never plays, stays in the repository and is never built
+(tsatria03, 2026-10-06: "it should only build with sounds/used").  With --embed the same files go inside the executable instead,
 and paths.py finds them in the folder it unpacks itself to; that costs a few seconds at every launch.
 Nothing else in the original app bundle is copied: the game never opens any of it.
 
@@ -269,15 +270,21 @@ def app_bundle(args) -> bool:
     return system_key() == 'darwin' and not args.console
 
 
+def shipped_sound_folders() -> tuple[str, ...]:
+    """The sounds folders a build carries: game\\sounds\\used alone.  sounds\\unused holds only what
+    the game never plays, 59 MB of retired speech among it, so it stays in the repository
+    (aidocks/project_evaluation_fixes_plan.md, group 5)."""
+    from sixthsense.paths import SOUNDS_USED
+    return (SOUNDS_USED,)
+
+
 def embedded_data(src: str) -> list[tuple[str, str]]:
     """What --embed puts inside the executable, as PyInstaller's (source, folder inside) pairs: the staged
-    top-folder files as game\\, and the sounds as game\\sounds\\used and game\\sounds\\unused, whole.
-    paths.py finds them all in the folder the executable unpacks itself to, as it would find them beside a
-    folder build.  An original, flat bundle has neither sounds folder; its WAVs are in the top folder, and
-    so in the stage."""
-    from sixthsense.paths import SOUND_FOLDERS
+    top-folder files as game\\, and the sounds as game\\sounds\\used, whole.  paths.py finds them in the
+    folder the executable unpacks itself to, as it would find them beside a folder build.  An original,
+    flat bundle has no sounds folder; its WAVs are in the top folder, and so in the stage."""
     data = [(EMBED_STAGE, 'game')]
-    for folder in SOUND_FOLDERS:
+    for folder in shipped_sound_folders():
         sounds = os.path.join(src, folder)
         if os.path.isdir(sounds):
             data.append((sounds, 'game/' + folder.replace(os.sep, '/')))
@@ -378,24 +385,23 @@ def game_files(src: str) -> list[str]:
 
 
 def sound_files(src: str) -> list[str]:
-    """Every file under the bundle's sounds\\used and sounds\\unused folders, as a path inside the bundle,
-    so each one keeps its folder.  paths.py looks in unused for a name used does not have, so both go.  An
-    original, flat bundle has neither folder, and its WAVs come in with game_files() instead."""
-    from sixthsense.paths import SOUND_FOLDERS
+    """Every file under the bundle's sounds\\used folder, as a path inside the bundle, so each one keeps
+    its folder.  An original, flat bundle has no such folder, and its WAVs come in with game_files()
+    instead."""
     found = []
-    for folder in SOUND_FOLDERS:
+    for folder in shipped_sound_folders():
         for dirpath, dirs, files in os.walk(os.path.join(src, folder)):
             dirs.sort()
             found += [os.path.relpath(os.path.join(dirpath, name), src) for name in sorted(files)]
     return found
 
 
-#: What data_summary() counts as a sound: the WAVs, and the one blooper clip in sounds\\unused.
-SOUND_EXTENSIONS = ('.wav', '.ogg')
+#: What data_summary() counts as a sound.
+SOUND_EXTENSIONS = ('.wav',)
 
 
 def data_summary(names: list[str]) -> str:
-    """What a list of the game's files holds, in words: '507 files - 362 sounds, and 145 plists and map
+    """What a list of the game's files holds, in words: '248 files - 103 sounds, and 145 plists and map
     layers'."""
     sounds = sum(1 for name in names if name.lower().endswith(SOUND_EXTENSIONS))
     return '%d files - %d sounds, and %d plists and map layers' % (len(names), sounds, len(names) - sounds)
