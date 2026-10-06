@@ -1,9 +1,11 @@
 ##Unfinished.
 
-Make weapons upgradeable, so that they can do more damage.
+Nothing is waiting here right now. New bugs, planned changes and anything still to be decided will be listed here as they come up.
 
 ##Finished.
 
+Weapons can be upgraded, so that they have more ammo, do more damage and reach further, with one upgrade button on each weapon's page.
+Your gold and your grenade count are always in save.json, so you can see and change them.
 A game pays a little more gold, 15 for each kill and 5 for each headshot, so weapons are a bit easier to get, and both can be changed in save.json.
 The weapon stats in save.json are the real ones and count when you change them: the magazine, the range, the damage and the price, which the shop and the inventory read out, with the range in metres.
 After buying a weapon, the screen reader says "Purchase has completed", the same words as the window.

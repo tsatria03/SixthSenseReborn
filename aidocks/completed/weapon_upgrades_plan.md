@@ -1,11 +1,13 @@
 ---
-name: project_weapon_upgrades_plan
-description: "PLANNED 2026-10-05: one upgrade button per weapon raises its level, adding damage, ammo and range on top of its stats, growing 1.2x a level; prices start at 100 and grow 1.2x; cap 10 per weapon; every number editable in save.json. Answers the todo item about upgradeable weapons."
+name: weapon_upgrades_plan
+description: "FINISHED 2026-10-05, confirmed by the dev: one upgrade button per weapon raises its level, adding damage, ammo and range on top of its stats, growing 1.2x a level; prices start at 100 and grow 1.2x; cap 10 per weapon; every number editable in save.json. Answers the todo item about upgradeable weapons."
 metadata:
   type: project
 ---
 
-**Status: PLANNED, agreed with the dev on 2026-10-05, not built.** Recorded before any code ([[feedback_record_plans_first]]). The todo item (reworded by the dev, uncommitted at planning time): "Make weapons upgradeable, so that they can have more ammo, and do more damage." Mark it finished only once the dev says it works, then move it to `completed/` ([[feedback_completed_projects]]). Builds on [[real_weapon_stats_plan]] (the stats in the save) and [[gold_rates_plan]].
+**Status: FINISHED 2026-10-05, confirmed by the dev** ("Everything works!"), and moved to `completed/` the same day. Built alongside it at the dev's request: `GOLD` written as '0' on start when missing (`AppDelegate.didFinishLaunching`), as `GRENADECOUNT` already was. `game/weapon_upgrades.py` (settings, `fill`, `level`, `max_level`, `total`, `added`, `price`, `upgrade`), filled in `AppDelegate.didFinishLaunching`; `weapon_stats.upgraded` adds the level for play (`apply`) and the pages (`store.load_stats`); `store.py` has `LEVEL_ROW` 9, `UPGRADE_ROW` 10, `owns`, the row texts and `upgrade_action`, used by both pages' `rows()` and `activate`; buying moves the cursor to the upgrade button. New `tests/case/weapon_upgrades.py` (9). Covering files passed: store 20, inventory 2, weapon_stats 11, gold_rates 4, save 13, paths 22, window 10, menu 20, data 19, weapon_range 15, input 48, pause 30, gameplay 59, controller 26.
+
+Agreed with the dev on 2026-10-05 and recorded before any code ([[feedback_record_plans_first]]). The todo item (reworded by the dev, uncommitted at planning time): "Make weapons upgradeable, so that they can have more ammo, and do more damage." Mark it finished only once the dev says it works, then move it to `completed/` ([[feedback_completed_projects]]). Builds on [[real_weapon_stats_plan]] (the stats in the save) and [[gold_rates_plan]].
 
 ## Decided with the dev, one question at a time
 - **One level per weapon, one button.** Each press raises the weapon one level, and its damage, ammo and range all go up together (the dev: "One button to upgrade all stats for that weapon"). Weapons with no magazine (the grenade, the knife, the sword) gain only damage and range. Their first idea had three buttons; the dev chose one level for the whole weapon.

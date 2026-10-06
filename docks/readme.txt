@@ -121,6 +121,17 @@ Buy a weapon with gold, or choose Try to test it first on a practice range.
 In the inventory you choose which weapons you take into a game.
 Each game pays 15 gold for every kill and 5 more for every headshot.
 
+Upgrading weapons
+
+Every weapon has a level, which its page reads after its numbers, such as "Level, 3 of 10".
+The upgrade button, "Upgrade stats to level 4 for 173 gold", raises the weapon one level, and its damage, ammo capacity and range all go up together.
+The grenade, the knife and the sword have no magazine, so they gain damage and range only.
+The first level adds 10 damage, 10 rounds and one metre of range, and each level after adds a fifth more than the one before.
+The first level costs 100 gold, and each level after costs a fifth more than the one before, so a weapon at level 10 has cost 2,596 gold.
+In the shop the upgrade button takes Buy's place once the weapon is yours, and the grenade keeps Buy as well, since you buy grenades again and again.
+In the inventory every weapon you own has the upgrade button after Equip, and that is where the knife and the colt are upgraded.
+Each weapon stops at level 10, and the button then says "Fully upgraded".
+
 Screen reader
 
 The game speaks through your screen reader: the menus, the shop, the inventory, the opening screen, the tutorial and the result panel. It no longer plays its own recorded voice.
@@ -141,12 +152,17 @@ MASTERVOLUME is everything, MENUMUSICVOLUME the menu music, LEVELMUSICVOLUME the
 GAMEPLAYGAIN is the gain during a game, from 0 to 6 decibels, where 0 is the original's mix; a number it cannot use counts as 0.
 Change a number in a text editor, save the file and start the game again to hear it.
 A number the game cannot use counts as 100.
+GOLD in save.json is the gold you have, which starts at 0.
 In save.json each weapon has its numbers, which the game plays with: AMMO_CAPACITY is the magazine, RANGE how far it reaches in centimetres, DAMAGE what a hit takes off, and PRICE what the shop charges.
 The key starts with the weapon's name, so SHOTGUN_DAMAGE is the shotgun's damage, and the names are GRENADE, KNIFE, COLT, SHOTGUN, M4, AK47, MG80 and JAPAN, the Japanese sword.
 The shop and the inventory read the same numbers out, with the range in metres, so a range of 1000 is 10 metres.
 The grenade's count is GRENADECOUNT, the grenades you have, which starts at 0, the knife and the sword have no magazine, and the knife and the colt are free, so those have no key.
 Close the game before you change them, since it writes the file while it runs, and a number it cannot use is put back to the weapon's own.
 GOLD_PER_KILL and GOLD_PER_HEADSHOT in save.json are the gold a game pays when it ends, 15 for each zombie you kill and 5 for each headshot, and you can change them the same way.
+Each weapon's level is its name and _LEVEL, such as SHOTGUN_LEVEL, and its top level is its name and _MAX_LEVEL, 10 to start with.
+UPGRADE_START_PRICE is the first level's price, 100, and UPGRADE_PRICE_GROWTH how much each level's price grows, 1.2, which is a fifth more each time.
+UPGRADE_DAMAGE, UPGRADE_AMMO and UPGRADE_RANGE are what the first level adds, 10, 10 and 100 centimetres, and UPGRADE_GROWTH, 1.2, is how much more each level after adds.
+These six are for every weapon at once, and the two growths can have decimals.
 If a save from an older version is there, called defaults.json, the game moves it into the new files by itself and keeps the old one as defaults.json.old.
 If one of the files is ever damaged, the game keeps it with .damaged on the end of its name and carries on from a backup.
 

@@ -140,6 +140,13 @@ not sold). A value that is not a whole number of 0 or more is put back on the ne
 `GOLD_PER_KILL` (15) and `GOLD_PER_HEADSHOT` (5) are the gold a game pays when it ends,
 per kill and per headshot hit, raised from the original's 12 and 2 and editable the same
 way; the weapon test range keeps its own 12% of the score.
+Weapon upgrades: each weapon has `<W>_LEVEL` (0) and `<W>_MAX_LEVEL` (10), and one
+upgrade button on its pages raises the level, adding to its damage, ammo capacity and
+range at once (not the grenade's or the blades' ammo). Six keys apply to every weapon:
+`UPGRADE_START_PRICE` (100) and `UPGRADE_PRICE_GROWTH` (1.2), so level n costs
+100 × 1.2^(n-1); `UPGRADE_DAMAGE` (10), `UPGRADE_AMMO` (10) and `UPGRADE_RANGE` (100 cm),
+what level 1 adds, and `UPGRADE_GROWTH` (1.2), each level adding that much more than the
+last. The two growths may be fractions; everything else is a whole number.
 
 ## Controls
 
@@ -320,6 +327,7 @@ python tests/case/store.py          # the shop, buying, and the inventory
 python tests/case/inventory.py      # equipping through the inventory's screens, step by step
 python tests/case/weapon_stats.py   # each weapon's stats in the save, read by the pages and the stage
 python tests/case/gold_rates.py     # the gold a game pays per kill and per headshot, from the save
+python tests/case/weapon_upgrades.py  # upgrade levels, prices and what each level adds
 python tests/case/weapon_range.py   # the weapon test range behind the shop's Try button
 python tests/case/intro.py          # the logo, the splash, the warning, the story, skipping
 python tests/case/speech.py         # who speaks what no WAV covers (stand-ins, silent)
