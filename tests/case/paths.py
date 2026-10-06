@@ -208,6 +208,53 @@ def test_on_linux_the_save_goes_in_the_users_data_folder():
         shutil.rmtree(top, ignore_errors=True)
 
 
+INTERACT = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                        'interact')
+
+
+def test_the_by_ear_tools_never_change_appdata():
+    """2026-10-06: the tools in tests/interact kept off the save by changing APPDATA, which
+    the game reads on Windows alone, so on Linux and macOS they played on the real save.
+    Each one that starts the game now goes through _own_save, or sets
+    SIXTHSENSE_USER_DIR itself as the controller tester does."""
+    tools = [n for n in os.listdir(INTERACT) if n.endswith('.py') and not n.startswith('_')]
+    assert tools, 'no tools found in %s' % INTERACT
+    for name in tools:
+        with open(os.path.join(INTERACT, name), encoding='utf-8') as fh:
+            src = fh.read()
+        for wrong in ("environ['APPDATA']", 'environ["APPDATA"]'):
+            assert wrong not in src, '%s changes APPDATA' % name
+        assert 'own_save(' in src or paths.USER_DIR_ENV in src, \
+            '%s does not keep off the real save' % name
+
+
+def test_a_by_ear_tools_save_is_its_own():
+    """_own_save puts a tool's save in a folder of its own inside the game's, on every
+    system, the same folder on Windows as before, and copies the key bindings and the
+    settings but never the save."""
+    from unittest.mock import patch
+    sys.path.insert(0, INTERACT)
+    try:
+        from _own_save import own_save
+    finally:
+        sys.path.remove(INTERACT)
+    with tempfile.TemporaryDirectory() as top:
+        real = os.path.join(top, 'SixthSenseReborn')
+        os.makedirs(real)
+        for name in ('keys.json', 'settings.json', 'save.json'):
+            with open(os.path.join(real, name), 'w', encoding='utf-8') as fh:
+                fh.write(name)
+        with patch.object(paths, 'save_base', return_value=top), patch.dict(os.environ):
+            mine = own_save('level_chooser')
+            assert mine == os.path.join(real, 'level_chooser', 'SixthSenseReborn'), mine
+            assert os.environ[paths.USER_DIR_ENV] == mine
+            assert paths.user_dir() == mine
+            assert sorted(os.listdir(mine)) == ['keys.json', 'settings.json'], \
+                'the save came along: %s' % os.listdir(mine)
+        assert os.environ[paths.USER_DIR_ENV] == _scratch_save.FOLDER, \
+            "the tests' own override was not put back"
+
+
 def test_openal_is_the_systems_own_library():
     """Each platform loads its own bundled binary, not another system's library."""
     names = {'win32': 'soft_oal.dll', 'linux': 'libopenal.so.1', 'darwin': 'libopenal.1.dylib'}

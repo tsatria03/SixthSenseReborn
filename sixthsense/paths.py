@@ -64,8 +64,8 @@ NVDA_DLL = os.path.join(VENDOR, 'nvda', 'nvdaControllerClient64.dll')
 BINARY = os.path.join(ROOT, 'analysis', 'bin', 'sixsense_armv7')
 
 GAME_ENV = 'SIXTHSENSE_GAME'
-# The save's folder in place of %APPDATA%\SixthSenseReborn - set by the tests, never by the
-# game.
+# The save's folder in place of %APPDATA%\SixthSenseReborn - set by the tests and by the
+# by-ear tools in tests/interact (_own_save.py), never by the game.
 USER_DIR_ENV = 'SIXTHSENSE_USER_DIR'
 #: The save's folder under save_base(), and Sixth Sense's, whose save the first start
 #: copies (the dev, 2026-10-04: aidocks/completed/reborn_identity_plan.md): SixthSenseOriginal

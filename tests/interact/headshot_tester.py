@@ -15,9 +15,10 @@ MonsterDamage``).  Here every shot from a gun that hits a zombie counts as a hea
 whether or not the zombie's head was open; the knife, the sword and the grenade have no
 headshots, as in the game.
 
-**Your save is never touched.**  It plays on its own save in
-``%APPDATA%\\SixthSenseReborn\\headshot_tester``, marked as past the tutorial, and takes
-a fresh copy of your key bindings and settings each time it starts.
+**Your save is never touched.**  It plays on its own save in a ``headshot_tester`` folder
+inside the game's save folder (``%APPDATA%\\SixthSenseReborn\\headshot_tester`` on
+Windows), marked as past the tutorial, and takes a fresh copy of your key bindings and
+settings each time it starts (``_own_save.py``).
 
 Everything else is the real game: Escape pauses and resumes, and the pause panel's Main
 menu row goes back to the menu, where Start Game starts the tester again.
@@ -26,27 +27,13 @@ from __future__ import annotations
 
 import argparse
 import os
-import shutil
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, ROOT)
+from _own_save import own_save                                   # noqa: E402
 
 CHOICES = ('on', 'off')
-
-
-def _own_save():
-    """Point APPDATA at the tester's own folder, before anything reads it."""
-    real = os.path.join(os.environ.get('APPDATA') or os.path.expanduser('~'),
-                        'SixthSenseReborn')
-    mine = os.path.join(real, 'headshot_tester')
-    os.makedirs(os.path.join(mine, 'SixthSenseReborn'), exist_ok=True)
-    # your key bindings and your settings, but never your save
-    for name in ('keys.json', 'settings.json'):
-        yours = os.path.join(real, name)
-        if os.path.exists(yours):
-            shutil.copyfile(yours, os.path.join(mine, 'SixthSenseReborn', name))
-    os.environ['APPDATA'] = mine
 
 
 def _ask(question):
@@ -76,7 +63,7 @@ def main(argv=None):
     if argv is None:
         argv = sys.argv[1:] or _questions()
     ap = argparse.ArgumentParser(
-        description='Play SixthSense Reborn with every gun hit a headshot.')
+        description='Play Sixth Sense Reborn with every gun hit a headshot.')
     ap.add_argument('--speech', choices=CHOICES,
                     help='the spoken "Headshot!"; left out, your own setting')
     ap.add_argument('--beep', choices=CHOICES,
@@ -84,7 +71,7 @@ def main(argv=None):
     ap.add_argument('-v', '--verbose', action='store_true')
     args = ap.parse_args(argv)
 
-    _own_save()
+    own_save('headshot_tester')
 
     import SixthSenseReborn
     from sixthsense.game.app_delegate import AppDelegate

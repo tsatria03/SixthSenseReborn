@@ -24,19 +24,20 @@ The ten lessons, in the order the tutorial teaches them:
 Starting at a lesson counts every lesson before it as done, so the tutorial goes on from
 there exactly as it would have, and lesson One is never heard.
 
-**Your save is never touched.**  It plays on its own save in
-``%APPDATA%\\SixthSenseReborn\\tutorial_chooser``, and takes a fresh copy of your key bindings
-each time it starts.  Choosing Tutorial from its main menu starts the chosen lesson again.
+**Your save is never touched.**  It plays on its own save in a ``tutorial_chooser`` folder
+inside the game's save folder (``%APPDATA%\\SixthSenseReborn\\tutorial_chooser`` on
+Windows), and takes a fresh copy of your key bindings and settings each time it starts
+(``_own_save.py``).  Choosing Tutorial from its main menu starts the chosen lesson again.
 """
 from __future__ import annotations
 
 import argparse
 import os
-import shutil
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, ROOT)
+from _own_save import own_save                                   # noqa: E402
 
 ENDINGS = ('start', 'menu')
 
@@ -54,20 +55,6 @@ LESSONS = (
     ('Eight', 'shaking off the animal zombie'),
     ('Nine', 'ending the tutorial with P'),
 )
-
-
-def _own_save():
-    """Point APPDATA at the chooser's own folder, before anything reads it."""
-    real = os.path.join(os.environ.get('APPDATA') or os.path.expanduser('~'),
-                        'SixthSenseReborn')
-    mine = os.path.join(real, 'tutorial_chooser')
-    os.makedirs(os.path.join(mine, 'SixthSenseReborn'), exist_ok=True)
-    # your key bindings and your settings (the volumes), but never your save
-    for name in ('keys.json', 'settings.json'):
-        yours = os.path.join(real, name)
-        if os.path.exists(yours):
-            shutil.copyfile(yours, os.path.join(mine, 'SixthSenseReborn', name))
-    os.environ['APPDATA'] = mine
 
 
 def _ask(question, check):
@@ -106,7 +93,7 @@ def _questions():
 def main(argv=None):
     if argv is None:
         argv = sys.argv[1:] or _questions()
-    ap = argparse.ArgumentParser(description='Start the SixthSense tutorial at any lesson.')
+    ap = argparse.ArgumentParser(description='Start the Sixth Sense Reborn tutorial at any lesson.')
     ap.add_argument('--ending', choices=ENDINGS, default='menu',
                     help='start: P counts down into the real game, as after a first '
                          'Start; menu: P goes back to the main menu, as from the '
@@ -121,7 +108,7 @@ def main(argv=None):
         ap.error('the lesson must be from 1 to %d' % len(LESSONS))
     first_beat, lesson_name = LESSONS[args.lesson - 1]
 
-    _own_save()
+    own_save('tutorial_chooser')
 
     import SixthSenseReborn
     from sixthsense.game.stage_tutorial import BEAT_NAMES, Stage_Tutorial

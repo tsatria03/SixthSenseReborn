@@ -29,7 +29,7 @@ Item numbers are the 19 of the evaluation's list, ranked high to low.
    - The tests that read them are updated in the same commit.
    - `SOUND_HEADSHOT_BEEP` is defined once, in `stage_1_e.py`, and imported by `settings_screen.py`.
    - Docstrings: `main_controller.py` ("self-voiced", the voice over rows), `speech.py` (the 269 WAVs), `stage_1_e.py` ("with voice over off"), `blind_screen.py` ("blind-mode"), `SixthSenseReborn.py` ("on Windows" only).
-3. **The by-ear tools' saves** (items 1, 14, 15). Not player-facing; the most severe item.
+3. **The by-ear tools' saves** (items 1, 14, 15). Not player-facing; the most severe item. **Built 2026-10-06, not yet confirmed**: `tests/interact/_own_save.py`'s `own_save(name)` sets `SIXTHSENSE_USER_DIR` to `<save_base>/SixthSenseReborn/<name>/SixthSenseReborn`, exactly the Windows folder each tool used before, so existing tester saves carry on; it copies keys.json and settings.json, never the save. `paths.py`'s two new tests (no tool sets `APPDATA`, and the helper's folder and copies) pass, 24 of 24. To check by ear: each of the three tools still starts on its own save with your keys and settings.
    - One shared helper in `tests/interact/` that sets `SIXTHSENSE_USER_DIR` to the tool's own folder under `paths.save_base()` + `SixthSenseReborn`, and copies the key bindings, as `controller_tester.py` already does for its save. The Windows folders stay where they are (`%APPDATA%\SixthSenseReborn\level_chooser` and so on), so the dev's existing tester saves carry on.
    - `level_chooser.py`, `tutorial_chooser.py` and `headshot_tester.py` use it instead of changing `APPDATA`.
    - Their "SixthSense Reborn" text becomes "Sixth Sense Reborn".

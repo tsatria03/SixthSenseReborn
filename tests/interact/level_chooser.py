@@ -20,9 +20,10 @@ only ever comes on level 1.  Level N here is exactly what walking there would gi
 Starting part-way down the corridor replays the action cells above the start row, so the
 spawn tier, the quiet stretch and the level music are what they would have been.
 
-**Your save is never touched.**  It plays on its own save in
-``%APPDATA%\\SixthSenseReborn\\level_chooser``, marked as past the tutorial, and takes a fresh copy
-of your key bindings each time it starts.  Gold and scores earned here stay there.
+**Your save is never touched.**  It plays on its own save in a ``level_chooser`` folder
+inside the game's save folder (``%APPDATA%\\SixthSenseReborn\\level_chooser`` on Windows),
+marked as past the tutorial, and takes a fresh copy of your key bindings and settings each
+time it starts (``_own_save.py``).  Gold and scores earned here stay there.
 
 Everything else is the real game: Escape pauses and resumes, the pause panel's Main menu
 row goes back to the menu, and Start Game from that menu starts the chooser's level again.
@@ -31,11 +32,11 @@ from __future__ import annotations
 
 import argparse
 import os
-import shutil
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, ROOT)
+from _own_save import own_save                                   # noqa: E402
 
 MODES = {'cave': 1, 'forest': 2, 'rain': 3}
 START_ROW = 680           # 0x2cf1a
@@ -44,20 +45,6 @@ BOSS_ROW = 23             # 0x31cfc
 #: --boss starts here: two steps before the siren, and the girl or the woman zombie
 #: that action cell 8 sends at the siren.
 NEAR_BOSS_ROW = SIREN_ROW + 2
-
-
-def _own_save():
-    """Point APPDATA at the chooser's own folder, before anything reads it."""
-    real = os.path.join(os.environ.get('APPDATA') or os.path.expanduser('~'),
-                        'SixthSenseReborn')
-    mine = os.path.join(real, 'level_chooser')
-    os.makedirs(os.path.join(mine, 'SixthSenseReborn'), exist_ok=True)
-    # your key bindings and your settings (the volumes), but never your save
-    for name in ('keys.json', 'settings.json'):
-        yours = os.path.join(real, name)
-        if os.path.exists(yours):
-            shutil.copyfile(yours, os.path.join(mine, 'SixthSenseReborn', name))
-    os.environ['APPDATA'] = mine
 
 
 def _mode_for(level, first):
@@ -104,7 +91,7 @@ def _questions():
 def main(argv=None):
     if argv is None:
         argv = sys.argv[1:] or _questions()
-    ap = argparse.ArgumentParser(description='Start SixthSense at any level.')
+    ap = argparse.ArgumentParser(description='Start Sixth Sense Reborn at any level.')
     ap.add_argument('level', nargs='?', type=int, default=1,
                     help='the level to start on, 1 and up (default 1)')
     ap.add_argument('--mode', choices=sorted(MODES),
@@ -126,7 +113,7 @@ def main(argv=None):
     if not BOSS_ROW < row <= START_ROW:
         ap.error('the row must be from %d down to %d' % (START_ROW, BOSS_ROW + 1))
 
-    _own_save()
+    own_save('level_chooser')
 
     import SixthSenseReborn
     from sixthsense.game.stage_1_e import Stage_1_E
