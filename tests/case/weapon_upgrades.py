@@ -180,6 +180,52 @@ def test_upgrading_pays_and_raises_the_level_up_to_the_cap():
         assert s.app.haveGold == 30 and s.d.objectForKey_('COLT_LEVEL') == 2
 
 
+def test_an_absurd_hand_edit_is_capped_and_never_crashes():
+    """Every number is the player's to edit, so one far too big must not overflow: totals
+    and prices stop at CEILING, and upgrading past what any gold could pay just says so."""
+    with _NewSave() as s:
+        s.d.setObject_forKey_(10 ** 15, 'COLT_AMMO_CAPACITY')
+        assert U.added('COLT', 'ammo_capacity', s.d, 10) == U.CEILING
+        assert U.total(10 ** 400, 15, 10) == U.CEILING, 'a number too big for a float'
+        assert U.price(10 ** 6, s.d) == U.CEILING, 'a growth that overflows a float'
+        s.d.setObject_forKey_(1e300, 'UPGRADE_PRICE_GROWTH')
+        assert U.price(10, s.d) == U.CEILING
+        s.d.setObject_forKey_(10 ** 15, 'UPGRADE_START_PRICE')
+        assert U.price(1, s.d) == U.CEILING
+        s.app.haveGold = U.CEILING - 1
+        assert U.upgrade('COLT', s.app) == 'gold'
+        assert s.app.haveGold == U.CEILING - 1, 'gold went on a refused upgrade'
+
+
+def test_a_level_above_the_cap_cannot_be_upgraded_and_costs_nothing():
+    """A hand edit can put a weapon past its cap.  The game plays the level as written,
+    as it does every edited number, but the button never takes gold for it."""
+    with _NewSave() as s:
+        s.d.setObject_forKey_(15, 'COLT_LEVEL')
+        assert U.fill(s.d) is False, 'a level past the cap was put back'
+        assert U.level('COLT', s.d) == 15
+        s.app.haveGold = 100000
+        assert U.upgrade('COLT', s.app) == 'max'
+        assert s.app.haveGold == 100000 and s.d.objectForKey_('COLT_LEVEL') == 15
+        colt = s.page(DetailInventoryController, 2)
+        assert colt.row_text(UPGRADE_ROW) == 'Fully upgraded, Button'
+
+
+def test_the_test_range_plays_with_the_upgraded_stats():
+    """The shop's Try button opens Stage_1_TEST with the weapon as the stage would hand it
+    over, upgrades included, so trying a weapon is trying what it really does."""
+    from sixthsense.game.stage_1_test import Stage_1_TEST
+    with _NewSave() as s:
+        s.d.setObject_forKey_(2, 'COLT_LEVEL')
+        st = Stage_1_TEST(2)
+        try:
+            st.weaponInit()
+            colt = st.weaponSource[2]
+            assert (colt.Damage, colt.Range, colt.ReloadGun()) == (30 + 9, 1000 + 300, 7 + 2)
+        finally:
+            st.teardown()
+
+
 def test_the_level_adds_to_what_the_stage_plays_with():
     with _NewSave() as s:
         s.d.setObject_forKey_(2, 'COLT_LEVEL')

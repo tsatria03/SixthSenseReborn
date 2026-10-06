@@ -47,7 +47,7 @@ Item numbers are the 19 of the evaluation's list, ranked high to low.
    - `release.yml` runs the whole test suite on each system before building, the same safe way (`_scratch_save` makes it silent), and stops the release on a failure.
    - PyInstaller is pinned to the version the dev builds with now (read from their environment with `pip show`, not guessed).
    - `tests/case/release.py` checks both.
-8. **Missing tests** (item 9). Not player-facing.
+8. **Missing tests** (item 9). Not player-facing. **Built 2026-10-06, not yet confirmed**: `weapon_upgrades.py` gains an absurd hand edit capped at `CEILING` without a crash, a level above the cap refused at no cost, and the test range (`Stage_1_TEST`) playing with upgraded stats; `save.py` gains every setting in settings.json and nothing else there. 15 of 15 each, first run, so no code needed changing. **Found, for the dev to decide, not changed:** a level edited past the cap is played as written (COLT_LEVEL 15 of 10 adds 15 levels' worth), and the page reads "Level, 15 of 10"; the button refuses and takes no gold.
    - The weapon upgrade cap, a level above the cap in save.json, the test range playing with upgraded stats, and the settings landing in settings.json rather than save.json.
 9. **README.md** (item 6). Not player-facing (players read `docks/readme.txt`, which is current).
    - Remove voice over and coins, give the gold as 15 and 5, the main menu's real rows, the 34 test scripts with their real names, no `digits.py`, and the sound counts from the folders.

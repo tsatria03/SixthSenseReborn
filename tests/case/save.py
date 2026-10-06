@@ -160,6 +160,21 @@ def test_the_old_voice_over_setting_is_dropped():
         assert f.read('settings.json') == {'MASTERVOLUME': 80}
 
 
+def test_every_setting_goes_to_settings_json_and_nothing_else_does():
+    """The split's routing, whole: each of SETTINGS_KEYS lands in settings.json and never in
+    save.json, and progress, gold, the weapons' numbers and the upgrade settings never in
+    settings.json (2026-10-06, aidocks/project_evaluation_fixes_plan.md group 8)."""
+    from sixthsense.platform.defaults import SETTINGS_KEYS
+    progress = {'GOLD': '7', 'TUTORIAL': '1', 'COLT_LEVEL': 2, 'COLT_DAMAGE': 30,
+                'UPGRADE_DAMAGE_SHARE': 15, 'GOLD_PER_KILL': 15, 'WEAPON_ORDER': [2, 0, 1]}
+    with _Folder() as f:
+        _save(**{k: '1' for k in SETTINGS_KEYS}, **progress)
+        settings, save = f.read('settings.json'), f.read()
+        assert list(settings) == list(SETTINGS_KEYS), list(settings)
+        assert not set(SETTINGS_KEYS) & set(save), set(SETTINGS_KEYS) & set(save)
+        assert save == progress, save
+
+
 def test_the_old_coins_are_dropped():
     """The coins went on 2026-10-05; a save from before keeps its other progress."""
     with _Folder() as f:
