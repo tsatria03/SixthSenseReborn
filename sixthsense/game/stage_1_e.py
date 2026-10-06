@@ -1039,8 +1039,10 @@ class Stage_1_E:
                 if self.app.headshot_speech_on:                  # PORT ADDITION: a setting
                     self._say(HEADSHOT_TEXT)
                 if self.app.headshot_beep_on:                   # PORT ADDITION: a setting
-                    # where the zombie is, fading with distance as the gun's hit does
-                    self.app.playHitSound_Gain_Pos_z_(SOUND_HEADSHOT_BEEP, 1.0, m.Pos, 40)
+                    # in the middle of your head, not where the zombie is (tsatria03,
+                    # 2026-10-05): out there it faded with the distance and was lost
+                    self.app.playSound_Gain_Pos_z_reprats_(
+                        SOUND_HEADSHOT_BEEP, 1.0, (0.0, 0.0), 0, False)
                 self.app.vibrate_headshot(m.monsterRange)      # PORT ADDITION: a firm thump
             else:
                 m.HP -= weapon.Damage                           # 0x3a796
