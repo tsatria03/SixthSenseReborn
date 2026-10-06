@@ -386,17 +386,38 @@ def test_the_main_menu_button_ends_the_run():
         st.teardown()
 
 
-def test_gold_is_twelve_a_kill_and_two_a_headshot():
-    """0x3c616 - and every per-kind tally the method reads first is discarded."""
+def test_gold_is_fifteen_a_kill_and_five_a_headshot():
+    """0x3c616's shape, kills and headshots only - every per-kind tally the method reads
+    first is discarded - with its 12 and 2 raised to the save's GOLD_PER_KILL and
+    GOLD_PER_HEADSHOT, 15 and 5 by default (2026-10-05)."""
     _app, st = _new_stage()
     try:
         p = st.gamePlayer
         p.killMonsterCount, p.HeadShotCount = 10, 3
         p.killMonster9count = 100          # dead weight in the original too
-        assert st.ObtainedGold() == 12 * 10 + 2 * 3
+        assert st.ObtainedGold() == 15 * 10 + 5 * 3
         st._fill_result_labels()
-        assert st.GoldLabel == '126'
+        assert st.GoldLabel == '165'
     finally:
+        st.teardown()
+
+
+def test_an_edited_gold_rate_changes_what_a_game_pays():
+    app, st = _new_stage()
+    d = UserDefaults.standardUserDefaults()
+    kill, head = d.objectForKey_('GOLD_PER_KILL'), d.objectForKey_('GOLD_PER_HEADSHOT')
+    try:
+        d.setObject_forKey_(100, 'GOLD_PER_KILL')
+        d.setObject_forKey_(0, 'GOLD_PER_HEADSHOT')
+        p = st.gamePlayer
+        p.killMonsterCount, p.HeadShotCount = 4, 2
+        before = app.haveGold
+        st.missionFailTell_()
+        assert app.haveGold == before + 400, (before, app.haveGold)
+        assert d.intForKey_('GOLD') == app.haveGold
+    finally:
+        d.setObject_forKey_(kill, 'GOLD_PER_KILL')
+        d.setObject_forKey_(head, 'GOLD_PER_HEADSHOT')
         st.teardown()
 
 
@@ -559,7 +580,7 @@ def test_a_run_that_beats_the_stored_best_saves_it():
         assert d.intForKey_('TOPSCOREWEEK') == 1200
         assert st.TopScoreLabel == '1200'
         assert st.ScoreLabel == '1200'
-        assert st.GoldLabel == '48'                  # 12 * 4 kills, no headshots
+        assert st.GoldLabel == '60'                  # 15 * 4 kills, no headshots
     finally:
         st.teardown()
 
@@ -571,7 +592,7 @@ def test_finishing_the_mission_banks_the_gold():
         st.gamePlayer.killMonsterCount = 3
         st.MissionSuccessTell()
         assert st.gameState == 2
-        assert app.haveGold == before + 36
+        assert app.haveGold == before + 45           # 15 * 3 kills
         assert UserDefaults.standardUserDefaults().intForKey_('GOLD') == app.haveGold
         assert app.stage == 11, 'STAGE was not opened up'
     finally:
@@ -603,9 +624,9 @@ def test_the_panel_speaks_its_rows():
         st.pause_select(2)
         assert st.speech.said[-1] == 'Number of killed zombies, 105'
         st.pause_select(5)
-        assert st.speech.said[-1] == 'Obtained gold, 1,266'
+        assert st.speech.said[-1] == 'Obtained gold, 1,590'
         st.pause_activate()
-        assert st.speech.said[-1] == 'Obtained gold, 1,266', 'the row was not reread'
+        assert st.speech.said[-1] == 'Obtained gold, 1,590', 'the row was not reread'
         st.pause_select(6)
         assert st.speech.said[-1] == 'Continue, Button'
         st.gameState = 3

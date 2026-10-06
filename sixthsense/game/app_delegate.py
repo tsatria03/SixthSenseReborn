@@ -51,7 +51,7 @@ from ..platform import volume
 from ..platform.defaults import UserDefaults
 from ..platform.runloop import RunLoop
 from .oal_playback import OalPlayback
-from . import weapon_stats
+from . import gold_rates, weapon_stats
 from .sound_list_control import SoundListControl
 
 log = logging.getLogger('app')
@@ -111,6 +111,8 @@ class AppDelegate:
         # every one at its default, so a player sees what they can change
         # (aidocks/completed/volume_settings_plan.md)
         wrote = volume.load(d)
+        # PORT ADDITION (2026-10-05): the gold a game pays, editable (gold_rates.py)
+        wrote = gold_rates.fill(d) or wrote
         if wrote:
             d.synchronize()
         self.weaponHave()

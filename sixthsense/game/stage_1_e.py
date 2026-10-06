@@ -62,7 +62,7 @@ from .make_maps import MakeMaps
 from .monster_control import MonsterControl, lane_bearing
 from .moving_accelerometer import MovingAccelerometer
 from .player_control import PlayerControl
-from . import weapon_stats
+from . import gold_rates, weapon_stats
 from .weapon_control import WeaponControl, WEAPON_FILES, WEAPON_NAMES, WEAPON_SLOTS
 
 log = logging.getLogger('stage')
@@ -1879,9 +1879,12 @@ class Stage_1_E:
         Everything above that in ``ReadObtainedGold`` - the headshot multiplier string
         and all twelve per-kind tallies - is computed into ``r0`` and then clobbered
         by the next selector load.
+
+        PORT DIVERGENCE (2026-10-05): the 12 and the 2 are the save's GOLD_PER_KILL and
+        GOLD_PER_HEADSHOT, 15 and 5 unless edited (gold_rates.py).
         """
         p = self.gamePlayer
-        return 12 * p.killMonsterCount + 2 * p.HeadShotCount
+        return gold_rates.gold_for(p.killMonsterCount, p.HeadShotCount)
 
     # -[Stage_1_E updateTopscoreRank] 0x3261c
     def updateTopscoreRank(self):
