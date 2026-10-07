@@ -1,13 +1,15 @@
 ---
 name: feedback_git_commits
-description: "One commit per fix. Commit only when the dev asks, then push to GitHub right away without asking. Force pushes and history rewrites still need an explicit go-ahead. Use git commit -F with a message file, and never hide git's errors."
+description: "One commit per fix. Commit only when the dev asks. 'Commit' means commit only; 'commit/push' means both (2026-10-07); the dev tests batches before pushing. Force pushes and history rewrites still need an explicit go-ahead. Use git commit -F with a message file, and never hide git's errors."
 metadata:
   node_type: memory
   type: feedback
   originSessionId: 8a78e7c9-236d-421e-8e76-c11a2895c278
 ---
 
-**Commit only when the dev asks.** Once a commit is made at their request, **push it to `origin main` straight away**, without asking. The dev said on 2026-09-21 that they no longer need to be asked about pushing.
+**"Commit" means commit only; "commit/push" means commit and push** (the dev, 2026-10-07: "When I say the word commit, that means you only commit the file, and or files. When I say commit/push, that means you can do both at once when possible. Most of the time I want to test my things before pushing a large batch, so I offen prefer you to commit things, rather than push them one after another"). So commits pile up locally by default, and a push waits for the dev to say "push" or "commit/push". When asking, ask whether to commit, and mention the local commits waiting rather than offering to push each one.
+
+**Commit only when the dev asks.** Until 2026-10-07 the rule was to push straight after every commit the dev asked for (2026-09-21); that is replaced by the paragraph above.
 
 **Unless the dev says to hold the pushes.** On 2026-09-24 they asked for commits without pushing ("no pushing yet. We still have a lot more commits to work on"); while that holds, commit when asked and push only when they say so.
 

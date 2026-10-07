@@ -83,7 +83,7 @@ This needs 64-bit Python 3.12 or newer, pygame and `prismatoid` (Prism). Without
 - **The task list** (`docks/todo list.txt`) and how to write in it: [[feedback_todo_list_format]]. It holds only what a player notices, since it ships beside the game; developer tasks, open and finished, are in [[project_dev_tasks]].
 - **The changelog** (`docks/changelog.txt`): every player-facing fix or enhancement adds a line at the top of the `unrelease:` block in the same commit, newest first ([[feedback_changelog]]).
 - **Plans**: an agreed plan goes into its own aidocks note before any code, and is marked finished there only once the dev says it works; a finished project then moves to `aidocks/completed/` without its `project_` prefix ([[feedback_record_plans_first]], [[feedback_completed_projects]]).
-- **Committing and pushing** (commit when asked, then push without asking; history rewrites need a go-ahead): [[feedback_git_commits]].
+- **Committing and pushing** (commit only when asked; "commit" means commit only and "commit/push" means both; history rewrites need a go-ahead): [[feedback_git_commits]].
 - **Who made what, the permission to publish, and how to credit contributors in commits**: [[project_provenance]]. Name people by GitHub username only: [[feedback_use_github_usernames]].
 - **Who you're working with**: [[user_screen_reader]]. The dev uses NVDA, so prefer lists and short lines, and never make noise from tools.
 
