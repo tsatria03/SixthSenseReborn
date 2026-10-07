@@ -22,7 +22,7 @@ import _scratch_save                                             # noqa: E402,F4
 from sixthsense import paths                                     # noqa: E402
 from sixthsense.game.app_delegate import AppDelegate             # noqa: E402
 from sixthsense.game.settings_screen import (BEEP_ROW, CONTROLLER_ROW,   # noqa: E402
-                                             CONTROLLER_SUPPORT_ROW, SHAKE_ROW,
+                                             CONTROLLER_SUPPORT_ROW, DEBUG_ROW, SHAKE_ROW,
                                              SKIP_INTRO_ROW, SPEECH_ROW, VIBRATION_ROW,
                                              SettingsController)
 from sixthsense.platform.defaults import UserDefaults            # noqa: E402
@@ -146,7 +146,7 @@ class _NewSave:
 def test_the_rows_are_back_the_six_settings_and_the_picker():
     with _NewSave() as s:
         page = s.page()
-        assert page.rows() == (1, 2, 3, 4, 5, 6, 7, 8)
+        assert page.rows() == (1, 2, 3, 4, 5, 6, 7, 8, 9)
         assert page.title_text() == 'Settings.'
         assert page.row_text(1) == 'Back, Button'
 
@@ -190,6 +190,52 @@ def test_a_new_settings_json_shows_every_setting():
                   encoding='utf-8') as fh:
             assert list(json.load(fh)) == list(SETTINGS_KEYS)
         assert not fill_settings(s.d), 'a complete file was filled again'
+
+
+def test_debug_mode_is_the_first_setting_and_is_remembered():
+    """tsatria03, 2026-10-07: a Debug mode row first on the screen, from source, switching
+    what --debug does at once and saved in settings.json for the next run."""
+    from sixthsense.platform.keymap import KeyMap
+    with _NewSave() as s:
+        retitled = []
+        s.app.on_debug_change = lambda: retitled.append(s.app.debug)
+        was = s.app.debug, KeyMap.shared().debug
+        try:
+            page = s.page()
+            assert page.rows()[1] == DEBUG_ROW, 'Debug mode is not the first setting'
+            s.app.debug = False
+            assert page.row_text(DEBUG_ROW) == 'Debug mode, currently off.'
+            page.selectMenu = DEBUG_ROW
+            page.activate()
+            assert s.app.debug and KeyMap.shared().debug, 'debug mode did not switch on'
+            assert retitled == [True], 'the window title was not changed'
+            assert s.d.stringForKey_('DEBUG') == '1' and s.app.debug_setting_on
+            assert page.row_text(DEBUG_ROW) == 'Debug mode, currently on.'
+            page.activate()
+            assert not s.app.debug and not KeyMap.shared().debug
+            assert s.d.stringForKey_('DEBUG') == '0'
+        finally:
+            s.app.debug, KeyMap.shared().debug = was
+            s.app.on_debug_change = None
+
+
+def test_a_build_has_no_debug_mode_row_and_ignores_the_setting():
+    """Players never see debug mode: in a built game the row is gone, the saved setting is
+    ignored, and a new settings.json does not get it."""
+    from unittest.mock import patch
+    from sixthsense.game.app_delegate import fill_settings
+    with _NewSave() as s, patch.object(paths, 'FROZEN', True):
+        page = s.page()
+        assert DEBUG_ROW not in page.rows()
+        assert page.rows()[1] == SKIP_INTRO_ROW
+        s.d.setObject_forKey_('1', 'DEBUG')
+        assert not s.app.debug_setting_on, 'a build read the debug setting'
+        was = s.app.debug
+        s.app.set_debug(True)
+        assert s.app.debug == was, 'a build switched debug mode on'
+        s.d.removeObjectForKey_('DEBUG')
+        fill_settings(s.d)
+        assert s.d.objectForKey_('DEBUG') is None, 'a build wrote the debug setting'
 
 
 def test_each_toggle_flips_saves_and_says_the_new_state():
@@ -260,7 +306,7 @@ def test_with_no_pad_the_rows_stay_but_say_not_supported():
     not supported. so it won't let you toggle it on"."""
     with _NewSave() as s:
         page = s.page()
-        assert page.rows() == (1, 2, 3, 4, 5, 6, 7, 8), 'a row went missing'
+        assert page.rows() == (1, 2, 3, 4, 5, 6, 7, 8, 9), 'a row went missing'
         assert page.row_text(CONTROLLER_SUPPORT_ROW) == 'Controller support, currently on.'
         assert page.row_text(VIBRATION_ROW) == 'Vibration, not supported.'
         assert page.row_text(SHAKE_ROW) == 'Shake to break free, not supported.'
@@ -313,7 +359,7 @@ def test_with_the_support_off_the_pad_rows_say_so_and_will_not_turn_on():
         s.d.setObject_forKey_('0', 'VIBRATION')
         s.d.setObject_forKey_('0', 'SHAKE')
         page = s.page()
-        assert page.rows() == (1, 2, 3, 4, 5, 6, 7, 8), 'a row went missing'
+        assert page.rows() == (1, 2, 3, 4, 5, 6, 7, 8, 9), 'a row went missing'
         assert page.row_text(CONTROLLER_SUPPORT_ROW) == 'Controller support, currently off.'
         assert page.row_text(VIBRATION_ROW) == 'Vibration, not supported.'
         assert page.row_text(SHAKE_ROW) == 'Shake to break free, not supported.'
@@ -458,6 +504,8 @@ def test_the_real_keyboard_walks_and_flips():
         page.startRead()
         assert page.speech.said[0] == 'Settings.'
         keys = ScreenInput(page)
+        keys.handle(_Key('down'), _Pygame)
+        assert page.selectMenu == DEBUG_ROW, 'Debug mode is not the first row after Back'
         keys.handle(_Key('down'), _Pygame)
         keys.handle(_Key('down'), _Pygame)
         assert page.selectMenu == SPEECH_ROW

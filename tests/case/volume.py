@@ -181,7 +181,7 @@ def test_a_missing_volume_is_added_and_the_rest_kept():
 
 def test_settings_json_lists_them_in_the_devs_order():
     from sixthsense.platform.defaults import SETTINGS_KEYS
-    assert SETTINGS_KEYS == ('MASTERVOLUME', 'MENUMUSICVOLUME', 'LEVELMUSICVOLUME',
+    assert SETTINGS_KEYS == ('DEBUG', 'MASTERVOLUME', 'MENUMUSICVOLUME', 'LEVELMUSICVOLUME',
                              'AMBIENCEVOLUME', 'GAMEPLAYGAIN', 'WEAPONVOLUME',
                              'PLAYERVOLUME', 'VIBRATION', 'HEADSHOTSPEECH', 'HEADSHOTBEEP',
                              'SHAKE', 'CONTROLLERSUPPORT', 'CONTROLLER', 'SKIPINTRO')

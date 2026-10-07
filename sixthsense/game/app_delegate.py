@@ -66,6 +66,7 @@ MENU_MUSIC_KEY = volume.MENU_MUSIC_KEY
 #: so settings.json shows a player every setting from the first start
 #: (aidocks/project_evaluation_fixes_plan.md).
 SETTING_DEFAULTS = {
+    'DEBUG': '0',                       # source runs only; never written in a build
     'VIBRATION': '1',
     'HEADSHOTSPEECH': '1',
     'HEADSHOTBEEP': '0',
@@ -81,6 +82,8 @@ def fill_settings(d):
     value, is left alone.  True when anything was written."""
     wrote = False
     for key, value in SETTING_DEFAULTS.items():
+        if key == 'DEBUG' and paths.FROZEN:
+            continue                    # a build has no debug mode to set
         if d.objectForKey_(key) is None:
             d.setObject_forKey_(value, key)
             wrote = True
@@ -116,6 +119,9 @@ class AppDelegate:
         # Not in the original: --debug.  Nothing hurts you and nothing you kill
         # counts, so no score, gold or top score comes of it (Stage_1_E).
         self.debug = False
+        # PORT ADDITION: called when the Settings screen's Debug mode row changes it, so
+        # the frame loop can retitle the window; None in every test
+        self.on_debug_change = None
         # PORT ADDITION: a controller's motors (ui/vibration.py).  The frame loop sets it;
         # without one, which is every test, nothing vibrates.
         self.vibration = None
@@ -154,6 +160,32 @@ class AppDelegate:
             d.synchronize()
         self.weaponHave()
         return True
+
+    # ============================================================== debug mode
+    # PORT ADDITION (tsatria03, 2026-10-07, aidocks/completed/debug_setting_plan.md): the
+    # Settings screen's first row, from source only.
+
+    @property
+    def debug_setting_on(self):
+        """``DEBUG`` in settings.json, '1' or '0'.  A build ignores it, whatever the file
+        says, since players have no debug mode."""
+        if paths.FROZEN:
+            return False
+        return UserDefaults.standardUserDefaults().stringForKey_('DEBUG') == '1'
+
+    def set_debug(self, on):
+        """Save the setting and switch debug mode at once, as ``--debug`` does at startup:
+        the stage's debug behaviour, the debug keys and their place on the F1 screen."""
+        if paths.FROZEN:
+            return
+        d = UserDefaults.standardUserDefaults()
+        d.setObject_forKey_('1' if on else '0', 'DEBUG')
+        d.synchronize()
+        self.debug = bool(on)
+        from ..platform.keymap import KeyMap
+        KeyMap.shared().debug = bool(on)
+        if self.on_debug_change is not None:
+            self.on_debug_change()
 
     # ================================================================ vibration
     @property

@@ -131,9 +131,12 @@ def main(argv=None):
 
     app = AppDelegate.shared()
     app.didFinishLaunching()
-    app.debug = args.debug
+    # --debug for one run, or the Settings screen's Debug mode row, remembered from source
+    # runs only (app_delegate.debug_setting_on)
+    debug = args.debug or app.debug_setting_on
+    app.debug = debug
     from sixthsense.platform.keymap import KeyMap
-    KeyMap.shared().debug = args.debug
+    KeyMap.shared().debug = debug
     defaults = UserDefaults.standardUserDefaults()
     loop = RunLoop.main()
 
@@ -166,7 +169,11 @@ def main(argv=None):
     # second audio device beside the OpenAL one the whole game plays through.
     pygame.display.init()
     pygame.font.init()
-    pygame.display.set_caption('Sixth Sense Reborn (debug)' if args.debug else 'Sixth Sense Reborn')
+    def title():
+        pygame.display.set_caption(
+            'Sixth Sense Reborn (debug)' if app.debug else 'Sixth Sense Reborn')
+    title()
+    app.on_debug_change = title     # the Debug mode row retitles the window at once
     display = pygame.display.set_mode((640, 400))
     font = pygame.font.SysFont('Consolas', 16)
     clock = pygame.time.Clock()

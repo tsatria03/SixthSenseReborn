@@ -85,7 +85,7 @@ OLD_KEPT = OLD_FILE + OLD_SUFFIX
 
 #: The keys that are settings rather than progress, in the order settings.json lists them
 #: (tsatria03, 2026-09-25).  A setting added later goes where it belongs in this list.
-SETTINGS_KEYS = ('MASTERVOLUME', 'MENUMUSICVOLUME', 'LEVELMUSICVOLUME', 'AMBIENCEVOLUME',
+SETTINGS_KEYS = ('DEBUG', 'MASTERVOLUME', 'MENUMUSICVOLUME', 'LEVELMUSICVOLUME', 'AMBIENCEVOLUME',
                  'GAMEPLAYGAIN', 'WEAPONVOLUME', 'PLAYERVOLUME', 'VIBRATION',
                  'HEADSHOTSPEECH', 'HEADSHOTBEEP', 'SHAKE', 'CONTROLLERSUPPORT',
                  'CONTROLLER', 'SKIPINTRO')

@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import logging
 
+from .. import paths
 from .blind_screen import BlindScreen
 from .stage_1_e import SOUND_HEADSHOT_BEEP
 from .store import BACK_TEXT
@@ -29,19 +30,23 @@ log = logging.getLogger('settings')
 #: The ones that need no pad come first, so the ones that can read "not supported" are
 #: always at the end of the list.
 BACK_ROW = 1
-SKIP_INTRO_ROW = 2
-SPEECH_ROW = 3
-BEEP_ROW = 4
+#: first of all, from source only: a build has no such row (tsatria03, 2026-10-07,
+#: aidocks/completed/debug_setting_plan.md)
+DEBUG_ROW = 2
+SKIP_INTRO_ROW = 3
+SPEECH_ROW = 4
+BEEP_ROW = 5
 #: the gate for the three rows after it, which is why it comes before them and needs no
 #: pad itself (2026-10-06, aidocks/completed/controller_support_plan.md)
-CONTROLLER_SUPPORT_ROW = 5
-VIBRATION_ROW = 6
-SHAKE_ROW = 7
+CONTROLLER_SUPPORT_ROW = 6
+VIBRATION_ROW = 7
+SHAKE_ROW = 8
 #: the picker, which is not a toggle
-CONTROLLER_ROW = 8
+CONTROLLER_ROW = 9
 
 #: row -> (what it is called, the attribute that reads it, the attribute that sets it)
 TOGGLES = {
+    DEBUG_ROW: ('Debug mode', 'debug', 'set_debug'),
     SKIP_INTRO_ROW: ('Skip the opening screens', 'skip_intro_on', 'set_skip_intro'),
     SPEECH_ROW: ('Spoken headshot', 'headshot_speech_on', 'set_headshot_speech'),
     BEEP_ROW: ('Headshot beep', 'headshot_beep_on', 'set_headshot_beep'),
@@ -55,16 +60,23 @@ NEED_PAD = (VIBRATION_ROW, SHAKE_ROW, CONTROLLER_ROW)
 
 
 class SettingsController(BlindScreen):
-    """Back, the five toggles, then the controller picker."""
+    """Back, Debug mode when run from source, the five toggles, then the controller
+    picker."""
 
-    ROWS = (BACK_ROW, SKIP_INTRO_ROW, SPEECH_ROW, BEEP_ROW, CONTROLLER_SUPPORT_ROW,
-            VIBRATION_ROW, SHAKE_ROW, CONTROLLER_ROW)
+    ROWS = (BACK_ROW, DEBUG_ROW, SKIP_INTRO_ROW, SPEECH_ROW, BEEP_ROW,
+            CONTROLLER_SUPPORT_ROW, VIBRATION_ROW, SHAKE_ROW, CONTROLLER_ROW)
     TITLE_TEXT = 'Settings.'
 
     def __init__(self, speech=None):
         BlindScreen.__init__(self, speech=speech)
         self.selectMenu = 1
         self.message = ''                   # for anyone who can see the window
+
+    def rows(self):
+        """Every row, less Debug mode in a build, where players have no debug mode."""
+        if paths.FROZEN:
+            return tuple(r for r in self.ROWS if r != DEBUG_ROW)
+        return self.ROWS
 
     # ---- what the attached pad can do -------------------------------------------------
     def _names(self):
@@ -123,7 +135,7 @@ class SettingsController(BlindScreen):
             self.goBackAction_()
         elif row == CONTROLLER_ROW:
             self.nextControllerAction_()
-        elif row in TOGGLES:
+        elif row in TOGGLES and row in self.rows():
             self.toggleAction_(row)
         return row
 

@@ -106,7 +106,8 @@ beep, vibration, shaking a pad to break free, and which controller to play with.
 (`SKIPINTRO` in `settings.json`, set on the Settings screen, does it for good). Other
 options: `--no-window` (headless), `--game DIR` (another copy of the bundle), `-v`.
 
-`--debug` is for trying things out: a zombie that reaches you just dies, nothing takes a heart and
+`--debug`, or the **Debug mode** row first on the Settings screen (from source only, never
+in a build; remembered as `DEBUG` in `config/settings.json`), is for trying things out: a zombie that reaches you just dies, nothing takes a heart and
 you cannot die, and no kill, headshot, score or gold counts. A stage says "Debug mode"
 as it starts. Tab reaches every weapon, bought or not, and no gun or grenade runs out.
 Eight keys are added, which the F1 screen lists and rebinds: F2 next section of the
