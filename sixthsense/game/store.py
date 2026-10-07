@@ -346,6 +346,11 @@ class DetailStoreController(BlindScreen):
 
     # -[DetailStoreController buyAction:] 0x1b9e4
     def buyAction_(self, *_):
+        """PORT DIVERGENCE (tsatria03, 2026-10-07): Buy clicks first, ``ui_select`` as Back
+        (0x1b9b4), Try (0x1c2a6) and the upgrade button do.  The original's buyAction: plays
+        only its voice line, 359, 259 or 260, which the screen reader says now, so without
+        the click Buy was the one silent button in the shop."""
+        self.ui_select()
         item = SHOP[self.weaponType]
         d = UserDefaults.standardUserDefaults()
 

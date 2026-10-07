@@ -197,6 +197,32 @@ def test_buying_a_weapon_spends_the_gold_and_equips_it():
         p.teardown()
 
 
+def test_every_press_of_buy_clicks():
+    """tsatria03, 2026-10-07: Buy plays ui_select (10), as Back, Try and the upgrade button
+    do, whether it buys, lacks the gold or finds the weapon already bought."""
+    app = _app(gold=8000)
+    played = []
+    real = app.playSound_Gain_Pos_z_reprats_
+    app.playSound_Gain_Pos_z_reprats_ = lambda n, *a: (played.append(n), real(n, *a))
+    p = DetailStoreController(1, speech=_Recorder())    # shotgun, 7000
+    try:
+        for want in (True, False):                      # bought, then already bought
+            del played[:]
+            assert p.buyAction_() is want
+            assert played[:1] == [10], played
+        app.haveGold = 0
+        q = DetailStoreController(2, speech=_Recorder())   # M4A1, more than nothing
+        try:
+            del played[:]
+            assert q.buyAction_() is False
+            assert played[:1] == [10], played
+        finally:
+            q.teardown()
+    finally:
+        del app.playSound_Gain_Pos_z_reprats_
+        p.teardown()
+
+
 def test_buying_without_the_gold_is_refused():
     app = _app(gold=100)
     p = DetailStoreController(4)                        # MG80, 45000
