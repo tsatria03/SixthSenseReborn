@@ -354,11 +354,17 @@ reproducible without the IPA.
 
 ## Tests
 
-`tests/` has two folders:
+`tests/` has two folders and a runner:
 
 - **`tests/case/`** holds the tests: 34 plain scripts, each checking one part of the
   game against the original and printing `ok` or `FAIL` for every check, then a total.
   Run any of them on its own; there is nothing to install beyond what the game needs.
+- **`tests/suite.py`** runs them all, eight at a time and the slowest first, which takes
+  about 85 seconds where running them one after another takes nearly 290. Each file is
+  still its own process, with its own throwaway save and its own silence. Every test name
+  and its result goes to `tests/results/results-<date>-<n>.txt`, and a file that fails is
+  run once more on its own, so a test that only fails while the others run is told apart
+  from a broken one. The exit code is 1 if anything failed.
 - **`tests/interact/`** holds tools you play rather than tests: `level_chooser.py`
   and `tutorial_chooser.py`, which open the real game at any level or the tutorial at
   any lesson, `headshot_tester.py`, a game where every gun hit is a headshot, and
@@ -415,7 +421,8 @@ spatialise stereo, and the game relies on that).
 folder and deletes it afterwards, sets `SIXTHSENSE_SILENT` so nothing is ever sent to your
 screen reader or a Windows voice, and sends the audio to OpenAL Soft's null driver with no
 window, whatever your shell has set. `case/paths.py` fails if a test file leaves that out.
-`_scratch_save.py` is not a test; skip files starting with `_` when running them all.
+`_scratch_save.py` is not a test; `tests/suite.py` skips files starting with `_`, as should you
+when running them all by hand.
 
 ## Building and releasing
 

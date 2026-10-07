@@ -20,6 +20,9 @@ venv/
 .vscode/
 .idea/
 
+# What tests/suite.py writes: the results of each run and the times it schedules by
+tests/results/
+
 # Logs and crash reports, wherever they are run from
 *.log
 crash.txt
