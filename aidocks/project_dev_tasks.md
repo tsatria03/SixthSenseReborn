@@ -11,6 +11,7 @@ Since 2026-09-23, `todo list.txt` holds only what a player notices ([[feedback_t
 
 ## Open
 
+- Make the releaser's Prepare and tag push main before it pushes the tag, every time. `step_commit` pushes only after it commits; when VERSION and the changelog are already committed, as on a re-tag, it says there is nothing to commit and returns without pushing, while `step_tag` still pushes a tag at HEAD. On 2026-10-07 that left main a commit behind the tag of V26.10.07-1 until the test fix was pushed by hand (tunmi13productions' note in [[project_evaluation_fixes_plan]], item 7).
 - Remove the code left from the publisher's ranking server, which is gone (the dev, 2026-10-06): the rank (`NOWRANK` read into `RankLabel` in `Stage_1_E.updateTopscoreRank`, which nothing shows, and row 9's text in `pause_row_text`, a row the panel leaves out), and the week's best score (`TOPSCOREWEEK`, kept for uploading, and `WEEKTIME`, which nothing sets, cleared by `intro._expire_week`), with the `defaults.py` docstring's lines for them. The player-facing half, the unused keys in save.json, is in `todo list.txt`.
 The six lines below are from the 2026-10-06 evaluation ([[project_evaluation_fixes_plan]]).
 - Fix the level chooser, tutorial chooser and headshot tester so they keep off the real save on Linux and macOS too, through one shared helper, and spell the game's name right in them.
