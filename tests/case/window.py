@@ -167,6 +167,39 @@ def test_escape_in_a_stage_still_pauses():
     assert run.count('menu') == 1, 'Escape left the stage'
 
 
+def focus(gained):
+    kind = pygame.WINDOWFOCUSGAINED if gained else pygame.WINDOWFOCUSLOST
+    return lambda run: [pygame.event.Event(kind)]
+
+
+def test_coming_back_to_the_window_resumes_what_leaving_paused():
+    """tsatria03, 2026-10-07: leaving the window pauses, as it always did, and coming back
+    now carries on, through the real frame loop."""
+    _save(TUTORIAL='1')
+    seen = {}
+
+    def look(name):
+        def step(run):
+            seen[name] = run.last('stage').gameState
+        return step
+    Run({5: to('menu', 'stage'), 12: focus(False), 15: look('away'),
+         18: focus(True), 21: look('back'), 25: close}).go()
+    assert seen == {'away': 1, 'back': 0}, seen
+
+
+def test_a_pause_of_your_own_stays_when_you_come_back():
+    """Paused with Escape before leaving, the game is still paused on coming back: only the
+    pause that leaving made is undone."""
+    _save(TUTORIAL='1')
+    seen = {}
+
+    def look(run):
+        seen['state'] = run.last('stage').gameState
+    Run({5: to('menu', 'stage'), 12: key('escape'), 15: focus(False),
+         18: focus(True), 21: look, 25: close}).go()
+    assert seen == {'state': 1}, seen
+
+
 def test_escape_in_the_tutorial_still_goes_to_the_menu():
     run = Run({5: to('menu', 'tutorial'), 15: key('escape'), 25: close}).go()
     assert run.last('tutorial') in run.torn

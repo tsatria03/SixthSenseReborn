@@ -1,4 +1,5 @@
 unrelease:
+Coming back to the game window now carries on a game that leaving the window paused. A pause you made yourself before leaving, with P or Escape, still waits for you to choose Continue.
 The game's spoken title is now Sixth Sense Reborn: The Afterlife, on the main menu and in the welcome message, instead of Sixth Sense Reborn: The Zombies, which kept the original game's subtitle.
 The Buy button in the shop now clicks when you press it, like every other button there, before the screen reader says whether the weapon was bought.
 

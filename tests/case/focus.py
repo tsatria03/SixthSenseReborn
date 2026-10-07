@@ -18,7 +18,8 @@ from sixthsense.game.app_delegate import AppDelegate            # noqa: E402
 from sixthsense.game.stage_1_e import Stage_1_E                 # noqa: E402
 from sixthsense.platform.defaults import UserDefaults           # noqa: E402
 from sixthsense.platform.runloop import RunLoop                 # noqa: E402
-from sixthsense.ui.focus import focus_lost, interrupt_stop      # noqa: E402
+from sixthsense.ui.focus import (focus_lost, interrupt_stop,    # noqa: E402
+                                 resume_after_focus, stop_for_focus)
 from sixthsense.ui.input import Input                           # noqa: E402
 
 
@@ -84,6 +85,51 @@ def test_losing_focus_pauses_every_time():
             assert st.gameState == 1, 'the window lost focus and nothing paused'
             st.continueAction_()
             assert st.gameState == 0
+    finally:
+        st.teardown()
+
+
+def test_coming_back_resumes_only_what_leaving_paused():
+    """tsatria03, 2026-10-07: the game carries on when the window has focus again, but only
+    after a pause that losing focus made, never one the player made with P first."""
+    _app, st = _new_stage()
+    try:
+        assert stop_for_focus(st) is True, 'leaving did not count as pausing a game'
+        assert st.gameState == 1
+        assert resume_after_focus(st) is True
+        assert st.gameState == 0 and st.MotionSamplingTimer is not None, 'it did not carry on'
+        Input(st).perform('pause')                       # the player's own pause
+        assert stop_for_focus(st) is False, 'a game already paused counted as paused by focus'
+        assert st.gameState == 1
+    finally:
+        st.teardown()
+
+
+def test_coming_back_quickly_never_says_paused_over_a_running_game():
+    """The "Paused" voice comes half a second after a pause (0x34710) and nothing in the
+    original cancels it, so coming back within that half second would have said it over
+    the game.  Resuming cancels it."""
+    from sixthsense.platform import runloop
+    _app, st = _new_stage()
+    said = []
+    st._say = said.append
+    try:
+        stop_for_focus(st)
+        resume_after_focus(st)
+        RunLoop.main().pump(now=runloop.clock() + 2.0)
+        assert 'Paused.' not in said, said
+    finally:
+        st.teardown()
+
+
+def test_a_game_that_moved_on_is_not_resumed():
+    """A death or a level's end puts up its own panel; coming back leaves it alone."""
+    _app, st = _new_stage()
+    try:
+        stop_for_focus(st)
+        st.gameState = 3                                 # game over while away
+        assert resume_after_focus(st) is False
+        assert st.gameState == 3
     finally:
         st.teardown()
 

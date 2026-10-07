@@ -155,7 +155,8 @@ def main(argv=None):
 
     import pygame
     from sixthsense.ui.controller import Controllers, read_events
-    from sixthsense.ui.focus import focus_lost, interrupt_stop
+    from sixthsense.ui.focus import (focus_gained, focus_lost, resume_after_focus,
+                                     stop_for_focus)
     from sixthsense.ui.input import Input
     from sixthsense.ui.keybind_screen import KeyBindScreen
     from sixthsense.ui.menu_input import MenuInput
@@ -200,6 +201,7 @@ def main(argv=None):
 
     quitting = False
     next_device_check = 0.0
+    focus_paused = None            # the stage losing focus paused, to resume on coming back
     while not quitting:
         closing = False
         for event in read_events(pygame):
@@ -210,9 +212,16 @@ def main(argv=None):
                 closing = True
                 break
             if focus_lost(event, pygame) and kind in STAGES:
-                interrupt_stop(obj)         # losing focus is pressing P (ui/focus.py)
-            if event.type == getattr(pygame, 'WINDOWFOCUSGAINED', None):
+                # losing focus is pressing P (ui/focus.py); remember a game it paused
+                if stop_for_focus(obj):
+                    focus_paused = obj
+            if focus_gained(event, pygame):
                 next_device_check = 0.0     # coming back checks the device at once
+                # PORT DIVERGENCE (2026-10-07): and resumes a game losing focus paused,
+                # as long as it is still the screen up
+                if focus_paused is not None and focus_paused is obj:
+                    resume_after_focus(obj)
+                focus_paused = None
             keys = pad.feed(event)
             if keys is not None:
                 # a controller: the menus take it as keys, a stage reads it itself, and
