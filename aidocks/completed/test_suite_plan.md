@@ -8,6 +8,8 @@ metadata:
 
 **Status: finished 2026-10-06, confirmed by the dev**, who read a full run's report and said "alright it's all in working order". Everything below is in `tests/suite.py`, with `tests/results/` added to `.gitignore`. Five fast files ran 99 of 99 in 5.5 s against 9.5 s one after another, and a throwaway failing file proved the FAIL and ERROR lines, the rerun on its own, the failures section and the exit code 1. **The full run was made at the dev's asking: 637 of 637 across 34 files in 85.8 s, against 286.9 s one after another, with no failure, so no test in the suite is sensitive to running beside others** (recorded in [[project_safe_test_run]]). Waiting only on the dev's own word that it works.
 
+**The discovery is tunmi13productions'** (the dev, 2026-10-07): they timed each file before designing anything, found that the cost was a few files waiting on the wall clock rather than the number of tests, and built the runner from that.
+
 Asked for by the dev: "this test suite takes ages to run ... I propose we create a python script, maybe test_suite.py, under the tests folder. It runs through each test, reporting what succeeded and what failed in a results file."
 
 ## Why the suite is slow, measured first
