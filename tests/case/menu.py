@@ -355,7 +355,7 @@ def test_the_rows_speak_through_the_screen_reader():
         m.move(-2)                  # tutorial, start
         assert m.speech.said[-1] == 'Game start, Button', m.speech.said[-1]
         m.move(-1)
-        assert m.speech.said[-1] == 'Sixth Sense Reborn: The Zombies'
+        assert m.speech.said[-1] == 'Sixth Sense Reborn: The Afterlife'
     finally:
         m.teardown()
 

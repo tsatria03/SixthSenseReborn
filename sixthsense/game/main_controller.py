@@ -66,9 +66,10 @@ ROWS = (
     (9, 'settings_flag', 'settings'),
 )
 #: PORT ADDITION: what the screen reader says for each row.  The rows that are a setting are
-#: made in ``row_text``.
+#: made in ``row_text``.  The title was the original's recording "Six Sense _ The Zombies"
+#: (16); Reborn's subtitle is The Afterlife (tsatria03, 2026-10-07).
 ROW_TEXT = {
-    'title': 'Sixth Sense Reborn: The Zombies',
+    'title': 'Sixth Sense Reborn: The Afterlife',
     'start': 'Game start, Button',
     'tutorial': 'Tutorial, Button',
     'store': 'Store, Button',

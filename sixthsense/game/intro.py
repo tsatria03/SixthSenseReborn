@@ -246,9 +246,10 @@ class StartIntroPage(BlindScreen):
 
 
 #: 0x17a9e, set on ``explainLabel`` behind sound 14.  The original's own wording, with
-#: its layout whitespace collapsed.
+#: its layout whitespace collapsed, and Reborn's title in place of "The Zombies"
+#: (tsatria03, 2026-10-07, as main_controller.ROW_TEXT's title).
 WELCOME_TEXT = (
-    'Welcome to Sixth Sense Reborn: The Zombies. This game is read aloud by your '
+    'Welcome to Sixth Sense Reborn: The Afterlife. This game is read aloud by your '
     'screen reader. Sixth Sense Reborn is a shooting game conducted by sound. You '
     'must use stereo headphones before playing the game. Warning! It may be hard to '
     'play the game normally in a noisy environment. Also the old, weak or the '
