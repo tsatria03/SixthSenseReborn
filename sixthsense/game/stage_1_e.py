@@ -330,6 +330,8 @@ class Stage_1_E:
         self.monstersFrozen = False     # --debug, sixthsense/game/debug.py
         self.debugSpawn = 0
         self.debugHits = False          # --debug's F7: zombies hit you, for no heart
+        self.debugLevelOneHealth = False    # --debug's F3: zombies keep level 1's health
+        self.debugLevelOneSpeed = False     # --debug's F4: and its speed
         self.debugSectionReady = 0.0    # --debug's F2 cools down until then
         self.reloadWeaponNumber = 0
         self.noAtt = False
@@ -741,11 +743,18 @@ class Stage_1_E:
         m = MonsterControl()
         m.frozen = self.monstersFrozen
         if m.initWithMonsterPatern(type_id, self.app, coming, hit, php, dies,
-                                   approach, push, gain) is None:
+                                   approach, push, *self.level_gains(gain)) is None:
             return
         # -[MonsterControl initWithMonsterPatern:...] already called MonsterStart:
         # (0x10c3e), so MonsterInit: only has to keep the monster (0x392da).
         self.MonsterBuffer.append(m)
+
+    def level_gains(self, gain):
+        """The health and speed gains a monster is built with: the level's ``gain`` for
+        both, as the original has it, unless debug mode's F3 or F4 holds that one at
+        level 1's 1.0 (2026-10-07, sixthsense/game/debug.py)."""
+        return (1.0 if self.debugLevelOneHealth else gain,
+                1.0 if self.debugLevelOneSpeed else gain)
 
     @staticmethod
     def _first_free(candidates, in_use):

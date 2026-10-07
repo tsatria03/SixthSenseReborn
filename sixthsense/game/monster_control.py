@@ -206,7 +206,15 @@ class MonsterControl:
     # -[MonsterControl initWithMonsterPatern:soundController:comingSound:hitSound:
     #   damageSound:diesound:shakeApproach:shakwPush:HPGain:]  0x10618
     def initWithMonsterPatern(self, patern, soundController, comingSound, hitSound,
-                              damageSound, diesound, shakeApproach, shakwPush, HPGain):
+                              damageSound, diesound, shakeApproach, shakwPush, HPGain,
+                              speedGain=None):
+        """``speedGain`` is a PORT ADDITION (2026-10-07, debug mode's F4): the step's own
+        gain, which the original always takes from HPGain.  Both gains and the unscaled
+        step are kept, so debug mode can change them on a zombie already walking."""
+        if speedGain is None:
+            speedGain = HPGain
+        self.hpGain = HPGain
+        self.speedGain = speedGain
         self.app = soundController
         path = paths.path_for_resource('type%d' % patern, 'plist')
         if path is None:
@@ -218,6 +226,7 @@ class MonsterControl:
             return None
 
         self.MovingType = _i(a[1])                             # 0x106d2
+        self.baseHP = _i(a[3])
         self.HP = int(float(_i(a[3])) * HPGain)                # 0x10704, * HPGain
         self.Damage = _i(a[5])                                 # 0x10738
         # 0x1076a: the note is allocated here, from the sound number the caller passed.
@@ -227,7 +236,8 @@ class MonsterControl:
         self.comingSoundGain = _f(a[9]) + 0.2                  # 0x107ae, + 0.2
         self.comingSoundTime = _f(a[11])
         self.comingSoundInWalk = int(_f(a[13]))
-        self.comingRange = int(float(_i(a[15])) * HPGain)      # 0x10832, * HPGain
+        self.baseComingRange = _i(a[15])
+        self.comingRange = int(float(_i(a[15])) * speedGain)   # 0x10832, * HPGain
         self.hitSound = hitSound
         self.hitSoundGain = _f(a[19]) * 0.5                    # 0x1087c, * 0.5
         self.hitSoundTime = _f(a[21])

@@ -110,8 +110,9 @@ options: `--no-window` (headless), `--game DIR` (another copy of the bundle), `-
 in a build; remembered as `DEBUG` in `config/settings.json`), is for trying things out: a zombie that reaches you just dies, nothing takes a heart and
 you cannot die, and no kill, headshot, score or gold counts. A stage says "Debug mode"
 as it starts. Tab reaches every weapon, bought or not, and no gun or grenade runs out.
-Eight keys are added, which the F1 screen lists and rebinds: F2 next section of the
-corridor, Shift+F2 next level (after 8, back to 1), F5 spawn a zombie in the lane you
+Ten keys are added, which the F1 screen lists and rebinds: F2 next section of the
+corridor, Shift+F2 next level (after 8, back to 1), F3 and F4 hold every zombie's health
+and its speed at level 1's, or let them grow with the level again, F5 spawn a zombie in the lane you
 last attacked, Shift+F5 choose what F5 spawns, F6 hold the zombies in place, F7 let
 zombies hit you without taking a heart, F8 turn the sound trims off or on, F11 say where they are.
 

@@ -727,6 +727,42 @@ def test_the_girl_and_the_woman_keep_level_1s_speed():
             assert base[3.375][0] > base[1.0][0], '%d did not speed up' % type_id
 
 
+def test_debug_holds_zombie_health_and_speed_at_level_one():
+    """tsatria03, 2026-10-07: in debug mode F3 holds zombie health at level 1's and F4
+    their speed, each a toggle, changing the zombies already walking too.  A level
+    scales both by monsterHPGain (0x10704, 0x10832); the girl never grows."""
+    from sixthsense.game import debug
+    _app, st = _new_stage()
+    said = []
+    st._say = said.append                   # never the real screen reader
+    try:
+        st.monsterHPGain = 2.25             # level 3
+        st.MonsterInit_(3)
+        m = st.MonsterBuffer[-1]
+        step, hp = m.baseComingRange, m.HP
+        assert m.comingRange == int(step * 2.25), 'level 3 did not speed it up'
+        debug.perform(st, 'debug_level_speed', 3)
+        assert m.comingRange == step, 'F4 left a walking zombie at level 3 speed'
+        assert said[-1] == "Zombies keep level 1's speed.", said
+        debug.perform(st, 'debug_level_health', 3)
+        assert m.HP == m.baseHP, (m.HP, m.baseHP, hp)
+        assert said[-1] == "Zombies keep level 1's health.", said
+        st.MonsterInit_(4)                  # a new one, built with both held
+        fresh = st.MonsterBuffer[-1]
+        assert fresh.comingRange == fresh.baseComingRange and fresh.hpGain == 1.0
+        st.MonsterInit_(10001)              # the girl, who never grows anyway
+        girl = st.MonsterBuffer[-1]
+        girl_step = girl.comingRange
+        debug.perform(st, 'debug_level_speed', 3)
+        debug.perform(st, 'debug_level_health', 3)
+        assert m.comingRange == int(step * 2.25) and m.HP == hp, 'level 3 did not come back'
+        assert girl.comingRange == girl_step, 'the girl grew with the level'
+        assert said[-2:] == ['Zombie speed grows with the level.',
+                             'Zombie health grows with the level.'], said
+    finally:
+        st.teardown()
+
+
 def test_the_debug_commands():
     """sixthsense/game/debug.py: F6 holds zombies at their range, F11 reads them out,
     F2 moves on a section and Shift+F2 a level."""

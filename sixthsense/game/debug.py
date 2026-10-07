@@ -6,6 +6,9 @@ out by ear.  They are keymap actions, so the F1 screen lists and rebinds them:
 
     F2          the start of the next section of the corridor, in the same level
     Shift+F2    next level, the way the end of a level goes; after level 8, level 1
+    F3          zombies keep level 1's health, or grow with the level again
+    F4          zombies keep level 1's speed, or grow with the level again; both F3 and F4
+                change the zombies already walking too (tsatria03, 2026-10-07)
     F5          spawn the chosen zombie, in the lane you last attacked
     Shift+F5    choose what F5 spawns
     F6          hold every zombie where it is, or let them walk again
@@ -71,6 +74,8 @@ def perform(st, action, lane):
         return
     {'debug_next_level': next_level,
      'debug_next_section': next_section,
+     'debug_level_health': toggle_level_health,
+     'debug_level_speed': toggle_level_speed,
      'debug_spawn': lambda s: spawn(s, lane),
      'debug_spawn_kind': next_spawn_kind,
      'debug_freeze': toggle_freeze,
@@ -154,6 +159,43 @@ def spawn(st, lane):
         st._say('%s cannot come now; every voice it has is in use.' % name)
         return
     st._say('%s, %s.' % (name, CLOCK.get(lane, '')))
+
+
+def _level_gain(st, m):
+    """The gain a level gives this monster: 1.0 for the girl and the woman zombie, who
+    never grow (0x38d8c, 0x39034), the level's ``monsterHPGain`` for the rest."""
+    return 1.0 if m.monsterNumber in (MONSTER_GIRL, MONSTER_WOMAN) else st.monsterHPGain
+
+
+def toggle_level_health(st):
+    """F3: hold every zombie's health at level 1's, or let it grow with the level again.
+    Zombies already walking change too, keeping the same share of their health: from
+    their unscaled health, rounded as ``initWithMonsterPatern`` rounds, so a zombie at
+    full health toggled back and forth comes back exactly as it was."""
+    st.debugLevelOneHealth = not st.debugLevelOneHealth
+    for m in st.MonsterBuffer:
+        new = st.level_gains(_level_gain(st, m))[0]
+        base = getattr(m, 'baseHP', None)
+        full = int(float(base) * m.hpGain) if base else 0
+        if full > 0 and m.HP > 0:
+            share = min(1.0, m.HP / float(full))
+            m.HP = max(1, int(float(base) * new * share + 1e-9))
+        m.hpGain = new
+    st._say("Zombies keep level 1's health." if st.debugLevelOneHealth
+            else 'Zombie health grows with the level.')
+
+
+def toggle_level_speed(st):
+    """F4: hold every zombie's speed at level 1's, or let it grow with the level again.
+    Zombies already walking change too: their step is rebuilt from its unscaled length."""
+    st.debugLevelOneSpeed = not st.debugLevelOneSpeed
+    for m in st.MonsterBuffer:
+        new = st.level_gains(_level_gain(st, m))[1]
+        if hasattr(m, 'baseComingRange'):
+            m.comingRange = int(float(m.baseComingRange) * new)
+        m.speedGain = new
+    st._say("Zombies keep level 1's speed." if st.debugLevelOneSpeed
+            else 'Zombie speed grows with the level.')
 
 
 def toggle_freeze(st):

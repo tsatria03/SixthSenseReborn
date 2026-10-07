@@ -61,7 +61,7 @@ The save lives in `%APPDATA%\SixthSenseReborn\` (on Linux `~/.local/share/SixthS
 - `--stage` and `--tutorial` start those directly.
 - `--skip-tutorial` writes `TUTORIAL=1`.
 - `--no-window` runs headless.
-- `--debug`, or the Settings screen's first row, Debug mode (source runs only, remembered as `DEBUG` in settings.json, [[debug_setting_plan]]): a zombie that reaches you just dies, nothing takes a heart, and no kill, headshot, score or gold counts. Tab reaches every weapon and nothing runs out. It adds F2, Shift+F2, F5, Shift+F5, F6, F7, F8 (the sound trims off and on, [[sound_trims_plan]]) and F11 (`game/debug.py`), which the F1 screen lists only in debug mode.
+- `--debug`, or the Settings screen's first row, Debug mode (source runs only, remembered as `DEBUG` in settings.json, [[debug_setting_plan]]): a zombie that reaches you just dies, nothing takes a heart, and no kill, headshot, score or gold counts. Tab reaches every weapon and nothing runs out. It adds F2, Shift+F2, F3 and F4 (zombie health and speed held at level 1's, [[debug_level_toggles_plan]]), F5, Shift+F5, F6, F7, F8 (the sound trims off and on, [[sound_trims_plan]]) and F11 (`game/debug.py`), which the F1 screen lists only in debug mode.
 - `-v` gives verbose logging.
 
 This needs 64-bit Python 3.12 or newer, pygame and `prismatoid` (Prism). Without Prism the game still runs, but only NVDA speaks ([[prism_speech]]). `pip install -r requirements.txt` installs both.

@@ -504,11 +504,12 @@ def _stage_lines(stage, inp):
               % (km.keys_text('shake'), km.keys_text('pause'),
                  'back to the menu' if getattr(stage, 'ESCAPE_LEAVES', False) else 'pause')]
     if stage.app.debug:
-        lines.append('debug   %s next level   %s next section   %s spawn   %s choose   '
+        lines.append('debug   %s next level   %s next section   %s level 1 health   '
+                     '%s level 1 speed   %s spawn   %s choose   '
                      '%s hold   %s hits   %s where   %s trims'
                      % tuple(km.keys_text(a) for a in (
-                         'debug_next_level', 'debug_next_section', 'debug_spawn',
-                         'debug_spawn_kind',
+                         'debug_next_level', 'debug_next_section', 'debug_level_health',
+                         'debug_level_speed', 'debug_spawn', 'debug_spawn_kind',
                          'debug_freeze', 'debug_hits', 'debug_monsters',
                          'debug_sound_trims')))
     return lines
