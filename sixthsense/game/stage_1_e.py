@@ -180,6 +180,10 @@ HEADSHOT_TEXT = 'Headshot!'
 #: PORT ADDITION: said as a game starts loading, where the original played 46,
 #: "Now Loading".
 LOADING_TEXT = 'Now loading.'
+#: PORT ADDITION (tsatria03, 2026-10-07): what the reload key says when it does nothing,
+#: in the dev's words: a gun already full, and a weapon with no magazine at all.
+RELOADED_TEXT = 'This weapon is already reloaded with ammo.'
+NO_AMMO_TEXT = 'This weapon does not take ammo.'
 #: PORT ADDITION (tunmi13productions, 2026-10-05): headshot_beep, SoundList entry 374,
 #: the one definition; the Settings screen plays it too, as a sample.
 SOUND_HEADSHOT_BEEP = 374
@@ -1384,16 +1388,33 @@ class Stage_1_E:
         still going, while a zombie holds you, while attacks are barred, or once the
         game-over music has started.  A melee weapon has nothing to reload, and in the
         original the grenade swiped to 6 o'clock is thrown, so for both the key does
-        nothing."""
+        nothing.
+
+        PORT DIVERGENCE (tsatria03, 2026-10-07): the key says why it did nothing.  The knife,
+        the sword and the grenade say ``NO_AMMO_TEXT``, and a gun whose magazine is already
+        full says ``RELOADED_TEXT`` and is not reloaded.  The original reloads a full gun
+        anyway, playing the reload and barring every attack for its whole reload time to
+        refill the same count."""
         if self.missionCompletSounding or self.shotFlag:
             return False
         if self.isShake or self.noAtt:
             return False
         if self.gamePlayer.useWepon in (0, 1, 7):
+            self._say(NO_AMMO_TEXT)
+            return False
+        if self._magazine_full():
+            self._say(RELOADED_TEXT)
             return False
         self.shotFlag = True                                   # 0x2f096
         self.GunReloadAction_()
         return True
+
+    def _magazine_full(self):
+        """Whether the gun in hand already holds a full magazine.  Overridden by the
+        tutorial, whose endless bullets keep every magazine full, so its reload lesson can
+        still be done."""
+        weapon = self.weaponSource[self.gamePlayer.useWepon]
+        return weapon is not None and weapon.BulletCount >= weapon.ReloadGun()
 
     # -[Stage_1_E GunReloadAction:] 0x3516c
     def GunReloadAction_(self, *_):

@@ -1,4 +1,5 @@
 unrelease:
+Reloading a gun whose magazine is already full no longer reloads it, so you are not left unable to fire for the whole reload time; the screen reader says "This weapon is already reloaded with ammo." instead. Reloading with the knife, the sword or the grenade says "This weapon does not take ammo." The tutorial's reloading lesson still works with its endless bullets.
 Coming back to the game window now carries on a game that leaving the window paused. A pause you made yourself before leaving, with P or Escape, still waits for you to choose Continue.
 The game's spoken title is now Sixth Sense Reborn: The Afterlife, on the main menu and in the welcome message, instead of Sixth Sense Reborn: The Zombies, which kept the original game's subtitle.
 The Buy button in the shop now clicks when you press it, like every other button there, before the screen reader says whether the weapon was bought.

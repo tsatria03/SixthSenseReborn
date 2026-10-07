@@ -1271,6 +1271,36 @@ def test_reload_does_nothing_with_the_grenade_or_a_blade():
         st.teardown()
 
 
+def test_reload_says_why_it_does_nothing():
+    """tsatria03, 2026-10-07: a full magazine is not reloaded, and the reload key says so;
+    the knife, the sword and the grenade say they take no ammo.  The original reloaded a
+    full gun anyway, barring attacks for the whole reload time."""
+    app, st, colt = _gun_stage()
+    said = []
+    st._say = said.append
+    reloads = []
+    real = st.GunReloadAction_
+    st.GunReloadAction_ = lambda *a: (reloads.append(1), real(*a))[-1]
+    try:
+        colt.BulletCount = colt.ReloadGun()                 # full
+        assert not st.ReloadGesture()
+        assert said == [S1E.RELOADED_TEXT] and reloads == [], (said, reloads)
+        assert st.shotFlag is False, 'a refused reload barred firing'
+        colt.BulletCount -= 1                               # one round short reloads
+        assert st.ReloadGesture() and reloads == [1]
+        st.shotFlag = False
+        for weapon in (0, 1, 7):                            # grenade, knife, sword
+            del said[:]
+            st.gamePlayer.useWepon = weapon
+            assert not st.ReloadGesture()
+            assert said == [S1E.NO_AMMO_TEXT], (weapon, said)
+        assert S1E.RELOADED_TEXT == 'This weapon is already reloaded with ammo.'
+        assert S1E.NO_AMMO_TEXT == 'This weapon does not take ammo.'
+    finally:
+        del st.GunReloadAction_
+        st.teardown()
+
+
 def test_a_reload_refills_the_gun_it_was_started_with():
     """reloadGun: refills weaponSource[reloadWeaponNumber] (0x35f2a)."""
     app, st, colt = _gun_stage()
