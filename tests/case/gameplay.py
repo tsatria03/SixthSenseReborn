@@ -1308,9 +1308,10 @@ def test_reload_does_nothing_with_the_grenade_or_a_blade():
 
 
 def test_reload_says_why_it_does_nothing():
-    """tsatria03, 2026-10-07: a gun reloads only once every round is fired, and the reload
-    key says so otherwise; the knife, the sword and the grenade say they take no ammo.
-    The original reloaded whenever asked, barring attacks for the whole reload time."""
+    """tsatria03, 2026-10-07: a full gun is not reloaded and the reload key says so, while
+    one with any round used, or none left, reloads as ever; the knife, the sword and the
+    grenade say they take no ammo.  The original reloaded even a full gun, barring attacks
+    for the whole reload time."""
     app, st, colt = _gun_stage()
     said = []
     st._say = said.append
@@ -1318,14 +1319,17 @@ def test_reload_says_why_it_does_nothing():
     real = st.GunReloadAction_
     st.GunReloadAction_ = lambda *a: (reloads.append(1), real(*a))[-1]
     try:
-        for left in (colt.ReloadGun(), colt.ReloadGun() - 1, 1):   # full, one fired, one left
+        colt.BulletCount = colt.ReloadGun()                 # full
+        assert not st.ReloadGesture()
+        assert said == [S1E.RELOADED_TEXT] and reloads == [], (said, reloads)
+        assert st.shotFlag is False, 'a refused reload barred firing'
+        for left in (colt.ReloadGun() - 1, 0):              # one fired, every round fired
             del said[:]
+            st.shotFlag = False
             colt.BulletCount = left
-            assert not st.ReloadGesture(), 'reloaded with %d rounds left' % left
-            assert said == [S1E.RELOADED_TEXT] and reloads == [], (left, said, reloads)
-            assert st.shotFlag is False, 'a refused reload barred firing'
-        colt.BulletCount = 0                                # every round fired
-        assert st.ReloadGesture() and reloads == [1]
+            assert st.ReloadGesture(), 'did not reload with %d rounds left' % left
+            assert said == [], 'a reload said why it did nothing: %r' % said
+        assert len(reloads) == 2, reloads
         st.shotFlag = False
         for weapon in (0, 1, 7):                            # grenade, knife, sword
             del said[:]
