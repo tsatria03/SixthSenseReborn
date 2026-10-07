@@ -405,7 +405,8 @@ python tests/case/focus.py          # switching away from the window pauses a st
 python tests/case/window.py         # the window's close button and the screen loop
 python tests/case/release.py        # the releaser's version, changelog and names (builds nothing)
 python tests/case/save.py           # the save folders, the names translated, old layouts moved over, damaged files kept (temp folders only)
-python tests/case/music_memory.py   # changing the music and ambience frees the old files (audio device)
+python tests/case/music_buffer.py   # changing the music or ambience really frees the old file (audio device)
+python tests/case/music_memory.py   # the same leak watched in the process's memory (audio device, Windows only)
 python tests/case/audio_device.py   # a lost audio device is reopened (fake device, then OpenAL's null driver)
 python tests/case/runloop.py        # timers and delayed calls: once each, in time order, on a fine clock
 ```

@@ -7,18 +7,32 @@ the first two files.  This swaps both players 20 times, cave and forest in turn,
 checks the process's private memory stays where it was after the first swaps.
 
 It opens the audio device, so run it with OpenAL's null driver, and it writes the save
-through ``didFinishLaunching``: see the safe way to run the tests.  Windows only.
+through ``didFinishLaunching``: see the safe way to run the tests.
+
+**Windows only**, and it says so and passes on the other two: the figure it reads comes
+from ``psapi``, and there is no portable call for it.  Nothing is lost by that.  The
+freeing it watches is ``music.py``'s ``_drop_buffer``, the same Python on all three
+systems, and the release workflow runs this on Windows before any system is built, so a
+reordering of those calls still stops the release.  ``music_buffer.py`` checks the same
+freeing portably, by asking OpenAL whether the buffer is gone, and runs everywhere.
 """
 from __future__ import annotations
 
-import ctypes
-import ctypes.wintypes as wt
 import gc
 import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 import _scratch_save                                             # noqa: E402,F401  never the real save
+
+if sys.platform != 'win32':
+    print('skipped: the private memory figure is Windows only, and music_buffer.py '
+          'checks the same freeing everywhere')
+    print('0/0 passed')
+    sys.exit(0)
+
+import ctypes                                                    # noqa: E402
+import ctypes.wintypes as wt                                     # noqa: E402
 
 from sixthsense.game.app_delegate import AppDelegate             # noqa: E402
 

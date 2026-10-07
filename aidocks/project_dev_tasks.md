@@ -30,6 +30,7 @@ The seven lines below are from the 2026-10-06 evaluation ([[project_evaluation_f
 
 ## Finished
 
+- The release workflow's test step passes on Linux and macOS: `music_memory.py` reads the process's private memory through `psapi`, so it now says it is skipped and passes off Windows instead of failing three of the four builds, and the new `music_buffer.py` checks the same music buffer freeing on every system through OpenAL's `alIsBuffer`.
 - `tests/suite.py` runs the whole suite at once, each file its own process, eight at a time and the slowest first, rerunning a failing file on its own to tell a timing-sensitive test from a broken one, and writing every result to a gitignored `tests/results/results-<date>-<n>.txt`. 637 of 637 in 85.8 s, against 286.9 s one after another ([[test_suite_plan]]).
 - The run loop runs each timed event once, runs everything due in time order, timers and delayed calls alike, and keeps time to well under a millisecond.
 - The tests are silent wherever they are run from: nothing reaches the screen reader or a Windows voice, no sound plays and no window opens, and a test fails if one file is left out.

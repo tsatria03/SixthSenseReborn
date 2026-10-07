@@ -15,7 +15,7 @@ import atexit
 import ctypes
 import logging
 import os
-from ctypes import POINTER, byref, c_char_p, c_float, c_int, c_uint, c_void_p
+from ctypes import POINTER, byref, c_char_p, c_float, c_int, c_ubyte, c_uint, c_void_p
 
 from .. import paths
 
@@ -103,6 +103,10 @@ _SIGNATURES = [
     ('alGenBuffers', None, [c_int, POINTER(c_uint)]),
     ('alDeleteBuffers', None, [c_int, POINTER(c_uint)]),
     ('alBufferData', None, [c_uint, c_int, c_void_p, c_int, c_int]),
+    # PORT ADDITION: not a call oalPlayback makes.  tests/case/music_buffer.py asks it
+    # whether a freed music buffer is really gone, which is the only portable way to
+    # prove the freeing in music.py worked.  ALboolean, so 1 is AL_TRUE.
+    ('alIsBuffer', c_ubyte, [c_uint]),
     ('alGenSources', None, [c_int, POINTER(c_uint)]),
     ('alDeleteSources', None, [c_int, POINTER(c_uint)]),
     ('alSourcei', None, [c_uint, c_int, c_int]),
