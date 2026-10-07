@@ -438,6 +438,26 @@ def test_p_does_nothing_before_beat_eight_is_done():
         _restore()
 
 
+def test_leaving_the_window_never_ends_the_tutorial():
+    """tsatria03, 2026-10-07: leaving the window pressed P, which ends the tutorial once
+    lessons One to Eight are done, so switching away finished it.  The lessons ignore it
+    now; P itself still ends them, and the real game after the countdown still pauses."""
+    from sixthsense.ui.focus import interrupt_stop, stop_for_focus
+    st = _tutorial(prompt=0.4)
+    try:
+        for n in T.STOP_NEEDS:
+            st.beat_done[n] = True
+        assert not interrupt_stop(st)
+        assert not st.finished and not st.ending, 'leaving the window ended the tutorial'
+        assert UserDefaults.standardUserDefaults().intForKey_('TUTORIAL') == 0
+        st.real_game = True                     # past the countdown, a game like any
+        st.isTutorial = 1
+        assert stop_for_focus(st) and st.gameState == 1, 'the real game did not pause'
+    finally:
+        st.teardown()
+        _restore()
+
+
 def test_p_ends_the_tutorial_row_back_at_the_menu():
     """Beat Nine: P plays tutorial success, and 3.05 s later -[Stage_Tutorial
     tutorialEnd:] (0x83738) is GameEndAction:."""

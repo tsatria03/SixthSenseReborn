@@ -483,6 +483,15 @@ class Stage_Tutorial(Stage_1_E):
         if not self.isShake:
             self._complete('Eight')
 
+    @property
+    def stops_on_focus_loss(self):
+        """PORT DIVERGENCE (tsatria03, 2026-10-07): leaving the window presses the stop
+        button (``ui/focus.py``), and during the lessons that ends the tutorial once One to
+        Eight are done, so a player who switched away was taken out of it.  The lessons
+        have no pause, so leaving the window does nothing to them; the real game a first
+        Start counts down into pauses as any game does."""
+        return self.real_game
+
     # -[Stage_Tutorial StopPlayAction:] 0x83804 - P while the tutorial is running.
     def StopPlayAction_(self, *a):
         if self.ending:

@@ -55,7 +55,14 @@ def resume_after_focus(screen):
 
 def interrupt_stop(screen):
     """``-[Stage_1_E interruptStop]`` / ``-[Stage_Tutorial interruptStop]``: the stop
-    button, for whichever stage is up.  Returns True if the screen has one."""
+    button, for whichever stage is up.  Returns True if the screen has one.
+
+    PORT DIVERGENCE (tsatria03, 2026-10-07): a screen whose ``stops_on_focus_loss`` is
+    False is left alone.  The tutorial's lessons set it, because there the stop button
+    ends the tutorial once lessons One to Eight are done, so leaving the window finished
+    the tutorial (0x2c6ce does the same in the original)."""
+    if not getattr(screen, 'stops_on_focus_loss', True):
+        return False
     stop = getattr(screen, 'StopPlayAction_', None)
     if stop is None:
         return False

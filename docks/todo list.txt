@@ -1,12 +1,12 @@
 ##Unfinished.
 
-Leaving the game window during the tutorial, once the first eight lessons are done, finishes the tutorial, because leaving the window counts as pressing P.
 Add the ability to save the game from where you are in a level, and continue it from where you last left off.
 Remove the keys the game no longer uses from save.json, such as REVIEWCOUNT, which counts game overs only because the original used it to ask for an App Store review.
 On a Mac, Sixth Sense Reborn shares its app identity with the original Sixth Sense, so the system may mistake one for the other.
 
 ##Finished.
 
+Leaving the game window during the tutorial no longer finishes it; P still ends the tutorial when you choose.
 A gun reloads only once you have fired every round in it, saying "This weapon is already reloaded with ammo." while any are left, and the knife, the sword and the grenade say "This weapon does not take ammo."
 Coming back to the game window carries on a game that leaving the window paused, while a pause you made yourself still waits for Continue.
 A controller support setting turns the game's use of a controller off, for a controller you have plugged in but do not want to play with, and turning it back on finds your controllers again.
