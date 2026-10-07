@@ -1330,6 +1330,26 @@ def test_reload_says_why_it_does_nothing():
             assert st.ReloadGesture(), 'did not reload with %d rounds left' % left
             assert said == [], 'a reload said why it did nothing: %r' % said
         assert len(reloads) == 2, reloads
+        # debug mode spends no round, so a gun counts as full until it fires: refused
+        # before the first shot, reloaded after it, as outside debug mode
+        was = app.debug
+        app.debug = True
+        try:
+            loop = RunLoop.main()
+            _run(loop, colt.ReloadTime + 0.3)              # let the last reload land
+            del said[:]
+            st.shotFlag = False
+            colt.BulletCount = colt.ReloadGun()
+            assert not st.ReloadGesture(), 'debug mode reloaded a gun that never fired'
+            assert said == [S1E.RELOADED_TEXT], said
+            st.MovingShot_(LANE[3])
+            assert colt.BulletCount == colt.ReloadGun(), 'debug mode spent a round'
+            st.shotFlag = False
+            del said[:]
+            assert st.ReloadGesture(), 'debug mode could not reload after a shot'
+            assert said == [], said
+        finally:
+            app.debug = was
         st.shotFlag = False
         for weapon in (0, 1, 7):                            # grenade, knife, sword
             del said[:]

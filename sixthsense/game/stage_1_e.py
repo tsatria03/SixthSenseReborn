@@ -953,6 +953,9 @@ class Stage_1_E:
         # --debug: none is spent at all.
         if self.isTutorial and not self.app.debug:
             weapon.BulletCount -= 1
+        # PORT ADDITION (2026-10-07): the gun has fired since its last reload, which is
+        # how debug mode, spending no round, still knows a reload would change something
+        weapon.firedSinceReload = True
 
         # The shot is played at the weapon's *reload* gain, which is 1.0 for every gun:
         # MovingShot: reads ReloadSoundGain at 0x2f248, 0x2f484, 0x2f664, 0x2f7e2, 0x2f930
@@ -1423,8 +1426,15 @@ class Stage_1_E:
     def _magazine_full(self):
         """Whether the gun in hand already holds a full magazine.  Overridden by the
         tutorial, whose endless bullets keep every magazine full, so its reload lesson can
-        still be done."""
+        still be done.
+
+        In debug mode no shot spends a round (``MovingShot_``), so every gun always counts
+        as full and none could ever reload; the dev found reloading refused after every
+        shot.  There a gun is full until it fires, ``firedSinceReload``, so a reload is
+        refused before the first shot and allowed after it, as outside debug mode."""
         weapon = self.weaponSource[self.gamePlayer.useWepon]
+        if self.app.debug:
+            return weapon is not None and not getattr(weapon, 'firedSinceReload', False)
         return weapon is not None and weapon.BulletCount >= weapon.ReloadGun()
 
     # -[Stage_1_E GunReloadAction:] 0x3516c
@@ -1451,6 +1461,7 @@ class Stage_1_E:
         if weapon:
             self.app.stopSoundBufNumber_(weapon.ReloadSoundnumber)
             weapon.BulletCount = weapon.ReloadGun()
+            weapon.firedSinceReload = False
 
     # -[Stage_1_E accelerometer:didAccelerate:] 0x3c84c - the shake-free struggle.
     def shake_step(self, worth=1):
