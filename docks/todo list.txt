@@ -1,7 +1,7 @@
 ##Unfinished.
 
 Leaving the game window during the tutorial, once the first eight lessons are done, finishes the tutorial, because leaving the window counts as pressing P.
-Make reloading ammo only work if the magazine is not full, saying "This weapon is already reloaded with ammo." when it is, and "This weapon does not take ammo." for the knife, the sword and the grenade.
+Make reloading ammo only work once every round in the magazine has been fired, saying "This weapon is already reloaded with ammo." while any are left, and "This weapon does not take ammo." for the knife, the sword and the grenade.
 Make pausing the game when you are out of the window resume the game if you go back in.
 Add the ability to save the game from where you are in a level, and continue it from where you last left off.
 Remove the keys the game no longer uses from save.json, such as REVIEWCOUNT, which counts game overs only because the original used it to ask for an App Store review.

@@ -1390,11 +1390,12 @@ class Stage_1_E:
         original the grenade swiped to 6 o'clock is thrown, so for both the key does
         nothing.
 
-        PORT DIVERGENCE (tsatria03, 2026-10-07): the key says why it did nothing.  The knife,
-        the sword and the grenade say ``NO_AMMO_TEXT``, and a gun whose magazine is already
-        full says ``RELOADED_TEXT`` and is not reloaded.  The original reloads a full gun
-        anyway, playing the reload and barring every attack for its whole reload time to
-        refill the same count."""
+        PORT DIVERGENCE (tsatria03, 2026-10-07): a gun reloads only once every round is
+        fired ("It should let you fire all of your shots before making you reload"), and the
+        key says why it did nothing.  The knife, the sword and the grenade say
+        ``NO_AMMO_TEXT``, and a gun with any round left says ``RELOADED_TEXT``.  The
+        original reloads whenever asked, even a full gun, playing the reload and barring
+        every attack for its whole reload time."""
         if self.missionCompletSounding or self.shotFlag:
             return False
         if self.isShake or self.noAtt:
@@ -1402,19 +1403,19 @@ class Stage_1_E:
         if self.gamePlayer.useWepon in (0, 1, 7):
             self._say(NO_AMMO_TEXT)
             return False
-        if self._magazine_full():
+        if self._rounds_left():
             self._say(RELOADED_TEXT)
             return False
         self.shotFlag = True                                   # 0x2f096
         self.GunReloadAction_()
         return True
 
-    def _magazine_full(self):
-        """Whether the gun in hand already holds a full magazine.  Overridden by the
-        tutorial, whose endless bullets keep every magazine full, so its reload lesson can
-        still be done."""
+    def _rounds_left(self):
+        """Whether the gun in hand still has a round to fire, which keeps it from being
+        reloaded.  Overridden by the tutorial, whose endless bullets never empty a
+        magazine, so its reload lesson can still be done."""
         weapon = self.weaponSource[self.gamePlayer.useWepon]
-        return weapon is not None and weapon.BulletCount >= weapon.ReloadGun()
+        return weapon is not None and weapon.BulletCount > 0
 
     # -[Stage_1_E GunReloadAction:] 0x3516c
     def GunReloadAction_(self, *_):

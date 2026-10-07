@@ -460,11 +460,11 @@ class Stage_Tutorial(Stage_1_E):
                 self.beat_done[n] for n in ('One', 'Two', 'Three', 'Four', 'Five')):
             self._complete('FiveHalf')
 
-    def _magazine_full(self):
-        """The lessons give endless bullets, so every magazine is always full; refusing a
-        full one there would make the reload lesson (Six) impossible.  The real game a
-        first Start counts down into refuses it as any game does (2026-10-07)."""
-        return self.real_game and super()._magazine_full()
+    def _rounds_left(self):
+        """The lessons give endless bullets, so no magazine ever empties; refusing a gun
+        with rounds left there would make the reload lesson (Six) impossible.  The real game
+        a first Start counts down into refuses it as any game does (2026-10-07)."""
+        return self.real_game and super()._rounds_left()
 
     # -[Stage_Tutorial GunReloadAction:] 0x84b80 - only a reload that starts counts.
     def GunReloadAction_(self, *a):

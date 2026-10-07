@@ -1220,10 +1220,10 @@ def test_no_firing_while_reloading():
     a shot fired during the reload does nothing and wastes nothing."""
     _app, st, w = _gun_stage()
     loop = RunLoop.main()
-    w.BulletCount = 1
+    w.BulletCount = 0                       # a reload needs every round fired (2026-10-07)
     assert st.ReloadGesture()
     st.MovingShot_(LANE[3])
-    assert w.BulletCount == 1, 'a round was fired during the reload'
+    assert w.BulletCount == 0, 'a round was fired during the reload'
     _run(loop, w.ReloadTime + 0.3)
     assert w.BulletCount == w.ReloadGun()
     assert st.shotFlag is False, 'firing is still barred after the reload'
@@ -1272,9 +1272,9 @@ def test_reload_does_nothing_with_the_grenade_or_a_blade():
 
 
 def test_reload_says_why_it_does_nothing():
-    """tsatria03, 2026-10-07: a full magazine is not reloaded, and the reload key says so;
-    the knife, the sword and the grenade say they take no ammo.  The original reloaded a
-    full gun anyway, barring attacks for the whole reload time."""
+    """tsatria03, 2026-10-07: a gun reloads only once every round is fired, and the reload
+    key says so otherwise; the knife, the sword and the grenade say they take no ammo.
+    The original reloaded whenever asked, barring attacks for the whole reload time."""
     app, st, colt = _gun_stage()
     said = []
     st._say = said.append
@@ -1282,11 +1282,13 @@ def test_reload_says_why_it_does_nothing():
     real = st.GunReloadAction_
     st.GunReloadAction_ = lambda *a: (reloads.append(1), real(*a))[-1]
     try:
-        colt.BulletCount = colt.ReloadGun()                 # full
-        assert not st.ReloadGesture()
-        assert said == [S1E.RELOADED_TEXT] and reloads == [], (said, reloads)
-        assert st.shotFlag is False, 'a refused reload barred firing'
-        colt.BulletCount -= 1                               # one round short reloads
+        for left in (colt.ReloadGun(), colt.ReloadGun() - 1, 1):   # full, one fired, one left
+            del said[:]
+            colt.BulletCount = left
+            assert not st.ReloadGesture(), 'reloaded with %d rounds left' % left
+            assert said == [S1E.RELOADED_TEXT] and reloads == [], (left, said, reloads)
+            assert st.shotFlag is False, 'a refused reload barred firing'
+        colt.BulletCount = 0                                # every round fired
         assert st.ReloadGesture() and reloads == [1]
         st.shotFlag = False
         for weapon in (0, 1, 7):                            # grenade, knife, sword
