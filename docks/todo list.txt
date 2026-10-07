@@ -1,6 +1,6 @@
 ##Unfinished.
 
-Make reloading ammo only work if the magazine is not full, saying "This weapon is already reloaded with ammo." when it is, and "This weapon does not take ammo." for the knife and the sword.
+Make reloading ammo only work if the magazine is not full, saying "This weapon is already reloaded with ammo." when it is, and "This weapon does not take ammo." for the knife, the sword and the grenade.
 Add the ability to save the game from where you are in a level, and continue it from where you last left off.
 Make pausing the game when you are out of the window resume the game if you go back in.
 Remove the keys the game no longer uses from save.json, such as REVIEWCOUNT, which counts game overs only because the original used it to ask for an App Store review.
