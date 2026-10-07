@@ -1,4 +1,6 @@
 unrelease:
+
+26.10.07-1:
 The license beside the game, license.txt, now names everyone who wrote part of it: tsatria03, lbk2907, tunmi13productions and mzanm. It is the same MIT license as before.
 The credits in this readme now say who did what, the big things rather than every fix: tsatria03 owns and publishes the game and carries on checking it against the original, tunmi13productions wrote controller support, the screen reader speaking everything, the fighting, pausing, the Settings screen and the Linux version, and mzanm, who is credited for the first time, made the macOS version. lbk2907 started the port and Bitbee made the game.
 A new setting, controller support, turns the game's use of a controller off altogether, for a controller you have plugged in but do not want to play with. Turning it off plays the controller lost sound if you had one plugged in, since the game has just let go of it, and from then on the game does not notice a controller at all: the keyboard plays the game, nothing vibrates, and no controller sound plays. Turning it back on looks for the controllers you have plugged in, as starting the game does, and plays the found sound and the buzz for each one it finds. It starts on, and the game remembers it. While it is off, the vibration, shake and controller rows say they are not supported and tell you why when you press them.
