@@ -21,6 +21,7 @@ Its format:
 - No numbering, no bullets, no markdown, no file:line references. Write in plain words about what the player or dev experiences.
 - Avoid contractions, as the existing lines do ("does not", not "doesn't").
 - **New items go at the top of `##unfinished.`**, most important first, above the existing ones.
+- **In `##Finished.`, newest change first, and a reworded line goes back to the top** (the dev, 2026-10-07: "make sure to add them in reverse cronilogical order. As in newest thing changed and or added"), as in the changelog ([[feedback_changelog]]).
 - The file uses **LF** line endings with no BOM (checked 2026-09-22; older notes said CRLF). Match what the file has when you edit it. Keep every line well under 1024 characters.
 
 **Why:** The dev asked on 2026-09-21 for new items to go at the top and for the file's existing style to be matched. They read it by screen reader, so plain sentences read cleanly and markdown symbols would be spoken aloud.

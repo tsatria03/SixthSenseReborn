@@ -18,6 +18,7 @@ Releases are made with `releaser.py` ([[release_tooling_plan]]). Before the firs
   - Every other line is an entry: one plain sentence or two, with no bullets, numbers or markdown.
   - A blank line separates one heading's block from the next.
 - **LF, no BOM.** Checked 2026-09-22: both the working tree and HEAD use LF, whatever older notes said. Match the endings the file has when you edit it, and check afterwards.
+- **A line that is reworded goes back to the top too** (the dev, 2026-10-07: "make sure to add them in reverse cronilogical order. As in newest thing changed and or added"). The order is when a line last changed, not when it was first written: on 2026-10-07 the reload line was reworded in place, below the newer tutorial line, and the dev moved it up by hand.
 - **New lines go at the top of the `unrelease:` block**, straight under the heading, so the block reads newest first. The dev asked for this on 2026-09-22 and the 23 lines that had built up in landing order were reversed then. If there is no `unrelease:` heading, add it at the very top, followed by a blank line before the newest version.
 - **Only what a player notices:** fixes, enhancements, removed features, new sounds or files they will see. Debug mode (`--debug`) is developer-facing and never goes here.
   - Leave out notes, docs, tests, refactors and build-script internals, unless they change what ships.

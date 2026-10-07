@@ -6,8 +6,8 @@ On a Mac, Sixth Sense Reborn shares its app identity with the original Sixth Sen
 
 ##Finished.
 
-Leaving the game window during the tutorial no longer finishes it; P still ends the tutorial when you choose.
 A gun with a full magazine is not reloaded, saying "This weapon is already reloaded with ammo." instead, and the knife, the sword and the grenade say "This weapon does not take ammo."
+Leaving the game window during the tutorial no longer finishes it; P still ends the tutorial when you choose.
 Coming back to the game window carries on a game that leaving the window paused, while a pause you made yourself still waits for Continue.
 A controller support setting turns the game's use of a controller off, for a controller you have plugged in but do not want to play with, and turning it back on finds your controllers again.
 Unplugging a controller the game is not playing with no longer pauses your game; only losing the one in your hands does.
