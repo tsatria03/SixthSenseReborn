@@ -613,65 +613,69 @@ and the disassembly in `analysis/`. Then they wrote the Python port itself from 
 disassembly, method by method, along with its docs, its tests and the first version of
 this README.
 
-Contributors, in the order they joined:
+Two people carry the port on, and are its primary authors. They are listed in the
+order they joined.
 
-- **[tsatria03](https://github.com/tsatria03)** publishes and maintains the repository,
-  and carries the port on:
-  - **Publishing:** put the port on GitHub, restored this README, and keeps the
-    license, the credits, the changelog and the todo list, and gave players a readme
-    of their own, in a `docks` folder beside the game.
-  - **Sounds:** sorted every sound into folders under its original name, then set apart
-    every sound the game never plays, and found the real "main menu button" recording.
-  - **The original, checked again:** the publisher's logo at launch, the story on the
-    opening screen's third row (tunmi13productions' idea), "paused" when pausing, the tutorial's reload lesson
-    saying its instruction once, the weapon change sound at the original's volume,
-    a grenade scoring every zombie it hurts, a zombie's blow heard in the middle of your head, the coin
-    row's pauses, and the menu's missing clicks.
-  - **Speech and keys:** speech through Prism for every screen reader and a Windows
-    voice. Rebinding keys that works, a reset that asks first, and rolling from one
-    attack key to the next.
+- **[tsatria03](https://github.com/tsatria03)** owns and publishes the repository:
+  - **Publishing and releases:** put the port on GitHub, wrote `releaser.py` and the
+    single-exe build in `compiler.py`, and keeps the license, the credits, the changelog,
+    the todo list and the readme players get in a `docks` folder beside the game.
+  - **Sixth Sense Reborn's own name:** its entry script, its executable, its window and
+    its own save folder, copied once from the faithful port's.
+  - **The sounds:** sorted every one of them into folders under its original name, set
+    apart the ones the game never plays, renamed the misnamed ones and pointed
+    `SoundList.plist` at them, and cut a build down to the sounds the game plays.
+  - **The save:** split into short files in folders, holding every weapon's stats, the
+    volume settings, the gold rates and your keys, with a backup kept from the first
+    start.
+  - **Weapons and gold:** every weapon's stats read from the save, weapon upgrades with
+    a level for each weapon, and gold rates you can edit.
+  - **Speech and keys:** speech through Prism, so every screen reader and a Windows voice
+    work, and rebinding that holds, with a reset that asks first.
   - **The mix:** the music and ambience as quiet as the original's, loud gunshots, the
-    kill sound, the rain that keeps falling, silent exits, the menu music on decibel
-    knobs, carrying on where it was, and no longer filling memory.
-  - **Play:** weapons that keep their own ammo, the girl and the woman zombie walking
-    straight in along their lanes, the woman's growl timed by her distance, and the
-    turn keys removed.
-  - **The menus and the panel:** the shop refusing weapons you have not bought, each
-    screen saying its name, Home, End, Left and Right with voice over off, the score
-    row reading your score, result rows that reread themselves, the coin store and
-    purchase all weapons rows removed, a coin clock that starts again when a save has
-    none, and unequipped starting weapons that stay unequipped.
-  - **Debug mode:** its second set of keys, a tutorial it can finish, and F7 in the
-    window's list of keys.
-  - **Tools:** the build script with its single-exe build, the releaser, its
-    five-to-a-hundred rule and the question to release fewer anyway, the level and tutorial choosers, the tests folder split into
-    `case` and `interact`, tests that never touch your save or make a sound, and a run
-    loop that keeps time in order.
-- **[tunmi13productions](https://github.com/tunmi13productions)** has fixed and ported
-  a great deal of the game:
-  - the coin economy, and the order spoken numbers are read in
-  - zombies that move in their lanes, the boss and the end of each level, the girl who
-    heals you and the woman zombie
-  - reloading and headshots as in the original, with shots that take time to land
-  - pausing as often as you like, and pausing when the window loses focus
-  - pausing that pauses the ambience and the music, and holds a level change until you
-    continue
-  - the screen reader mode for the menus and the result panel, and Escape as pause
-  - debug mode
-  - the weapon test range behind the shop's Try button
-  - the tutorial's order, its ending with P, and its spoken key hints
-  - shaking free in one to five presses
-  - stopping recordings from talking over each other
-  - removing the ranking, Game Center and restore purchases rows, and quitting from the
-    window's close button on any screen
-  - the voice over row saying what it does, the coin row and the earphone warning no
-    longer talking over other rows, and "no coin" said alone
-  - a damaged save kept aside, with the game carrying on from a backup
-  - the sound following your audio device when headphones are unplugged or plugged in
-  - saying aloud why the game could not start, or stopped
-  - the bloopers folder
+    kill sound, and menu music on decibel knobs that carries on where it left off.
+  - **The original, checked again:** the publisher's logo at launch, the story on the
+    opening screen's third row, "paused" when pausing, gunshots placed where the original
+    places them for each lane, a grenade scoring every zombie it hurts, and the menus
+    saying which screen you have opened.
+  - **Tools:** the level, tutorial and headshot testers to play by ear, the tests folder
+    split into `case` and `interact`, tests that never touch your save or make a sound,
+    and the suite that runs them all at once.
+- **[tunmi13productions](https://github.com/tunmi13productions)** wrote a great deal of
+  what you play:
+  - **Controller support, all of it:** pads on the menus and in the game, stick, D-pad
+    and buttons, a sound when one connects or is lost, the game pausing when yours goes,
+    vibration for a hit, a headshot, a kill and dying, a motion-sensing pad shaken to
+    throw the animal zombie off, the tutorial saying the controller's way of each lesson,
+    and a controller tester.
+  - **The screen reader alone:** everything the game says goes through your screen
+    reader, with the voice over mode, its menu row and the recordings it used gone, and
+    settings for the spoken headshot and the headshot beep.
+  - **Linux, and building by itself:** running and building on Linux, the Linux build
+    released beside the Windows one, and a workflow that builds Windows, Linux and both
+    kinds of Mac and publishes the release when a tag is pushed.
+  - **The fighting:** zombies that move in their lanes, the boss and the end of a level,
+    the girl who heals you, reloading and headshots as in the original with shots that
+    take time to land, and the MG80 as a real machine gun.
+  - **Pausing:** as often as you like, when the window loses focus, with the ambience and
+    the music paused too, holding a death, a grab or a level change until you continue,
+    and Escape as pause.
+  - **The sound:** every sound levelled to one loudness, a gameplay gain with weapon,
+    entity and player volumes, the 10:30 and 1:30 lanes heard nearer 12 o'clock, the
+    sound following your audio device when headphones go in or out, and nothing talking
+    over anything else.
+  - **Settings and weapons:** a Settings screen holding every setting, the weapons in the
+    order you want them, upgrades that add a share of each weapon's own stats, and games
+    free of coins, their cost and their clock gone.
+  - **The rest:** the screen reader mode the menus and the result panel started with,
+    debug mode, the weapon test range behind the shop's Try button, the tutorial's beats
+    in the original's order, shaking free in one to five presses, a damaged save set
+    aside with the game carrying on from a backup, saying aloud why the game could not
+    start, the online rows the port cannot use taken out, and the bloopers folder.
+- **[mzanm](https://github.com/mzanm)** made the game run and build on macOS, as a native
+  app for both kinds of Mac.
 
-SixthSense itself is Bitbee's game, from 2013.
+Sixth Sense itself is Bitbee's game, from 2013.
 
 ## Licence
 
