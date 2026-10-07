@@ -1,14 +1,14 @@
 ##Unfinished.
 
 Leaving the game window during the tutorial, once the first eight lessons are done, finishes the tutorial, because leaving the window counts as pressing P.
-Make reloading ammo only work once every round in the magazine has been fired, saying "This weapon is already reloaded with ammo." while any are left, and "This weapon does not take ammo." for the knife, the sword and the grenade.
-Make pausing the game when you are out of the window resume the game if you go back in.
 Add the ability to save the game from where you are in a level, and continue it from where you last left off.
 Remove the keys the game no longer uses from save.json, such as REVIEWCOUNT, which counts game overs only because the original used it to ask for an App Store review.
 On a Mac, Sixth Sense Reborn shares its app identity with the original Sixth Sense, so the system may mistake one for the other.
 
 ##Finished.
 
+A gun reloads only once you have fired every round in it, saying "This weapon is already reloaded with ammo." while any are left, and the knife, the sword and the grenade say "This weapon does not take ammo."
+Coming back to the game window carries on a game that leaving the window paused, while a pause you made yourself still waits for Continue.
 A controller support setting turns the game's use of a controller off, for a controller you have plugged in but do not want to play with, and turning it back on finds your controllers again.
 Unplugging a controller the game is not playing with no longer pauses your game; only losing the one in your hands does.
 The download carries only the sounds the game plays, without the old speech recordings or the blooper clip, so it is about 70 megabytes smaller.
