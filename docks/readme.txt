@@ -22,6 +22,7 @@ Up and Down move between them, and Enter or Escape goes on to the main menu.
 The main menu
 
 The main menu has five rows: the title, Start Game, Tutorial, Store and Settings.
+When you have a saved game, a Continue row comes after the title, before Start Game.
 Up and Down move between the rows, and each row reads itself aloud.
 Enter chooses the row you are on.
 Escape in the main menu quits the game.
@@ -69,6 +70,7 @@ Tab changes to the next weapon, and Shift+Tab to the previous one.
 Space shakes you free when the animal zombie grabs you, which takes one to five separate presses.
 P pauses the game.
 Escape pauses the game too, and in the tutorial it goes back to the main menu.
+L says which level and section you are in, such as "Level 1, section 1 of 8". In the tutorial and the weapon test range it says "No level to report."
 F1 opens the key bindings.
 Switching away from the game window pauses the game as well.
 
@@ -126,7 +128,20 @@ The pause and result panel
 
 When you pause, finish or die, a panel shows your results.
 Up and Down move through its rows, and Enter chooses.
-From it you can continue, play again, or go back to the main menu.
+When you pause, its rows after your results are Resume, Restart, Save, Save and quit, and Main menu.
+After you finish or die, there is nothing to resume or save, so it offers playing again and the main menu.
+
+Saving a game
+
+Save keeps your game and carries on playing, and Save and quit keeps it and goes back to the main menu. Both say "Game saved."
+Main menu without saving leaves an older save as it was.
+Each level has eight sections, and Continue in the main menu takes you back to the start of the section you saved in.
+Your hearts, your weapon, the rounds in each gun, your kills, headshots and score come back as they were. The zombies that were coming do not, since each section starts quietly.
+Your gold is paid when the game ends, as before, for the whole game.
+Start Game always begins a new game, and saving that one replaces your old save.
+When a game you saved or continued ends, its save is deleted, and the Continue row goes away.
+The tutorial and the weapon test range cannot be saved.
+The saved game is kept in saves/continue.json.
 
 The shop
 

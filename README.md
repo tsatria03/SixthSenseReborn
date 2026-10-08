@@ -92,8 +92,16 @@ the original does, and then the menu. Enter skips the logo, and Escape skips str
 to the menu. The opening screen's third row tells the game's story, which the original
 recorded but never played.
 **Up** and **Down** walk the five rows - the title, Start Game, Tutorial, Store and
-Settings - and **Enter** chooses; your screen reader reads each row. Games are free: the
+Settings - and **Enter** chooses; your screen reader reads each row. With a saved game a
+**Continue** row comes after the title. Games are free: the
 original's coins, one spent a game and one back every thirty minutes, are gone.
+
+A game can be saved from the pause panel, which the original could not do: **Save** keeps
+it and carries on, **Save and quit** keeps it and goes to the menu, and the menu's
+**Continue** puts you back at the start of the section you saved in (each level is eight),
+with your hearts, weapon, rounds, kills and score. It is kept in `saves/continue.json`,
+and the game over of a game that saved or continued deletes it, so its gold is paid once.
+The tutorial and the weapon test range cannot be saved.
 
 The **Store** row opens the shop — the weapon list, a page per weapon with its numbers
 read aloud and its upgrade button, and the inventory, where what you equip is what the
@@ -211,6 +219,7 @@ chords: hold both keys together.
 | **Tab** / **Shift+Tab** | next / previous weapon |
 | **Space** | shake free when the animal zombie grabs you: one to five separate presses, a new number each grab, and holding Space down counts as one |
 | **P** | pause — the original's stop button, which has no key of its own |
+| **L** | say the level and section, such as "Level 1, section 1 of 8"; "No level to report." in the tutorial and the weapon test range |
 | **F1** | key bindings — see below |
 | **Esc** | pause a stage, and resume it from the pause panel; back to the menu from the tutorial; quit from the menu |
 | **Page Up** / **Page Down** | the menu music louder / quieter, in the menu, the shop and the inventory: 0 to 100% in steps of ten, saved as `MENUMUSICVOLUME`, and said aloud. The level music is left alone |
@@ -220,8 +229,9 @@ When the pause or result panel is up, the keyboard belongs to it: **Up** and **D
 walk its rows, **Enter** chooses. The same goes for the menu, the shop and the
 inventory. **Home** and **End** also go to the first row and
 the last, and **Left** and **Right** move to the previous row and the next, like
-VoiceOver's flicks. You can pause as often as you like: continue and restart both let the next
-pause through, as in the original.
+VoiceOver's flicks. You can pause as often as you like: resume and restart both let the next
+pause through, as in the original. While paused the panel's buttons are Resume (the
+original's continue), Restart, Save, Save and quit, and Main menu.
 
 Keyboard only — no mouse. The lane keys replace the swipe rather than simulating it:
 `MovingShot:` quantises its angle into five bands and a reload sector anyway, so a key
@@ -295,6 +305,7 @@ sixthsense/
     weapon_upgrades.py   PORT ADDITION: upgrade levels and their prices
     weapon_order.py      PORT ADDITION: the order the weapons come in
     gold_rates.py        PORT ADDITION: the gold a game pays
+    saved_game.py        PORT ADDITION: a saved game, saves/continue.json
     debug.py             PORT ADDITION: the --debug keys
   ui/
     input.py             the keyboard, resolved through the keymap
@@ -358,7 +369,7 @@ reproducible without the IPA.
 
 `tests/` has two folders and a runner:
 
-- **`tests/case/`** holds the tests: 34 plain scripts, each checking one part of the
+- **`tests/case/`** holds the tests: 36 plain scripts, each checking one part of the
   game against the original and printing `ok` or `FAIL` for every check, then a total.
   Run any of them on its own; there is nothing to install beyond what the game needs.
 - **`tests/suite.py`** runs them all, eight at a time and the slowest first, which takes
@@ -385,6 +396,7 @@ python tests/case/menu.py           # the menu rows, and games being free
 python tests/case/menu_music.py     # Page Up and Page Down on the menu music (audio device)
 python tests/case/settings_menu.py  # the Settings screen, and what the attached pad can do
 python tests/case/pause.py          # the pause and result panel
+python tests/case/saved_game.py     # saving, Continue, the sections and the L key
 python tests/case/store.py          # the shop, buying, and the inventory
 python tests/case/inventory.py      # equipping through the inventory's screens, step by step
 python tests/case/weapon_stats.py   # each weapon's stats in the save, read by the pages and the stage
