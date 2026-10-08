@@ -67,6 +67,8 @@ class Stage_1_TEST(Stage_1_E):
 
     #: F2 and Shift+F2 of --debug have no corridor to move along here.
     IS_TEST_RANGE = True
+    #: Nothing is saved in the range (tsatria03, 2026-10-07); its panel has no save rows.
+    can_save = False
 
     def __init__(self, testWeapon=0):
         super().__init__()
@@ -277,7 +279,8 @@ class Stage_1_TEST(Stage_1_E):
         if row == 1:
             return {1: 'Paused', 2: 'Mission success', 3: 'Mission fail'}.get(self.gameState, '')
         if row == 6:
-            return 'Continue, Button' if self.gameState == 1 else ''
+            # "Resume", as in a game's panel (tsatria03, 2026-10-07)
+            return 'Resume, Button' if self.gameState == 1 else ''
         if row == 8:
             return 'Back, Button'
         return super().pause_row_text(row)

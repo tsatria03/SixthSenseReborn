@@ -134,7 +134,8 @@ def test_the_panel_has_no_rank_and_its_last_row_is_back():
         st.pause_select(1)
         assert said[-1] == 'Paused'
         st.pause_select(6)
-        assert said[-1] == 'Continue, Button'
+        assert said[-1] == 'Resume, Button'
+        assert not ({11, 12} & set(st.pause_rows())), 'the range offered to save'
     finally:
         _done(app, st)
 

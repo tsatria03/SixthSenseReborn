@@ -271,6 +271,121 @@ def test_a_restart_is_a_fresh_game_that_leaves_the_save_alone():
         saved_game.delete()
 
 
+def _paused():
+    st = _loaded(_new_stage())
+    st.StopPlayAction_()
+    assert st.gameState == 1 and st.bStop
+    return st
+
+
+def _choose(st, row):
+    st.pause_select(row)
+    return st.pause_activate()
+
+
+def test_the_paused_panel_reads_resume_then_the_save_rows():
+    """Continue is Resume on the panel, then Restart, Save, Save and quit and Main menu
+    (tsatria03, 2026-10-07)."""
+    st = _paused()
+    try:
+        rows = st.pause_rows()
+        assert rows[-5:] == (6, 7, 11, 12, 8), rows
+        said = []
+        for row in rows[-5:]:
+            st.pause_select(row)
+            said.append(st.speech.said[-1])
+        assert said == ['Resume, Button', 'Restart, Button', 'Save, Button',
+                        'Save and quit, Button', 'Main menu, Button'], said
+    finally:
+        st.teardown()
+
+
+def test_there_is_nothing_to_save_after_the_game_ends_or_while_a_death_is_held():
+    st = _paused()
+    try:
+        for state in (2, 3):
+            st.gameState = state
+            assert not ({11, 12} & set(st.pause_rows())), state
+        st.gameState = 1
+        st.DieFlag = True
+        assert not ({11, 12} & set(st.pause_rows())), 'saving a death'
+        st.DieFlag = False
+        assert {11, 12} <= set(st.pause_rows())
+    finally:
+        st.teardown()
+
+
+def test_nothing_is_saved_in_the_tutorial_or_the_weapon_test_range():
+    from sixthsense.game.stage_1_test import Stage_1_TEST
+    from sixthsense.game.stage_tutorial import Stage_Tutorial
+    tutorial = Stage_Tutorial()
+    assert not tutorial.can_save, 'a lesson can be saved'
+    tutorial.real_game = True
+    assert tutorial.can_save, 'the first real game after the lessons cannot be saved'
+    assert not Stage_1_TEST.can_save
+
+
+def test_save_saves_says_so_and_carries_on_playing():
+    saved_game.delete()
+    st = _paused()
+    try:
+        st.gamePlayer.playerYplot = 450
+        _choose(st, 11)
+        assert saved_game.exists() and saved_game.read()['section'] == 3
+        assert st.ownsSave
+        assert st.gameState == 0 and not st.bStop, 'the game did not carry on'
+        assert st.speech.said[-1] == 'Game saved.', st.speech.said
+        assert st.running
+    finally:
+        st.teardown()
+        saved_game.delete()
+
+
+def test_save_and_quit_saves_and_the_menu_says_so_first():
+    saved_game.delete()
+    st = _paused()
+    try:
+        _choose(st, 12)
+        assert saved_game.exists() and not st.running, 'it did not save and quit'
+        assert AppDelegate.shared().menuNotice == 'Game saved.'
+    finally:
+        st.teardown()
+    m = _menu()
+    try:
+        assert m.speech.said[0] == 'Game saved. Sixth Sense Reborn: The Afterlife', \
+            m.speech.said
+        assert AppDelegate.shared().menuNotice == '', 'the notice was said twice'
+        assert 'continue' in [r[2] for r in m.rows()]
+    finally:
+        m.teardown()
+        saved_game.delete()
+
+
+def test_main_menu_leaves_an_older_save_alone():
+    saved_game.write(_a_save(level=2))
+    st = _paused()
+    try:
+        _choose(st, 8)
+        assert not st.running
+        assert saved_game.read()['level'] == 2, 'Main menu saved or deleted'
+    finally:
+        st.teardown()
+        saved_game.delete()
+
+
+def test_a_game_that_saved_deletes_its_save_when_it_is_over():
+    saved_game.write(_a_save(level=2))           # an older game's
+    st = _paused()
+    try:
+        _choose(st, 11)                          # this game's own replaces it
+        assert saved_game.read()['level'] == 1
+        st.missionFailTell_()
+        assert not saved_game.exists()
+    finally:
+        st.teardown()
+        saved_game.delete()
+
+
 if __name__ == '__main__':
     fns = [v for k, v in sorted(globals().items()) if k.startswith('test_')]
     bad = 0

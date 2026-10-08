@@ -105,6 +105,9 @@ class AppDelegate:
     def __init__(self):
         AppDelegate._instance = self
         self.playback = None
+        # PORT ADDITION (2026-10-07): words the next main menu says before its first row,
+        # such as Save and quit's "Game saved.", so the menu's own words do not cut them off
+        self.menuNotice = ''
         self.haveGold = 0
         self.haveWeapon = []
         self.stage = 0

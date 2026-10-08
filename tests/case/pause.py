@@ -41,8 +41,9 @@ def _new_stage():
 
 def test_the_rows_are_the_bands_of_the_panel():
     """0x308b6..0x311ec, top to bottom: header, the five readouts, top score, then the
-    three buttons.  The rank (9) is left out: its ranking server is gone."""
-    assert Stage_1_E.PAUSE_ROWS == (1, 2, 3, 4, 5, 10, 6, 7, 8)
+    three buttons.  The rank (9) is left out: its ranking server is gone.  The port's
+    Save (11) and Save and quit (12) come before Main menu (2026-10-07)."""
+    assert Stage_1_E.PAUSE_ROWS == (1, 2, 3, 4, 5, 10, 6, 7, 11, 12, 8)
     sl = plistlib.load(open(paths.path_for_resource('SoundList', 'plist'), 'rb'))
     for sound in (229, 223, 226, 354):
         assert paths.path_for_resource(sl[sound], 'wav'), sound
@@ -58,7 +59,7 @@ def test_the_header_and_the_first_button_follow_the_state():
         st.pause_select(1)
         assert st.speech.said[-1] == 'Paused'
         st.pause_select(6)
-        assert st.speech.said[-1] == 'Continue, Button'
+        assert st.speech.said[-1] == 'Resume, Button'
         st.gameState = 2
         st.pause_select(1)
         assert st.speech.said[-1] == 'Mission success'
@@ -626,7 +627,7 @@ def test_the_panel_speaks_its_rows():
         st.pause_activate()
         assert st.speech.said[-1] == 'Obtained gold, 1,590', 'the row was not reread'
         st.pause_select(6)
-        assert st.speech.said[-1] == 'Continue, Button'
+        assert st.speech.said[-1] == 'Resume, Button'
         st.gameState = 3
         st.missionFailTell_()
         assert 'Game over.' in st.speech.said

@@ -1616,7 +1616,18 @@ class Stage_1_E:
     #: The rows top to bottom, by the Y bands at 0x308b6..0x311ec.
     #: DIVERGENCE: row 9, the rank, is left out.  It read the place the publisher's
     #: ranking server gave you, and that server is gone.
-    PAUSE_ROWS = (1, 2, 3, 4, 5, 10, 6, 7, 8)
+    #: PORT ADDITION (tsatria03, 2026-10-07, aidocks/project_save_game_plan.md): Save (11)
+    #: and Save and quit (12), between Restart and Main menu, while a real game is paused.
+    SAVE_ROW = 11
+    SAVE_QUIT_ROW = 12
+    PAUSE_ROWS = (1, 2, 3, 4, 5, 10, 6, 7, SAVE_ROW, SAVE_QUIT_ROW, 8)
+    SAVED_TEXT = 'Game saved.'
+
+    @property
+    def can_save(self):
+        """Whether this is a game that can be saved: the tutorial and the weapon test range
+        cannot (tsatria03, 2026-10-07)."""
+        return True
 
     #: PORT ADDITION: what the screen reader says in place of the
     #: panel's own voice lines.
@@ -1659,9 +1670,15 @@ class Stage_1_E:
             top = UserDefaults.standardUserDefaults().intForKey_('TOPSCORE')
             return 'Top score, %s' % whole(top)
         if row == 6:
-            return 'Next stage, Button' if self.gameState == 2 else 'Continue, Button'
+            # PORT DIVERGENCE (tsatria03, 2026-10-07): "Resume", so it is not taken for the
+            # main menu's Continue, which carries on a saved game
+            return 'Next stage, Button' if self.gameState == 2 else 'Resume, Button'
         if row == 7:
             return 'Restart, Button'
+        if row == self.SAVE_ROW:
+            return 'Save, Button'
+        if row == self.SAVE_QUIT_ROW:
+            return 'Save and quit, Button'
         if row == 8:
             return 'Main menu, Button'
         return ''
@@ -1687,9 +1704,16 @@ class Stage_1_E:
         Row 6 returns before it speaks when ``gameState == 3`` (0x30efe), so there is
         no continue and no next stage after a death - and ``missionFailTell:`` hides
         the continue button itself at 0x327de.
+
+        The two save rows are offered only while a game that can be saved is paused,
+        never on game over or mission success, nor while a death is held, with no
+        hearts left to save.
         """
+        savable = (self.gameState == 1 and self.can_save
+                   and not self.DieFlag and self.gamePlayer.HP > 0)
         return tuple(n for n in self.PAUSE_ROWS
-                     if not (n == 6 and self.gameState == 3))
+                     if not (n == 6 and self.gameState == 3)
+                     and (savable or n not in (self.SAVE_ROW, self.SAVE_QUIT_ROW)))
 
     def pause_select(self, row):
         """One band of ``selectTapPointSoundStart``: name the row, then read it.
@@ -1753,10 +1777,39 @@ class Stage_1_E:
             self.gameReplayAction_()
         elif row == 8:
             self.GameEndAction_()
+        elif row == self.SAVE_ROW and row in self.pause_rows():
+            self.saveAction_()
+        elif row == self.SAVE_QUIT_ROW and row in self.pause_rows():
+            self.saveAndQuitAction_()
         self.tapCount_ = 0                                    # 0x2fffe
         self.posX = 0.0                                       # 0x3000e
         self.posY = 0.0                                       # 0x30012
         return row
+
+    def _save(self):
+        """Write this game to saves/continue.json, as the start of its section, and make
+        the save this game's, so its game over deletes it (saved_game.py)."""
+        saved_game.write(saved_game.snapshot(self))
+        self.ownsSave = True
+
+    def saveAction_(self, *_):
+        """PORT ADDITION (tsatria03, 2026-10-07): save, say so, and carry on playing, as
+        Resume does."""
+        if not self.bStop:
+            return False
+        self._save()
+        resumed = self.continueAction_()
+        self._say(self.SAVED_TEXT)
+        return resumed
+
+    def saveAndQuitAction_(self, *_):
+        """PORT ADDITION (tsatria03, 2026-10-07): save and go to the main menu, which says
+        "Game saved." before its first row, so the menu's own words do not cut it off."""
+        if not self.bStop:
+            return False
+        self._save()
+        self.app.menuNotice = self.SAVED_TEXT
+        return self.GameEndAction_()
 
     # -[Stage_1_E spaekMenu] 0x34745
     def spaekMenu(self):

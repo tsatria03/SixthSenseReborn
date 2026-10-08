@@ -492,6 +492,12 @@ class Stage_Tutorial(Stage_1_E):
         Start counts down into pauses as any game does."""
         return self.real_game
 
+    @property
+    def can_save(self):
+        """PORT ADDITION (tsatria03, 2026-10-07): nothing is saved in the tutorial.  The real
+        game a first Start counts down into is a game like any other, so it can be."""
+        return self.real_game
+
     # -[Stage_Tutorial StopPlayAction:] 0x83804 - P while the tutorial is running.
     def StopPlayAction_(self, *a):
         if self.ending:

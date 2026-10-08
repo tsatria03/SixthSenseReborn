@@ -128,7 +128,14 @@ class MainController:
             self._flags[f] = False
         self.StopElseSpeak()
         self._flags[flag] = True
-        self._say(self.row_text())
+        text = self.row_text()
+        notice = getattr(self.app, 'menuNotice', '')
+        if notice:
+            # PORT ADDITION (2026-10-07): such as "Game saved." from Save and quit, said
+            # once, before the row, in the same breath
+            self.app.menuNotice = ''
+            text = '%s %s' % (notice, text)
+        self._say(text)
         log.info('menu: %s', action)
 
     def rows(self):
