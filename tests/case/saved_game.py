@@ -386,6 +386,39 @@ def test_a_game_that_saved_deletes_its_save_when_it_is_over():
         saved_game.delete()
 
 
+def test_l_says_the_level_and_section_and_can_be_rebound():
+    from sixthsense.platform import keymap
+    assert keymap.DEFAULTS['location'] == [('l',)]
+    assert keymap.LABELS['location'] == 'Say the level and section'
+    assert 'location' not in keymap.DEBUG_IDS, 'L would be a debug key'
+    st = _loaded(_new_stage())
+    try:
+        for row, words in ((680, 'Level 1, section 1 of 8'), (450, 'Level 1, section 3 of 8'),
+                           (34, 'Level 1, section 8 of 8')):
+            st.gamePlayer.playerYplot = row
+            assert st.location_text() == words, (row, st.location_text())
+        st.LVUP = 4
+        st.gamePlayer.playerYplot = 99
+        assert st.location_text() == 'Level 4, section 7 of 8'
+        st.levelChanging = True
+        assert st.location_text() == 'Level 4, section 1 of 8', 'the next level'
+        st.levelChanging = False
+        from sixthsense.ui.input import Input
+        Input(st).perform('location')
+        assert st.speech.said[-1] == 'Level 4, section 7 of 8', st.speech.said
+    finally:
+        st.teardown()
+
+
+def test_l_has_no_level_to_report_in_the_tutorial_or_the_test_range():
+    from sixthsense.game.stage_1_test import Stage_1_TEST
+    from sixthsense.game.stage_tutorial import Stage_Tutorial
+    tutorial = Stage_Tutorial()
+    assert tutorial.location_text() == 'No level to report.'
+    assert Stage_1_TEST.location_text(Stage_1_TEST.__new__(Stage_1_TEST)) == \
+        'No level to report.'
+
+
 if __name__ == '__main__':
     fns = [v for k, v in sorted(globals().items()) if k.startswith('test_')]
     bad = 0

@@ -67,6 +67,9 @@ ACTIONS = (
     ('prev_weapon', 'Previous weapon', (('left shift', 'tab'), ('right shift', 'tab'))),
     ('shake', 'Shake free', (('space',),)),
     ('pause', 'Pause / stop', (('p',),)),
+    # PORT ADDITION (tsatria03, 2026-10-07, aidocks/project_save_game_plan.md): where you
+    # are, "Level 1, section 1 of 8"
+    ('location', 'Say the level and section', (('l',),)),
     # Only with --debug (``KeyMap.debug``); otherwise they neither match nor show.
     ('debug_next_section', 'Debug: next section of the corridor', (('f2',),)),
     ('debug_next_level', 'Debug: next level',

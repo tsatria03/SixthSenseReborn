@@ -1786,6 +1786,25 @@ class Stage_1_E:
         self.posY = 0.0                                       # 0x30012
         return row
 
+    NO_LEVEL_TEXT = 'No level to report.'
+
+    def location_text(self):
+        """PORT ADDITION (tsatria03, 2026-10-07): where you are, as the L key says it:
+        "Level 1, section 1 of 8".  The tutorial's lessons and the weapon test range have
+        no levels, so they say "No level to report."  While the next level is on its way
+        it is that level's first section, as a save then would be."""
+        if not self.can_save or self.stage is None:
+            return self.NO_LEVEL_TEXT
+        rows = saved_game.section_rows(self.stage)
+        if self.levelChanging:
+            section = 1
+        else:
+            section = saved_game.section_of(self.gamePlayer.playerYplot, rows)
+        return 'Level %d, section %d of %d' % (self.LVUP, section, len(rows))
+
+    def say_location(self):
+        self._say(self.location_text())
+
     def _save(self):
         """Write this game to saves/continue.json, as the start of its section, and make
         the save this game's, so its game over deletes it (saved_game.py)."""

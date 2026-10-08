@@ -298,6 +298,8 @@ class Input:
             st.shake_step(MOTION_SHAKE_WORTH)
         elif action == 'pause':
             st.StopPlayAction_()
+        elif action == 'location':
+            st.say_location()
         elif action.startswith('debug_'):
             from ..game import debug
             debug.perform(st, action, self.last_lane)
