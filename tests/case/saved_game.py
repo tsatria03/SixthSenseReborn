@@ -1,5 +1,5 @@
 """A saved game: saves/continue.json, the main menu's Continue row, and a game continued at
-the start of the section it was saved in (aidocks/project_save_game_plan.md)."""
+the start of the section it was saved in (aidocks/completed/save_game_plan.md)."""
 from __future__ import annotations
 
 import json

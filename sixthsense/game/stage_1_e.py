@@ -1616,7 +1616,7 @@ class Stage_1_E:
     #: The rows top to bottom, by the Y bands at 0x308b6..0x311ec.
     #: DIVERGENCE: row 9, the rank, is left out.  It read the place the publisher's
     #: ranking server gave you, and that server is gone.
-    #: PORT ADDITION (tsatria03, 2026-10-07, aidocks/project_save_game_plan.md): Save (11)
+    #: PORT ADDITION (tsatria03, 2026-10-07, aidocks/completed/save_game_plan.md): Save (11)
     #: and Save and quit (12), between Restart and Main menu, while a real game is paused.
     SAVE_ROW = 11
     SAVE_QUIT_ROW = 12

@@ -59,7 +59,7 @@ SOUND_UI_SELECT = 10
 ROWS = (
     (2, 'main_title_flag', 'title'),
     # PORT ADDITION (tsatria03, 2026-10-07): Continue, before Game start, only while
-    # there is a saved game to continue (saved_game.py, aidocks/project_save_game_plan.md)
+    # there is a saved game to continue (saved_game.py, aidocks/completed/save_game_plan.md)
     (10, 'continue_flag', 'continue'),
     (3, 'start_game_flag', 'start'),
     (4, 'tutorial_flag', 'tutorial'),

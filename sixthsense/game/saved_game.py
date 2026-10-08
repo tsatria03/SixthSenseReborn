@@ -2,7 +2,7 @@
 
 The original has no saving: a run lives in memory, and the pause panel's Main menu
 (``-[Stage_1_E GameEndAction:]`` 0x32fe1) drops it.  tsatria03 decided every part of this on
-2026-10-07 (aidocks/project_save_game_plan.md):
+2026-10-07 (aidocks/completed/save_game_plan.md):
 
 - The file is ``saves/continue.json``, beside save.json, and exists only while there is a
   game to continue, so whether it can be read is the whole test for the main menu's

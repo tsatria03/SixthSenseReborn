@@ -50,7 +50,7 @@ def test_the_rows_are_the_originals():
     2026-10-06 the vibration and the two headshot settings were rows 9, 10 and 11 here;
     they moved behind the settings row (aidocks/completed/settings_menu_plan.md).  The
     port's Continue row (10), before Game start, is offered only with a saved game
-    (2026-10-07, aidocks/project_save_game_plan.md)."""
+    (2026-10-07, aidocks/completed/save_game_plan.md)."""
     assert [r[0] for r in ROWS] == [2, 10, 3, 4, 6, 9]
     assert [r[2] for r in ROWS] == ['title', 'continue', 'start', 'tutorial', 'store',
                                     'settings']
