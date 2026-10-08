@@ -1,11 +1,11 @@
 ---
-name: project_unused_save_keys_plan
-description: "PLANNED 2026-10-07: remove the five save.json keys nothing uses, REVIEWCOUNT, TOPSCOREWEEK, WEEKTIME, NOWRANK and STAGE, with the code that writes or reads them (the ranking server's leftovers among it), and retire them so an old save drops them. TUTORIAL, TOPSCORE and WEAPON_STATS_REAL stay."
+name: unused_save_keys_plan
+description: "FINISHED 2026-10-07, confirmed by the dev: remove the five save.json keys nothing uses, REVIEWCOUNT, TOPSCOREWEEK, WEEKTIME, NOWRANK and STAGE, with the code that writes or reads them (the ranking server's leftovers among it), and retire them so an old save drops them. TUTORIAL, TOPSCORE and WEAPON_STATS_REAL stay."
 metadata:
   type: project
 ---
 
-**Status: planned, 2026-10-07.** Nothing built yet. The todo line is "Remove the keys the game no longer uses from save.json, such as REVIEWCOUNT, which counts game overs only because the original used it to ask for an App Store review." It also finishes the developer task "Remove the code left from the publisher's ranking server" ([[project_dev_tasks]]).
+**Status: finished 2026-10-07, confirmed by the dev:** "All the tests past. The save.json file is clear. I only see 3 keys." Built as planned, with one change: `updateTopscoreRank` stays, without its rank, because it also fills the panel's top score label; only `RankLabel` and its `NOWRANK` read went. Each removal leaves a PORT DIVERGENCE note with the original's address. `save.py` gains `test_the_keys_nothing_used_are_dropped`, and its tests that used `STAGE` as an example key use `TOPSCORE`; `pause.py` checks that no week's best, `STAGE` or `REVIEWCOUNT` is written and that `AppDelegate` has no `stage`. Neither readme named the keys; a changelog line. The todo line is "Remove the keys the game no longer uses from save.json, such as REVIEWCOUNT, which counts game overs only because the original used it to ask for an App Store review." It also finishes the developer task "Remove the code left from the publisher's ranking server" ([[project_dev_tasks]]).
 
 ## What each key in saves/save.json does today
 Traced through the code on 2026-10-07:

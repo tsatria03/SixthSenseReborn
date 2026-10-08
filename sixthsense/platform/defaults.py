@@ -7,14 +7,15 @@ The keys are the ones the binary writes, with the classes that own them:
     (FIREST, COIN, COIN_TIMER and COIN_TIMER_START belonged to the coins, which are gone:
     games are free.  An old save's are dropped, as RETIRED_KEYS.)
     GRENADECOUNT    int    ``-[Stage_1_E MovingShot:]``     grenades in hand
-    STAGE           int    ``-[MainController ...]``        highest stage unlocked
     SHOTGUN, M4, AK47, MG80, JAPAN
                     int    owned weapons, ``-[AppDelegate weaponHave]``
     GRENADEUSE, KNIFEUSE, COLTUSE, SHOTGUNUSE, M4USE, AK47USE, MG80USE, JAPANUSE
                     int    equipped weapons
     (EYEMODE, the voice-over row, is gone: the game is always read by the screen reader.)
-    TOPSCORE, TOPSCOREWEEK, WEEKTIME, NOWRANK, REVIEWCOUNT
-                           the result panel's records, ``-[Stage_1_E SuccessOrFailMission]``
+    TOPSCORE        int    the result panel's top score, ``-[Stage_1_E SuccessOrFailMission]``
+    (STAGE, the original's stage select, and TOPSCOREWEEK, WEEKTIME, NOWRANK and
+    REVIEWCOUNT, for its ranking server and its App Store review, changed nothing in
+    the port and are gone too, as RETIRED_KEYS.)
 
 and the port's own: the settings (``SETTINGS_KEYS``), each weapon's stats, with
 underscores: ``<W>_AMMO_CAPACITY``, ``<W>_RANGE`` (in centimetres), ``<W>_DAMAGE`` and
@@ -94,8 +95,12 @@ SETTINGS_KEYS = ('DEBUG', 'MASTERVOLUME', 'MENUMUSICVOLUME', 'LEVELMUSICVOLUME',
 #: (aidocks/completed/entity_full_volume_plan.md).  EYEMODE went on 2026-10-05 with the voice
 #: over row (aidocks/completed/screen_reader_only_plan.md).  The four coin keys went on
 #: 2026-10-06; games had been free since 2026-10-05 (aidocks/completed/free_games_plan.md),
-#: but an old save still carried them.
-RETIRED_KEYS = ('ENTITYVOLUME', 'EYEMODE', 'FIREST', 'COIN', 'COIN_TIMER', 'COIN_TIMER_START')
+#: but an old save still carried them.  The last five went on 2026-10-07: the original's
+#: stage select (STAGE), its ranking server's week and rank (TOPSCOREWEEK, WEEKTIME,
+#: NOWRANK) and its App Store review count (REVIEWCOUNT), none of which the port has
+#: (aidocks/completed/unused_save_keys_plan.md).
+RETIRED_KEYS = ('ENTITYVOLUME', 'EYEMODE', 'FIREST', 'COIN', 'COIN_TIMER', 'COIN_TIMER_START',
+                'STAGE', 'TOPSCOREWEEK', 'WEEKTIME', 'NOWRANK', 'REVIEWCOUNT')
 
 #: store/shop.json: the game's names; the file's are the same in lowercase, in this order.
 SHOP_KEYS = ('GOLD_PER_KILL', 'GOLD_PER_HEADSHOT', 'UPGRADE_START_PRICE',

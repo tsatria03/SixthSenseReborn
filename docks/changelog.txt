@@ -1,4 +1,5 @@
 unrelease:
+save.json no longer keeps the five keys the game never used, the review count, the week's best score, its week, the rank and the stage, so it holds only your progress and your top score; an older save drops them by itself.
 You can save a game from the pause panel and continue it later from the main menu's Continue row, at the start of the section you saved in, and L says which level and section you are in. The pause panel's Continue is now called Resume.
 On a Mac, the game's Get Info window shows the release's version instead of 0.0.0, and a Mac older than macOS 11 says the system is too old instead of failing to open the game.
 

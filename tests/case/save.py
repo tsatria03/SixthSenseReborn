@@ -75,27 +75,27 @@ def _save(**keys):
 
 def test_each_save_keeps_the_one_before_as_a_backup():
     with _Folder() as f:
-        _save(STAGE='5', GOLD='5000')
-        _save(STAGE='6', GOLD='6000')
+        _save(TOPSCORE='5', GOLD='5000')
+        _save(TOPSCORE='6', GOLD='6000')
         with open(f.file(SAVE + '.bak'), encoding='utf-8') as fh:
-            assert json.load(fh)['STAGE'] == '5'
+            assert json.load(fh)['TOPSCORE'] == '5'
         with open(f.file(INVENTORY + '.bak'), encoding='utf-8') as fh:
             assert json.load(fh)['gold'] == 5000, 'the inventory kept no backup'
-        assert UserDefaults().intForKey_('STAGE') == 6
+        assert UserDefaults().intForKey_('TOPSCORE') == 6
 
 
 def test_a_damaged_save_is_kept_and_the_backup_carries_on():
     with _Folder() as f:
-        _save(STAGE='5', TOPSCORE='100')
-        _save(STAGE='6', TOPSCORE='100')
+        _save(TOPSCORE='5', TUTORIAL='1')
+        _save(TOPSCORE='6', TUTORIAL='1')
         with open(f.file(), 'w', encoding='utf-8') as fh:
-            fh.write('{"STAGE": "6')                  # cut off mid-write
+            fh.write('{"TOPSCORE": "6')               # cut off mid-write
         d = UserDefaults()
-        assert d.intForKey_('STAGE') == 5, 'the backup was not loaded'
-        assert d.intForKey_('TOPSCORE') == 100, 'the records were lost'
+        assert d.intForKey_('TOPSCORE') == 5, 'the backup was not loaded'
+        assert d.intForKey_('TUTORIAL') == 1, 'the progress was lost'
         with open(f.file(SAVE + '.damaged'), encoding='utf-8') as fh:
-            assert fh.read() == '{"STAGE": "6', 'the damaged save was not kept as it was'
-        assert f.read()['STAGE'] == '5', 'the recovered save was not written back'
+            assert fh.read() == '{"TOPSCORE": "6', 'the damaged save was not kept as it was'
+        assert f.read()['TOPSCORE'] == '5', 'the recovered save was not written back'
 
 
 def test_a_damaged_inventory_carries_on_from_its_backup():
@@ -112,8 +112,8 @@ def test_a_save_that_is_not_an_object_does_not_crash():
     with _Folder() as f:
         f.write(SAVE, '[1, 2, 3]')
         d = UserDefaults()
-        assert d.intForKey_('STAGE') == 0
-        d.setObject_forKey_('12', 'STAGE')
+        assert d.intForKey_('TOPSCORE') == 0
+        d.setObject_forKey_('12', 'TOPSCORE')
         d.synchronize()
         with open(f.file(SAVE + '.damaged'), encoding='utf-8') as fh:
             assert fh.read() == '[1, 2, 3]', 'the damaged save was written over'
@@ -143,10 +143,10 @@ def test_a_deleted_save_starts_over():
     """Deleting the save is how a player starts their progress again, so the backup must
     not bring it back."""
     with _Folder() as f:
-        _save(STAGE='5')
-        _save(STAGE='6')
+        _save(TOPSCORE='5')
+        _save(TOPSCORE='6')
         os.remove(f.file())
-        assert UserDefaults().intForKey_('STAGE') == 0
+        assert UserDefaults().intForKey_('TOPSCORE') == 0
 
 
 # ---- the folders: each key in its own file, under its own name ------------------------
@@ -155,7 +155,7 @@ def test_each_file_holds_its_own_keys_under_its_own_names():
     """aidocks/completed/save_folders_plan.md: short names in the weapon files, lowercase in
     the store files with the weapons as lists of names, and the rest as they were."""
     with _Folder() as f:
-        _save(TUTORIAL='1', STAGE='3', WEAPON_STATS_REAL=1,
+        _save(TUTORIAL='1', TOPSCORE='3', WEAPON_STATS_REAL=1,
               MASTERVOLUME=80, VIBRATION='0',
               GOLD_PER_KILL=15, UPGRADE_PRICE_GROWTH=1.2,
               GOLD='7000', GRENADECOUNT='2', SHOTGUN='1', AK47='1',
@@ -164,7 +164,7 @@ def test_each_file_holds_its_own_keys_under_its_own_names():
               SHOTGUN_AMMO_CAPACITY=10, SHOTGUN_RANGE=1000, SHOTGUN_DAMAGE=35,
               SHOTGUN_PRICE=7000, SHOTGUN_LEVEL=2, SHOTGUN_MAX_LEVEL=10,
               JAPAN_DAMAGE=100, M4_LEVEL=1)
-        assert f.read() == {'STAGE': '3', 'TUTORIAL': '1', 'WEAPON_STATS_REAL': 1}
+        assert f.read() == {'TOPSCORE': '3', 'TUTORIAL': '1', 'WEAPON_STATS_REAL': 1}
         assert f.read(SETTINGS) == {'MASTERVOLUME': 80, 'VIBRATION': '0'}
         assert f.read(SHOP) == {'gold_per_kill': 15, 'upgrade_price_growth': 1.2}
         inventory = f.read(INVENTORY)
@@ -287,6 +287,21 @@ def test_the_old_coins_are_dropped():
         for key in ('FIREST', 'COIN', 'COIN_TIMER', 'COIN_TIMER_START'):
             assert d.objectForKey_(key) is None, key
         assert f.read() == {'TUTORIAL': '1'}
+
+
+def test_the_keys_nothing_used_are_dropped():
+    """The original's stage select, its ranking server's week and rank and its App Store
+    review count went on 2026-10-07 (aidocks/completed/unused_save_keys_plan.md); a save from
+    before keeps its progress and its top score."""
+    with _Folder() as f:
+        f.write(SAVE, json.dumps({'TUTORIAL': '1', 'TOPSCORE': '4200', 'WEAPON_STATS_REAL': 1,
+                                  'STAGE': '11', 'TOPSCOREWEEK': '3000',
+                                  'WEEKTIME': '20261012000000', 'NOWRANK': '17',
+                                  'REVIEWCOUNT': '42'}))
+        d = UserDefaults()
+        for key in ('STAGE', 'TOPSCOREWEEK', 'WEEKTIME', 'NOWRANK', 'REVIEWCOUNT'):
+            assert d.objectForKey_(key) is None, key
+        assert f.read() == {'TOPSCORE': '4200', 'TUTORIAL': '1', 'WEAPON_STATS_REAL': 1}
 
 
 # ---- moving an old layout over -----------------------------------------------------------

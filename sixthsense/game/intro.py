@@ -17,7 +17,6 @@ menu.
 from __future__ import annotations
 
 import logging
-import time
 
 from ..platform import volume
 from ..platform.defaults import UserDefaults
@@ -144,26 +143,11 @@ class StartIntroPage(BlindScreen):
         self.logo = False
         self.splash = True                                    # 0_splash2.png
         RunLoop.main().perform(self, 'startIntro1', None, SPLASH_SECONDS)
-        self._expire_week()
         # 0x174a6..0x175b6 loads TOKEN, EMAIL, NAME and FACEBOOK_ID and logs in to
         # the publisher's server.  There is no server; the keys are left alone.
-
-    def _expire_week(self):
-        """0x1763c: if the stored WEEKTIME has passed, the week's best score goes
-        back to zero and the marker is dropped."""
-        d = UserDefaults.standardUserDefaults()
-        week = d.stringForKey_('WEEKTIME')
-        if not week:
-            return
-        try:
-            due = time.mktime(time.strptime(week, '%Y%m%d%H%M%S'))
-        except ValueError:
-            log.debug('WEEKTIME is not a date: %r', week)
-            return
-        if time.time() >= due:                                # 0x17754, seconds <= 0
-            d.setObject_forKey_('0', 'TOPSCOREWEEK')          # 0x177ae
-            d.removeObjectForKey_('WEEKTIME')                 # 0x177d0
-            d.synchronize()
+        # PORT DIVERGENCE (tsatria03, 2026-10-07): 0x1763c then cleared the week's best,
+        # TOPSCOREWEEK, once WEEKTIME had passed, for the same server.  Neither key is kept
+        # (aidocks/completed/unused_save_keys_plan.md).
 
     # -[startIntroPage startIntro1] 0x177f4
     def startIntro1(self, *_):
@@ -171,7 +155,7 @@ class StartIntroPage(BlindScreen):
         self.splash = False                                   # 0x1781c
         d = UserDefaults.standardUserDefaults()
         self.app.haveGold = d.intForKey_('GOLD')              # 0x178e4
-        self.app.stage = d.intForKey_('STAGE')                # 0x17918
+        # 0x17918 read STAGE, the original's stage select, which the port has not got
         self.text = WELCOME_TEXT
         self.select(1)                                        # 0x17ada, 0x17b32
 

@@ -306,7 +306,6 @@ class Stage_1_E:
         self.ScoreLabel = '0'
         self.GoldLabel = '0'
         self.TopScoreLabel = '0'
-        self.RankLabel = '-'
         self.tapCount_ = 0
         self.pauseFlag = False
         self.stopWalkingFlag = False
@@ -1311,16 +1310,13 @@ class Stage_1_E:
 
         d = UserDefaults.standardUserDefaults()
         top = d.intForKey_('TOPSCORE')                        # 0x34c2c
-        week = d.intForKey_('TOPSCOREWEEK')                   # 0x34c4e
         if score > top:                                       # 0x34c56
             d.setObject_forKey_('%d' % score, 'TOPSCORE')     # 0x34ca4
             d.synchronize()
-        if score > week:                                      # 0x34cc0
-            # 0x34cce..0x34e24 expires WEEKTIME first, then stores the week's best and
-            # uploads it when the account keys are set.  There is no server left to
-            # upload to, so the key is kept and the send is not made.
-            d.setObject_forKey_('%d' % score, 'TOPSCOREWEEK')  # 0x34e7c
-            d.synchronize()
+        # PORT DIVERGENCE (tsatria03, 2026-10-07): 0x34c4e..0x34e7c also kept the week's
+        # best in TOPSCOREWEEK, expiring it at WEEKTIME, to upload to the publisher's
+        # ranking server.  That server is gone and nothing showed the week's best, so
+        # neither key is kept (aidocks/completed/unused_save_keys_plan.md).
         raw = d.stringForKey_('TOPSCORE')                     # 0x34f00
         self.TopScoreLabel = raw if raw else '0'              # 0x34f46
         self.selectMenu = 0
@@ -1336,9 +1332,9 @@ class Stage_1_E:
         self.app.haveGold += gold                             # 0x32e70
         d = UserDefaults.standardUserDefaults()
         d.setObject_forKey_('%d' % self.app.haveGold, 'GOLD')  # 0x32ee8
-        if self.app.stage <= 11:                              # 0x32efe
-            d.setObject_forKey_('11', 'STAGE')                # 0x32f44
-            self.app.stage = 11                               # 0x32f58
+        # PORT DIVERGENCE (tsatria03, 2026-10-07): 0x32efe..0x32f58 opened stage 11 of the
+        # original's stage select in STAGE.  The port has no stage select, so nothing
+        # read it and it is not kept (aidocks/completed/unused_save_keys_plan.md).
         d.synchronize()                                       # 0x32f7a
         self.gameState = 2                                    # 0x32f9c
         self._panel_voice(SOUND_MISSION_SUCCESS, 0.5)         # 0x32fac
@@ -1361,8 +1357,10 @@ class Stage_1_E:
         # 0x32aa8 sends the score to Game Center; there is no Game Center here.
         self.updateTopscoreRank()                             # 0x32b5e
         self.SuccessOrFailMission()                           # 0x32b70
-        d.setObject_forKey_(                                  # 0x32be6
-            '%d' % (d.intForKey_('REVIEWCOUNT') + 1), 'REVIEWCOUNT')
+        # PORT DIVERGENCE (tsatria03, 2026-10-07): 0x32be6 counted game overs in
+        # REVIEWCOUNT, for asking the player to review the game on the App Store.  There
+        # is no App Store here, so the count is not kept
+        # (aidocks/completed/unused_save_keys_plan.md).
         d.synchronize()
         if self.ownsSave:
             # PORT ADDITION (tsatria03, 2026-10-07): the game is over, so its save goes
@@ -1663,9 +1661,6 @@ class Stage_1_E:
             return 'Score, %s' % whole(self.score_now())
         if row == 5:
             return 'Obtained gold, %s' % whole(self.ObtainedGold())
-        if row == 9:
-            rank = UserDefaults.standardUserDefaults().stringForKey_('NOWRANK')
-            return 'The rank, %s' % (rank if rank else 'none')
         if row == 10:
             top = UserDefaults.standardUserDefaults().intForKey_('TOPSCORE')
             return 'Top score, %s' % whole(top)
@@ -1769,7 +1764,7 @@ class Stage_1_E:
         """
         self.StopElseSpeak()
         row = self.selectMenu
-        if row in (1, 2, 3, 4, 5, 9, 10):
+        if row in (1, 2, 3, 4, 5, 10):
             self._say(self.pause_row_text(row))
         elif row == 6:
             self.continueAction_()
@@ -2057,12 +2052,14 @@ class Stage_1_E:
 
     # -[Stage_1_E updateTopscoreRank] 0x3261c
     def updateTopscoreRank(self):
-        """Both label fields, from the defaults, with the original's fallbacks."""
-        d = UserDefaults.standardUserDefaults()
-        top = d.stringForKey_('TOPSCORE')
-        rank = d.stringForKey_('NOWRANK')
+        """The top score's label, from the defaults, with the original's fallback.
+
+        PORT DIVERGENCE (tsatria03, 2026-10-07): 0x3274a also filled RankLabel from
+        NOWRANK, the place the publisher's ranking server gave you.  That server is gone,
+        nothing showed the label, and the key is not kept
+        (aidocks/completed/unused_save_keys_plan.md)."""
+        top = UserDefaults.standardUserDefaults().stringForKey_('TOPSCORE')
         self.TopScoreLabel = top if top else '0'              # 0x326c2
-        self.RankLabel = rank if rank else '-'                # 0x3274a
 
     def _fill_result_labels(self):
         """The fill both ``StopPlayAction:`` (0x34302) and ``SuccessOrFailMission``

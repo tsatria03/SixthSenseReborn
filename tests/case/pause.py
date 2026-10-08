@@ -26,8 +26,6 @@ def _new_stage():
     d = UserDefaults.standardUserDefaults()
     d.setObject_forKey_('1', 'TUTORIAL')
     d.removeObjectForKey_('TOPSCORE')
-    d.removeObjectForKey_('TOPSCOREWEEK')
-    d.removeObjectForKey_('NOWRANK')
     d.synchronize()
     app = AppDelegate.shared()
     if app.playback is None:
@@ -567,7 +565,8 @@ def test_pausing_just_before_you_die_and_continuing_still_ends_the_game():
 
 
 def test_a_run_that_beats_the_stored_best_saves_it():
-    """0x34c56 / 0x34cc0 - TOPSCORE and TOPSCOREWEEK."""
+    """0x34c56 - TOPSCORE.  The week's best (0x34cc0, TOPSCOREWEEK) was the ranking
+    server's and is not kept since 2026-10-07."""
     _app, st = _new_stage()
     d = UserDefaults.standardUserDefaults()
     try:
@@ -576,7 +575,7 @@ def test_a_run_that_beats_the_stored_best_saves_it():
         st.SuccessOrFailMission()
         assert st.score == 1200, st.score
         assert d.intForKey_('TOPSCORE') == 1200
-        assert d.intForKey_('TOPSCOREWEEK') == 1200
+        assert d.objectForKey_('TOPSCOREWEEK') is None, 'the week was kept'
         assert st.TopScoreLabel == '1200'
         assert st.ScoreLabel == '1200'
         assert st.GoldLabel == '60'                  # 15 * 4 kills, no headshots
@@ -592,8 +591,13 @@ def test_finishing_the_mission_banks_the_gold():
         st.MissionSuccessTell()
         assert st.gameState == 2
         assert app.haveGold == before + 45           # 15 * 3 kills
-        assert UserDefaults.standardUserDefaults().intForKey_('GOLD') == app.haveGold
-        assert app.stage == 11, 'STAGE was not opened up'
+        d = UserDefaults.standardUserDefaults()
+        assert d.intForKey_('GOLD') == app.haveGold
+        # the original's stage select is not in the port, so nothing opens a stage
+        # (2026-10-07)
+        assert d.objectForKey_('STAGE') is None and not hasattr(app, 'stage')
+        st.missionFailTell_()
+        assert d.objectForKey_('REVIEWCOUNT') is None, 'game overs are still counted'
     finally:
         st.teardown()
 

@@ -110,7 +110,9 @@ class AppDelegate:
         self.menuNotice = ''
         self.haveGold = 0
         self.haveWeapon = []
-        self.stage = 0
+        # PORT DIVERGENCE (tsatria03, 2026-10-07): the original's stage, the highest stage
+        # its stage select had opened (STAGE), is gone with the stage select the port
+        # never had (aidocks/completed/unused_save_keys_plan.md)
         self.aSoundBufControlData = []
         self.bDevice = False           # "does this device vibrate"
         self.useWeapon = []
@@ -140,7 +142,6 @@ class AppDelegate:
         self.aSoundBufControlData = []
         d = UserDefaults.standardUserDefaults()
         self.haveGold = d.intForKey_('GOLD')
-        self.stage = d.intForKey_('STAGE')
         # PORT ADDITION (tsatria03, 2026-10-05): GOLD is written only when it changes, at
         # a game's end and on buying, so a new save had no key to see or edit.  A missing
         # one is written as '0', in the original's text form; gold already there stays.

@@ -11,7 +11,7 @@ Since 2026-09-23, `todo list.txt` holds only what a player notices ([[feedback_t
 
 ## Open
 
-The six lines below are deferred findings from the 2026-10-07 rescan, after release V26.10.07-2. The ranking server leftovers and the long `main()` it also found are already listed further down; the Mac app identity line in `todo list.txt` was confirmed by the dev and moved to Finished the same day, and so were the five evaluation lines the batch had built and the Mac app's version and minimum macOS ([[mac_plist_plan]]).
+The six lines below are deferred findings from the 2026-10-07 rescan, after release V26.10.07-2. The long `main()` it also found is already listed further down, and the ranking server leftovers it found are finished; the Mac app identity line in `todo list.txt` was confirmed by the dev and moved to Finished the same day, and so were the five evaluation lines the batch had built and the Mac app's version and minimum macOS ([[mac_plist_plan]]).
 - Have someone with a Mac open a build made since 2026-10-07 once, to check that the app the compiler signs again after changing its Info.plist still opens ([[mac_plist_plan]]).
 - Correct the docstrings of `gold_rates.py`, `weapon_stats.py`, `weapon_upgrades.py` and the top of `defaults.py`, which still say the values are kept in save.json, where they now live in `store/` and `weapons/`.
 - Decide whether the Settings screen's Debug mode row shows the saved `DEBUG` setting or the live mode: it reads `app.debug`, so a game started with `--debug` says on while `DEBUG` in settings.json is 0.
@@ -19,7 +19,6 @@ The six lines below are deferred findings from the 2026-10-07 rescan, after rele
 - Correct README.md's Tests section, which says 34 plain scripts while listing all 35, `music_buffer.py` included.
 - Decide whether `release.yml` should run `tests/suite.py` instead of its own one-at-a-time test loop, add a `concurrency` group so two runs cannot overlap, and use the same Python on the Macs (3.13) as on Windows and Linux (3.12).
 - Make the releaser's Prepare and tag push main before it pushes the tag, every time. `step_commit` pushes only after it commits; when VERSION and the changelog are already committed, as on a re-tag, it says there is nothing to commit and returns without pushing, while `step_tag` still pushes a tag at HEAD. On 2026-10-07 that left main a commit behind the tag of V26.10.07-1 until the test fix was pushed by hand (tunmi13productions' note in [[evaluation_fixes_plan]], item 7).
-- Remove the code left from the publisher's ranking server, which is gone (the dev, 2026-10-06): the rank (`NOWRANK` read into `RankLabel` in `Stage_1_E.updateTopscoreRank`, which nothing shows, and row 9's text in `pause_row_text`, a row the panel leaves out), and the week's best score (`TOPSCOREWEEK`, kept for uploading, and `WEEKTIME`, which nothing sets, cleared by `intro._expire_week`), with the `defaults.py` docstring's lines for them. The player-facing half, the unused keys in save.json, is in `todo list.txt`.
 The line below is from the 2026-10-06 evaluation ([[evaluation_fixes_plan]]); its other five are finished.
 - Split the longest functions into smaller ones, main in the entry script (about 243 lines) and the biggest stage methods, carefully, since timing-sensitive code is only partly covered by tests (the dev, 2026-10-06: leave it as a developer task).
 - From the 2026-09-24 binary recheck: the walk never sets walkXFlag for its 0.6 seconds; (the docs lines behind the nine todo items were corrected with their fixes on 2026-09-24).
@@ -32,6 +31,7 @@ The line below is from the 2026-10-06 evaluation ([[evaluation_fixes_plan]]); it
 
 ## Finished
 
+- The code left from the publisher's ranking server is gone: the rank (`NOWRANK`, `RankLabel` and the panel's unreachable row 9) and the week's best score (`TOPSCOREWEEK`, and `WEEKTIME` with `intro._expire_week`), along with `STAGE` and `REVIEWCOUNT`, all five retired from save.json; confirmed by the dev on 2026-10-07, whose save.json held three keys after a start ([[unused_save_keys_plan]]).
 - The Mac app's Info.plist carries the release's version and `LSMinimumSystemVersion` 11.0, written by `compiler.finish_app_plist` after the build and signed again by `sign_app`; read from both Mac archives of test run 37711352768 and confirmed by the dev on 2026-10-07 ([[mac_plist_plan]]).
 The five lines below are the 2026-10-06 evaluation's groups 2, 3, 8, 9 and 10, confirmed by the dev on 2026-10-07 after checking their commits in the git log ([[evaluation_fixes_plan]]).
 - The level chooser, tutorial chooser and headshot tester keep off the real save on Linux and macOS too, through one shared helper, `tests/interact/_own_save.py`, and spell the game's name right (`e7eaf2c`).
