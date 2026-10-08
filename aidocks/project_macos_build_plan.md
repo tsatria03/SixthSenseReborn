@@ -30,12 +30,12 @@ uv run --managed-python --python 3.13 --with-requirements requirements.txt --wit
   Since 2026-10-07 the compiler does rewrite it after the move, on purpose:
   `finish_app_plist` writes the version from VERSION and
   `LSMinimumSystemVersion` 11.0, which PyInstaller's command line cannot,
-  and `sign_app` signs the app again ad hoc ([[project_mac_plist_plan]]).
+  and `sign_app` signs the app again ad hoc ([[mac_plist_plan]]).
 - The bundle id is `compiler.BUNDLE_ID`, `org.sixthsense.reborn` since
   2026-10-06 (it was `org.sixthsense.port`). The V26.10.07-2 Mac archives'
-  Info.plist confirms it; it also shows version 0.0.0 and no
-  `LSMinimumSystemVersion`, both open tasks in [[project_dev_tasks]]
-  ([[evaluation_fixes_plan]], group 6).
+  Info.plist confirms it ([[evaluation_fixes_plan]], group 6); it also showed
+  version 0.0.0 and no `LSMinimumSystemVersion`, both fixed the same day
+  ([[mac_plist_plan]]).
 - Resources/Frameworks links preserve frozen lookup. Saves stay outside the app.
 
 macOS release automation is outside this change; releaser.py is unchanged.

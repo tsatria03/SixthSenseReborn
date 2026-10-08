@@ -11,9 +11,8 @@ Since 2026-09-23, `todo list.txt` holds only what a player notices ([[feedback_t
 
 ## Open
 
-The seven lines below are deferred findings from the 2026-10-07 rescan, after release V26.10.07-2, the first two from reading both Mac archives' `Info.plist`. The ranking server leftovers and the long `main()` it also found are already listed further down; the Mac app identity line in `todo list.txt` was confirmed by the dev and moved to Finished the same day, and so were the five evaluation lines the batch had built.
-- Give the Mac app its release version: both Mac archives' `Info.plist` say `CFBundleShortVersionString` 0.0.0, which PyInstaller writes when nothing passes it a version, so Finder's Get Info shows 0.0.0 instead of 26.10.07-2.
-- Set the Mac app's minimum macOS version: neither Mac archive's `Info.plist` has `LSMinimumSystemVersion`, though the game targets macOS 11 or newer ([[project_macos_runtime_plan]]), so an older Mac tries to open it and fails instead of saying the system is too old.
+The six lines below are deferred findings from the 2026-10-07 rescan, after release V26.10.07-2. The ranking server leftovers and the long `main()` it also found are already listed further down; the Mac app identity line in `todo list.txt` was confirmed by the dev and moved to Finished the same day, and so were the five evaluation lines the batch had built and the Mac app's version and minimum macOS ([[mac_plist_plan]]).
+- Have someone with a Mac open a build made since 2026-10-07 once, to check that the app the compiler signs again after changing its Info.plist still opens ([[mac_plist_plan]]).
 - Correct the docstrings of `gold_rates.py`, `weapon_stats.py`, `weapon_upgrades.py` and the top of `defaults.py`, which still say the values are kept in save.json, where they now live in `store/` and `weapons/`.
 - Decide whether the Settings screen's Debug mode row shows the saved `DEBUG` setting or the live mode: it reads `app.debug`, so a game started with `--debug` says on while `DEBUG` in settings.json is 0.
 - Remove the unused `RunLoop` import in `app_delegate.py`.
@@ -33,6 +32,7 @@ The line below is from the 2026-10-06 evaluation ([[evaluation_fixes_plan]]); it
 
 ## Finished
 
+- The Mac app's Info.plist carries the release's version and `LSMinimumSystemVersion` 11.0, written by `compiler.finish_app_plist` after the build and signed again by `sign_app`; read from both Mac archives of test run 37711352768 and confirmed by the dev on 2026-10-07 ([[mac_plist_plan]]).
 The five lines below are the 2026-10-06 evaluation's groups 2, 3, 8, 9 and 10, confirmed by the dev on 2026-10-07 after checking their commits in the git log ([[evaluation_fixes_plan]]).
 - The level chooser, tutorial chooser and headshot tester keep off the real save on Linux and macOS too, through one shared helper, `tests/interact/_own_save.py`, and spell the game's name right (`e7eaf2c`).
 - The code and comments left from voice over are gone, the headshot beep sound is defined once, and the docstrings no longer describe the recordings or Windows only (`2d8c484`).

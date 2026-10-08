@@ -273,7 +273,7 @@ APP_DOCS_STAGE = os.path.join(HERE, 'build', 'embed', 'app-docs')
 BUNDLE_ID = 'org.sixthsense.reborn'
 #: The oldest macOS the app opens on, the runtime's own target (aidocks/project_macos_runtime_plan.md).
 #: Written into Info.plist as LSMinimumSystemVersion, so an older Mac says the system is too old
-#: instead of failing to open the app (aidocks/project_mac_plist_plan.md).
+#: instead of failing to open the app (aidocks/completed/mac_plist_plan.md).
 MACOS_MINIMUM = '11.0'
 
 
@@ -391,7 +391,7 @@ def move_app_build(dest_root: str) -> str:
 def finish_app_plist(app_path: str, version: str) -> None:
     """Write the release version and the oldest macOS into the app's Info.plist.  PyInstaller's
     command line has no option for either, so a build said version 0.0.0 and set no minimum, read
-    from the V26.10.07-2 archives (aidocks/project_mac_plist_plan.md).  The version is VERSION
+    from the V26.10.07-2 archives (aidocks/completed/mac_plist_plan.md).  The version is VERSION
     exactly, such as 26.10.07-2 (tsatria03, 2026-10-07), and is left as PyInstaller wrote it when
     there is no VERSION file."""
     plist = os.path.join(app_path, 'Contents', 'Info.plist')

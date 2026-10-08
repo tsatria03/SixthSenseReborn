@@ -21,7 +21,6 @@ The `[[name]]` links in `CLAUDE.md` and across these memories resolve to `aidock
 - [Old NVGT remake](project_nvgt_remake_reference.md): the dev's NVGT prototype was deleted on 2026-09-21. Its only legacy is the folder layout of `game/sounds`.
 
 ## Current state
-- [Mac plist plan](project_mac_plist_plan.md): BUILT 2026-10-07, not yet confirmed. After the build, compiler.py writes the Mac app's version (VERSION exactly, such as 26.10.07-2, the dev's choice) and a minimum macOS of 11.0 into its Info.plist, then re-signs it ad hoc; proved by reading the next workflow run's Mac archives.
 - [Two repositories](project_two_repos.md): since 2026-10-04 the game is SixthSenseOriginal (faithful) and SixthSenseReborn (this repo, the old custom branch), SixthSenseOriginal is frozen since 2026-10-05 and all work happens here; read it only as a reference.
 
 - [Tests folder layout](project_tests_layout.md): since 2026-09-23 the dev's own reorganization puts the automated tests in `tests/case/` (no `test_` prefix; the test range's is `weapon_range.py`) and the by-ear tools in `tests/interact/`: four since 2026-10-05 (`level_chooser.py`, `tutorial_chooser.py`, `headshot_tester.py`, each on a save of the same name through `_own_save.py`, and `controller_tester.py`, which touches no save).
@@ -30,6 +29,7 @@ The `[[name]]` links in `CLAUDE.md` and across these memories resolve to `aidock
 - [Levels are endless](project_levels_endless.md): the original has no level cap and no win (verified in the raw instructions). From about level 9 zombies arrive on their first step, and unused art shows 19 stages plus endless were planned.
 
 ## Completed projects (aidocks/completed/, no project_ prefix)
+- [Mac plist plan](completed/mac_plist_plan.md): FINISHED 2026-10-07, confirmed by the dev. After the build, compiler.py writes the Mac app's version (VERSION exactly, such as 26.10.07-2, the dev's choice) and a minimum macOS of 11.0 into its Info.plist, then re-signs it ad hoc; read from both Mac archives of a workflow test run. That the re-signed app opens on a Mac is still to check.
 - [Evaluation fixes plan](completed/evaluation_fixes_plan.md): FINISHED 2026-10-07, confirmed by the dev, shipped in the releases of 2026-10-07. All 19 findings of [[project_evaluation_2026_10]] in eleven groups: the coin and voice over leftovers, the by-ear tools' saves, settings on first start, builds carrying only `used/`, the Mac bundle id (proved by reading both Mac archives' Info.plist), the workflow's tests and pinned PyInstaller, the missing tests, README.md and the notes; 11 (long functions) stays a developer task.
 - [Debug level toggles plan](completed/debug_level_toggles_plan.md): FINISHED 2026-10-07, confirmed by the dev. In debug mode F3 holds zombie health and F4 their speed at level 1's, live on walking zombies; F5 and Shift+F5 stay the spawner.
 - [Debug setting plan](completed/debug_setting_plan.md): FINISHED 2026-10-07, confirmed by the dev. A Debug mode row first on the Settings screen, source runs only, remembered as DEBUG in config/settings.json, switching what --debug does at once.

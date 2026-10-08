@@ -1,12 +1,12 @@
 ##Unfinished.
 
-On a Mac, the game's Get Info window says version 0.0.0 instead of the release's version.
-On a Mac older than macOS 11, the game fails to open instead of saying the system is too old.
 Add the ability to save the game from where you are in a level, and continue it from where you last left off.
 Remove the keys the game no longer uses from save.json, such as REVIEWCOUNT, which counts game overs only because the original used it to ask for an App Store review.
 
 ##Finished.
 
+On a Mac, the game's Get Info window shows the release's version instead of 0.0.0.
+On a Mac older than macOS 11, the system says it is too old for the game instead of the game failing to open.
 On a Mac, Sixth Sense Reborn has an app identity of its own, so the system no longer mistakes it for the original Sixth Sense.
 A gun with a full magazine is not reloaded, saying "This weapon is already reloaded with ammo." instead, and the knife, the sword and the grenade say "This weapon does not take ammo."
 Leaving the game window during the tutorial no longer finishes it; P still ends the tutorial when you choose.
