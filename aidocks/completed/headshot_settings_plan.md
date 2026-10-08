@@ -6,7 +6,7 @@ metadata:
   type: project
 ---
 
-**Agreed with tunmi13productions on 2026-10-05, not built yet.** It follows [[screen_reader_only_plan]], which made "Headshot!" a spoken line.
+**Agreed with tunmi13productions on 2026-10-05, not built yet.** It follows [[screen_reader_only_plan]], which made "Headshot!" a spoken line. (Since 2026-10-06, the two rows are in the Settings screen, not the main menu, see [[settings_menu_plan]].)
 
 **What:**
 - Two new rows in the main menu, after the vibration row, each a toggle in the vibration row's shape: "Spoken headshot, currently on." and "Headshot beep, currently on." (the dev chose these labels from three).

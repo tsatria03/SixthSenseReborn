@@ -12,7 +12,7 @@ metadata:
 
 **During a batch of fixes, run no tests between the commits** (the dev, 2026-09-24: "Please don't run tests between each commit. Wait untill all of the commits are done before doing the full test suite, and if I give you the go ahead"). Make the batch's commits, then run the full suite once at the end, and only when the dev gives the go-ahead.
 
-**The test suite may be run without asking.** The dev gave this standing permission on 2026-09-22 ("From now on, you are allowed to run test suites"). It covers the files in `tests/`, run one by one as plain scripts. Always run them the safe way ([[project_safe_test_run]]). Since 2026-09-24 the tests keep off the dev's save and are silent by themselves (no speech, no sound, no window), wherever they are run from; the dev's rule is that testing speaks nothing whatsoever. Before that, `APPDATA` had to point at a scratch folder and the null audio driver had to be set by hand.
+**The test suite may be run without asking.** The dev gave this standing permission on 2026-09-22 ("From now on, you are allowed to run test suites"). It covers the files in `tests/case/`, run one by one as plain scripts, or all at once through `tests/suite.py` (since 2026-10-06, [[test_suite_plan]]) when the dev asks for the full suite. Always run them the safe way ([[project_safe_test_run]]). Since 2026-09-24 the tests keep off the dev's save and are silent by themselves (no speech, no sound, no window), wherever they are run from; the dev's rule is that testing speaks nothing whatsoever. Before that, `APPDATA` had to point at a scratch folder and the null audio driver had to be set by hand.
 
 **Still ask first before running:**
 - the game (`python SixthSenseReborn.py`, including `--no-window` runs)

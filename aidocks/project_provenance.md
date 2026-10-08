@@ -10,11 +10,11 @@ metadata:
 **lbk2907 is the original creator of this repository.** Their work covers:
 - extracting the binary (`analysis/bin/sixsense_armv7`)
 - the analysis tools in `tools/` and everything in `analysis/`
-- the whole Python port (`SixthSense.py`, `sixthsense/`)
-- `docs/` (its three references are in `aidocks/` since 2026-09-23) and `tests/`
+- the whole Python port (`SixthSense.py`, `sixthsense/`; the entry script is `SixthSenseReborn.py` here now)
+- `docs/` (its three references are in `aidocks/` since 2026-09-23; since 2026-10-04 only `GAME_STRUCTURE.md` is in this repository, and `DIVERGENCES.md` and `PORTING_STATUS.md` are in SixthSenseOriginal) and `tests/`
 - **the full `README.md`**. Their version was lost before the initial commit: the repo only ever held GitHub's two-line stub, and neither the history nor Git's unreachable objects had their text. The dev restored it by hand on 2026-09-22. It was committed with updates and a Credits section as `4491f93`, which was then rewritten and force-pushed as **`7cf3e78`**, at the dev's request, to add `Co-authored-by: lbk2907`. The local backup branch `backup/before-readme-coauthor` was deleted the same day, once the dev had checked the result on GitHub. `main` is again the only branch.
 
-They handed the repository to the dev, tsatria03, to publish at `github.com/tsatria03/SixthSense-Windows`, so the two of them can work on it together and add more contributors later. Their own version was never on GitHub, and they gave permission to publish it. The dev said all this on 2026-09-21 and plans to add lbk2907 as a contributor on GitHub. Name both by username only ([[feedback_use_github_usernames]]).
+They handed the repository to the dev, tsatria03, to publish at `github.com/tsatria03/SixthSense-Windows`, so the two of them can work on it together and add more contributors later. Their own version was never on GitHub, and they gave permission to publish it. The dev said all this on 2026-09-21 and plans to add lbk2907 as a contributor on GitHub. That repository is now SixthSenseOriginal; Reborn is at `github.com/tsatria03/SixthSenseReborn` since 2026-10-04 ([[project_two_repos]]). Name both by username only ([[feedback_use_github_usernames]]).
 
 **The commit titled "Initial commit" is entirely lbk2907's work, and names them as its author.**
 - It was first published as `a7108d2` with the dev as author.
@@ -24,7 +24,8 @@ They handed the repository to the dev, tsatria03, to publish at `github.com/tsat
 - The two local backup branches made during the rewrite (`backup/before-author-rewrite` and `backup/before-username-change`) were deleted on 2026-09-21 at the dev's request, once the dev was happy with the result on GitHub. `main` is the only branch.
 
 **Other contributors:**
-- **tunmi13productions** fixed the coin economy and the spoken-digit order in `a16564f` (2026-09-21), found partly through live testing. They also committed batch 2, the vocal fixes (`503085a`), and the zombie batch (2026-09-22) from their own machine, under their own git identity.
+- **tunmi13productions** fixed the coin economy and the spoken-digit order in `a16564f` (2026-09-21), found partly through live testing. They also committed batch 2, the vocal fixes (`503085a`), and the zombie batch (2026-09-22) from their own machine, under their own git identity. Since then they have become one of the two primary authors (see below); their larger work includes the screen reader mode (2026-09-22) and removing voice over (2026-10-05), the Linux build and release (2026-09-28), controller support (2026-10-04), the release workflow (2026-10-05) and `tests/suite.py` (2026-10-06).
+- **mzanm** added the macOS runtime and native app builds in pull request #1 (`425bbf9`, 2026-10-02).
 - When a contributor's commit and our own work fix the same thing, keep the contributor's version and drop ours. That is the dev's standing preference, first applied to batch 1 on 2026-09-21.
 
 **Why:** Credit and permission matter for this project, and the code itself doesn't say who wrote the initial import.

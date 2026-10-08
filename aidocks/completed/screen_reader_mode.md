@@ -9,12 +9,12 @@ metadata:
 **Superseded on 2026-10-05:** [[screen_reader_only_plan]] made the screen reader the only voice and removed the voice over row, so this note is the record of the mode as it was.
 
 **Built for the menus and the result panel on 2026-09-22, and the dev confirmed it by ear the same day (now in the todo list's finished section).** The intro, main menu, shop, inventory and the stage's pause/result/game over panel speak in mode 0. **The dev decided (2026-09-22) that the tutorial and the announcements during play stay recordings in both modes**, because their timing follows the recordings; don't propose converting them unless asked. What was built:
-- The panel: `Stage_1_E.pause_row_text`, `_panel_voice` and `PANEL_MESSAGE_TEXT` (227, 229, 354, 358); in mode 0 activating a result row rereads it instead of the off-by-one reader. Test in `test_pause.py`.
+- The panel: `Stage_1_E.pause_row_text`, `_panel_voice` and `PANEL_MESSAGE_TEXT` (227, 229, 354, 358); in mode 0 activating a result row rereads it instead of the off-by-one reader. Test in `tests/case/pause.py`.
 - `AppDelegate.saved_mode()` (missing `EYEMODE` means 1) and `app.screen_reader` (mode 0). Used by the menu, the intro and `didFinishLaunching`.
 - The dev asked (2026-09-22) for rows as "<name>, Button" for buttons and "Shotgun, Image" for a weapon's picture, so the words live per screen: `ROW_TEXT`/`row_text`/`TITLE_TEXT` on each `BlindScreen` and in `main_controller.ROW_TEXT`, plus `MESSAGE_TEXT` in `blind_screen.py` for replies (259, 260, 351, 352, 359). This replaced the one-choke-point idea below for the menus.
 - The voice over row names what choosing it does, as the original does (0xa2b8): 332 in mode 1, "Voice over on, Button" in mode 0. From 2026-09-22 it named the current mode because the dev heard the original as flipped; on 2026-09-23 tunmi13productions asked for the original back, since "voice over on button" while voice over is on sounded like pressing it turns voice over on.
 - Wording mostly follows the recordings' file names; the dev may want it polished (the coin row says "The coin is charged after N minutes N seconds").
-- Tests added in `test_menu.py` and `test_store.py`; 
+- Tests added in `tests/case/menu.py` and `tests/case/store.py`; 
 
 **The original plan, agreed on 2026-09-22:** When the main menu's voice over row is turned off, the screen reader speaks everything the game's recordings would say, and reads numbers whole ("1,250", not digit by digit). It is in `todo list.txt` and in `docs/DIVERGENCES.md` under "Planned: a screen reader mode".
 

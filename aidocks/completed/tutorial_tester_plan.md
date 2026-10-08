@@ -5,9 +5,9 @@ metadata:
   type: project
 ---
 
-**Status: FINISHED, 2026-09-23.** The dev tested it and confirmed: "All tests past." The plan was committed on its own as `addf747`; the dev asked for the code to be a separate commit, made only once they had tested it and it was marked finished here ("I want the built code to be a seprat commit, after I tested that it works, and that it's marked finished"), so the tester, its README and CLAUDE.md lines and this status went in together after that.
+**Status: FINISHED, 2026-09-23.** The dev tested it and confirmed: "All tests past." The plan was committed on its own as `addf747`; the dev asked for the code to be a separate commit, made only once they had tested it and it was marked finished here ("I want the built code to be a seprat commit, after I tested that it works, and that it's marked finished"), so the tester, its README and CLAUDE.md lines and this status went in together after that. (Since 2026-10-05, it no longer asks voice over on or off, since the voice over mode is gone, see [[screen_reader_only_plan]].)
 
-**Renamed the same day by the dev:** it is now `tests/interact/tutorial_chooser.py`, beside `tests/interact/level_chooser.py`, and its save is `%APPDATA%\SixthSense\tutorial_chooser` ([[project_tests_layout]]). The plan below was written for `tests/tutorial_tester.py`; the paths in it have been updated, and the design is unchanged.
+**Renamed the same day by the dev:** it is now `tests/interact/tutorial_chooser.py`, beside `tests/interact/level_chooser.py`, and its save is `%APPDATA%\SixthSenseReborn\tutorial_chooser` ([[project_tests_layout]]). The plan below was written for `tests/tutorial_tester.py`; the paths in it have been updated, and the design is unchanged.
 
 **Built as planned:** `tests/interact/tutorial_chooser.py` with `LESSONS`, `_own_save`, `_questions`, and a `LessonTutorial(Stage_Tutorial)` that marks the earlier beats done in `MapInitInBundle` and swaps the chosen beat in for the first `tutorial_beat` call (`_opened`). `new_tutorial` replaces `SixthSense._new_tutorial`, giving the first tutorial the asked-for ending and later ones their menu route's. `EYEMODE` is written "1" or "0" on the tester's save before the game starts.
 

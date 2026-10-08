@@ -5,7 +5,7 @@ metadata:
   type: project
 ---
 
-**Superseded on 2026-10-05 by [[real_weapon_stats_plan]]:** the keys now hold the real numbers and the game reads them. What follows is the record of the first version.
+**Superseded on 2026-10-05 by [[real_weapon_stats_plan]]:** the keys now hold the real numbers and the game reads them. What follows is the record of the first version. (Since 2026-10-06, each weapon's stats are in its own `weapons/<name>.json` in the save folder, see [[save_folders_plan]].)
 
 **Status: FINISHED, 2026-09-25, confirmed by the dev ("Everything works!").** Agreed with the dev, recorded before any code ([[feedback_record_plans_first]]), and in the todo list as unfinished. Mark it finished only once the dev says it works. Built after [[save_split_plan]], since it writes into `save.json`.
 

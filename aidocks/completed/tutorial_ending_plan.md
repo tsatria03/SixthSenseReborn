@@ -29,7 +29,7 @@ metadata:
 3. Start always spends a coin, as in the original, including the first run. A new save has 10.
 4. Beat Nine is finished by P, not Shift+Tab. Shift+Tab stays previous weapon. Its key hint becomes "Press P to end the tutorial."
 5. Finishing the beats no longer starts the game by itself; the P press is the last step.
-6. Tests in `test_tutorial.py` and `test_menu.py`, a `DIVERGENCES.md` update, and a changelog line.
+6. Tests in `tests/case/tutorial.py` and `tests/case/menu.py`, a `DIVERGENCES.md` update, and a changelog line.
 
 **Open questions for the dev:**
 - Keep the original's rule that P does nothing until beats One to Eight are done? Claude recommends yes.

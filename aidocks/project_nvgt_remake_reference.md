@@ -16,6 +16,6 @@ It was a loose reimagining, not a port:
 
 It never had the corridor, the lanes, headshots by breathing, grabs, bosses, coins or the store.
 
-**None of its code or gameplay rules went into the Python port**; the binary stays the authority on behavior. Its one legacy is the **folder layout of `game/sounds/`**. The dev converted its organized sounds to WAV and imported them, and Claude then renamed each file to its original name by comparing the audio ([[project_sound_organization]]).
+**None of its code or gameplay rules went into the Python port**; the binary stays the authority on behavior. Its one legacy is the **folder layout of `game/sounds/`**. The dev converted its organized sounds to WAV and imported them, and Claude then renamed each file to its original name by comparing the audio ([[project_sound_organization]]). The dev has re-sorted the folders since; as of 2026-10-07 the sounds the game plays are in `game/sounds/used/` and the rest in `game/sounds/unused/`, each with `sfx/` and `speech/` folders inside.
 
 **How to apply:** Don't look for the remake in `user/`; it's gone. If a question comes up about why `game/sounds` is laid out as it is, this is the answer.

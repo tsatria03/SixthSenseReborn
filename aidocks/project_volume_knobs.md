@@ -1,6 +1,6 @@
 ---
 name: project_volume_knobs
-description: "sixthsense/platform/volume.py (built 2026-09-22): decibel knobs that move groups of sounds - master, level music, ambience, and the menu music in full - while every gain the game plays stays the binary's own value. How it is wired and how to tune it."
+description: "sixthsense/platform/volume.py (built 2026-09-22): decibel knobs that move groups of sounds - master, level music, ambience, and the menu music in full - while every gain the game plays stays the binary's own value. The player's volume percentages in config/settings.json sit on top. How it is wired and how to tune it."
 metadata:
   node_type: memory
   type: project
@@ -15,10 +15,11 @@ metadata:
   - `MENU_MUSIC_DB` is **the whole value**, -14.0 dB, because the original never plays music on its menu and so has no gain to sit on top of.
   - `master()`, `music()`, `ambience()` and `menu_music()` are what callers use.
 - **`MASTER_DB` is applied in `oal_playback`**, at every place `AL_GAIN` is set (`_configure`, `startSound_Postion_soundGain_`, and both music players), so it covers sound effects, the recorded speech and music without any caller remembering it.
-- **The group trims are applied at the call site**, because only the caller knows what kind of sound it is starting: `stage_1_e.MapInitInBundle` and `continueAction_` (ambience and rain), the action-cell-10 branch in `MainControl` and `intro.shakeDevice` (music), `app_delegate.BGMusicStart` (the menu music).
+- **The group trims are applied at the call site**, because only the caller knows what kind of sound it is starting: `stage_1_e.MapInitInBundle` and `continueAction_` (ambience and rain), the action-cell-10 branch in `MainControl` and `intro.shakeDevice` (music), `app_delegate.BGMusicStart` (the menu music). As of 2026-10-07 `MainControl` is split into helpers, so the sites are `stage_1_e.MapInitInBundle`, `_level_transition` and `ChangeLevel_` and `stage_1_test.MapInitInBundle` (ambience), `stage_1_e._walk_and_act`, `intro._start_story_music` and `intro.shakeDevice` (music), and `app_delegate.BGMusicStart` and `change_menu_music_volume` (the menu music).
 - **Since 2026-09-27** each file also has a trim that brings it to one loudness, -12 LUFS, the music and the ambience included, on `AL_GAIN`, with every sound source's `AL_MAX_GAIN` raised to 4.0 so a boost passes 1.0 ([[sound_trims_plan]]).
-- **Since 2026-09-26** there is also a gameplay gain on OpenAL's listener and weapons, entities and player group volumes, applied in `oal_playback` by each sound's group ([[gameplay_gain_plan]]).
-- **`tests/case/volume.py`** has 7 tests: the scale, the round trip, the knobs at rest passing the binary's values through untouched, one knob moving only what it owns, and the menu music never louder than a spoken row (0.2). `tests/case/menu.py` checks `BGMusicStart` uses `volume.menu_music()`.
+- **Since 2026-09-25** the knobs have player settings on top, percentages in `config/settings.json` (since 2026-10-06; it was `settings.json` at the save's top): `MASTERVOLUME`, `MENUMUSICVOLUME`, `LEVELMUSICVOLUME` and `AMBIENCEVOLUME`, read and filled in by `volume.load` ([[volume_settings_plan]], [[save_folders_plan]]). The decibel knobs are still constants.
+- **Since 2026-09-26** there is also a gameplay gain on OpenAL's listener and weapons, entities and player group volumes, applied in `oal_playback` by each sound's group ([[gameplay_gain_plan]]). Since 2026-09-28 the entities' volume (`ENTITYVOLUME`) is gone and they always play in full ([[entity_full_volume_plan]]); `GAMEPLAYGAIN`, `WEAPONVOLUME` and `PLAYERVOLUME` remain.
+- **`tests/case/volume.py`** had 7 tests when built (15 now, with the settings'): the scale, the round trip, the knobs at rest passing the binary's values through untouched, one knob moving only what it owns, and the menu music never louder than a spoken row (0.2). `tests/case/menu.py` checks `BGMusicStart` uses `volume.menu_music()`.
 
 ## The numbers, for reference
 Gains in the game, with their decibels: 1.0 is 0 dB (gunshots), 0.5 is -6 dB (breathing, rain, the result panel), 0.2 is -14 dB (every spoken row, the ambience), 0.05 is -26 dB (the intro's story music, 0x17224), 0.02 is -34 dB (the level music, 0x321d4). OpenAL clamps a source above 1.0, so a bigger number buys nothing.
@@ -31,5 +32,5 @@ Gains in the game, with their decibels: 1.0 is 0 dB (gunshots), 0.5 is -6 dB (br
 **How to apply:**
 - Never replace a binary gain with a decibel constant. Add a trim if a group needs moving.
 - A new kind of sound that the original has no gain for gets its own absolute `*_DB` constant, as the menu music has.
-- These are constants, not saved settings. Settings would be a JSON file in `%APPDATA%\SixthSense` beside `defaults.json` and `keys.json`; the reference project in `user/` splits its own defaults into save, settings and keys files and stores its menu music as a percentage in steps of ten ([[feedback_no_other_games]]: don't name it).
+- These are constants, not saved settings. Settings would be a JSON file in `%APPDATA%\SixthSense` beside `defaults.json` and `keys.json`; the reference project in `user/` splits its own defaults into save, settings and keys files and stores its menu music as a percentage in steps of ten ([[feedback_no_other_games]]: don't name it). Now the knobs stay constants, and the player's volumes are the percentages in `%APPDATA%\SixthSenseReborn\config\settings.json`, beside `config\keys.json`; there is no `defaults.json` ([[save_folders_plan]]).
 - Changing a shipped knob is a player-facing change, so it needs a changelog line ([[feedback_changelog]]).

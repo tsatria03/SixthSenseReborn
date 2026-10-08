@@ -5,7 +5,7 @@ metadata:
   type: project
 ---
 
-**Status: FINISHED, 2026-09-25, confirmed by the dev ("Everything works!").** Agreed with the dev, recorded before any code ([[feedback_record_plans_first]]), and in the todo list as unfinished. Mark it finished only once the dev says it works.
+**Status: FINISHED, 2026-09-25, confirmed by the dev ("Everything works!").** Agreed with the dev, recorded before any code ([[feedback_record_plans_first]]), and in the todo list as unfinished. Mark it finished only once the dev says it works. (Since 2026-10-06, the save is split into folders, the progress in `saves/save.json` and the settings in `config/settings.json`, see [[save_folders_plan]].)
 
 **What was built:** `platform/defaults.py` keeps `UserDefaults`' interface over two `_File`s, `save.json` and `settings.json` (`SAVE_FILE`, `SETTINGS_FILE`), chosen by `_file_for(key)`: `SETTINGS_KEYS = ('MENUMUSICVOLUME', 'EYEMODE')`, in the order settings.json is written; the save stays sorted. Each `_File` keeps its `.bak` and sets itself aside as `.damaged`. `_move_old_save` moves a `defaults.json` when there is no `save.json` and renames it `defaults.json.old` (a damaged one goes through `.damaged` and its `.bak` first). `UserDefaults.path` is now `save.json`'s. The choosers copy `settings.json` beside `keys.json`. `tests/case/save.py` moved to the new names and gained seven tests. Built in a batch with the other two save plans; at the dev's word no test ran until all three were committed (2026-09-25).
 

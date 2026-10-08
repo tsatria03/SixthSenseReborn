@@ -5,7 +5,7 @@ metadata:
   type: project
 ---
 
-**Status: FINISHED, 2026-09-25, confirmed by the dev ("it works").** They asked the same day for the spoken line to be "Music volume 70%", not "Menu music volume 70%", and it is. Agreed with the dev, recorded before any code ([[feedback_record_plans_first]]). Mark it finished only once the dev says it works.
+**Status: FINISHED, 2026-09-25, confirmed by the dev ("it works").** They asked the same day for the spoken line to be "Music volume 70%", not "Menu music volume 70%", and it is. Agreed with the dev, recorded before any code ([[feedback_record_plans_first]]). Mark it finished only once the dev says it works. (Since 2026-10-06, the menu music volume is saved in `config/settings.json`, see [[save_folders_plan]].)
 
 **What was built:** `volume.MENU_MUSIC_VOLUMES`, `DEFAULT_MENU_MUSIC_VOLUME` and `menu_music(percent)`; in `app_delegate.py`, `MENU_MUSIC_TRACK`, `MENU_MUSIC_KEY`, `menu_music_volume`, `menu_music_playing()` and `change_menu_music_volume(step)`, with `BGMusicStart` playing at the saved level; `menu_music_key()` in `ui/menu_input.py`, called first by `MenuInput` and `ScreenInput`; Page Up and Page Down in `keymap.FIXED`. The opening screen needs no check of its own: the menu music is not playing there, so a press does nothing. `input.py`'s two tests that rebound Page Up now use Insert. New `tests/case/menu_music.py`, 11 of 11, reading the gain back from OpenAL on the null driver; menu 34, volume 7, input 27, store 20, intro 14 and paths 13 still pass. The player readme, README.md, DIVERGENCES.md and the changelog say so.
 

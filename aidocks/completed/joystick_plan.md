@@ -5,7 +5,7 @@ metadata:
   type: project
 ---
 
-**Status: FINISHED 2026-10-04, confirmed by the dev** ("I think we have controller support finished"). Built in nine commits' worth of steps: the menus, the stage (stick, D-pad, buttons), the found and lost sounds with the pause on losing the pad, the vibrations, and the menu row. Phase 1 is `sixthsense/ui/controller.py` (`Controllers.feed`, used by the frame loop in `SixthSenseReborn.py`) and `tests/case/controller.py`. It translates only while no stage and no bindings screen is up. The todo list's joystick lines stay in Unfinished until the dev confirms it works ([[feedback_todo_list_format]]).
+**Status: FINISHED 2026-10-04, confirmed by the dev** ("I think we have controller support finished"). Built in nine commits' worth of steps: the menus, the stage (stick, D-pad, buttons), the found and lost sounds with the pause on losing the pad, the vibrations, and the menu row. Phase 1 is `sixthsense/ui/controller.py` (`Controllers.feed`, used by the frame loop in `SixthSenseReborn.py`) and `tests/case/controller.py`. It translates only while no stage and no bindings screen is up. The todo list's joystick lines stay in Unfinished until the dev confirms it works ([[feedback_todo_list_format]]). (Since 2026-10-06, the vibration row is in the Settings screen, not the main menu, see [[settings_menu_plan]].)
 
 ## Decisions
 - **SDL's game controller layer, never XInput** (the dev, 2026-10-04: there is a Linux build, and a macOS one, so XInput is a bad idea). pygame 2.6.1 wraps it as `pygame._sdl2.controller`: `CONTROLLERBUTTONDOWN/UP`, `CONTROLLERAXISMOTION`, `CONTROLLERDEVICEADDED/REMOVED`, the standard `CONTROLLER_BUTTON_*` and `CONTROLLER_AXIS_*` names, and `Controller.rumble`. Checked present on 2026-10-04.

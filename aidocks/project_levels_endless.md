@@ -14,3 +14,5 @@ Checked on 2026-09-22 from the raw Thumb disassembly (`tools/dz.py 0x2c700 0x3ec
 - **Unused stage-select art.** The bundle has `3_stage_btn_01..19` (with `_act`), `3_stage_btn_endless_*`, `_lock_*` and `_tut_*`. No code and no nib names them, so 19 stages plus an endless mode were drawn but only the endless run shipped.
 
 **How to apply:** capping levels would be a divergence and is the dev's decision. It was offered on 2026-09-22 as a cap in debug mode only or for everyone, with no answer yet. See SixthSenseOriginal's `project_evaluation_2026_09` note.
+
+**Now (2026-10-07):** normal play still has no level cap and no win. Debug mode only: since 2026-09-23 Shift+F2 goes round to level 1 after level 8 (`debug.MAX_LEVEL`), F3 holds zombie health at level 1's and F4 their speed ([[debug_level_toggles_plan]]).

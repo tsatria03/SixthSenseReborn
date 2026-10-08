@@ -1,6 +1,6 @@
 ---
 name: project_python_only
-description: "The Windows port of Sixth Sense is written entirely in Python; compiler.py builds it, and the dev confirmed the console build works on 2026-09-22."
+description: "Sixth Sense Reborn (begun as the Windows port of Sixth Sense, now Windows, Linux and macOS) is written entirely in Python; compiler.py builds it, and the dev confirmed the console build works on 2026-09-22."
 metadata:
   node_type: memory
   type: project
@@ -8,6 +8,8 @@ metadata:
 ---
 
 The Windows port of Sixth Sense is written entirely in Python: pygame for the window and keyboard, OpenAL Soft through ctypes for audio, and the NVDA controller client, or Prism for other screen readers and a Windows voice, for the few synthesised lines. Don't propose moving parts to another language or engine.
+
+Now (2026-10-07) it is Sixth Sense Reborn, for Windows, Linux and macOS, still entirely Python. Since 2026-10-05 all of the game's speech goes through NVDA, Prism or a system voice, not only a few lines ([[screen_reader_only_plan]]).
 
 `compiler.py` at the repo root is the PyInstaller build script. It was adapted to build Sixth Sense on 2026-09-21. The dev's console build was confirmed working on 2026-09-22. Everything known about it is in [[project_compiler_py]].
 
