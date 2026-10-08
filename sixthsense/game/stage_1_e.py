@@ -62,7 +62,7 @@ from .make_maps import MakeMaps
 from .monster_control import MonsterControl, lane_bearing
 from .moving_accelerometer import MovingAccelerometer
 from .player_control import PlayerControl
-from . import gold_rates, weapon_order, weapon_stats
+from . import gold_rates, saved_game, weapon_order, weapon_stats
 from .weapon_control import WeaponControl, WEAPON_FILES, WEAPON_NAMES, WEAPON_SLOTS
 
 log = logging.getLogger('stage')
@@ -340,6 +340,10 @@ class Stage_1_E:
         self.actionMapData = None
         self.running = False
         self.score = 0
+        # PORT ADDITION (2026-10-07, saved_game.py): whether saves/continue.json is this
+        # game's, continued from or saved by it, so only its own game over deletes it
+        self.ownsSave = False
+        self.resumed = False
         # Stage_Tutorial legitimately runs with TUTORIAL == 0; only Stage_1_E itself
         # standing still is worth a warning.
         self.warn_if_not_walking = True
@@ -405,6 +409,10 @@ class Stage_1_E:
         elif self.gameMode == 1:                                 # 0x2ddce
             pb.startAMBPlayer_type_soundGain_Loop_(
                 'bgm_cave_amb', 'wav', volume.ambience(0.2), True)
+        if self.resumed and self.LVUP > 1:
+            # PORT ADDITION (2026-10-07): a game continued past level 1 has the other
+            # area's ambience under its own, as every ChangeLevel: leaves it (0x32362)
+            self._other_area_note()
 
         # PORT: the original never sends setListenerRotation: (it is not in
         # __objc_selrefs) and never turns you.  The port sets the listener once, facing
@@ -648,13 +656,17 @@ class Stage_1_E:
         self.levelChanging = False
         self.gamePlayer.playerYplot = 680               # 0x32302
         self.monsterHPGain = self.monsterHPGain * 1.5   # 0x32314
-        note = SOUND_FOREST_AMB if self.gameMode == 1 else SOUND_CAVE_AMB
-        # the ambience volume setting applies to it too, the same as the ambience player;
-        # at its default it is the binary's 0.02 exactly
-        self.app.playSound_Gain_Pos_z_reprats_(note, volume.ambience(0.02), (0.0, 0.0), 0, True)
+        self._other_area_note()
         self.changeGameMode()
         self.MotionSamplingTimer = RunLoop.main().scheduledTimer(
             1.0, self, 'MainControl', None, True)
+
+    def _other_area_note(self):
+        """The other area's ambience as a looping note at 0.02 (0x32362).  The ambience
+        volume setting applies to it too, the same as the ambience player; at its
+        default it is the binary's 0.02 exactly."""
+        note = SOUND_FOREST_AMB if self.gameMode == 1 else SOUND_CAVE_AMB
+        self.app.playSound_Gain_Pos_z_reprats_(note, volume.ambience(0.02), (0.0, 0.0), 0, True)
 
     # -[Stage_1_E MainControl] 0x31e72 - action cell 8
     def _action_girl(self):
@@ -1352,6 +1364,11 @@ class Stage_1_E:
         d.setObject_forKey_(                                  # 0x32be6
             '%d' % (d.intForKey_('REVIEWCOUNT') + 1), 'REVIEWCOUNT')
         d.synchronize()
+        if self.ownsSave:
+            # PORT ADDITION (tsatria03, 2026-10-07): the game is over, so its save goes
+            # and the gold just paid is paid once (saved_game.py)
+            saved_game.delete()
+            self.ownsSave = False
 
     # =============================================================== weapons
     # -[Stage_1_E gunChangeAction:] 0x35a08 / -[Stage_1_E doubleTapChangeWeapon:] 0x2ec70
@@ -1914,6 +1931,9 @@ class Stage_1_E:
         self.LVUP = 1                                         # 0x3350c
         self.DieFlag = False                                  # 0x3351a
         self.score = 0
+        # a restart is a fresh game, which leaves a save alone until it saves itself
+        self.ownsSave = False
+        self.resumed = False
         self.MapInitInBundle()                                # 0x335b8
         self._reset_run_flags()
         self.selectMenu = 0

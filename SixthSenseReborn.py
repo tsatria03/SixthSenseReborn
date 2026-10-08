@@ -26,10 +26,17 @@ import time
 log = logging.getLogger('main')
 
 
-def _new_stage():
+def _new_stage(resume=False):
+    """A game; with ``resume``, the saved one, put where it left off before its map loads
+    (sixthsense/game/saved_game.py).  A save that cannot be read starts a fresh game."""
+    from sixthsense.game import saved_game
     from sixthsense.game.stage_1_e import Stage_1_E
     st = Stage_1_E()
     st.viewDidLoad()
+    if resume:
+        data = saved_game.read()
+        if data is not None:
+            saved_game.resume(st, data)
     return st
 
 
@@ -307,8 +314,10 @@ def main(argv=None):
                     inp = Input(obj)
                 else:
                     obj.teardown()
-                    kind = name
-                    obj = _new_tutorial(arg) if name == 'tutorial' else _new_stage()
+                    # Continue is a game like any other, from where it was saved
+                    kind = 'stage' if name == 'continue' else name
+                    obj = (_new_tutorial(arg) if name == 'tutorial'
+                           else _new_stage(resume=name == 'continue'))
                     inp = Input(obj)
                 log.info('-> %s', name)
             elif getattr(obj, 'done', False) and stack:
@@ -361,12 +370,11 @@ def main(argv=None):
 
 
 def _menu_lines(menu):
-    from sixthsense.game.main_controller import ROWS
     out = ['Sixth Sense Reborn   headphones recommended', '',
            '']
     if getattr(menu, 'message', ''):
         out += [menu.message, '']
-    for num, _flag, action in ROWS:
+    for num, _flag, action in menu.rows():
         out.append('%s %s' % ('>' if num == menu.selectMenu else ' ', action))
     out += ['', 'Up/Down move   Enter choose   F1 key bindings   Esc quit']
     return out

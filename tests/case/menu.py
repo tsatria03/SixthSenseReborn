@@ -48,9 +48,12 @@ def test_the_rows_are_the_originals():
     less the coins (1), ranking (5) and Game Center (8), the voice over row (7), which
     went on 2026-10-05 with the recorded voice, and the port's settings row (9).  Until
     2026-10-06 the vibration and the two headshot settings were rows 9, 10 and 11 here;
-    they moved behind the settings row (aidocks/completed/settings_menu_plan.md)."""
-    assert [r[0] for r in ROWS] == [2, 3, 4, 6, 9]
-    assert [r[2] for r in ROWS] == ['title', 'start', 'tutorial', 'store', 'settings']
+    they moved behind the settings row (aidocks/completed/settings_menu_plan.md).  The
+    port's Continue row (10), before Game start, is offered only with a saved game
+    (2026-10-07, aidocks/project_save_game_plan.md)."""
+    assert [r[0] for r in ROWS] == [2, 10, 3, 4, 6, 9]
+    assert [r[2] for r in ROWS] == ['title', 'continue', 'start', 'tutorial', 'store',
+                                    'settings']
 
 
 def test_the_menu_music_plays_under_the_rows():
@@ -187,7 +190,7 @@ def test_it_opens_on_the_title_and_wraps():
     try:
         assert m.selectMenu == 2                      # 0x85c1
         seen = []
-        for _ in range(len(ROWS)):
+        for _ in range(len(m.rows())):
             m.move(1)
             seen.append(m._row()[2])
         assert seen == ['start', 'tutorial', 'store', 'settings', 'title'], seen
@@ -451,9 +454,9 @@ def test_home_and_end_in_the_screen_reader_mode():
     try:
         keys = MenuInput(m)
         keys.handle(_Key('end'), _Pygame)
-        assert m.selectMenu == ROWS[-1][0], 'End went to row %d' % m.selectMenu
+        assert m.selectMenu == m.rows()[-1][0], 'End went to row %d' % m.selectMenu
         keys.handle(_Key('home'), _Pygame)
-        assert m.selectMenu == ROWS[0][0], 'Home went to row %d' % m.selectMenu
+        assert m.selectMenu == m.rows()[0][0], 'Home went to row %d' % m.selectMenu
 
         rows = shop.rows()
         keys = ScreenInput(shop)
@@ -476,7 +479,7 @@ def test_left_and_right_move_like_voiceovers_flicks_in_the_screen_reader_mode():
     from sixthsense.ui.screen_input import ScreenInput
     m = _menu()
     shop = MainStoreController(speech=_Recorder())
-    nums = [r[0] for r in ROWS]
+    nums = [r[0] for r in m.rows()]
     try:
         keys = MenuInput(m)
         m.selectMenu = nums[1]

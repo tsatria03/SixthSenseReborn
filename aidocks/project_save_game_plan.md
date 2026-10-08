@@ -5,14 +5,14 @@ metadata:
   type: project
 ---
 
-**Status: planned, 2026-10-07.** Nothing built yet. The todo line is "Add the ability to save the game from where you are in a level, and continue it from where you last left off." Every decision below is tsatria03's, made one question at a time on 2026-10-07.
+**Status: being built, 2026-10-07.** Step 1 of 4 built, not yet confirmed: `sixthsense/game/saved_game.py` (the file, the section rows, `snapshot` and `resume`), the main menu's Continue row (10), the frame loop's `'continue'` screen, a continued game past level 1 getting the other area's ambience note (`Stage_1_E._other_area_note`, shared with `ChangeLevel:`), its game over deleting its save, Restart giving the save up, and debug F2 using the same section rows; `tests/case/saved_game.py`. Still to build: step 2, the pause panel's rows; step 3, the L key; step 4, the docs. The todo line is "Add the ability to save the game from where you are in a level, and continue it from where you last left off." Every decision below is tsatria03's, made one question at a time on 2026-10-07.
 
 **What the original does.** It has no saving: a run lives in memory only. The pause panel's Main menu (`-[Stage_1_E GameEndAction:]`, 0x32fe1) drops the run and pays no gold; gold is paid only by a game over (`missionFailTell:`, 0x32760) or a mission success (`MissionSuccessTell`, 0x32c10).
 
 ## Where it is kept
 - **`saves/continue.json`**, beside `save.json` (the dev chose the name over `run.json` and `game.json`). It exists only while there is a game to continue, so whether it can be read is the whole test for the Continue row.
-- It is written and read as one JSON object of its own, not as loose `UserDefaults` keys, which `defaults.py` would send to `save.json`. Written the safe way the other save files are (a temporary file, then replaced, with a `.bak`); a file that cannot be read is kept as `.damaged` and the Continue row is not offered, never a crash.
-- What it holds: the level (`LVUP`), the area (`gameMode`), the zombies' toughness (`monsterHPGain`, and the speed gain beside it), the start row of the section saved in, the hearts (`HP`), the weapon in hand (`useWepon`), each gun's rounds (`BulletCount`), the run's tally (`killMonsterCount`, every `killMonsterNcount`, `killMonster5000count`, `HeadShotCount`, `gunEggCountShot`) and `GirlMonsterNumber`. The score and the gold are worked out from the tally, so they come back with it. Grenades and gold are not in it: both already live in `store/inventory.json`.
+- It is written and read as one JSON object of its own, not as loose `UserDefaults` keys, which `defaults.py` would send to `save.json`. Written the safe way the other save files are, through `defaults._File` (a temporary file, then replaced, with a `.bak`); a file that cannot be read is kept as `.damaged` and the game carries on from the `.bak`, as every other save file does; with neither, or with one that makes no sense, the Continue row is not offered, never a crash.
+- What it holds: the level (`LVUP`), the area (`gameMode`), the zombies' toughness (`monsterHPGain`, which sets both their health and their speed; F3 and F4 only split it in debug mode), the start row of the section saved in, the hearts (`HP`), the weapon in hand (`useWepon`), each gun's rounds (`BulletCount`), the run's tally (`killMonsterCount`, every `killMonsterNcount`, `killMonster5000count`, `HeadShotCount`, `gunEggCountShot`) and `GirlMonsterNumber`. The score and the gold are worked out from the tally, so they come back with it. Grenades and gold are not in it: both already live in `store/inventory.json`.
 - Not kept: the zombies on the field, their timers and a grab. A section starts with a quiet stretch, so an empty corridor there is natural.
 
 ## Where a game resumes
@@ -35,7 +35,7 @@ The two save rows are port rows with numbers of their own beside the original's 
 - **Game start** always starts a fresh game, and leaves a save alone. Pressing Save in that fresh game replaces the old save.
 
 ## When the save goes
-- **A game over deletes it** (the dev: "I want the save to be deleted if the game is over"), so the run's gold is paid once. Only when the save belongs to that game: one it continued from, or one it saved. A fresh game that never saved does not touch an older save. Gold is still paid at the game over, for the whole run, before and after the save; Save and quit and Main menu pay none, as Main menu never did.
+- **A game over deletes it** (the dev: "I want the save to be deleted if the game is over"), so the run's gold is paid once. Only when the save belongs to that game: one it continued from, or one it saved (`Stage_1_E.ownsSave`). A fresh game that never saved does not touch an older save, and Restart makes a fresh game, so it gives up a continued game's claim on the save. Gold is still paid at the game over, for the whole run, before and after the save; Save and quit and Main menu pay none, as Main menu never did.
 
 ## The L key
 - A new keymap action (`location`, "Say the level and section", default L), so the F1 screen lists it and it can be rebound. In a game it says, for example, "Level 1, section 1 of 8", saved or not. In the tutorial and the weapon test range it says "No level to report." Keyboard only (see below).

@@ -48,6 +48,7 @@ import logging
 
 from ..platform.defaults import UserDefaults
 from ..platform.runloop import RunLoop
+from . import saved_game
 from .app_delegate import AppDelegate
 
 log = logging.getLogger('menu')
@@ -57,6 +58,9 @@ SOUND_UI_SELECT = 10
 # selectMenu, flag, what it does
 ROWS = (
     (2, 'main_title_flag', 'title'),
+    # PORT ADDITION (tsatria03, 2026-10-07): Continue, before Game start, only while
+    # there is a saved game to continue (saved_game.py, aidocks/project_save_game_plan.md)
+    (10, 'continue_flag', 'continue'),
     (3, 'start_game_flag', 'start'),
     (4, 'tutorial_flag', 'tutorial'),
     (6, 'store_flag', 'store'),
@@ -70,6 +74,7 @@ ROWS = (
 #: (16); Reborn's subtitle is The Afterlife (tsatria03, 2026-10-07).
 ROW_TEXT = {
     'title': 'Sixth Sense Reborn: The Afterlife',
+    'continue': 'Continue, Button',     # "continue only" (tsatria03, 2026-10-07)
     'start': 'Game start, Button',
     'tutorial': 'Tutorial, Button',
     'store': 'Store, Button',
@@ -89,6 +94,7 @@ class MainController:
         self.speech = speech
         self.message = ''                   # maskLabel1
         self._flags = {f: False for _n, f, _a in ROWS}
+        self.hasSave = saved_game.exists()
 
     # ================================================================ entry
     # -[MainController viewDidLoad] 0x85c1
@@ -125,10 +131,15 @@ class MainController:
         self._say(self.row_text())
         log.info('menu: %s', action)
 
+    def rows(self):
+        """The rows offered: Continue only while there is a game to continue.  The menu
+        is made afresh every time it comes up, so it looks for the save once, then."""
+        return tuple(r for r in ROWS if r[2] != 'continue' or self.hasSave)
+
     def move(self, delta):
         """Up and Down walk the rows in order and wrap, skipping the numbers the port
         leaves out."""
-        nums = [r[0] for r in ROWS]
+        nums = [r[0] for r in self.rows()]
         if self.selectMenu in nums:
             i = (nums.index(self.selectMenu) + delta) % len(nums)
         else:
@@ -139,7 +150,7 @@ class MainController:
     def jump(self, last=False):
         """PORT ADDITION: Home and End in the screen reader mode, the first row or the
         last, as a screen reader's own lists go."""
-        nums = [r[0] for r in ROWS]
+        nums = [r[0] for r in self.rows()]
         self.selectMenu = nums[-1] if last else nums[0]
         self.blindModeSelectedMenu()
 
@@ -152,7 +163,9 @@ class MainController:
             return
         # tapCount sends StartGame: (0x9420) and Store: (0x9438), the two wrappers that
         # click first; Tutorial and the mode change are sent their actions directly.
-        if action == 'start':
+        if action == 'continue':
+            self.ContinueAction_(None)
+        elif action == 'start':
             self.StartGame_(None)
         elif action == 'tutorial':
             self.TutorialAction_(None)
@@ -209,6 +222,14 @@ class MainController:
             self.next_screen = ('tutorial', True)
         else:
             self.next_screen = 'stage'
+
+    def ContinueAction_(self, *_):
+        """PORT ADDITION (2026-10-07): carry on the saved game, as Game start starts one:
+        click, then the stage, which says "Now loading" and puts the game at the start of
+        the section it was saved in (saved_game.resume)."""
+        self.StopElseSpeak()
+        self.app.playSound_Gain_Pos_z_reprats_(SOUND_UI_SELECT, 0.2, (0.0, 0.0), 0, False)
+        self.next_screen = 'continue'
 
     # -[MainController TutorialAction:] 0xad5d
     def TutorialAction_(self, *_):

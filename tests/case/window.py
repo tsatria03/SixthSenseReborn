@@ -54,8 +54,8 @@ class Run:
         run = self
 
         def wrap(kind, fn):
-            def make(*a):
-                screen = fn(*a)
+            def make(*a, **kw):
+                screen = fn(*a, **kw)
                 k = a[0] if kind == 'screen' else kind
                 run.built.append((k, screen))
                 inner = screen.teardown

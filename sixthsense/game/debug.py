@@ -32,7 +32,6 @@ import time
 from .stage_1_e import (BOSS_CAVE, BOSS_FOREST, BOSS_NUMBER, MONSTER_GIRL,
                         MONSTER_WOMAN, SOUND_WARNING)
 
-START_ROW = 680                     # 0x2cf1a, where every level starts
 #: Shift+F2 goes round the levels: after this one comes level 1 again.
 MAX_LEVEL = 8
 #: How long F2 waits before it will jump again: as long as Shift+F2's level change
@@ -107,10 +106,9 @@ def next_level(st):
 def sections(st):
     """The rows each section of the corridor starts on, top of the corridor first:
     the rows on your path whose action cell is 9, the quiet stretch that opens each
-    one.  The last is the boss's."""
-    x = st.gamePlayer.playerXplot
-    return [y for y in range(START_ROW, 0, -1)
-            if st.stage.movePlayActionState_PlotY_(x, y) == 9]
+    one.  The last is the boss's.  The same rows a saved game resumes on (saved_game.py)."""
+    from .saved_game import section_rows
+    return section_rows(st.stage)
 
 
 def next_section(st):
