@@ -27,6 +27,10 @@ uv run --managed-python --python 3.13 --with-requirements requirements.txt --wit
   and `--onefile` still produce an onedir app.
 - The finished app is moved without rewriting its Info.plist or re-signing.
   Native binaries retain their own deployment requirements.
+  Since 2026-10-07 the compiler does rewrite it after the move, on purpose:
+  `finish_app_plist` writes the version from VERSION and
+  `LSMinimumSystemVersion` 11.0, which PyInstaller's command line cannot,
+  and `sign_app` signs the app again ad hoc ([[project_mac_plist_plan]]).
 - The bundle id is `compiler.BUNDLE_ID`, `org.sixthsense.reborn` since
   2026-10-06 (it was `org.sixthsense.port`). The V26.10.07-2 Mac archives'
   Info.plist confirms it; it also shows version 0.0.0 and no

@@ -553,6 +553,47 @@ def test_macos_builds_a_copyable_native_app():
             assert '--windowed' in compiler.command(_Args())
 
 
+def test_the_mac_app_gets_the_release_version_and_the_oldest_macos():
+    """PyInstaller's command line writes version 0.0.0 and no minimum macOS, so the compiler fills
+    both into the finished app's Info.plist and signs the app again (2026-10-07)."""
+    import plistlib
+    from unittest.mock import patch
+    with tempfile.TemporaryDirectory() as dist:
+        app = os.path.join(dist, 'SixthSenseReborn.app')
+        os.makedirs(os.path.join(app, 'Contents'))
+        plist = os.path.join(app, 'Contents', 'Info.plist')
+
+        def built():
+            with open(plist, 'wb') as fh:
+                plistlib.dump({'CFBundleIdentifier': compiler.BUNDLE_ID,
+                               'CFBundleShortVersionString': '0.0.0'}, fh)
+
+        def read():
+            with open(plist, 'rb') as fh:
+                return plistlib.load(fh)
+
+        built()
+        compiler.finish_app_plist(app, '26.10.07-2')
+        info = read()
+        assert info['CFBundleShortVersionString'] == '26.10.07-2', info
+        assert info['CFBundleVersion'] == '26.10.07-2', info
+        assert info['LSMinimumSystemVersion'] == compiler.MACOS_MINIMUM == '11.0', info
+        assert info['CFBundleIdentifier'] == 'org.sixthsense.reborn', info
+
+        # no VERSION file: the version stays as PyInstaller wrote it, the minimum is still set
+        built()
+        compiler.finish_app_plist(app, '')
+        info = read()
+        assert info['CFBundleShortVersionString'] == '0.0.0' and 'CFBundleVersion' not in info, info
+        assert info['LSMinimumSystemVersion'] == '11.0', info
+
+        with patch.object(compiler.subprocess, 'run') as run:
+            compiler.sign_app(app)
+        assert run.call_count == 1
+        assert run.call_args[0][0] == ['codesign', '--force', '--deep', '--sign', '-', app]
+        assert run.call_args[1] == {'check': True}
+
+
 def test_a_folder_build_is_moved_to_the_windows_folder():
     """PyInstaller names a folder build after the executable, dist\\SixthSenseReborn; the compiler
     moves it to dist\\SixthSenseReborn-Windows, and clears both before the next build."""

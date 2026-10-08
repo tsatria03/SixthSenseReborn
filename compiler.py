@@ -47,6 +47,7 @@ import importlib.metadata
 import importlib.util
 import os
 import platform
+import plistlib
 import re
 import shutil
 import subprocess
@@ -270,6 +271,10 @@ APP_DOCS_STAGE = os.path.join(HERE, 'build', 'embed', 'app-docs')
 #: over from the faithful port; macOS keys an app's settings, permissions and "open with" on
 #: this, so Reborn and SixthSenseOriginal on one Mac could be taken for the same app.
 BUNDLE_ID = 'org.sixthsense.reborn'
+#: The oldest macOS the app opens on, the runtime's own target (aidocks/project_macos_runtime_plan.md).
+#: Written into Info.plist as LSMinimumSystemVersion, so an older Mac says the system is too old
+#: instead of failing to open the app (aidocks/project_mac_plist_plan.md).
+MACOS_MINIMUM = '11.0'
 
 
 def app_bundle(args) -> bool:
@@ -375,11 +380,35 @@ def move_folder_build(dest_root: str) -> None:
 
 
 def move_app_build(dest_root: str) -> str:
-    """Move PyInstaller's finished app without changing its contents or signature."""
+    """Move PyInstaller's finished app as it is; finish_app_plist and sign_app then fill in what
+    PyInstaller's command line cannot."""
     os.makedirs(dest_root, exist_ok=True)
     target = os.path.join(dest_root, NAME + '.app')
     os.replace(pyinstaller_dir() + '.app', target)
     return target
+
+
+def finish_app_plist(app_path: str, version: str) -> None:
+    """Write the release version and the oldest macOS into the app's Info.plist.  PyInstaller's
+    command line has no option for either, so a build said version 0.0.0 and set no minimum, read
+    from the V26.10.07-2 archives (aidocks/project_mac_plist_plan.md).  The version is VERSION
+    exactly, such as 26.10.07-2 (tsatria03, 2026-10-07), and is left as PyInstaller wrote it when
+    there is no VERSION file."""
+    plist = os.path.join(app_path, 'Contents', 'Info.plist')
+    with open(plist, 'rb') as fh:
+        info = plistlib.load(fh)
+    if version:
+        info['CFBundleShortVersionString'] = version
+        info['CFBundleVersion'] = version
+    info['LSMinimumSystemVersion'] = MACOS_MINIMUM
+    with open(plist, 'wb') as fh:
+        plistlib.dump(info, fh)
+
+
+def sign_app(app_path: str) -> None:
+    """Sign the app again, ad hoc, as PyInstaller did: changing Info.plist breaks the signature it
+    made, and Apple Silicon may refuse to open an app whose signature is broken."""
+    subprocess.run(['codesign', '--force', '--deep', '--sign', '-', app_path], check=True)
 
 
 def game_files(src: str) -> list[str]:
@@ -598,7 +627,9 @@ def main(argv=None) -> int:
     if bundle:
         try:
             app_path = move_app_build(dest_root)
-        except OSError as error:
+            finish_app_plist(app_path, build_version())
+            sign_app(app_path)
+        except (OSError, plistlib.InvalidFileException, subprocess.CalledProcessError) as error:
             say('the app could not be finalized: %s' % error)
             return 1
         say('the game is %s; copy this app on its own.' % app_path)
