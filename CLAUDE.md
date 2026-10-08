@@ -54,7 +54,7 @@ The save lives in `%APPDATA%\SixthSenseReborn\` (on Linux `~/.local/share/SixthS
 
 ## Running and building
 
-**The dev runs and builds, not Claude.** Never build unless told to. The tests may be run without asking, always the safe way ([[project_safe_test_run]]), but only the scripts that cover the Python files changed; the full suite runs only when the dev asks ([[feedback_dont_run_or_build]]). Ask before running the game, `compiler.py`, or anything else that executes game code or speaks ([[feedback_dont_run_or_build]]).
+**The dev runs and builds, not Claude.** Never build unless told to. The tests may be run without asking, always the safe way ([[project_safe_test_run]]), but only the scripts that cover the Python files changed, in the background; the full suite runs only when the dev asks, in the foreground ([[feedback_dont_run_or_build]]). Ask before running the game, `compiler.py`, or anything else that executes game code or speaks ([[feedback_dont_run_or_build]]).
 
 `python SixthSenseReborn.py` plays the publisher's logo, then the opening screen, then the menu. Flags:
 - `--no-intro` opens straight on the menu.

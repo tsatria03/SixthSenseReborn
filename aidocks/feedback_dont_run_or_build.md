@@ -1,6 +1,6 @@
 ---
 name: feedback_dont_run_or_build
-description: "Never build unless the dev says so. Tests may be run without asking, always the safe way, but only the scripts covering the Python files changed; the full suite only when the dev asks. Ask before running the game, compiler.py, or scripts that execute game code or speak. Read-only inspection is fine."
+description: "Never build unless the dev says so. Tests may be run without asking, always the safe way, but only the scripts covering the Python files changed, in the background (2026-10-07); the full suite only when the dev asks, in the foreground. Ask before running the game, compiler.py, or scripts that execute game code or speak. Read-only inspection is fine."
 metadata:
   node_type: memory
   type: feedback
@@ -9,6 +9,8 @@ metadata:
 **Never build anything unless the dev says to.** That covers `compiler.py`, PyInstaller, and any packaging or zip step.
 
 **Only the tests that match what changed (2026-09-23).** When one or more Python files change and a test script covers them, run only that script or those scripts, not the whole suite. For example, a change to `game/store.py` runs `tests/case/store.py`. Run the full suite only when the dev asks, for example once they have more than five commits that are not pushed, or after the conversation has been compacted. The dev said: "Do not keep running the full test suite over and over again." This replaces the earlier pause of 2026-09-22 ("for the next few commits, do not run tests unless I say so").
+
+**Run the covering tests in the background; the full suite in the foreground** (the dev, 2026-10-07: "When you run tests from now on, do it in the backround. Unless it's the full test suite, witch in that case can be ran in the forground when I ask"). The test scripts that cover a change are started as a background task and reported when they finish, so the session is not held up; `tests/suite.py`, run only when the dev asks for it, runs in the foreground, as the release workflow's run was watched in the foreground.
 
 **During a batch of fixes, run no tests between the commits** (the dev, 2026-09-24: "Please don't run tests between each commit. Wait untill all of the commits are done before doing the full test suite, and if I give you the go ahead"). Make the batch's commits, then run the full suite once at the end, and only when the dev gives the go-ahead.
 
