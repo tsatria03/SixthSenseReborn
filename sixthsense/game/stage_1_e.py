@@ -182,8 +182,8 @@ HEADSHOT_TEXT = 'Headshot!'
 LOADING_TEXT = 'Now loading.'
 #: PORT ADDITION (tsatria03, 2026-10-07): what the reload key says when it does nothing,
 #: in the dev's words: a gun already full, and a weapon with no magazine at all.
-RELOADED_TEXT = 'This weapon is already reloaded with ammo.'
-NO_AMMO_TEXT = 'This weapon does not take ammo.'
+RELOADED_TEXT = 'This weapon is already loaded with ammo.'
+NO_AMMO_TEXT = 'This weapon does not take any ammo.'
 #: PORT ADDITION (tunmi13productions, 2026-10-05): headshot_beep, SoundList entry 374,
 #: the one definition; the Settings screen plays it too, as a sample.
 SOUND_HEADSHOT_BEEP = 374

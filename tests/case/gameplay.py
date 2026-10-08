@@ -1356,8 +1356,8 @@ def test_reload_says_why_it_does_nothing():
             st.gamePlayer.useWepon = weapon
             assert not st.ReloadGesture()
             assert said == [S1E.NO_AMMO_TEXT], (weapon, said)
-        assert S1E.RELOADED_TEXT == 'This weapon is already reloaded with ammo.'
-        assert S1E.NO_AMMO_TEXT == 'This weapon does not take ammo.'
+        assert S1E.RELOADED_TEXT == 'This weapon is already loaded with ammo.'
+        assert S1E.NO_AMMO_TEXT == 'This weapon does not take any ammo.'
     finally:
         del st.GunReloadAction_
         st.teardown()
