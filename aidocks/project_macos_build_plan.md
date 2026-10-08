@@ -8,7 +8,8 @@ metadata:
 
 # macOS builds
 
-Default output: `dist/SixthSense-macOS/SixthSense.app`, native architecture.
+Default output: `dist/SixthSenseReborn-macOS/SixthSenseReborn.app`, native
+architecture (it was `dist/SixthSense-macOS/SixthSense.app` before the Reborn rename).
 For a distributable build targeting macOS 11:
 
 ```sh
@@ -26,8 +27,16 @@ uv run --managed-python --python 3.13 --with-requirements requirements.txt --wit
   and `--onefile` still produce an onedir app.
 - The finished app is moved without rewriting its Info.plist or re-signing.
   Native binaries retain their own deployment requirements.
+- The bundle id is `compiler.BUNDLE_ID`, `org.sixthsense.reborn` since
+  2026-10-06 (it was `org.sixthsense.port`). The V26.10.07-2 Mac archives'
+  Info.plist confirms it; it also shows version 0.0.0 and no
+  `LSMinimumSystemVersion`, both open tasks in [[project_dev_tasks]]
+  ([[evaluation_fixes_plan]], group 6).
 - Resources/Frameworks links preserve frozen lookup. Saves stay outside the app.
 
 macOS release automation is outside this change; releaser.py is unchanged.
+Since 2026-10-05 `.github/workflows/release.yml` builds both Macs (macos-15 and
+macos-15-intel) on a tag, and `releaser.RELEASE_ARCHIVES` names the
+`macOS-arm64` and `macOS-x86_64` archives ([[release_workflow_plan]]).
 
 ARM64 and Intel/Rosetta app builds were checked after relocation.

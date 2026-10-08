@@ -8,7 +8,7 @@ bindings and settings into it, but never the save.  Call it before anything read
 
 Until 2026-10-06 each tool changed ``APPDATA`` instead, which the game reads on Windows
 alone, so on Linux and macOS the tools would have played on the real save
-(aidocks/project_evaluation_fixes_plan.md).  The Windows folders are the same as they
+(aidocks/completed/evaluation_fixes_plan.md).  The Windows folders are the same as they
 were, so a save a tool already has carries on.
 """
 from __future__ import annotations

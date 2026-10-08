@@ -1,11 +1,11 @@
 ---
-name: project_evaluation_fixes_plan
-description: "PLANNED 2026-10-06: fix all 19 findings of the 2026-10-06 evaluation in about ten local commits, none pushed until every item is done, tested and confirmed by the dev. Groups, order, open questions and what each commit carries."
+name: evaluation_fixes_plan
+description: "FINISHED 2026-10-07, confirmed by the dev: the 19 findings of the 2026-10-06 evaluation fixed in eleven groups of commits, pushed and released; group 11 (long functions) stays a developer task by the dev's decision."
 metadata:
   type: project
 ---
 
-**Status: planned, 2026-10-06.** Nothing built yet. The findings and their evidence are in [[project_evaluation_2026_10]]; this note is how they get fixed.
+**Status: finished 2026-10-07, confirmed by the dev.** Planned on 2026-10-06, built in the held batch the same day, pushed once the full suite passed, and shipped in the releases of 2026-10-07. Groups 1, 4, 5, 6 and 7 were confirmed one by one; groups 2, 3, 8, 9 and 10 on 2026-10-07 (the dev: "I think so yes, but please check what I did for those in the git log"), after Claude checked their commits (`2d8c484`, `e7eaf2c`, `735bf10` with `d2a7c21`, `893508b`, `b8f17dc`) and found nothing later undoing them. Group 11 stays an open line in [[project_dev_tasks]], the dev's decision. The findings and their evidence are in [[project_evaluation_2026_10]]; this note is how they get fixed.
 
 **The dev's words (2026-10-06):** "I believe we'll need a bunche of non pushed commits to fix these. I say non pushed because I do not people seeing them untill we resolved all of them." And: "we might as well add some of these things to the todo list, asooming some of them are player facing." tunmi13productions said they would stop pushing for a few hours that day, so the shared files (`main_controller.py`, `stage_1_e.py`, `SixthSenseReborn.py`) go first, while no rebase is needed.
 

@@ -64,7 +64,7 @@ MENU_MUSIC_KEY = volume.MENU_MUSIC_KEY
 #: the value its reader below assumes when the key is missing, so writing them changes
 #: nothing in play.  ``didFinishLaunching`` writes any that are missing, as the volumes are,
 #: so settings.json shows a player every setting from the first start
-#: (aidocks/project_evaluation_fixes_plan.md).
+#: (aidocks/completed/evaluation_fixes_plan.md).
 SETTING_DEFAULTS = {
     'DEBUG': '0',                       # source runs only; never written in a build
     'VIBRATION': '1',

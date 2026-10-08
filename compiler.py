@@ -279,7 +279,7 @@ def app_bundle(args) -> bool:
 def shipped_sound_folders() -> tuple[str, ...]:
     """The sounds folders a build carries: game\\sounds\\used alone.  sounds\\unused holds only what
     the game never plays, 59 MB of retired speech among it, so it stays in the repository
-    (aidocks/project_evaluation_fixes_plan.md, group 5)."""
+    (aidocks/completed/evaluation_fixes_plan.md, group 5)."""
     from sixthsense.paths import SOUNDS_USED
     return (SOUNDS_USED,)
 
