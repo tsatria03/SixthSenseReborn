@@ -556,14 +556,23 @@ def step_commit(version: str) -> bool:
 
 
 def step_tag(version: str) -> bool:
-    """Tag the current commit V<version> and push the tag.  An existing tag is never moved."""
+    """Push the branch, then tag the current commit V<version> and push the tag.  An existing
+    tag is never moved.
+
+    The branch goes first every time, so GitHub never has a tag on a commit its branch lacks:
+    ``step_commit`` pushes only when it commits, and with VERSION and the changelog already
+    committed, as on a re-tag, it pushed nothing (2026-10-07, V26.10.07-1)."""
     tag = tag_for(version)
     if tag in all_tags():
         say('the tag %s already exists, so it is left where it is.' % tag)
         return True
     ok, head = git('log', '-1', '--format=%h %s')
-    if not ask('Tag %s as %s, and push the tag?' % (head, tag)):
+    if not ask('Push the branch, tag %s as %s, and push the tag?' % (head, tag)):
         say('skipped.')
+        return False
+    ok, out = git('push', 'origin', 'HEAD')
+    if not ok:
+        say('the branch could not be pushed, so nothing was tagged: %s' % out)
         return False
     ok, out = git('tag', tag)
     if not ok:

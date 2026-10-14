@@ -881,6 +881,35 @@ class _Git:
         return False
 
 
+def test_the_tag_goes_out_after_the_branch_every_time():
+    """The branch is pushed before the tag even when there was nothing to commit, so GitHub
+    never has a tag on a commit main lacks; a failed branch push makes no tag at all."""
+    saved = (releaser.git, releaser.ask, releaser.all_tags)
+    calls = []
+
+    def run(push_ok):
+        calls.clear()
+
+        def git(*args, capture=True):
+            calls.append(args)
+            if args[:1] == ('push',) and args[2] == 'HEAD':
+                return push_ok, '' if push_ok else 'rejected'
+            return True, ''
+        releaser.git = git
+        return releaser.step_tag('26.10.14-1')
+    releaser.ask = lambda question: True
+    releaser.all_tags = lambda: []
+    try:
+        assert run(True) is True
+        pushes = [c for c in calls if c[:1] in (('push',), ('tag',))]
+        assert pushes == [('push', 'origin', 'HEAD'), ('tag', 'V26.10.14-1'),
+                          ('push', 'origin', 'V26.10.14-1')], pushes
+        assert run(False) is False
+        assert not any(c[:1] == ('tag',) for c in calls), 'tagged after a failed branch push'
+    finally:
+        releaser.git, releaser.ask, releaser.all_tags = saved
+
+
 def test_the_test_run_starts_the_workflow_on_the_pushed_branch():
     with _Git() as g:
         assert releaser.step_test_workflow() is True
