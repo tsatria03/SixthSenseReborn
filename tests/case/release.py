@@ -809,10 +809,29 @@ def test_the_workflow_tests_before_it_builds_with_a_pinned_pyinstaller():
     tests, build = text.index('name: Run the tests'), text.index('name: Build and pack')
     assert tests < build, 'the tests run after the build'
     step = text[tests:build]
-    assert 'tests/case/*.py' in step and '_*) continue' in step and 'exit $failed' in step
+    assert 'python tests/suite.py --rerun-decides' in step, step
+    assert 'cat tests/results/' in step and 'exit 1' in step, 'a failure does not show its report'
     install = text[text.index('name: Install'):tests]
     assert 'pyinstaller==' in install and 'pyinstaller-hooks-contrib==' in install, install
     assert ' pyinstaller\n' not in install, 'an unpinned pyinstaller is installed too'
+
+
+def test_only_a_file_that_fails_on_its_own_too_fails_the_workflows_tests():
+    """tests/suite.py's exit: by hand any failure is 1; with --rerun-decides, as the workflow
+    runs it, a file that passed when run again on its own is forgiven, one that failed again
+    or was never run again is not."""
+    sys.path.insert(0, os.path.join(ROOT, 'tests'))
+    try:
+        import suite
+    finally:
+        sys.path.remove(os.path.join(ROOT, 'tests'))
+    clock, broken = {'name': 'clock.py', 'bad': [('FAIL', 'x')]}, {'name': 'broken.py', 'bad': [('FAIL', 'y')]}
+    alone = {'clock.py': {'bad': []}, 'broken.py': {'bad': [('FAIL', 'y')]}}
+    assert suite.exit_code([], {}) == 0 and suite.exit_code([], {}, True) == 0
+    assert suite.exit_code([clock], alone) == 1, 'a run by hand forgave a failure'
+    assert suite.exit_code([clock], alone, True) == 0, 'a pass on its own still failed the run'
+    assert suite.exit_code([clock, broken], alone, True) == 1
+    assert suite.exit_code([clock], {}, True) == 1, 'a file never run again was forgiven'
 
 
 def test_a_test_run_checks_the_release_and_touches_nothing_on_github():

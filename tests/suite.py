@@ -24,7 +24,9 @@ tests\\results\\results-<date>-<n>.txt, with the totals, the times, the commit i
 save's files before and after to show the run never touched them.  A file that passes contributes its test
 lines only, since the game's own warnings and the tracebacks its error-path tests expect would bury them;
 a file that fails has its whole output kept, at the end, where it is worth reading.  The exit code is 1 if
-anything failed, so a build or a workflow can run this first.
+anything failed, so a build or a workflow can run this first.  With `--rerun-decides` a file that failed
+but passed when run again on its own does not count, which is how the release workflow runs it
+(tsatria03, 2026-10-14), so a test that only lost to a busy runner's clock never stops a release.
 """
 from __future__ import annotations
 
@@ -299,6 +301,14 @@ def write_report(path, runs, alone, wall, workers, save):
                 out(second['output'] if second['output'].endswith('\n') else second['output'] + '\n')
 
 
+def exit_code(failed, alone, rerun_decides=False):
+    """1 when a file failed, 0 when none did.  With ``rerun_decides`` only a file that failed again on
+    its own, or was not run again, counts."""
+    if rerun_decides:
+        failed = [r for r in failed if alone.get(r['name']) is None or alone[r['name']]['bad']]
+    return 1 if failed else 0
+
+
 def main():
     ap = argparse.ArgumentParser(description='Run the tests in tests/case/ side by side.')
     ap.add_argument('files', nargs='*', help='only these test files, with or without the .py')
@@ -306,6 +316,8 @@ def main():
     ap.add_argument('--serial', action='store_true', help='one file at a time, in name order')
     ap.add_argument('--no-rerun', action='store_true', help="don't run a failing file again on its own")
     ap.add_argument('--timeout', type=int, default=300, help='give up on a file after this many seconds')
+    ap.add_argument('--rerun-decides', action='store_true',
+                    help='a file that fails but passes on its own does not fail the run')
     args = ap.parse_args()
 
     names = chosen(args.files) if args.files else test_files()
@@ -357,7 +369,7 @@ def main():
             more = '' if len(names) < 4 else ' and %d more' % (len(names) - 3)
             print('%s failed: %s%s' % (r['name'][:-3], ', '.join(names[:3]), more))
     print('the whole output is in %s' % os.path.relpath(report, ROOT))
-    return 1 if failed else 0
+    return exit_code(failed, alone, args.rerun_decides)
 
 
 if __name__ == '__main__':

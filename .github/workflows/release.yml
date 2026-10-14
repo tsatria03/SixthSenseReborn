@@ -41,18 +41,17 @@ jobs:
           python -m pip install -r requirements.txt pyinstaller==6.22.3 pyinstaller-hooks-contrib==2026.7
       # Every test, before anything is built: one that fails stops this system's build, and
       # so the release (tsatria03, 2026-10-06).  Each test file keeps off any save and is
-      # silent by itself (tests/case/_scratch_save.py).
+      # silent by itself (tests/case/_scratch_save.py).  tests/suite.py runs them side by
+      # side and runs a failing file again on its own; with --rerun-decides only a file that
+      # fails both times stops the build (tsatria03, 2026-10-14).  A failure prints the
+      # whole report, every test and the failing files' output.
       - name: Run the tests
         shell: bash
         run: |
-          failed=0
-          for f in tests/case/*.py; do
-            case "$(basename "$f")" in _*) continue;; esac
-            echo "::group::$f"
-            python "$f" || { failed=1; echo "::error::$f failed"; }
-            echo "::endgroup::"
-          done
-          exit $failed
+          python tests/suite.py --rerun-decides && exit 0
+          echo "::error::a test failed; the whole report follows"
+          cat tests/results/results-*.txt
+          exit 1
       - name: Build and pack
         shell: bash
         env:
