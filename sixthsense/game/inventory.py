@@ -194,7 +194,7 @@ class DetailInventoryController(BlindScreen):
 class ReorderController(BlindScreen):
     """PORT ADDITION (tunmi13productions, 2026-10-06): the order the weapons come in.
 
-    aidocks/completed/weapon_order_plan.md.  Back, then the equipped weapons in the
+    aidocks/plans/weapon_order_plan.md.  Back, then the equipped weapons in the
     player's own order (``weapon_order.py``).  Up and Down walk them; Shift with either
     moves the weapon under the cursor, and the cursor goes with it.  On a pad the
     bumpers move it.  Nothing here equips or unequips: it only says what order the
@@ -229,7 +229,7 @@ class ReorderController(BlindScreen):
 
     def instructions(self):
         """How to move a weapon, in the words that suit what is plugged in, as the
-        tutorial's callouts do (aidocks/completed/tutorial_controller_callouts_plan.md).
+        tutorial's callouts do (aidocks/plans/tutorial_controller_callouts_plan.md).
         A pad gets the controller wording, with its own button names."""
         carried = self.order()
         if not carried:

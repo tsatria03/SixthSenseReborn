@@ -28,9 +28,9 @@ weapon (``game/weapon_upgrades.py``), and ``WEAPON_ORDER`` (``game/weapon_order.
 ``synchronize`` writes the files; the original's does the same thing.
 
 PORT ADDITION: the original keeps everything in one plist.  The port split it into
-save.json and settings.json on 2026-09-25 (aidocks/completed/save_split_plan.md), and into
+save.json and settings.json on 2026-09-25 (aidocks/plans/save_split_plan.md), and into
 short files in folders on 2026-10-06, tsatria03's layout
-(aidocks/completed/save_folders_plan.md):
+(aidocks/plans/save_folders_plan.md):
 
     saves/save.json          progress, and any key not named below, the safe place for a
                              key added later
@@ -92,13 +92,13 @@ SETTINGS_KEYS = ('DEBUG', 'MASTERVOLUME', 'MENUMUSICVOLUME', 'LEVELMUSICVOLUME',
                  'CONTROLLER', 'SKIPINTRO')
 #: Keys the game no longer reads, dropped when the save is opened, so an old value cannot
 #: linger.  ENTITYVOLUME went on 2026-09-28: the zombies are always at full volume
-#: (aidocks/completed/entity_full_volume_plan.md).  EYEMODE went on 2026-10-05 with the voice
-#: over row (aidocks/completed/screen_reader_only_plan.md).  The four coin keys went on
-#: 2026-10-06; games had been free since 2026-10-05 (aidocks/completed/free_games_plan.md),
+#: (aidocks/plans/entity_full_volume_plan.md).  EYEMODE went on 2026-10-05 with the voice
+#: over row (aidocks/plans/screen_reader_only_plan.md).  The four coin keys went on
+#: 2026-10-06; games had been free since 2026-10-05 (aidocks/plans/free_games_plan.md),
 #: but an old save still carried them.  The last five went on 2026-10-07: the original's
 #: stage select (STAGE), its ranking server's week and rank (TOPSCOREWEEK, WEEKTIME,
 #: NOWRANK) and its App Store review count (REVIEWCOUNT), none of which the port has
-#: (aidocks/completed/unused_save_keys_plan.md).
+#: (aidocks/plans/unused_save_keys_plan.md).
 RETIRED_KEYS = ('ENTITYVOLUME', 'EYEMODE', 'FIREST', 'COIN', 'COIN_TIMER', 'COIN_TIMER_START',
                 'STAGE', 'TOPSCOREWEEK', 'WEEKTIME', 'NOWRANK', 'REVIEWCOUNT')
 

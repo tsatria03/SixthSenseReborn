@@ -1,6 +1,6 @@
 """The gold a game pays, GOLD_PER_KILL and GOLD_PER_HEADSHOT in save.json.
 
-A PORT ADDITION (tsatria03, 2026-10-05; aidocks/completed/gold_rates_plan.md).  The
+A PORT ADDITION (tsatria03, 2026-10-05; aidocks/plans/gold_rates_plan.md).  The
 original's 12 a kill and 2 a headshot, raised to 15 and 5 and editable: written on every
 start where missing, and put back to the default when unusable.
 

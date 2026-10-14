@@ -1,7 +1,7 @@
 """PORT ADDITION: the keyboard the touch input is mapped to, and the player's changes.
 
 The original has no key bindings at all - every action is a swipe, a tap or a shake
-(``aidocks/GAME_STRUCTURE.md`` §7). The port binds those actions to keys, keeps the
+(``aidocks/general/GAME_STRUCTURE.md`` §7). The port binds those actions to keys, keeps the
 bindings in ``%APPDATA%\\SixthSenseReborn\\config\\keys.json`` (in the folder itself until
 2026-10-06, and moved from there once: ``_move_flat_keys``) and lets the player rebind them
 from the screen F1 opens.
@@ -67,7 +67,7 @@ ACTIONS = (
     ('prev_weapon', 'Previous weapon', (('left shift', 'tab'), ('right shift', 'tab'))),
     ('shake', 'Shake free', (('space',),)),
     ('pause', 'Pause / stop', (('p',),)),
-    # PORT ADDITION (tsatria03, 2026-10-07, aidocks/completed/save_game_plan.md): where you
+    # PORT ADDITION (tsatria03, 2026-10-07, aidocks/plans/save_game_plan.md): where you
     # are, "Level 1, section 1 of 8"
     ('location', 'Say the level and section', (('l',),)),
     # Only with --debug (``KeyMap.debug``); otherwise they neither match nor show.
@@ -143,7 +143,7 @@ def bindings_text(bindings):
     return ', or '.join(binding_text(b) for b in bindings)
 
 
-#: Where the bindings live inside the save folder (aidocks/completed/save_folders_plan.md).
+#: Where the bindings live inside the save folder (aidocks/plans/save_folders_plan.md).
 KEYS_FILE = os.path.join('config', 'keys.json')
 #: Where they lived until 2026-10-06.
 FLAT_KEYS_FILE = 'keys.json'

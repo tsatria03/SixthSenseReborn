@@ -1,7 +1,7 @@
 """Each weapon's stats in save.json: the real ones, read back by the pages and the stage.
 
 A PORT ADDITION (tsatria03, 2026-09-25; made real 2026-10-05,
-aidocks/completed/real_weapon_stats_plan.md).  All eight weapons have their ammo capacity,
+aidocks/plans/real_weapon_stats_plan.md).  All eight weapons have their ammo capacity,
 range in centimetres, damage and price in the save from the start, except where nothing
 could use one; a missing or unusable value is put back to the real one; an older save's
 shop numbers are replaced once; and a hand edit changes what the pages say and what the

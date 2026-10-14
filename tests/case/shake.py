@@ -1,6 +1,6 @@
 """Shaking a game controller to shake the animal zombie off.
 
-A PORT ADDITION (aidocks/completed/controller_shake_plan.md).  The pads, the SDL library and the clock
+A PORT ADDITION (aidocks/plans/controller_shake_plan.md).  The pads, the SDL library and the clock
 are stand-ins, so no real pad is opened or read.
 """
 from __future__ import annotations
@@ -218,7 +218,7 @@ def test_the_game_asks_whether_a_pad_can_be_shaken():
 
 
 # ------------------------------------- the Settings screen's shake (2026-10-06)
-# aidocks/completed/settings_menu_plan.md
+# aidocks/plans/settings_menu_plan.md
 
 class _ActivePads(_Pads):
     """Stands in for ui/controller.Controllers once it can name the chosen pad: only that

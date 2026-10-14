@@ -47,4 +47,4 @@ In the code, `stage_1_e.MONSTER_SOUNDS[KIND_BOSS]`'s being-hurt list goes from `
 
 ## Tests and docs
 - `tests/case/data.py` already checks that every sound number the monster tables use resolves to a WAV; it is extended to the boss's 371, and a check that every entry above names a file.
-- `aidocks/DIVERGENCES.md`: the renames, as the dev's own, by ear, with the reasons; the new entry 371; the "woman" monster being a man. [[project_sound_organization]] gains the third sort. A changelog entry, since the boss now has a being-hurt sound of its own entry (it sounds the same).
+- SixthSenseOriginal's `aidocks/DIVERGENCES.md`: the renames, as the dev's own, by ear, with the reasons; the new entry 371; the "woman" monster being a man. [[project_sound_organization]] gains the third sort. A changelog entry, since the boss now has a being-hurt sound of its own entry (it sounds the same).

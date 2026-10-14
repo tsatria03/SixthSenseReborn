@@ -1,6 +1,6 @@
 """A game controller on the menus: its events become the keys the screens already take.
 
-A PORT ADDITION (aidocks/completed/joystick_plan.md, phase 1).  The events are made up
+A PORT ADDITION (aidocks/plans/joystick_plan.md, phase 1).  The events are made up
 here, so no pad need be attached; the SDL layer is opened on the dummy video driver.
 """
 from __future__ import annotations
@@ -354,7 +354,7 @@ def test_the_sounds_are_named_in_the_sound_list():
 
 
 # --------------------------------- the one pad the game plays with (2026-10-06)
-# aidocks/completed/settings_menu_plan.md: the Settings screen picks the pad by name, and any
+# aidocks/plans/settings_menu_plan.md: the Settings screen picks the pad by name, and any
 # other attached pad is ignored.  A name, never an id: unplug the pad on id 0 and the next
 # one plugged in takes that id.
 
@@ -457,7 +457,7 @@ def test_with_no_pad_nothing_is_refused():
 
 
 # -------------------------------------- Controller support off (2026-10-06)
-# aidocks/completed/controller_support_plan.md: with the Settings row off, no pad is
+# aidocks/plans/controller_support_plan.md: with the Settings row off, no pad is
 # opened and no pad event is read, so nothing in the game can tell a pad is attached.
 
 class _SupportApp(_App):

@@ -2,7 +2,7 @@
 
 A weapon's page reads four numbers aloud: ammo capacity, effective range, damage and
 price.  Since 2026-10-05 they are the real ones, and the game plays with what the save
-holds (aidocks/completed/real_weapon_stats_plan.md):
+holds (aidocks/plans/real_weapon_stats_plan.md):
 
     AMMO_CAPACITY  the magazine: what starting, reloading and the test range fill to
     RANGE          in centimetres: a zombie further away cannot be hit, by the grenade too
@@ -13,7 +13,7 @@ The original's pages spoke numbers typed into its code (``store.SHOP``,
 ``inventory.SLOTS``, which disagree with each other) while play read the weapon plists;
 the numbers here are the plists' damage, range and magazine, and the shop's price, the one
 buying always charged.  From 2026-09-25 to 2026-10-05 the save held the shop's numbers and
-nothing read them (aidocks/completed/weapon_stats_in_save_plan.md).
+nothing read them (aidocks/plans/weapon_stats_in_save_plan.md).
 
 The keys are the weapon's own save name and the stat, in capitals with underscores
 between the words (tsatria03, 2026-10-05), easier to read than the original's

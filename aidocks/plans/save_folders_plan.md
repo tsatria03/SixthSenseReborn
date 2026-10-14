@@ -32,7 +32,7 @@ Every system's save folder (`%APPDATA%\SixthSenseReborn` on Windows), so the tes
 Weapon names, by slot: 0 `grenade` (GRENADE), 1 `knife` (KNIFE), 2 `colt` (COLT), 3 `shotgun` (SHOTGUN), 4 `m4a1` (M4), 5 `ak47` (AK47), 6 `mg80` (MG80), 7 `sword` (JAPAN).
 
 ## How the game reads it
-- **Nothing outside `defaults.py` changes.** The game keeps asking for `'SHOTGUN_DAMAGE'`, `'GOLD'` or `'M4USE'`; `defaults.py` routes each key to its file and translates the name, as it already routes by name between save.json and settings.json (aidocks/completed/save_split_plan.md). Values read back in the form the code expects today (e.g. `GOLD` as text for `stringForKey_`, `M4USE` as "1" or "0").
+- **Nothing outside `defaults.py` changes.** The game keeps asking for `'SHOTGUN_DAMAGE'`, `'GOLD'` or `'M4USE'`; `defaults.py` routes each key to its file and translates the name, as it already routes by name between save.json and settings.json (aidocks/plans/save_split_plan.md). Values read back in the form the code expects today (e.g. `GOLD` as text for `stringForKey_`, `M4USE` as "1" or "0").
 - **Each file keeps its own `.bak`, and one that cannot be read is set aside as `.damaged`**, as now. **An empty file counts as new**, not damaged (the dev made the store and weapon files empty by hand).
 - `keymap.py` reads and writes `config/keys.json`.
 - `tests/interact/_own_save.py` copies `config/keys.json` and `config/settings.json`.

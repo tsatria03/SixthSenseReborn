@@ -78,7 +78,7 @@ SHAKES_MAX = 5
 #: The dev: "for the controller, it shouldn't take multiple shakes. maybe one or two."
 #: At 3, a grab needing 1 to 3 breaks on one shake and one needing 4 or 5 on two, so a
 #: shake never takes more than two.  Presses and shakes count together, so mixing them
-#: works as it reads (aidocks/completed/controller_shake_plan.md).
+#: works as it reads (aidocks/plans/controller_shake_plan.md).
 MOTION_SHAKE_WORTH = 3
 
 
@@ -1316,7 +1316,7 @@ class Stage_1_E:
         # PORT DIVERGENCE (tsatria03, 2026-10-07): 0x34c4e..0x34e7c also kept the week's
         # best in TOPSCOREWEEK, expiring it at WEEKTIME, to upload to the publisher's
         # ranking server.  That server is gone and nothing showed the week's best, so
-        # neither key is kept (aidocks/completed/unused_save_keys_plan.md).
+        # neither key is kept (aidocks/plans/unused_save_keys_plan.md).
         raw = d.stringForKey_('TOPSCORE')                     # 0x34f00
         self.TopScoreLabel = raw if raw else '0'              # 0x34f46
         self.selectMenu = 0
@@ -1334,7 +1334,7 @@ class Stage_1_E:
         d.setObject_forKey_('%d' % self.app.haveGold, 'GOLD')  # 0x32ee8
         # PORT DIVERGENCE (tsatria03, 2026-10-07): 0x32efe..0x32f58 opened stage 11 of the
         # original's stage select in STAGE.  The port has no stage select, so nothing
-        # read it and it is not kept (aidocks/completed/unused_save_keys_plan.md).
+        # read it and it is not kept (aidocks/plans/unused_save_keys_plan.md).
         d.synchronize()                                       # 0x32f7a
         self.gameState = 2                                    # 0x32f9c
         self._panel_voice(SOUND_MISSION_SUCCESS, 0.5)         # 0x32fac
@@ -1360,7 +1360,7 @@ class Stage_1_E:
         # PORT DIVERGENCE (tsatria03, 2026-10-07): 0x32be6 counted game overs in
         # REVIEWCOUNT, for asking the player to review the game on the App Store.  There
         # is no App Store here, so the count is not kept
-        # (aidocks/completed/unused_save_keys_plan.md).
+        # (aidocks/plans/unused_save_keys_plan.md).
         d.synchronize()
         if self.ownsSave:
             # PORT ADDITION (tsatria03, 2026-10-07): the game is over, so its save goes
@@ -1614,7 +1614,7 @@ class Stage_1_E:
     #: The rows top to bottom, by the Y bands at 0x308b6..0x311ec.
     #: DIVERGENCE: row 9, the rank, is left out.  It read the place the publisher's
     #: ranking server gave you, and that server is gone.
-    #: PORT ADDITION (tsatria03, 2026-10-07, aidocks/completed/save_game_plan.md): Save (11)
+    #: PORT ADDITION (tsatria03, 2026-10-07, aidocks/plans/save_game_plan.md): Save (11)
     #: and Save and quit (12), between Restart and Main menu, while a real game is paused.
     SAVE_ROW = 11
     SAVE_QUIT_ROW = 12
@@ -1641,7 +1641,7 @@ class Stage_1_E:
 
     def _panel_voice(self, sound, gain=0.2):
         """One of the panel's voice lines, spoken through the screen reader (2026-10-05,
-        aidocks/completed/screen_reader_only_plan.md)."""
+        aidocks/plans/screen_reader_only_plan.md)."""
         if sound in self.PANEL_MESSAGE_TEXT:
             self._say(self.PANEL_MESSAGE_TEXT[sound])
         else:
@@ -1969,7 +1969,7 @@ class Stage_1_E:
     def gameReplayAction_(self, *_):
         """Restart.  PORT DIVERGENCE: it is free, like starting a game from the menu.  The
         original spent a coin and said "no coin" when there were none (0x33128..0x33218);
-        aidocks/completed/free_games_plan.md has why that is gone."""
+        aidocks/plans/free_games_plan.md has why that is gone."""
         if not self.bStop:                                    # 0x33106
             return False
         self.bStop = False                                    # 0x3310c
@@ -2057,7 +2057,7 @@ class Stage_1_E:
         PORT DIVERGENCE (tsatria03, 2026-10-07): 0x3274a also filled RankLabel from
         NOWRANK, the place the publisher's ranking server gave you.  That server is gone,
         nothing showed the label, and the key is not kept
-        (aidocks/completed/unused_save_keys_plan.md)."""
+        (aidocks/plans/unused_save_keys_plan.md)."""
         top = UserDefaults.standardUserDefaults().stringForKey_('TOPSCORE')
         self.TopScoreLabel = top if top else '0'              # 0x326c2
 

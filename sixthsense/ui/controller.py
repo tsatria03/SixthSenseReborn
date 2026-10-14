@@ -2,7 +2,7 @@
 
 Built on SDL's game controller layer (``pygame._sdl2.controller``), which gives every pad
 the same standard layout on Windows, Linux and macOS, never XInput or raw joystick button
-numbers.  aidocks/completed/joystick_plan.md has the plan.
+numbers.  aidocks/plans/joystick_plan.md has the plan.
 
 Phase 1 is the menus and the screens that work like them.  A controller event becomes the
 keyboard event the screen already takes, so no screen changes:
@@ -16,7 +16,7 @@ result panels, which take these keys.  Nothing is translated while the key bindi
 is open, where a key press would be captured as a binding.
 
 Settings' **Controller support** row (2026-10-06,
-aidocks/completed/controller_support_plan.md) turns all of this off: no pad is opened and no
+aidocks/plans/controller_support_plan.md) turns all of this off: no pad is opened and no
 pad event is read, so nothing in the game can tell a controller is attached, and the
 keyboard plays.  Turning it back on finds the pads
 attached and announces each, as the game does at startup.
@@ -227,7 +227,7 @@ class Controllers:
         return list(self._pads)
 
     # ---- the one pad the game plays with ---------------------------------------------
-    # PORT ADDITION (tunmi13productions, 2026-10-06, aidocks/completed/settings_menu_plan.md):
+    # PORT ADDITION (tunmi13productions, 2026-10-06, aidocks/plans/settings_menu_plan.md):
     # the Settings screen picks which pad the game reads, and the others are ignored.  The
     # choice is saved by *name*, never by an id: unplug the pad on id 0 and the next one to
     # be plugged in takes that id, so an id means nothing between runs.
@@ -237,7 +237,7 @@ class Controllers:
         """The names of the pads attached, oldest first, each name only once.
 
         SDL can list one physical pad twice - on Windows a DualSense is listed again until
-        its own driver takes it (aidocks/completed/controller_shake_plan.md) - so a repeated
+        its own driver takes it (aidocks/plans/controller_shake_plan.md) - so a repeated
         name is one entry.  Two genuinely identical pads collapse together too, which
         tunmi13productions accepted: a name is all the save can tell apart anyway.
         """
@@ -250,7 +250,7 @@ class Controllers:
 
     def _support(self):
         """Whether the game uses a controller at all (``app.controller_support``,
-        aidocks/completed/controller_support_plan.md).  Read live, like the chosen name, so the
+        aidocks/plans/controller_support_plan.md).  Read live, like the chosen name, so the
         Settings row takes effect the moment it is pressed.  Without an app, which is every
         test that passes none, a controller is used."""
         if self.app is None:

@@ -2,7 +2,7 @@
 
 The original pays ``12 * kills + 2 * headshots`` when a game ends (``Stage_1_E.
 ObtainedGold``, 0x3c616).  Since 2026-10-05 the two rates are save keys, raised a little
-so weapons are easier to get (tsatria03; aidocks/completed/gold_rates_plan.md):
+so weapons are easier to get (tsatria03; aidocks/plans/gold_rates_plan.md):
 
     GOLD_PER_KILL      gold for every zombie killed, 15 (the original's 12)
     GOLD_PER_HEADSHOT  gold for every headshot hit, killing or not, 5 (the original's 2)

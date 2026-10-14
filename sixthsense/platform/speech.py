@@ -3,7 +3,7 @@
 The original spoke entirely through its recorded WAVs, which ``SoundList.plist`` names by
 number.  The port first used this module only for the words those recordings could not
 say, such as the key-binding screen's key names; since 2026-10-05 it says everything
-(aidocks/completed/screen_reader_only_plan.md).
+(aidocks/plans/screen_reader_only_plan.md).
 
 Every line goes to the player's screen reader, or to a plain voice when none is running.
 Before every line, the first of these that can speak says it:
@@ -39,7 +39,7 @@ log = logging.getLogger('speech')
 #: above cannot load.  Narrator is last: Prism reaches it through UI Automation, which says
 #: it is ready whether or not Narrator is running, so the game asks Windows instead.
 #: Orca is Linux's; VoiceOver is macOS's (2026-10-02,
-#: aidocks/project_macos_runtime_plan.md). Prism has each only on its own system.
+#: aidocks/general/project_macos_runtime_plan.md). Prism has each only on its own system.
 READERS = ('NVDA', 'JAWS', 'ZDSR', 'ZOOM_TEXT', 'SYSTEM_ACCESS', 'PC_TALKER',
            'BOY_PC_READER', 'SENSE_READER', 'WINDOW_EYES', 'ORCA', 'VOICE_OVER', 'UIA')
 NARRATOR = 'UIA'

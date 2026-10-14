@@ -9,7 +9,7 @@ Each file runs as its own process, exactly as `python tests\\case\\<name>.py` do
 still sets its own throwaway save folder, its own silence and the null audio and dummy video drivers for
 itself through `_scratch_save`.  Nothing here loads the game, so the suite itself can neither speak nor
 open a device, and this run is as silent and as far from the real save as a run by hand
-(aidocks/project_safe_test_run.md).
+(aidocks/general/project_safe_test_run.md).
 
 The slowest files start first, from the times kept in tests\\results\\timings.json, because one long file
 decides how long the whole run takes: gameplay.py alone is over a minute.  A file with no time on record

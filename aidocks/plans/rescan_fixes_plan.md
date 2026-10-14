@@ -5,7 +5,7 @@ metadata:
   type: project
 ---
 
-**Status: planned 2026-10-14, nothing built yet.** The dev picked twenty of the open lines in [[project_dev_tasks]] (all but the Mac check, item 8, and the long functions, item 15): "Here are the things I want fixed, in multiple commits when possible. We can fix 1 or several items at a time." And: "Do not push anything untill I say so." Item numbers below are the dev's list.
+**Status: in progress since 2026-10-14; group 1 built.** The dev picked twenty of the open lines in [[project_dev_tasks]] (all but the Mac check, item 8, and the long functions, item 15): "Here are the things I want fixed, in multiple commits when possible. We can fix 1 or several items at a time." And: "Do not push anything untill I say so." Item numbers below are the dev's list.
 
 Before the plan, each older item was checked against the code of 2026-10-14 (`03d297b`). The boss check of item 22 was fixed long ago (`f2a1e96`), and most of item 17 is done; the rest still applies. The details, with lines, are under each group.
 
@@ -19,7 +19,7 @@ Before the plan, each older item was checked against the code of 2026-10-14 (`03
 
 ## The groups, in the order they will be done
 
-1. **The aidocks paths** (items 2, 3, 4, 5). Not player-facing. Done first, since it touches the most files. The dev's layout (2026-10-14): `aidocks/plans/` holds every plan, planned or complete, and a finished plan stays there, marked finished; `aidocks/general/` holds the rest.
+1. **The aidocks paths** (items 2, 3, 4, 5). Not player-facing. Done first, since it touches the most files. The dev's layout (2026-10-14): `aidocks/plans/` holds every plan, planned or complete, and a finished plan stays there, marked finished; `aidocks/general/` holds the rest. **Built 2026-10-14, not yet confirmed.** A script repointed 160 real file paths in 55 files (only names that exist in `plans/` or `general/`; the 40 `MEMORY.md` links became `../plans/`), and the rules were rewritten by hand: `CLAUDE.md`, `MEMORY.md`, `feedback_completed_projects.md` (rewritten around the new rule, the old one kept as history), `feedback_memory_in_aidocks.md`, `feedback_record_plans_first.md`, `GAME_STRUCTURE.md`'s one link and README.md's layout block. Of the `DIVERGENCES.md` mentions, the two notes already said the file stayed in SixthSenseOriginal; the nine in eight finished plans now say "SixthSenseOriginal's". Left as history: finished plans saying they "moved to `completed/`", and `project_provenance.md`. Checked: every relative and `[[name]]` link in `aidocks/` and `CLAUDE.md` resolves, every `aidocks/general/` and `aidocks/plans/` path in the repo names a real file, all 232 changed code lines are path comments, every changed Python file compiles, and no test reads a path or a docstring.
    - `MEMORY.md` (now `aidocks/general/`): the 40 `completed/<name>.md` links become `../plans/<name>.md`; the "Completed projects" heading and lines 3 and 84 describe the new layout.
    - `CLAUDE.md` lines 5, 43 and 85, `feedback_completed_projects.md`, `feedback_memory_in_aidocks.md` and `feedback_record_plans_first.md` describe the new layout: links resolve to `aidocks/general/<name>.md` or `aidocks/plans/<name>.md`, and a finished plan no longer moves.
    - The ~100 comments and docstrings citing `aidocks/completed/<name>.md` or `aidocks/<name>.md` across `sixthsense/`, `tests/`, `tools/`, `compiler.py`, `releaser.py`, `SixthSenseReborn.py`, `README.md` and `release.yml` are repointed.

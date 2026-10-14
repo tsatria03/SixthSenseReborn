@@ -34,4 +34,4 @@ A setting added later goes where it belongs in that list, not at the end by defa
 
 ## Tests and docs
 - Each key at 100 leaves every gain exactly the binary's; 50 and 0 scale only their own group; bad values mean 100; the first start writes every default; a player's own value is kept.
-- `docks/readme.txt` ("Your save": the volumes in settings.json and what 0 and 100 mean), `README.md`, `aidocks/DIVERGENCES.md` (the volume knobs entry), and a changelog entry.
+- `docks/readme.txt` ("Your save": the volumes in settings.json and what 0 and 100 mean), `README.md`, SixthSenseOriginal's `aidocks/DIVERGENCES.md` (the volume knobs entry), and a changelog entry.

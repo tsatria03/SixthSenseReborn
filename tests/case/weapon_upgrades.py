@@ -1,6 +1,6 @@
 """Weapon upgrades: one level per weapon, adding to its stats, every number in save.json.
 
-A PORT ADDITION (tsatria03, 2026-10-05; aidocks/completed/weapon_upgrades_plan.md), retuned
+A PORT ADDITION (tsatria03, 2026-10-05; aidocks/plans/weapon_upgrades_plan.md), retuned
 on 2026-10-06.  The totals and prices are checked against the tables the dev agreed: a
 level adds 15 per cent of the weapon's own stat, so level 10 is two and a half times the
 weapon, with the range rounded to a whole metre; prices from 100, growing 1.2 times.

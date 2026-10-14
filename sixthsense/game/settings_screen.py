@@ -1,10 +1,10 @@
 """PORT ADDITION: the Settings screen, where every setting the menu used to carry lives.
 
-tunmi13productions, 2026-10-06 (aidocks/completed/settings_menu_plan.md).  The main menu
+tunmi13productions, 2026-10-06 (aidocks/plans/settings_menu_plan.md).  The main menu
 had grown three setting rows of its own - vibration and the two headshot settings - so
 they moved in here behind one Settings row, and the screen gained two more: the shake,
 and which controller the game plays with.  Controller support joined them on 2026-10-06
-(aidocks/completed/controller_support_plan.md): off, the game opens no pad at all, so a
+(aidocks/plans/controller_support_plan.md): off, the game opens no pad at all, so a
 player with a pad plugged in for something else plays on the keyboard.
 
 **A row the attached pad cannot do stays where it is and says so.**  It reads
@@ -31,13 +31,13 @@ log = logging.getLogger('settings')
 #: always at the end of the list.
 BACK_ROW = 1
 #: first of all, from source only: a build has no such row (tsatria03, 2026-10-07,
-#: aidocks/completed/debug_setting_plan.md)
+#: aidocks/plans/debug_setting_plan.md)
 DEBUG_ROW = 2
 SKIP_INTRO_ROW = 3
 SPEECH_ROW = 4
 BEEP_ROW = 5
 #: the gate for the three rows after it, which is why it comes before them and needs no
-#: pad itself (2026-10-06, aidocks/completed/controller_support_plan.md)
+#: pad itself (2026-10-06, aidocks/plans/controller_support_plan.md)
 CONTROLLER_SUPPORT_ROW = 6
 VIBRATION_ROW = 7
 SHAKE_ROW = 8

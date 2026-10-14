@@ -7,7 +7,7 @@ its name; a double tap then activates whatever ``selectMenu`` is on
 (``-[MainController tapCount]`` 0x9350). The whole blind path is gated on
 ``[AppDelegate mode]`` - ``-[MainController Menu:]`` returns immediately when it is 0,
 which is the sighted button layout.  The port's rows are spoken by the screen reader,
-``ROW_TEXT`` (aidocks/completed/screen_reader_only_plan.md).
+``ROW_TEXT`` (aidocks/plans/screen_reader_only_plan.md).
 
 The original's eight rows, in screen order, with the flag and sound each one owned:
 
@@ -39,7 +39,7 @@ Escape quits.
 there were none, and the coins came back one every 1800 s up to five
 (``coinTiemrControlStart`` 0xbe01, ``coinUpTimer`` 0xc0b1, and for time away
 ``viewDidLoad`` 0x8aca-0x8b14), kept in ``COIN``, ``COIN_TIMER`` and
-``COIN_TIMER_START``.  None of that is ported (aidocks/completed/free_games_plan.md), and
+``COIN_TIMER_START``.  None of that is ported (aidocks/plans/free_games_plan.md), and
 an old save's coin keys are dropped (``defaults.RETIRED_KEYS``).
 """
 from __future__ import annotations
@@ -59,14 +59,14 @@ SOUND_UI_SELECT = 10
 ROWS = (
     (2, 'main_title_flag', 'title'),
     # PORT ADDITION (tsatria03, 2026-10-07): Continue, before Game start, only while
-    # there is a saved game to continue (saved_game.py, aidocks/completed/save_game_plan.md)
+    # there is a saved game to continue (saved_game.py, aidocks/plans/save_game_plan.md)
     (10, 'continue_flag', 'continue'),
     (3, 'start_game_flag', 'start'),
     (4, 'tutorial_flag', 'tutorial'),
     (6, 'store_flag', 'store'),
     # PORT ADDITION: the settings row.  Until 2026-10-06 the vibration and the two
     # headshot settings were three rows of their own here; they moved behind this one
-    # (aidocks/completed/settings_menu_plan.md).
+    # (aidocks/plans/settings_menu_plan.md).
     (9, 'settings_flag', 'settings'),
 )
 #: PORT ADDITION: what the screen reader says for each row.  The rows that are a setting are
@@ -217,7 +217,7 @@ class MainController:
     def StartGameAction_(self, *_):
         """Start a game.  PORT DIVERGENCE: it is free.  The original spent one of five
         coins that came back every 30 minutes and said "no coin" when there were none
-        (0xb324..0xb5a0); aidocks/completed/free_games_plan.md has why that is gone.
+        (0xb324..0xb5a0); aidocks/plans/free_games_plan.md has why that is gone.
 
         0xb3f8 always pushes Stage_1_E, whose MapInitInBundle (0x2e08e-0x2e0dc) runs the
         tutorial inline while TUTORIAL is 0.  The port runs that tutorial in
@@ -248,7 +248,7 @@ class MainController:
     def SettingsAction_(self, *_):
         """PORT ADDITION (2026-10-06): push the Settings screen, as ``StoreAction:`` pushes
         the shop.  The vibration and headshot rows that used to be here live on it now
-        (aidocks/completed/settings_menu_plan.md)."""
+        (aidocks/plans/settings_menu_plan.md)."""
         self.StopElseSpeak()
         self.app.playSound_Gain_Pos_z_reprats_(SOUND_UI_SELECT, 0.2, (0.0, 0.0), 0, False)
         self.next_screen = 'settings'

@@ -320,8 +320,9 @@ game/                    the original app bundle, its sounds sorted into folders
 vendor/                  OpenAL Soft and NVDA's controller client, with their licenses
 analysis/                the binary, and the disassembly this was written from
 tools/                   the Mach-O / Objective-C / Thumb tooling that produced it
-aidocks/                 GAME_STRUCTURE.md (how the original works), and
+aidocks/general/         GAME_STRUCTURE.md (how the original works), and
                          the notes for AI-assisted work (see CLAUDE.md)
+aidocks/plans/           every plan for a feature or fix, planned or finished
 docks/                   readme.txt, changelog.txt and todo list.txt, which ship in a docks folder
 tests/case/              the tests, one plain script each
 tests/interact/          tools to play by ear: the level and tutorial choosers, the
@@ -332,7 +333,7 @@ releaser.py              sets the version, files the changelog, builds, zips, ta
 requirements.txt         the two packages it needs
 ```
 
-`aidocks/GAME_STRUCTURE.md` is the useful one: it is the mechanism of the game as read out
+`aidocks/general/GAME_STRUCTURE.md` is the useful one: it is the mechanism of the game as read out
 of the binary, with addresses.
 
 ### `game/` — the original's data

@@ -25,7 +25,7 @@ metadata:
 - **Never read:** no code reads these keys. A test checks that editing them changes nothing the pages say or the stage uses.
 
 ## Decided
-- **The shop's numbers, always** (the dev, 2026-09-25: "go ahead with the shop stats"). Where the shop and the inventory disagree (`aidocks/DIVERGENCES.md`, "The shop and the inventory disagree about the same weapons": the shotgun, M4A1, AK47, MG80 and sword), the keys hold `store.SHOP`'s, the ones `buyAction:` charges, whichever page the weapon was bought or equipped from, so a weapon's keys never change. The knife and the colt, which the shop does not sell, take `inventory.SLOTS`'s. The grenade is the same in both. So, as ammo capacity, range, damage and price:
+- **The shop's numbers, always** (the dev, 2026-09-25: "go ahead with the shop stats"). Where the shop and the inventory disagree (SixthSenseOriginal's `aidocks/DIVERGENCES.md`, "The shop and the inventory disagree about the same weapons": the shotgun, M4A1, AK47, MG80 and sword), the keys hold `store.SHOP`'s, the ones `buyAction:` charges, whichever page the weapon was bought or equipped from, so a weapon's keys never change. The knife and the colt, which the shop does not sell, take `inventory.SLOTS`'s. The grenade is the same in both. So, as ammo capacity, range, damage and price:
   - grenade: no ammo capacity key (see below), 10, 150, 1000
   - knife: 0, 2, 30, 0 (inventory)
   - colt: 7, 50, 30, 0 (inventory)
@@ -44,4 +44,4 @@ metadata:
 
 ## Tests and docs
 - A new test: a new save has the three starting weapons' keys; buying and equipping write a weapon's four (the grenade's three, and never a `GRENADEAMMOCAPACITY`); an existing save that owns weapons gets theirs on the start, and a later start leaves them as they are; editing them by hand changes nothing the page says or the stage uses.
-- `aidocks/DIVERGENCES.md` (a port addition: the original writes no such keys), `platform/defaults.py`'s key list, and a changelog entry.
+- SixthSenseOriginal's `aidocks/DIVERGENCES.md` (a port addition: the original writes no such keys), `platform/defaults.py`'s key list, and a changelog entry.

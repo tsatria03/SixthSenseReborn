@@ -1,6 +1,6 @@
 """The Settings screen: every setting, and what the attached pad can and cannot do.
 
-A PORT ADDITION (tunmi13productions, 2026-10-06; aidocks/completed/settings_menu_plan.md).
+A PORT ADDITION (tunmi13productions, 2026-10-06; aidocks/plans/settings_menu_plan.md).
 The vibration and the two headshot rows moved here out of the main menu, and the screen
 gained the shake and the controller picker.  A row the pad cannot do stays where it is,
 reads "not supported" and will not turn on.
@@ -153,7 +153,7 @@ def test_the_rows_are_back_the_six_settings_and_the_picker():
 
 def test_the_defaults_are_what_they_were_before_the_screen_existed():
     """Spoken headshot on, the beep off, vibration on, and the shake on, which is how it
-    worked before there was a setting (aidocks/completed/controller_shake_plan.md)."""
+    worked before there was a setting (aidocks/plans/controller_shake_plan.md)."""
     with _NewSave() as s:
         s.pads('Xbox Wireless Controller')
         s.can_shake(True)
@@ -331,7 +331,7 @@ def test_an_unsupported_row_will_not_turn_anything_on():
 
 
 # ------------------------------------- Controller support (2026-10-06)
-# aidocks/completed/controller_support_plan.md: a player with a pad plugged in who does
+# aidocks/plans/controller_support_plan.md: a player with a pad plugged in who does
 # not want to play with it turns the whole thing off, and the keyboard plays.
 
 def test_controller_support_starts_on_and_turning_it_off_lets_go_of_the_pads():
@@ -452,7 +452,7 @@ def test_the_picker_cycles_the_pads_and_saves_the_name():
 
 def test_a_pad_sdl_has_listed_twice_is_one_entry():
     """On Windows SDL lists a DualSense twice until its own driver takes it
-    (aidocks/completed/controller_shake_plan.md), and tunmi13productions asked for that not
+    (aidocks/plans/controller_shake_plan.md), and tunmi13productions asked for that not
     to show up as two controllers."""
     with _NewSave() as s:
         pads = s.pads('PS5 Controller', 'PS5 Controller')
@@ -479,7 +479,7 @@ def test_a_saved_name_that_is_not_attached_is_left_alone():
 
 def test_the_real_keyboard_walks_and_flips():
     """Driving ScreenInput, the keyboard a pushed screen really uses: a screen whose rows
-    are only ever called directly can ship unreachable (aidocks/completed/weapon_order_plan.md)."""
+    are only ever called directly can ship unreachable (aidocks/plans/weapon_order_plan.md)."""
     from sixthsense.ui.screen_input import ScreenInput
 
     class _Pygame:

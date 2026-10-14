@@ -1,6 +1,6 @@
 """PORT ADDITION: weapon upgrades, one level per weapon, every number in save.json.
 
-tsatria03, 2026-10-05 (aidocks/completed/weapon_upgrades_plan.md).  Each weapon has a level,
+tsatria03, 2026-10-05 (aidocks/plans/weapon_upgrades_plan.md).  Each weapon has a level,
 ``<W>_LEVEL``, from 0 up to its cap, ``<W>_MAX_LEVEL`` (10).  One upgrade button raises
 it by one, and the level adds to the weapon's own stats (``weapon_stats.py``): damage,
 ammo capacity and range all at once.  The grenade, the knife and the sword have no

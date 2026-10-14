@@ -4,7 +4,7 @@ The animal zombie that grabs you is shaken off by pressing the shake key a few t
 (``Stage_1_E.shake_step``); in the original it was the phone that was shaken.  A pad with an
 accelerometer, a DualSense for one, can be shaken for the same effect, beside A.  An Xbox pad
 has no sensor, so it only has A, and the tutorial only offers the shake when ``capable``
-(aidocks/completed/controller_shake_plan.md).
+(aidocks/plans/controller_shake_plan.md).
 
 The sensor is only switched on and read while a zombie holds you, so nothing is read, and no pad
 is kept busy, the rest of the time.  ``Shake.tick`` is called once a frame by the game's loop.
@@ -69,7 +69,7 @@ class Shake:
 
         PORT ADDITION (2026-10-06): with the Settings screen's shake turned off, this is the
         same as not being active, so no sensor is switched on and nothing is read.  A is
-        still the shake button either way (aidocks/completed/settings_menu_plan.md).
+        still the shake button either way (aidocks/plans/settings_menu_plan.md).
         """
         if not self.on():
             active = False

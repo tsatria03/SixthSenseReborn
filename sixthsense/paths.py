@@ -50,7 +50,7 @@ VENDOR = os.path.join(ROOT, 'vendor')
 WINDOWS = sys.platform == 'win32'
 MACOS = sys.platform == 'darwin'
 #: PORT ADDITION: macOS uses the source-built universal2 Big Sur library (2026-10-02,
-#: aidocks/project_macos_runtime_plan.md); Windows and Linux keep their own binaries.
+#: aidocks/general/project_macos_runtime_plan.md); Windows and Linux keep their own binaries.
 def openal_lib_name(platform: str) -> str:
     return {'win32': 'soft_oal.dll', 'darwin': 'libopenal.1.dylib'}.get(
         platform, 'libopenal.so.1')
@@ -68,7 +68,7 @@ GAME_ENV = 'SIXTHSENSE_GAME'
 # by-ear tools in tests/interact (_own_save.py), never by the game.
 USER_DIR_ENV = 'SIXTHSENSE_USER_DIR'
 #: The save's folder under save_base(), and Sixth Sense's, whose save the first start
-#: copies (the dev, 2026-10-04: aidocks/completed/reborn_identity_plan.md): SixthSenseOriginal
+#: copies (the dev, 2026-10-04: aidocks/plans/reborn_identity_plan.md): SixthSenseOriginal
 #: since that game renamed its folder the same day, or SixthSense where it has not run since.
 SAVE_FOLDER = 'SixthSenseReborn'
 OLD_SAVE_FOLDERS = ('SixthSenseOriginal', 'SixthSense')

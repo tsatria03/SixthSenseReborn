@@ -1,7 +1,7 @@
 """The shape every menu screen in this game shares.
 
 ``MainController``, ``Stage_1_E``'s result panel, the shop, the weapon pages and the
-inventory are all built the same way (see ``aidocks/GAME_STRUCTURE.md`` §8):
+inventory are all built the same way (see ``aidocks/general/GAME_STRUCTURE.md`` §8):
 
     -[X selectTapPointSoundStart]   maps the finger's Y to one of N bands, stores the
                                     band in ``selectMenu``, plays that row's WAV and
@@ -18,7 +18,7 @@ exactly as they do in ``MainController``.
 
 **PORT DIVERGENCE (2026-10-05):** the rows are spoken by the screen reader, each screen's
 ``ROW_TEXT`` or ``row_text``, instead of the original's recordings
-(aidocks/completed/screen_reader_only_plan.md).  The rows, their order and what they
+(aidocks/plans/screen_reader_only_plan.md).  The rows, their order and what they
 do are still the original's; every subclass carries the addresses it was read from.
 """
 from __future__ import annotations

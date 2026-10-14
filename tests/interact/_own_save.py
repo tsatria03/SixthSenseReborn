@@ -8,7 +8,7 @@ bindings and settings into it, but never the save.  Call it before anything read
 
 Until 2026-10-06 each tool changed ``APPDATA`` instead, which the game reads on Windows
 alone, so on Linux and macOS the tools would have played on the real save
-(aidocks/completed/evaluation_fixes_plan.md).  The Windows folders are the same as they
+(aidocks/plans/evaluation_fixes_plan.md).  The Windows folders are the same as they
 were, so a save a tool already has carries on.
 """
 from __future__ import annotations
@@ -17,7 +17,7 @@ import os
 import shutil
 
 #: What a tool takes from the player's own folder each time it starts, inside the save
-#: folder's config folder (aidocks/completed/save_folders_plan.md).
+#: folder's config folder (aidocks/plans/save_folders_plan.md).
 COPIED = (os.path.join('config', 'keys.json'), os.path.join('config', 'settings.json'))
 
 

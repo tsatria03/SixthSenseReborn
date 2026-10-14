@@ -60,7 +60,7 @@ NAME = 'SixthSenseReborn'
 ENTRY = 'SixthSenseReborn.py'
 
 #: What differs between the systems a build can be made on (tunmi13productions, 2026-09-28;
-#: aidocks/completed/linux_build_plan.md).  PyInstaller only builds for the system it runs on, so a Windows
+#: aidocks/plans/linux_build_plan.md).  PyInstaller only builds for the system it runs on, so a Windows
 #: build is made on Windows and a Linux one on Linux, in WSL or not.  Each system has:
 #:     folder     what the build folder is called after SixthSenseReborn-, and so the one a release extracts to
 #:     exe        the executable's file name
@@ -271,9 +271,9 @@ APP_DOCS_STAGE = os.path.join(HERE, 'build', 'embed', 'app-docs')
 #: over from the faithful port; macOS keys an app's settings, permissions and "open with" on
 #: this, so Reborn and SixthSenseOriginal on one Mac could be taken for the same app.
 BUNDLE_ID = 'org.sixthsense.reborn'
-#: The oldest macOS the app opens on, the runtime's own target (aidocks/project_macos_runtime_plan.md).
+#: The oldest macOS the app opens on, the runtime's own target (aidocks/general/project_macos_runtime_plan.md).
 #: Written into Info.plist as LSMinimumSystemVersion, so an older Mac says the system is too old
-#: instead of failing to open the app (aidocks/completed/mac_plist_plan.md).
+#: instead of failing to open the app (aidocks/plans/mac_plist_plan.md).
 MACOS_MINIMUM = '11.0'
 
 
@@ -284,7 +284,7 @@ def app_bundle(args) -> bool:
 def shipped_sound_folders() -> tuple[str, ...]:
     """The sounds folders a build carries: game\\sounds\\used alone.  sounds\\unused holds only what
     the game never plays, 59 MB of retired speech among it, so it stays in the repository
-    (aidocks/completed/evaluation_fixes_plan.md, group 5)."""
+    (aidocks/plans/evaluation_fixes_plan.md, group 5)."""
     from sixthsense.paths import SOUNDS_USED
     return (SOUNDS_USED,)
 
@@ -391,7 +391,7 @@ def move_app_build(dest_root: str) -> str:
 def finish_app_plist(app_path: str, version: str) -> None:
     """Write the release version and the oldest macOS into the app's Info.plist.  PyInstaller's
     command line has no option for either, so a build said version 0.0.0 and set no minimum, read
-    from the V26.10.07-2 archives (aidocks/completed/mac_plist_plan.md).  The version is VERSION
+    from the V26.10.07-2 archives (aidocks/plans/mac_plist_plan.md).  The version is VERSION
     exactly, such as 26.10.07-2 (tsatria03, 2026-10-07), and is left as PyInstaller wrote it when
     there is no VERSION file."""
     plist = os.path.join(app_path, 'Contents', 'Info.plist')

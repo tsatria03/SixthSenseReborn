@@ -48,9 +48,9 @@ def test_the_rows_are_the_originals():
     less the coins (1), ranking (5) and Game Center (8), the voice over row (7), which
     went on 2026-10-05 with the recorded voice, and the port's settings row (9).  Until
     2026-10-06 the vibration and the two headshot settings were rows 9, 10 and 11 here;
-    they moved behind the settings row (aidocks/completed/settings_menu_plan.md).  The
+    they moved behind the settings row (aidocks/plans/settings_menu_plan.md).  The
     port's Continue row (10), before Game start, is offered only with a saved game
-    (2026-10-07, aidocks/completed/save_game_plan.md)."""
+    (2026-10-07, aidocks/plans/save_game_plan.md)."""
     assert [r[0] for r in ROWS] == [2, 10, 3, 4, 6, 9]
     assert [r[2] for r in ROWS] == ['title', 'continue', 'start', 'tutorial', 'store',
                                     'settings']
@@ -203,7 +203,7 @@ def test_it_opens_on_the_title_and_wraps():
 
 def test_a_game_is_free_and_there_are_no_coins():
     """-[MainController StartGameAction:] 0xb2ed spent a coin; the port's games are free
-    (aidocks/completed/free_games_plan.md), and nothing counts coins or recharges them."""
+    (aidocks/plans/free_games_plan.md), and nothing counts coins or recharges them."""
     m = _menu()
     try:
         m.selectMenu = 3
@@ -305,7 +305,7 @@ def test_the_store_row_opens_the_shop():
 
 def test_the_settings_row_opens_the_settings_screen():
     """PORT ADDITION (2026-10-06): the vibration and headshot rows moved behind this one
-    (aidocks/completed/settings_menu_plan.md)."""
+    (aidocks/plans/settings_menu_plan.md)."""
     from sixthsense.game import main_controller as MC
     m = _menu()
     played = []
@@ -395,7 +395,7 @@ class _Buzzer:
 
 # The vibration and headshot rows moved to the Settings screen on 2026-10-06, and
 # their tests with them: see tests/case/settings_menu.py
-# (aidocks/completed/settings_menu_plan.md).
+# (aidocks/plans/settings_menu_plan.md).
 
 def test_vibration_off_stops_the_effects_and_the_connect_buzz():
     import pygame

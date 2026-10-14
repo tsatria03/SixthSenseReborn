@@ -11,7 +11,7 @@ metadata:
 
 **The dev's request:** "I know the original game had no way to turn down the menu music, but I want page up/down to be able to turn down the menu music in both screen reader and self voiced modes. The game music can stay as is." They pointed to an example they keep in the gitignored `user/` folder, a port of another game that does the same; read it there, never name it ([[feedback_no_other_games]]). Then: the percentage is spoken "only if the voice over is turned off".
 
-**Why it is a port addition:** the original never plays music on its menu. `bgm_main_menu` is the port's own (`AppDelegate.BGMusicStart`, `app_delegate.py`, a PORT ADDITION), played at `volume.menu_music()`, which is `MENU_MUSIC_DB` (-14 dB) and nothing else ([[project_volume_knobs]]). No other sound uses that knob, so changing it cannot touch the original's mix. Record it in `aidocks/DIVERGENCES.md` under the port's own additions.
+**Why it is a port addition:** the original never plays music on its menu. `bgm_main_menu` is the port's own (`AppDelegate.BGMusicStart`, `app_delegate.py`, a PORT ADDITION), played at `volume.menu_music()`, which is `MENU_MUSIC_DB` (-14 dB) and nothing else ([[project_volume_knobs]]). No other sound uses that knob, so changing it cannot touch the original's mix. Record it in SixthSenseOriginal's `aidocks/DIVERGENCES.md` under the port's own additions.
 
 ## What it does
 - **Keys:** Page Up makes the menu music louder, Page Down quieter. Nothing in the game uses either key yet.

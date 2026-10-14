@@ -147,7 +147,7 @@ class StartIntroPage(BlindScreen):
         # the publisher's server.  There is no server; the keys are left alone.
         # PORT DIVERGENCE (tsatria03, 2026-10-07): 0x1763c then cleared the week's best,
         # TOPSCOREWEEK, once WEEKTIME had passed, for the same server.  Neither key is kept
-        # (aidocks/completed/unused_save_keys_plan.md).
+        # (aidocks/plans/unused_save_keys_plan.md).
 
     # -[startIntroPage startIntro1] 0x177f4
     def startIntro1(self, *_):
