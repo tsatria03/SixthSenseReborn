@@ -31,7 +31,10 @@ jobs:
         include:
           - {key: windows, name: Windows, os: windows-latest, python: '3.12'}
           - {key: linux, name: Linux, os: ubuntu-latest, python: '3.12'}
-          # the Macs' runner names were proved by the first test run (2026-10-05)
+          # the Macs' runner names were proved by the first test run (2026-10-05).  Their Python
+          # is 3.13 on purpose: it is what the Mac build instructions use (README.md, uv
+          # --python 3.13), while 3.12, the oldest the game runs on, builds the rest
+          # (tsatria03, 2026-10-14: keep it as is)
           - {key: macos-arm64, name: macOS Apple Silicon, os: macos-15, python: '3.13'}
           - {key: macos-x86_64, name: macOS Intel, os: macos-15-intel, python: '3.13'}
     steps:
