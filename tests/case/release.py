@@ -816,6 +816,16 @@ def test_the_workflow_tests_before_it_builds_with_a_pinned_pyinstaller():
     assert ' pyinstaller\n' not in install, 'an unpinned pyinstaller is installed too'
 
 
+def test_two_runs_of_the_workflow_wait_their_turn():
+    """tsatria03, 2026-10-14: one run at a time per branch or tag, the second waiting, never
+    cancelling the first, which might be publishing."""
+    text = open(os.path.join(ROOT, '.github', 'workflows', 'release.yml'), encoding='utf-8').read()
+    assert '\nconcurrency:\n' in text, 'the workflow has no concurrency group'
+    block = text[text.index('\nconcurrency:\n'):text.index('\njobs:')]
+    assert 'group: release-${{ github.ref }}' in block, block
+    assert 'cancel-in-progress: false' in block, 'a second run would cancel the first'
+
+
 def test_only_a_file_that_fails_on_its_own_too_fails_the_workflows_tests():
     """tests/suite.py's exit: by hand any failure is 1; with --rerun-decides, as the workflow
     runs it, a file that passed when run again on its own is forgiven, one that failed again

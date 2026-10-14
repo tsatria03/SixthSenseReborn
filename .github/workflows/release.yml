@@ -13,6 +13,13 @@ on:
 permissions:
   contents: read
 
+# One run at a time for each branch or tag: a second waits for the first rather than cancelling
+# it, since a cancelled run could stop a release halfway through publishing (tsatria03,
+# 2026-10-14).  GitHub keeps one run waiting; a third started meanwhile replaces it.
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   build:
     name: Build ${{ matrix.name }}
