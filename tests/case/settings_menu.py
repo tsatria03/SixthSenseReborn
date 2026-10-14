@@ -219,6 +219,28 @@ def test_debug_mode_is_the_first_setting_and_is_remembered():
             s.app.on_debug_change = None
 
 
+def test_the_debug_row_says_when_debug_is_on_from_the_flag():
+    """tsatria03, 2026-10-14: the row shows the live mode, and when --debug turned it on
+    while settings.json says off, it says so; turning it off saves off and reads plainly."""
+    from sixthsense.platform.keymap import KeyMap
+    with _NewSave() as s:
+        was = s.app.debug, KeyMap.shared().debug
+        try:
+            page = s.page()
+            s.d.setObject_forKey_('0', 'DEBUG')
+            s.app.debug = True                      # what --debug does at startup
+            assert page.row_text(DEBUG_ROW) == 'Debug mode, currently on, from --debug.'
+            s.d.setObject_forKey_('1', 'DEBUG')
+            assert page.row_text(DEBUG_ROW) == 'Debug mode, currently on.'
+            s.d.setObject_forKey_('0', 'DEBUG')
+            page.selectMenu = DEBUG_ROW
+            page.activate()
+            assert not s.app.debug and s.d.stringForKey_('DEBUG') == '0'
+            assert page.row_text(DEBUG_ROW) == 'Debug mode, currently off.'
+        finally:
+            s.app.debug, KeyMap.shared().debug = was
+
+
 def test_a_build_has_no_debug_mode_row_and_ignores_the_setting():
     """Players never see debug mode: in a built game the row is gone, the saved setting is
     ignored, and a new settings.json does not get it."""

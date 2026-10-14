@@ -126,6 +126,10 @@ class SettingsController(BlindScreen):
         label, reads, _writes = TOGGLES[row]
         if not self.supported(row):
             return '%s, not supported.' % label
+        if row == DEBUG_ROW and self.app.debug and not self.app.debug_setting_on:
+            # the live mode, and why the saved setting differs: --debug turned it on for
+            # this run while settings.json says off (tsatria03, 2026-10-14)
+            return '%s, currently on, from --debug.' % label
         return '%s, currently %s.' % (label, 'on' if getattr(self.app, reads) else 'off')
 
     def activate(self):
