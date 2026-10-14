@@ -8,6 +8,7 @@ touched: every file a test writes is in a temporary folder.
 from __future__ import annotations
 
 import os
+import re
 import sys
 import tempfile
 import time
@@ -430,6 +431,21 @@ def test_the_players_readme_has_no_markdown():
     assert text.strip()
     for mark in ('#', '*', '|', '`'):
         assert mark not in text, mark
+
+
+def test_the_readme_counts_and_lists_every_test():
+    """README.md's Tests section says how many scripts tests/case holds and gives each a
+    line; a new test file must change both, so the number can never drift again."""
+    with open(os.path.join(ROOT, 'README.md'), encoding='utf-8') as fh:
+        text = fh.read()
+    folder = os.path.join(ROOT, 'tests', 'case')
+    files = sorted(n for n in os.listdir(folder) if n.endswith('.py') and not n.startswith('_'))
+    said = re.search(r'holds the tests: (\d+) plain scripts', text)
+    assert said, 'the Tests section no longer says how many scripts there are'
+    assert int(said.group(1)) == len(files), '%s said, %d in tests/case' % (said.group(1), len(files))
+    listed = set(re.findall(r'^python tests/case/(\w+\.py)', text, re.M))
+    assert listed == set(files), 'not listed: %s; listed but gone: %s' % (
+        sorted(set(files) - listed), sorted(listed - set(files)))
 
 
 def test_a_folder_build_puts_nothing_of_the_games_inside():

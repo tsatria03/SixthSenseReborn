@@ -25,7 +25,6 @@ The six lines below are deferred findings from the 2026-10-07 rescan, after rele
 - Correct the docstrings of `gold_rates.py`, `weapon_stats.py`, `weapon_upgrades.py` and the top of `defaults.py`, which still say the values are kept in save.json, where they now live in `store/` and `weapons/`.
 - Decide whether the Settings screen's Debug mode row shows the saved `DEBUG` setting or the live mode: it reads `app.debug`, so a game started with `--debug` says on while `DEBUG` in settings.json is 0.
 - Remove the unused `RunLoop` import in `app_delegate.py`.
-- Correct README.md's Tests section, which says 34 plain scripts while listing all 35, `music_buffer.py` included.
 - Decide whether `release.yml` should run `tests/suite.py` instead of its own one-at-a-time test loop, add a `concurrency` group so two runs cannot overlap, and use the same Python on the Macs (3.13) as on Windows and Linux (3.12).
 - Make the releaser's Prepare and tag push main before it pushes the tag, every time. `step_commit` pushes only after it commits; when VERSION and the changelog are already committed, as on a re-tag, it says there is nothing to commit and returns without pushing, while `step_tag` still pushes a tag at HEAD. On 2026-10-07 that left main a commit behind the tag of V26.10.07-1 until the test fix was pushed by hand (tunmi13productions' note in [[evaluation_fixes_plan]], item 7).
 The line below is from the 2026-10-06 evaluation ([[evaluation_fixes_plan]]); its other five are finished.
@@ -40,6 +39,7 @@ The line below is from the 2026-10-06 evaluation ([[evaluation_fixes_plan]]); it
 
 ## Finished
 
+- README.md's Tests section gives the right number of test scripts, 36 since `d580fe2`, and `release.py`'s `test_the_readme_counts_and_lists_every_test` checks that number and the list of files against `tests/case/`, so a new test cannot be left out again (the dev's idea); confirmed by the dev on 2026-10-14.
 - The code left from the publisher's ranking server is gone: the rank (`NOWRANK`, `RankLabel` and the panel's unreachable row 9) and the week's best score (`TOPSCOREWEEK`, and `WEEKTIME` with `intro._expire_week`), along with `STAGE` and `REVIEWCOUNT`, all five retired from save.json; confirmed by the dev on 2026-10-07, whose save.json held three keys after a start ([[unused_save_keys_plan]]).
 - The Mac app's Info.plist carries the release's version and `LSMinimumSystemVersion` 11.0, written by `compiler.finish_app_plist` after the build and signed again by `sign_app`; read from both Mac archives of test run 37711352768 and confirmed by the dev on 2026-10-07 ([[mac_plist_plan]]).
 The five lines below are the 2026-10-06 evaluation's groups 2, 3, 8, 9 and 10, confirmed by the dev on 2026-10-07 after checking their commits in the git log ([[evaluation_fixes_plan]]).
