@@ -49,8 +49,6 @@ SOUND_GAME_COMPLETE = 90        # bgm_game_complete, 0x45d74
 SOUND_SAW_WAIT = 74             # weapon_saw_wait, 0x48be4
 SOUND_MISSION_SUCCESS = 227
 SOUND_MISSION_FAIL = 228
-SOUND_PAUSED = 229
-SOUND_CONTINUE = 223
 
 
 def test_weapon_for(weaponType):

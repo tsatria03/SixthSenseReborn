@@ -60,9 +60,6 @@ OPENAL_LIB_NAME = openal_lib_name(sys.platform)
 OPENAL_DLL = os.path.join(VENDOR, 'openal', OPENAL_LIB_NAME)
 NVDA_DLL = os.path.join(VENDOR, 'nvda', 'nvdaControllerClient64.dll')
 
-# The thin armv7 slice, for tools/.  Not needed to play.
-BINARY = os.path.join(ROOT, 'analysis', 'bin', 'sixsense_armv7')
-
 GAME_ENV = 'SIXTHSENSE_GAME'
 # The save's folder in place of %APPDATA%\SixthSenseReborn - set by the tests and by the
 # by-ear tools in tests/interact (_own_save.py), never by the game.
@@ -94,10 +91,6 @@ def set_game(path: str | None) -> None:
     _override = path
     _game = None
     _sound_index = None
-
-
-# kept for callers that still say "resources"
-set_resources = set_game
 
 
 def _candidates():

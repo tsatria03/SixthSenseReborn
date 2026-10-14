@@ -117,7 +117,9 @@ SHOT_BANDS = {
 
 # -[Stage_1_E MovingShot:] 0x2ec98 - the swipe angle quantiser.  The bands are the
 # float literals compared against ``shotAngle``; anything not covered falls through to
-# the final else, which is ``shotMonster = 3`` (0x2f99e).
+# the final else, which is ``shotMonster = 3`` (0x2f99e).  Nothing reads this table: it is
+# the record of the original's bands, and ``_lane_for_angle`` below writes the same numbers
+# out, with the 6 o'clock reload gap and the wrap past 360 (tsatria03, 2026-10-14: keep it).
 SWIPE_BANDS = [
     (112.5, 155.5, 2),      # 0x2f172 / 0x2f3a8
     (22.5, 62.5, 4),        # 0x2f4ae / 0x2f596
@@ -199,7 +201,6 @@ SOUND_GAME_OVER = 354
 SOUND_MISSION_SUCCESS = 227
 SOUND_MISSION_FAIL = 228    # stopped by StopElseSpeak; Stage_1_E never plays it
 SOUND_BGM_GAME_END = 89     # what -[Stage_1_E playerDie:] plays, 0x3bcaa
-SOUND_NOW_LOADING = 46
 #: How long a gunshot or a grenade takes to land, in seconds.  The original waits 0.5 s
 #: for every gun and the grenade alike (0x2fd70, 0x2f32a: ``movt r1, #0x3fe0``); no
 #: weapon's plist changes it, and ``ShotSpeed`` is never read.  The port used to land

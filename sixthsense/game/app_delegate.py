@@ -49,7 +49,6 @@ import plistlib
 from .. import paths
 from ..platform import volume
 from ..platform.defaults import UserDefaults
-from ..platform.runloop import RunLoop
 from .oal_playback import OalPlayback
 from . import gold_rates, weapon_order, weapon_stats, weapon_upgrades
 from .sound_list_control import SoundListControl

@@ -102,8 +102,10 @@ THANK_YOU_ENDS = 0.643
 #: ``MovingType`` 1..5 walk straight down one lane.  11, 22, 33, 44 and 55 sweep
 #: across four bearings instead, one per footstep, and turn round at each end:
 #: ``MovingAngleTurn`` says which way they are going and flips when ``MovingCount``
-#: reaches 4.  Half of the shipped ``typeN.plist`` files - fifty of them - use one of
-#: these, so this is not a corner case.
+#: reaches 4.  Fifty of the shipped ``typeN.plist`` files use one of these, but none of
+#: them can spawn: ``Stage_1_E.MONSTER_ARRAY`` holds only ids ending in 1..5, and the
+#: fifty plists it can spawn, like the bosses', all walk types 1..5 (checked 2026-10-14).  The zig-zag
+#: ids end in 6..0, so this is kept faithful but never heard in play.
 #:
 #: Read in ``MovingCount`` order while ``MovingAngleTurn`` is 0, and backwards while
 #: it is 1.  The angles are the literals the branches pass to ``setMovingPosAngle:``:

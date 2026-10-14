@@ -5,7 +5,7 @@ metadata:
   type: project
 ---
 
-**Status: in progress since 2026-10-14; groups 1 to 3 built.** The dev picked twenty of the open lines in [[project_dev_tasks]] (all but the Mac check, item 8, and the long functions, item 15): "Here are the things I want fixed, in multiple commits when possible. We can fix 1 or several items at a time." And: "Do not push anything untill I say so." Item numbers below are the dev's list.
+**Status: in progress since 2026-10-14; groups 1 to 4 built.** The dev picked twenty of the open lines in [[project_dev_tasks]] (all but the Mac check, item 8, and the long functions, item 15): "Here are the things I want fixed, in multiple commits when possible. We can fix 1 or several items at a time." And: "Do not push anything untill I say so." Item numbers below are the dev's list.
 
 Before the plan, each older item was checked against the code of 2026-10-14 (`03d297b`). The boss check of item 22 was fixed long ago (`f2a1e96`), and most of item 17 is done; the rest still applies. The details, with lines, are under each group.
 
@@ -29,7 +29,8 @@ Before the plan, each older item was checked against the code of 2026-10-14 (`03
 3. **The game window's Settings labels** (item 1). Seen by anyone looking at the window. `SCREEN_ROWS['settings']` (`SixthSenseReborn.py:418`) is built from `settings_screen`'s own row numbers and names, so it can never drift again; a test in `window.py` or `settings_menu.py` checks every row is labelled. A changelog line. **Built 2026-10-14, not yet confirmed**, more simply than planned: `SCREEN_ROWS` lost its Settings entry, so `_screen_lines` falls back to each row's `row_text`, the screen reader's own words with the state ("Vibration, currently on."), which follows the rows by itself. `window.py`'s `test_the_window_shows_each_settings_row_as_it_is_spoken` checks it. To check: open Settings and look at the window; each row reads as NVDA says it.
 4. **Small cleanups** (items 6, 7, 9, 11, 18). Not player-facing.
    - Remove `SOUND_NOW_LOADING` (`stage_1_e.py`), `SOUND_PAUSED` and `SOUND_CONTINUE` (`stage_1_test.py`), `OLD_KEPT` (`defaults.py`) and the `RunLoop` import in `app_delegate.py`.
-   - **Question:** whether `SWIPE_BANDS`, `paths.BINARY`, `paths.set_resources` and `runloop.main_loop` stay.
+   - **Question:** whether `SWIPE_BANDS`, `paths.BINARY`, `paths.set_resources` and `runloop.main_loop` stay. **The dev (2026-10-14): remove the three nothing uses, keep `SWIPE_BANDS` as the record of the original's bands** ("Yes, you can do that"), with a line saying `_lane_for_angle` writes the same numbers out.
+   - **Built 2026-10-14, not yet confirmed:** all of the above, the eight names gone after a search found no reader in the game, the tests or `tools/`; the zig-zag comment checked against the plists themselves (the 50 spawnable ones walk types 1 to 5, the 50 zig-zag ones all have ids ending in 6 to 0).
    - `SixthSenseReborn.py:404`: the shop and inventory rows are spoken, not WAVs.
    - The first lines of `gold_rates.py`, `weapon_stats.py` and `weapon_upgrades.py` say `store/shop.json` and `weapons/<name>.json`, not save.json (`defaults.py` is already right).
    - `monster_control.py:105-106`: fifty plists do use a zig-zag walk, but none can spawn, since `MONSTER_ARRAY` holds only ids ending in 1 to 5 and every spawnable plist walks types 1 to 5 (as `GAME_STRUCTURE.md:219-220` says).

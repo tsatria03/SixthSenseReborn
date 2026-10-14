@@ -401,7 +401,7 @@ def _intro_lines(page):
 
 
 #: What each shop and inventory row is called, for anyone who can see the window.
-#: The player hears the original's own WAV.
+#: The player hears the row spoken by the screen reader instead (``row_text``).
 SCREEN_ROWS = {
     'store': {1: 'back', 2: 'weapon shop', 4: 'inventory'},
     'store_weapons': {1: 'back', 2: 'your gold', 3: 'shotgun', 4: 'M4A1',

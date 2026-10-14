@@ -1,4 +1,4 @@
-"""PORT ADDITION: each weapon's stats, kept in save.json and read back by the game.
+"""PORT ADDITION: each weapon's stats, kept in weapons/<name>.json and read back by the game.
 
 A weapon's page reads four numbers aloud: ammo capacity, effective range, damage and
 price.  Since 2026-10-05 they are the real ones, and the game plays with what the save

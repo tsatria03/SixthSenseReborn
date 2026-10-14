@@ -238,7 +238,3 @@ class RunLoop:
         self._timers.clear()
         self._performs.clear()
         self._by_key.clear()
-
-
-def main_loop() -> RunLoop:
-    return RunLoop.main()

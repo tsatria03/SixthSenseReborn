@@ -1,4 +1,4 @@
-"""PORT ADDITION: how much gold a game pays, kept in save.json where it can be edited.
+"""PORT ADDITION: how much gold a game pays, kept in store/shop.json where it can be edited.
 
 The original pays ``12 * kills + 2 * headshots`` when a game ends (``Stage_1_E.
 ObtainedGold``, 0x3c616).  Since 2026-10-05 the two rates are save keys, raised a little

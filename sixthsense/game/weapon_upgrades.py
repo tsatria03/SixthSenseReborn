@@ -1,4 +1,5 @@
-"""PORT ADDITION: weapon upgrades, one level per weapon, every number in save.json.
+"""PORT ADDITION: weapon upgrades, one level per weapon, every number in the save: each
+weapon's level and cap in weapons/<name>.json, the five settings in store/shop.json.
 
 tsatria03, 2026-10-05 (aidocks/plans/weapon_upgrades_plan.md).  Each weapon has a level,
 ``<W>_LEVEL``, from 0 up to its cap, ``<W>_MAX_LEVEL`` (10).  One upgrade button raises
