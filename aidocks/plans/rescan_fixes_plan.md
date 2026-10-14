@@ -1,0 +1,48 @@
+---
+name: rescan_fixes_plan
+description: "PLANNED 2026-10-14: twenty open developer tasks the dev picked after the 2026-10-14 rescan, fixed in twelve groups of local commits, nothing pushed until the dev says so."
+metadata:
+  type: project
+---
+
+**Status: planned 2026-10-14, nothing built yet.** The dev picked twenty of the open lines in [[project_dev_tasks]] (all but the Mac check, item 8, and the long functions, item 15): "Here are the things I want fixed, in multiple commits when possible. We can fix 1 or several items at a time." And: "Do not push anything untill I say so." Item numbers below are the dev's list.
+
+Before the plan, each older item was checked against the code of 2026-10-14 (`03d297b`). The boss check of item 22 was fixed long ago (`f2a1e96`), and most of item 17 is done; the rest still applies. The details, with lines, are under each group.
+
+## How the batch works
+- This note is committed first, on its own ([[feedback_record_plans_first]]).
+- One commit per group, more when a group splits cleanly. A change a player notices adds its changelog line in the same commit ([[feedback_changelog]]). A developer task moves to Finished only when the dev confirms it ([[feedback_todo_list_format]]).
+- After each group only the tests covering the changed files run, in the background; the full suite runs at the end, in the foreground, when the dev asks ([[feedback_dont_run_or_build]]).
+- `git fetch` every few commits; if anything comes in, report it and wait ([[feedback_git_commits]]).
+- **Nothing is pushed** until the dev says so.
+- Questions are asked one at a time, each with a recommendation, when its group comes up ([[feedback_one_question_at_a_time]]).
+
+## The groups, in the order they will be done
+
+1. **The aidocks paths** (items 2, 3, 4, 5). Not player-facing. Done first, since it touches the most files. The dev's layout (2026-10-14): `aidocks/plans/` holds every plan, planned or complete, and a finished plan stays there, marked finished; `aidocks/general/` holds the rest.
+   - `MEMORY.md` (now `aidocks/general/`): the 40 `completed/<name>.md` links become `../plans/<name>.md`; the "Completed projects" heading and lines 3 and 84 describe the new layout.
+   - `CLAUDE.md` lines 5, 43 and 85, `feedback_completed_projects.md`, `feedback_memory_in_aidocks.md` and `feedback_record_plans_first.md` describe the new layout: links resolve to `aidocks/general/<name>.md` or `aidocks/plans/<name>.md`, and a finished plan no longer moves.
+   - The ~100 comments and docstrings citing `aidocks/completed/<name>.md` or `aidocks/<name>.md` across `sixthsense/`, `tests/`, `tools/`, `compiler.py`, `releaser.py`, `SixthSenseReborn.py`, `README.md` and `release.yml` are repointed.
+   - The ten links to `aidocks/DIVERGENCES.md` (8 plans, `project_binary_analysis_notes.md`, `project_sound_organization.md`) say the file is in SixthSenseOriginal instead of linking to a path here.
+   - Check: `git grep` finds no old path, and the tests covering any changed Python file pass.
+2. **The notes left from the 2026-09-23 rescan** (item 17's remainder). Not player-facing. Already done: the unused sound count (191), the logo, the README layout, Python 3.12 or newer, `paths.py`'s names. Still to do: `project_tests_layout.md` says 35 files (36 since `saved_game.py`); `project_safe_test_run.md:12` says `test_gameplay.py` writes `%APPDATA%\SixthSense\defaults.json`, in the present tense; `project_dev_tasks.md`'s finished line about "the todo list's unfinished section" is history and stays; `project_sound_organization.md` gives 27/26 under a heading that marks them as history, beside 191. "unrelease starts at 0" in `feedback_changelog.md` matches the releaser, so it stays.
+3. **The game window's Settings labels** (item 1). Seen by anyone looking at the window. `SCREEN_ROWS['settings']` (`SixthSenseReborn.py:418`) is built from `settings_screen`'s own row numbers and names, so it can never drift again; a test in `window.py` or `settings_menu.py` checks every row is labelled. A changelog line.
+4. **Small cleanups** (items 6, 7, 9, 11, 18). Not player-facing.
+   - Remove `SOUND_NOW_LOADING` (`stage_1_e.py`), `SOUND_PAUSED` and `SOUND_CONTINUE` (`stage_1_test.py`), `OLD_KEPT` (`defaults.py`) and the `RunLoop` import in `app_delegate.py`.
+   - **Question:** whether `SWIPE_BANDS`, `paths.BINARY`, `paths.set_resources` and `runloop.main_loop` stay.
+   - `SixthSenseReborn.py:404`: the shop and inventory rows are spoken, not WAVs.
+   - The first lines of `gold_rates.py`, `weapon_stats.py` and `weapon_upgrades.py` say `store/shop.json` and `weapons/<name>.json`, not save.json (`defaults.py` is already right).
+   - `monster_control.py:105-106`: fifty plists do use a zig-zag walk, but none can spawn, since `MONSTER_ARRAY` holds only ids ending in 1 to 5 and every spawnable plist walks types 1 to 5 (as `GAME_STRUCTURE.md:219-220` says).
+5. **The Settings Debug row** (item 10). Developer-facing. It reads `app.debug` (`settings_screen.py:49,129`), which `--debug` also sets (`SixthSenseReborn.py:143-144`). **Question:** the saved setting or the live mode.
+6. **The releaser's Prepare and tag** (item 14). Not player-facing. `step_commit` returns without pushing when there is nothing to commit (`releaser.py:536-539`), while `step_tag` pushes the tag (572). `step_tag` pushes `main` first, every time; a test in `release.py` checks the order with its git stand-in.
+7. **The release workflow** (item 13). Not player-facing. **Questions**, one at a time: `tests/suite.py` instead of its own loop; a `concurrency` group; one Python version everywhere.
+8. **The walk's walkXFlag** (item 16). Barely audible. The binary stores 1 to walkXFlag at 0x31f7a and schedules `timerLeft` 0.6 s later (0x31f76/0x31f84, call 0x31f94); `dc_Stage_1_E.txt:4491-4498` drops the store. The port (`stage_1_e.py:567`) schedules it at 0.0 and never sets the flag; `stage_1_test.py:178-179` already does it right. **Question:** fix it or leave it. Also seen: the binary sets it on death in `MonsterAttPlayer` (0x3b4ae).
+9. **OpenAL and the game folder** (item 21). Not player-facing, except a wrong `--game`.
+   - `alcCloseDevice`, `alcMakeContextCurrent` and `alcIsExtensionPresent` return ALCboolean, so `c_ubyte`, not `c_int` (`openal.py:89,91,98`).
+   - `open()` closes the device when the context cannot be made (`openal.py:190-192`).
+   - OpenAL is closed on every exit: a `try/finally` in `run()` tears the audio down, and the exit hook comment at `openal.py:241` is updated.
+   - A sound whose slot is past the 122 sources (`oal_playback.py:61`, dropped at 263 and 302, buffers past 128 at 213) logs a warning once.
+   - **Question:** a `--game` that is not a game folder refuses to start, or warns and falls back (`paths.py:103-141`).
+10. **A log file and crash.txt** (item 19). Helps a player report a failed start. Today `SixthSenseReborn.py:127-129` logs to the console only. A log in the save folder, opened fresh each run, and `crash.txt` with the traceback when `run()` fails. **Question:** the names and whether to keep the last run's log. A changelog line and a readme line.
+11. **The compiler's test build** (item 20). Not player-facing. After group 10: `--exit-after SECONDS` and a `game data: <path>` log line, then a new `--test` in `compiler.py` that starts the build and reads its log. The old `test_build()` and `read_log()` came from a reference script that is no longer in `user/`, so this is written new. **Question:** whether a `--test` is wanted at all.
+12. **GAME_STRUCTURE.md's misreadings** (item 22). Not player-facing. The boss check is already right. `GAME_STRUCTURE.md:319-334` says the listener's direction is set, where nothing in the binary calls `setListenerRotation:` or `setListenerPos:`, so OpenAL's default listener applies; and `463-464` ("Stage_1_E will not start its walk timer") is checked against the binary. The "Reproduced" notes in `intro.py`, `main_controller.py`, `store.py` and `weapon_control.py` describe the original's own behaviour and stay.
