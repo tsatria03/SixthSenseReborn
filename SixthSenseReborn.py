@@ -415,9 +415,9 @@ SCREEN_ROWS = {
     'inventory_detail': {1: 'back', 2: 'name', 3: 'ammo capacity',
                          4: 'effective range', 5: 'damage', 6: 'price',
                          7: 'state', 8: 'equip / unequip'},
-    'settings': {1: 'back', 2: 'skip the opening screens', 3: 'spoken headshot',
-                 4: 'headshot beep', 5: 'vibration', 6: 'shake to break free',
-                 7: 'controller'},
+    # The Settings screen has no entry: its rows show the text the screen reader says,
+    # "Vibration, currently on." and so on, so the window follows the rows and their state
+    # and can never fall out of step with them, as a list of names here once did.
 }
 SCREEN_TITLE = {
     'store': 'STORE', 'store_weapons': 'WEAPON SHOP', 'store_detail': 'WEAPON',

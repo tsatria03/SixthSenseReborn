@@ -1,4 +1,5 @@
 unrelease:
+In the game window, the Settings screen's rows now have their right names, the same words the screen reader says, with whether each is on or off.
 
 26.10.08-1:
 Reloading a full gun now says "This weapon is already loaded with ammo.", and reloading with the knife, the sword or the grenade says "This weapon does not take any ammo."

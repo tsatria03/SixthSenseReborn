@@ -237,6 +237,19 @@ def test_the_window_lists_every_debug_key():
     assert debug[0].count('   ') == len(DEBUG_IDS), debug[0]
 
 
+def test_the_window_shows_each_settings_row_as_it_is_spoken():
+    """The Settings screen's rows in the window are the screen reader's own words, one per
+    row in order, with the current row marked, so a row added or moved shows as it is."""
+    from types import SimpleNamespace
+    from sixthsense.game.settings_screen import SettingsController
+    rows = SettingsController.ROWS
+    screen = SimpleNamespace(app=SimpleNamespace(haveGold=0), selectMenu=rows[2],
+                             rows=lambda: rows, row_text=lambda r: 'row text %d' % r)
+    lines = SixthSenseReborn._screen_lines('settings', screen)
+    shown = [line for line in lines if line[2:].startswith('row text ')]
+    assert shown == ['%s row text %d' % ('>' if r == rows[2] else ' ', r) for r in rows], lines
+
+
 def _failing_run(error):
     """``SixthSenseReborn.run`` with ``main`` raising ``error``; what it would say, and its exit
     code."""
