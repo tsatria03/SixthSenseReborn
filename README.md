@@ -360,7 +360,8 @@ the bosses' being-hurt sound, two controller sounds and the headshot beep.
 
 The port reads from there, so the data it runs on is the original's data. `--game PATH`
 (or `SIXTHSENSE_GAME`) points at another copy; an untouched original bundle, with its
-WAVs all in one folder, works too.
+WAVs all in one folder, works too. A folder given that way with no game data in it stops
+the game, saying which folder, rather than falling back to `game/`.
 
 `analysis/bin/sixsense_armv7` is the thin armv7 slice cut out of `game/sixsense`, which
 is what `tools/` disassembles. The game never reads it; it is there so the analysis is

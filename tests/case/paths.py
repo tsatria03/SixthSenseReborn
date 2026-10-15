@@ -284,6 +284,38 @@ def test_on_macos_the_save_goes_in_application_support():
             assert paths.user_dir() == expected and os.path.isdir(expected)
 
 
+def test_a_wrong_game_folder_stops_the_game_instead_of_falling_back():
+    """tsatria03, 2026-10-14: --game or SIXTHSENSE_GAME naming a folder with no game data
+    stops the game, the first line saying which folder, where it used to fall back to the
+    port's own data without a word."""
+    empty = tempfile.mkdtemp()
+    old_env = os.environ.pop(paths.GAME_ENV, None)
+    try:
+        for set_it, who in ((lambda: paths.set_game(empty), '--game'),
+                            (lambda: os.environ.__setitem__(paths.GAME_ENV, empty), paths.GAME_ENV)):
+            paths.set_game(None)
+            os.environ.pop(paths.GAME_ENV, None)
+            set_it()
+            try:
+                paths.game()
+            except SystemExit as e:
+                first = str(e.code).splitlines()[0]
+                assert first == "The folder given with %s is not Sixth Sense's game data: %s" \
+                    % (who, empty), first
+            else:
+                raise AssertionError('%s fell back to the port\'s own data' % who)
+        os.environ.pop(paths.GAME_ENV, None)
+        paths.set_game(None)
+        assert paths._is_bundle(paths.game()), 'with nothing given the port\'s data is not found'
+    finally:
+        paths.set_game(None)
+        if old_env is None:
+            os.environ.pop(paths.GAME_ENV, None)
+        else:
+            os.environ[paths.GAME_ENV] = old_env
+        shutil.rmtree(empty, ignore_errors=True)
+
+
 def _old_save(top, files=('save.json', 'settings.json', 'keys.json'), folder='SixthSense'):
     """A Sixth Sense save folder under ``top``, each file holding its own name."""
     old = os.path.join(top, folder)

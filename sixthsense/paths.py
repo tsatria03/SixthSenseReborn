@@ -94,17 +94,15 @@ def set_game(path: str | None) -> None:
 
 
 def _candidates():
+    """Where the game data may be, as (who asked, the folder given, the places to look)."""
     if _override:
-        yield 'the --game option', _override
-        yield 'the --game option', os.path.join(_override, 'Payload', APP_NAME)
-        yield 'the --game option', os.path.join(_override, APP_NAME)
+        yield '--game', _override, (_override, os.path.join(_override, 'Payload', APP_NAME),
+                                    os.path.join(_override, APP_NAME))
     env = os.environ.get(GAME_ENV)
     if env:
-        yield 'the %s environment variable' % GAME_ENV, env
-        yield 'the %s environment variable' % GAME_ENV, os.path.join(env, 'Payload', APP_NAME)
-        yield 'the %s environment variable' % GAME_ENV, os.path.join(env, APP_NAME)
-    yield 'the port', os.path.join(EXE_DIR, 'game')
-    yield 'the port', os.path.join(ROOT, 'game')
+        yield GAME_ENV, env, (env, os.path.join(env, 'Payload', APP_NAME),
+                              os.path.join(env, APP_NAME))
+    yield None, None, (os.path.join(EXE_DIR, 'game'), os.path.join(ROOT, 'game'))
 
 
 _game: str | None = None
@@ -118,18 +116,25 @@ def _is_bundle(path: str) -> bool:
 
 
 def game() -> str:
-    """The folder holding the contents of ``sixsense.app``."""
+    """The folder holding the contents of ``sixsense.app``.
+
+    A folder given with ``--game`` or ``SIXTHSENSE_GAME`` that holds no game data stops the
+    game, saying so, instead of falling back to the port's own data, which would leave the
+    player sure they were hearing that folder (tsatria03, 2026-10-14)."""
     global _game
     if _game is None:
-        tried = []
-        for why, path in _candidates():
-            if path and _is_bundle(path):
-                _game = path
+        for who, given, places in _candidates():
+            found = next((p for p in places if _is_bundle(p)), None)
+            if found:
+                _game = found
                 break
-            tried.append('%s: %s' % (why, path))
-        else:
+            if who is not None:
+                raise SystemExit("The folder given with %s is not Sixth Sense's game data: %s\n"
+                                 'Looked in:\n  %s\nPass the path to Payload/sixsense.app, '
+                                 'or a folder holding SoundList.plist and g_CH1_E.'
+                                 % (who, given, '\n  '.join(places)))
             raise SystemExit("Sixth Sense Reborn's game data was not found. Tried:\n  "
-                             + '\n  '.join(tried)
+                             + '\n  '.join(places)
                              + "\nPass --game with the path to Payload/sixsense.app.")
     return _game
 
