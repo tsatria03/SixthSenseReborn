@@ -142,6 +142,45 @@ def test_missing_macos_library_does_not_fall_back_to_another_openal():
         load.assert_not_called()
 
 
+def test_a_context_that_cannot_be_made_closes_its_device():
+    """2026-10-14: open() raised with the device still open, so it was held to the end."""
+    a = openal.AL.__new__(openal.AL)
+    closed = []
+    a.alcOpenDevice = lambda name: 7
+    a.alcIsExtensionPresent = lambda device, name: 0
+    a.alcCreateContext = lambda device, attrs: None
+    a.alcCloseDevice = closed.append
+    try:
+        a.open()
+    except openal.OpenALError:
+        pass
+    else:
+        raise AssertionError('a missing context was accepted')
+    assert closed == [7] and a.device is None, closed
+
+
+def test_a_sound_past_the_last_slot_is_logged_once():
+    """2026-10-14: a slot past the 122 sources or 128 buffers was dropped without a word."""
+    import logging
+    from sixthsense.game import oal_playback as op
+    seen = []
+
+    class _Catch(logging.Handler):
+        def emit(self, record):
+            seen.append(record.getMessage())
+    catch = _Catch()
+    op.log.addHandler(catch)
+    try:
+        assert op._past_the_end('source', 3, op.MAX_SOURCES) is False
+        assert op._past_the_end('source', op.MAX_SOURCES, op.MAX_SOURCES) is True
+        assert op._past_the_end('source', op.MAX_SOURCES, op.MAX_SOURCES) is True
+        assert op._past_the_end('buffer', 200, op.MAX_BUFFERS, 'boss_roar') is True
+    finally:
+        op.log.removeHandler(catch)
+    assert len(seen) == 2, seen
+    assert 'source slot 122 is past the 122' in seen[0] and 'boss_roar' in seen[1], seen
+
+
 def test_the_real_library_can_check_and_reopen():
     a = openal.AL()
     a.open()

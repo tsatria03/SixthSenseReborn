@@ -535,6 +535,21 @@ def _say_why(text):
         log.exception('could not say why the game stopped')
 
 
+def _close_audio():
+    """PORT ADDITION (2026-10-14): close OpenAL however the game ends, a normal quit or an
+    error, instead of leaving the device to the process's exit.  Nothing is opened here: no
+    AppDelegate, or one with no audio, is left alone, and the next start opens it afresh."""
+    delegate = sys.modules.get('sixthsense.game.app_delegate')
+    app = delegate.AppDelegate._instance if delegate is not None else None
+    if app is None or app.playback is None:
+        return
+    try:
+        app.playback.tearDownAudio()
+    except Exception:
+        log.exception('could not close the audio')
+    app.playback = None
+
+
 def run():
     try:
         return main()
@@ -547,6 +562,8 @@ def run():
         log.exception('the game stopped')
         _say_why('Sixth Sense Reborn stopped because of an error. %s: %s' % (type(e).__name__, e))
         return 1
+    finally:
+        _close_audio()
 
 
 if __name__ == '__main__':

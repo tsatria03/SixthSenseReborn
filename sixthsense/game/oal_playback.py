@@ -61,6 +61,21 @@ MAX_BUFFERS = 128       # oalPlayback._buffers[128]
 MAX_SOURCES = 122       # oalPlayback._sources[122]
 OVERLAP_VOICES = 6      # PORT ADDITION: spare sources per overlapping sound
 
+#: PORT ADDITION (2026-10-14): the slots past MAX_BUFFERS or MAX_SOURCES already said, so a
+#: sound the game cannot hold is logged once instead of being dropped without a word
+_SAID_PAST_THE_END = set()
+
+
+def _past_the_end(kind, index, limit, name=None):
+    """True when ``index`` is outside ``kind``'s ``limit`` slots, logging it the first time."""
+    if 0 <= index < limit:
+        return False
+    if (kind, index) not in _SAID_PAST_THE_END:
+        _SAID_PAST_THE_END.add((kind, index))
+        log.warning('%s slot %d is past the %d there are, so %s cannot play', kind, index,
+                    limit, name or 'that sound')
+    return True
+
 
 class _Buffer:
     __slots__ = ('filename', 'bufferId', 'channels', 'rate', 'group')
@@ -210,7 +225,7 @@ class OalPlayback:
 
     def initBufferOne_FileName_Type_(self, index, filename, filetype):
         """-[oalPlayback initBufferOne:FileName:Type:] 0xdc80"""
-        if not (0 <= index < MAX_BUFFERS):
+        if _past_the_end('buffer', index, MAX_BUFFERS, filename):
             return
         path = paths.path_for_resource(filename, filetype)
         if path is None or not os.path.exists(path):
@@ -260,7 +275,7 @@ class OalPlayback:
 
     def initSourceOne_(self, index):
         """-[oalPlayback initSourceOne:] 0xde3c"""
-        if not (0 <= index < MAX_SOURCES):
+        if _past_the_end('source', index, MAX_SOURCES):
             return
         s = self._sources[index]
         if s.sourceId:

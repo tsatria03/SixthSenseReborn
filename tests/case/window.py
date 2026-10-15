@@ -283,6 +283,35 @@ def test_a_normal_exit_says_nothing():
         raise AssertionError('a normal exit was taken for a failure')
 
 
+def test_the_audio_is_closed_however_the_game_ends():
+    """2026-10-14: ``run`` closes OpenAL after a normal quit, an error and a SystemExit alike,
+    and leaves the delegate with no audio, which the next start opens afresh."""
+    from types import SimpleNamespace
+    from sixthsense.game.app_delegate import AppDelegate
+    app = AppDelegate.shared()
+    real = app.playback
+    try:
+        for error in (None, OSError('alcCreateContext failed'), SystemExit(0)):
+            closed = []
+            app.playback = SimpleNamespace(tearDownAudio=lambda: closed.append(True))
+            try:
+                if error is None:
+                    real_main = SixthSenseReborn.main
+                    SixthSenseReborn.main = lambda argv=None: 0
+                    try:
+                        assert SixthSenseReborn.run() == 0
+                    finally:
+                        SixthSenseReborn.main = real_main
+                else:
+                    _failing_run(error)
+            except SystemExit:
+                pass
+            assert closed == [True], 'the audio was not closed after %r' % (error,)
+            assert app.playback is None
+    finally:
+        app.playback = real
+
+
 def test_the_opening_screens_play_unless_the_setting_skips_them():
     """PORT ADDITION (tunmi13productions, 2026-10-06): SKIPINTRO in settings.json, set on
     the Settings screen, does for good what --no-intro does for one run."""

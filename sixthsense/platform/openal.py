@@ -84,18 +84,21 @@ class OpenALError(RuntimeError):
     pass
 
 
+#: ALCboolean is one byte (alc.h's ``typedef char ALCboolean``), so the three calls that return
+#: one are ``c_ubyte``, as ``alIsBuffer``'s ALboolean is; ``c_int`` could read three bytes the
+#: library never set along with it (2026-10-14).
 _SIGNATURES = [
     ('alcOpenDevice', c_void_p, [c_char_p]),
-    ('alcCloseDevice', c_int, [c_void_p]),
+    ('alcCloseDevice', c_ubyte, [c_void_p]),
     ('alcCreateContext', c_void_p, [c_void_p, POINTER(c_int)]),
-    ('alcMakeContextCurrent', c_int, [c_void_p]),
+    ('alcMakeContextCurrent', c_ubyte, [c_void_p]),
     ('alcDestroyContext', None, [c_void_p]),
     ('alcProcessContext', None, [c_void_p]),
     ('alcSuspendContext', None, [c_void_p]),
     ('alcGetError', c_int, [c_void_p]),
     ('alcGetString', c_char_p, [c_void_p, c_int]),
     ('alcGetIntegerv', None, [c_void_p, c_int, c_int, POINTER(c_int)]),
-    ('alcIsExtensionPresent', c_int, [c_void_p, c_char_p]),
+    ('alcIsExtensionPresent', c_ubyte, [c_void_p, c_char_p]),
     ('alcGetProcAddress', c_void_p, [c_void_p, c_char_p]),
     ('alGetError', c_int, []),
     ('alGetString', c_char_p, [c_int]),
@@ -189,6 +192,9 @@ class AL:
         self._attrs = arr                                   # kept for reopen
         self.context = self.alcCreateContext(self.device, arr)
         if not self.context:
+            # the device is open, so close it rather than leave it held for nothing
+            self.alcCloseDevice(self.device)
+            self.device = None
             raise OpenALError('alcCreateContext failed')
         self.alcMakeContextCurrent(self.context)
         status = c_int(0)
@@ -238,7 +244,9 @@ class AL:
         events = (c_int * 1)(ALC_EVENT_TYPE_DEFAULT_DEVICE_CHANGED_SOFT)
         ctypes.CFUNCTYPE(ctypes.c_byte, c_int, POINTER(c_int), ctypes.c_byte)(control)(
             1, events, 1)
-        # OpenAL is never closed on exit, so let go of the callback before Python stops
+        # close() lets go of the callback, and the game closes OpenAL on every way out
+        # (SixthSenseReborn.run, 2026-10-14); this is for a process that never gets there,
+        # such as a test, so the callback is gone before Python stops
         atexit.register(self._unwatch_default)
 
     def _unwatch_default(self) -> None:
@@ -298,6 +306,7 @@ class AL:
         return out
 
     def close(self) -> None:
+        self._unwatch_default()       # OpenAL's thread must not call back into a closed device
         if self.context:
             self.alcMakeContextCurrent(None)
             self.alcDestroyContext(self.context)
