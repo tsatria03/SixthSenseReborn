@@ -1,8 +1,10 @@
 """Measure what the five lanes actually pan to.
 
-Renders one mono source per lane through OpenAL Soft's loopback device, with the same
-listener orientation and the same source parameters ``-[oalPlayback queueNote:...]``
-passes, and prints the left/right energy split and the resulting gain.
+Renders one mono source per lane through OpenAL Soft's loopback device, with the
+listener orientation the port sets once (``setListenerRotation:``'s formula, facing 0;
+the original never sends it, so it played with OpenAL's default listener) and the same
+source parameters ``-[oalPlayback queueNote:...]`` passes, and prints the left/right
+energy split and the resulting gain.
 
 This is how the claim in aidocks/general/GAME_STRUCTURE.md about the listener basis was checked:
 the game's ``Pos.x`` becomes left/right, its ``Pos.y`` becomes elevation (inaudible to

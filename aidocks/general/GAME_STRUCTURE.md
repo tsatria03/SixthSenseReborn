@@ -327,14 +327,26 @@ spatial extensions, and the only extension string anywhere in it is
 amplitude panning** — there is no HRTF in it. What the game gets out of OpenAL is a
 stereo field, and that is all.
 
-The geometry it feeds that field is odd. The "at" vector lies in x/y while sources are
+**The original never sets the listener.** `setListenerRotation:`, `setListenerPos:`
+and `setListenerRotation:Pos:` are implemented but have no selector reference in
+`__objc_selrefs`, so nothing sends them ([[project_binary_analysis_notes]]), and the
+original plays with OpenAL's default listener: at the origin, facing −Z, up +Y. That
+puts the game's *x* left/right, `defaultZ` up, and the game's *y* front/back. Its stereo
+under that default has not been measured here.
+
+**The port sets the listener once**, facing 0°, through `setListenerRotation:`'s own
+formula (`Stage_1_E.MapInitInBundle`, a PORT note there), because that orientation
+puts *x* to the right and the lanes where they belong; nothing turns it afterwards.
+The geometry of that formula is odd. The "at" vector lies in x/y while sources are
 placed in x/z, and "up" is `(0, 1, 1)`, not a unit vector. Worked through, OpenAL's
 basis comes out as right `= +X`, up `= +Z`, forward `= +Y`, so the game's *x* is
 left/right, the game's *y* becomes elevation, and forward depth is the constant
-`defaultZ`. Rotating the listener rotates that basis correctly.
+`defaultZ`. Rotating the listener would rotate that basis correctly, but neither game
+ever does. (Corrected 2026-10-14: this section used to describe that basis as the
+original's.)
 
-Rendered through OpenAL Soft's loopback device with HRTF off, the same parameters
-`MonsterQueueNote:` passes, listener facing 0° (`tools/pan_check.py`):
+Rendered through OpenAL Soft's loopback device with HRTF off, the parameters
+`MonsterQueueNote:` passes, with the port's listener facing 0° (`tools/pan_check.py`):
 
 | lane | bearing | `Pos` | left | right | L/R |
 |---|---|---|---|---|---|
@@ -463,6 +475,15 @@ At HP 0: `game over` (354), then `playerDie:` and the fail screen.
 `TUTORIAL = "1"` when it finishes (0x839d4), and **`Stage_1_E` will not start its walk
 timer until that key is set** (0x2e08e). The name is the wrong way round:
 `isTutorial != 0` means "the tutorial has been cleared".
+
+**`Stage_1_E` carries the tutorial too.** Its own methods include `tutorialOne` to
+`tutorialSix`, a `tutorialFiveHalf`, `CheckTutorial`, `NextTutorial`, `tutorialEnd:`
+(which writes the same key, 0x33fc8) and `tutorialEndGameStart:`, and `continueAction:`
+schedules its tutorial check (0x33a3a). So a `Stage_1_E` with `TUTORIAL` unset does not
+simply stand still: it is the stage's own copy of the tutorial that runs, rather than
+the walk. The port keeps the tutorial in `Stage_Tutorial` alone and leaves the
+stage's copy out (`continueAction_`'s comment). Which of the two copies the original's
+first Start opens is not settled here. (Added 2026-10-14, from the class's method list.)
 
 ---
 
