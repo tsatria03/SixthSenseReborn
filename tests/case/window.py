@@ -283,6 +283,45 @@ def test_a_normal_exit_says_nothing():
         raise AssertionError('a normal exit was taken for a failure')
 
 
+def test_a_failed_start_leaves_a_crash_report_in_the_logs_folder():
+    """tsatria03, 2026-10-14: logs/crash.txt in the save folder, holding the error's whole
+    report, for a built game, which has no console to show it."""
+    folder = SixthSenseReborn._log_folder()
+    crash = os.path.join(folder, SixthSenseReborn.CRASH_FILE)
+    if os.path.exists(crash):
+        os.remove(crash)
+    _failing_run(OSError('alcOpenDevice failed'))
+    with open(crash, encoding='utf-8') as fh:
+        text = fh.read()
+    assert text.startswith('Sixth Sense Reborn stopped '), text
+    assert 'Traceback' in text and 'OSError: alcOpenDevice failed' in text, text
+    _failing_run(SystemExit("Sixth Sense Reborn's game data was not found. Tried:\n  x"))
+    with open(crash, encoding='utf-8') as fh:
+        assert "game data was not found. Tried:\n  x" in fh.read()
+
+
+def test_each_run_writes_a_fresh_log_and_keeps_the_one_before():
+    import logging
+    folder = SixthSenseReborn._log_folder()
+    try:
+        SixthSenseReborn._start_log()
+        logging.getLogger('main').info('the first run')
+        SixthSenseReborn._start_log()
+        logging.getLogger('main').info('the second run')
+        SixthSenseReborn._log_file.flush()
+        with open(os.path.join(folder, SixthSenseReborn.LOG_FILE), encoding='utf-8') as fh:
+            now = fh.read()
+        with open(os.path.join(folder, SixthSenseReborn.OLD_LOG_FILE), encoding='utf-8') as fh:
+            before = fh.read()
+        assert 'the second run' in now and 'the first run' not in now, now
+        assert 'the first run' in before and 'Sixth Sense Reborn started' in before, before
+    finally:
+        if SixthSenseReborn._log_file is not None:
+            logging.getLogger().removeHandler(SixthSenseReborn._log_file)
+            SixthSenseReborn._log_file.close()
+            SixthSenseReborn._log_file = None
+
+
 def test_the_audio_is_closed_however_the_game_ends():
     """2026-10-14: ``run`` closes OpenAL after a normal quit, an error and a SystemExit alike,
     and leaves the delegate with no audio, which the next start opens afresh."""

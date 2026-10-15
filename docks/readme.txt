@@ -183,6 +183,8 @@ saves/save.json holds your progress, such as whether you have finished the tutor
 config/settings.json holds your settings, and config/keys.json your keys.
 store/shop.json holds the shop's rules, and store/inventory.json what you have.
 weapons holds one file for each weapon, such as weapons/shotgun.json, with that weapon's numbers.
+Beside them, the logs folder holds log.txt, what the game did the last time it ran, log.old.txt from the time before, and crash.txt when an error stopped the game.
+If the game does not start or stops by itself, send the logs folder with your bug report.
 On Windows, the folders are in the SixthSenseReborn folder in your AppData Roaming folder, which you can open by typing %APPDATA%\SixthSenseReborn into the Windows Run box.
 On Linux, they are in ~/.local/share/SixthSenseReborn, or $XDG_DATA_HOME/SixthSenseReborn when set.
 On macOS, they are in ~/Library/Application Support/SixthSenseReborn.

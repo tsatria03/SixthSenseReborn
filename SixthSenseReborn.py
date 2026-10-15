@@ -20,10 +20,70 @@ from __future__ import annotations
 
 import argparse
 import logging
+import os
 import sys
 import time
+import traceback
+from datetime import datetime
 
 log = logging.getLogger('main')
+
+#: PORT ADDITION (tsatria03, 2026-10-14): a logs folder in the save folder, so a game that
+#: fails can be diagnosed from a build, which has no console.  Each run's log is written
+#: fresh, the run before kept beside it, since a player whose game crashed often starts it
+#: again to see; crash.txt holds the report of the last error that stopped the game.
+LOG_FOLDER = 'logs'
+LOG_FILE = 'log.txt'
+OLD_LOG_FILE = 'log.old.txt'
+CRASH_FILE = 'crash.txt'
+LOG_FORMAT = '%(levelname)-7s %(name)-8s %(message)s'
+_log_file: logging.Handler | None = None
+
+
+def _log_folder():
+    from sixthsense import paths
+    return os.path.join(paths.user_dir(), LOG_FOLDER)
+
+
+def _start_log(verbose=False):
+    """The console as before, and logs/log.txt, the last run's moved to logs/log.old.txt.
+    A folder that cannot be written leaves the console alone; the game still starts."""
+    global _log_file
+    logging.basicConfig(level=logging.DEBUG if verbose else logging.INFO, format=LOG_FORMAT)
+    root = logging.getLogger()
+    if _log_file is not None:                  # main run again in one process, as tests do
+        root.removeHandler(_log_file)
+        _log_file.close()
+        _log_file = None
+    try:
+        folder = _log_folder()
+        os.makedirs(folder, exist_ok=True)
+        path = os.path.join(folder, LOG_FILE)
+        if os.path.exists(path):
+            os.replace(path, os.path.join(folder, OLD_LOG_FILE))
+        handler = logging.FileHandler(path, mode='w', encoding='utf-8')
+    except OSError as e:
+        log.warning('could not open the log file: %s', e)
+        return
+    handler.setFormatter(logging.Formatter('%(asctime)s ' + LOG_FORMAT, '%H:%M:%S'))
+    root.addHandler(handler)
+    _log_file = handler
+    log.info('Sixth Sense Reborn started %s, Python %s on %s',
+             datetime.now().strftime('%Y-%m-%d %H:%M'), sys.version.split()[0], sys.platform)
+
+
+def _write_crash(what):
+    """logs/crash.txt: when, the Python and the system, and ``what``, the error's whole
+    report.  Never raises: the game is already stopping."""
+    try:
+        folder = _log_folder()
+        os.makedirs(folder, exist_ok=True)
+        with open(os.path.join(folder, CRASH_FILE), 'w', encoding='utf-8', newline='\n') as fh:
+            fh.write('Sixth Sense Reborn stopped %s, Python %s on %s\n\n%s'
+                     % (datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                        sys.version.split()[0], sys.platform, what))
+    except Exception:
+        log.exception('could not write %s', CRASH_FILE)
 
 
 def _new_stage(resume=False):
@@ -124,9 +184,7 @@ def main(argv=None):
     ap.add_argument('-v', '--verbose', action='store_true')
     args = ap.parse_args(argv)
 
-    logging.basicConfig(
-        level=logging.DEBUG if args.verbose else logging.INFO,
-        format='%(levelname)-7s %(name)-8s %(message)s')
+    _start_log(args.verbose)
 
     from sixthsense import paths
     if args.game:
@@ -556,10 +614,13 @@ def run():
     except SystemExit as e:
         if not isinstance(e.code, str):              # a normal exit
             raise
+        log.error('%s', e.code)
+        _write_crash(e.code + '\n')
         _say_why(e.code.splitlines()[0])             # e.g. the game data was not found
         return 1
     except Exception as e:
         log.exception('the game stopped')
+        _write_crash(traceback.format_exc())
         _say_why('Sixth Sense Reborn stopped because of an error. %s: %s' % (type(e).__name__, e))
         return 1
     finally:
