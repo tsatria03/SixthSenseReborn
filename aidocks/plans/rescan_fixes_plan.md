@@ -1,11 +1,11 @@
----
+﻿---
 name: rescan_fixes_plan
 description: "PLANNED 2026-10-14: twenty open developer tasks the dev picked after the 2026-10-14 rescan, fixed in twelve groups of local commits, nothing pushed until the dev says so."
 metadata:
   type: project
 ---
 
-**Status: in progress since 2026-10-14; groups 1 to 7 built.** The dev picked twenty of the open lines in [[project_dev_tasks]] (all but the Mac check, item 8, and the long functions, item 15): "Here are the things I want fixed, in multiple commits when possible. We can fix 1 or several items at a time." And: "Do not push anything untill I say so." Item numbers below are the dev's list.
+**Status: in progress since 2026-10-14; groups 1 to 8 built.** The dev picked twenty of the open lines in [[project_dev_tasks]] (all but the Mac check, item 8, and the long functions, item 15): "Here are the things I want fixed, in multiple commits when possible. We can fix 1 or several items at a time." And: "Do not push anything untill I say so." Item numbers below are the dev's list.
 
 Before the plan, each older item was checked against the code of 2026-10-14 (`03d297b`). The boss check of item 22 was fixed long ago (`f2a1e96`), and most of item 17 is done; the rest still applies. The details, with lines, are under each group.
 
@@ -40,7 +40,7 @@ Before the plan, each older item was checked against the code of 2026-10-14 (`03
    - **The suite: the dev (2026-10-14), "Yes, if it can."** It can: `suite.py` finds each system's save folder itself and skips `_*.py`. But it exited 1 on any first-run failure, even one that passed on its own, so the retry could not save a release; Claude had said it would, and corrected that. **Built 2026-10-14, not yet confirmed:** `suite.py --rerun-decides` (opt-in; a run by hand exits as before), with `exit_code()` deciding; the workflow's step runs it and, on a failure, prints the whole report. `release.py` checks the step and `exit_code`, 56 of 56. To check: the next workflow test run's test step.
    - **The concurrency group: the dev (2026-10-14), "Yes."** One group per branch or tag, a second run waiting rather than cancelling the first, which might be publishing. **Built 2026-10-14, not yet confirmed:** `concurrency: group: release-${{ github.ref }}, cancel-in-progress: false`; GitHub keeps one run waiting, and a third replaces it. `release.py`'s `test_two_runs_of_the_workflow_wait_their_turn` checks it.
    - The Macs' Python 3.13 matches the Mac build instructions (`uv ... --python 3.13`, README.md and [[project_macos_build_plan]]) and worked from the first run, so it is not a slip. **The dev (2026-10-14): "Keep it as is."** A comment in `release.yml` beside the Macs' lines now says why.
-8. **The walk's walkXFlag** (item 16). Barely audible. The binary stores 1 to walkXFlag at 0x31f7a and schedules `timerLeft` 0.6 s later (0x31f76/0x31f84, call 0x31f94); `dc_Stage_1_E.txt:4491-4498` drops the store. The port (`stage_1_e.py:567`) schedules it at 0.0 and never sets the flag; `stage_1_test.py:178-179` already does it right. **Question:** fix it or leave it. Also seen: the binary sets it on death in `MonsterAttPlayer` (0x3b4ae).
+8. **The walk's walkXFlag** (item 16). Barely audible. The binary stores 1 to walkXFlag at 0x31f7a and schedules `timerLeft` 0.6 s later (0x31f76/0x31f84, call 0x31f94); `dc_Stage_1_E.txt:4491-4498` drops the store. The port (`stage_1_e.py:567`) schedules it at 0.0 and never sets the flag; `stage_1_test.py:178-179` already does it right. **Question:** fix it or leave it. Also seen: the binary sets it on death in `MonsterAttPlayer` (0x3b4ae). **The dev (2026-10-14): fix it.** Nothing a player hears changes: the walk ticks once a second, and the pause stops its timer. **Built 2026-10-14, not yet confirmed:** `_walk_and_act` raises the flag and lets it go after `WALK_HOLD` (0.6). A pending `timerLeft` could have let the flag go under the pause panel, which holds it up, so `_pause` cancels it, beside the level change and the death it already cancels (a DIVERGENCE). `pause.py`'s `test_a_step_holds_the_next_back_and_a_pause_keeps_it_held` checks the hold, its end and the pause. The death's store at 0x3b4ae is not part of this task and is left as it is.
 9. **OpenAL and the game folder** (item 21). Not player-facing, except a wrong `--game`.
    - `alcCloseDevice`, `alcMakeContextCurrent` and `alcIsExtensionPresent` return ALCboolean, so `c_ubyte`, not `c_int` (`openal.py:89,91,98`).
    - `open()` closes the device when the context cannot be made (`openal.py:190-192`).

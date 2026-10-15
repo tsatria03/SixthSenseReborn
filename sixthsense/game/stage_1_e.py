@@ -212,6 +212,8 @@ MG80_SLOT = 6               # its place in weaponSource, and its WeaponNumber
 
 #: 0x31964: how long ``brearhFlag`` stays up after a breath.
 BREATH_HOLD = 3.0
+#: 0x31f76/0x31f84: how long ``walkXFlag`` holds the next step back after one.
+WALK_HOLD = 0.6
 SOUND_SWORD_START = 329     # weapon_japen_knife_draw (the original's _start), 0x35ec0
 #: What ChangeLevel: loops at 0.02 as a note (0x32362): 88, bgm_cave_amb, going into
 #: the forest, and 87, bgm_forest_amb, going into the cave - the other level's.
@@ -565,7 +567,11 @@ class Stage_1_E:
         self.MakeMonster_(self.monster_num)
         self.MonsterAttPlayer()
         self.HPImageCount()
-        RunLoop.main().perform(self, 'timerLeft', None, 0.0)
+        # 0x31f7a stores 1 into walkXFlag, then timerLeft lets it go 0.6 s later (the delay's
+        # words at 0x31f76/0x31f84, the call at 0x31f94), so no step follows within 0.6 s.
+        # The listing drops the store; the port read it as a delay of 0 until 2026-10-14.
+        self.walkXFlag = True
+        RunLoop.main().perform(self, 'timerLeft', None, WALK_HOLD)
 
         # ---- death, 0x31fa8..0x320da ------------------------------------
         if not self.DieFlag and self.gamePlayer.HP <= 0:
@@ -1865,6 +1871,9 @@ class Stage_1_E:
         # ahead under the panel, or after a restart over the new game.  Here the pause holds
         # it and continue lets it go on, while a restart, which needs the pause, never lets it go.
         RunLoop.main().cancelPerform(self, 'playerDie_')
+        # DIVERGENCE: a step's timerLeft, up to WALK_HOLD off, would let walkXFlag go under
+        # the panel, which holds it up; continue lets it go anyway (2026-10-14).
+        RunLoop.main().cancelPerform(self, 'timerLeft')
         self.deathHeld = self.DieFlag
         # DIVERGENCE: a grab's poll and its landing ran on under the panel, so the zombie
         # took a heart while paused, and its landing came after a restart.  The pause holds

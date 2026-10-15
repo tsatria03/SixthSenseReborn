@@ -511,6 +511,33 @@ def test_a_grab_does_not_carry_on_into_a_restarted_game():
         st.teardown()
 
 
+def test_a_step_holds_the_next_back_and_a_pause_keeps_it_held():
+    """0x31f7a: each step raises walkXFlag and timerLeft lets it go 0.6 s later, so a tick
+    inside that time takes no step; a pause made in that time keeps the flag up, and
+    continue lets it go (2026-10-14)."""
+    _app, st = _new_stage()
+    st.speech = _Recorder()
+    try:
+        st.walkXFlag = False
+        st.MainControl()
+        y = st.gamePlayer.playerYplot
+        assert st.walkXFlag is True, 'a step did not hold the next one back'
+        st.MainControl()
+        assert st.gamePlayer.playerYplot == y, 'a second step came inside the 0.6 s'
+        start = runloop.clock()
+        RunLoop.main().pump(now=start + S1E.WALK_HOLD - 0.1)
+        assert st.walkXFlag is True, 'let go too soon'
+        RunLoop.main().pump(now=start + S1E.WALK_HOLD + 0.1)
+        assert st.walkXFlag is False, 'never let go'
+        st.MainControl()
+        assert st.StopPlayAction_() is True
+        RunLoop.main().pump(now=runloop.clock() + S1E.WALK_HOLD + 0.5)
+        assert st.walkXFlag is True, "a step's timerLeft let the flag go under the panel"
+        assert st.continueAction_() is True and st.walkXFlag is False
+    finally:
+        st.teardown()
+
+
 def _die_while_paused(st):
     """Take the player's last heart so the stage notices it, then pause in the 1.3 s before
     the death is carried out; returns the time the pause was made."""
