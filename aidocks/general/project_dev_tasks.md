@@ -11,14 +11,17 @@ Since 2026-09-23, `todo list.txt` holds only what a player notices ([[feedback_t
 
 ## Open
 
-One of the lines below is built in [[rescan_fixes_plan]] (group 7) and waits for a workflow test run; the rest of that plan's twenty are finished.
+The two lines below are notices from workflow test run 38670417413 (2026-10-14), which passed; neither stops a build yet.
+- Move the workflow's `actions/checkout`, `actions/setup-python`, `actions/upload-artifact` and `actions/download-artifact` steps from `@v4` (`@v5` for setup-python) to versions built for Node.js 24: GitHub warns that Node.js 20 is deprecated and already runs them on Node.js 24 by force.
+- Check the Linux build after `ubuntu-latest` moves to Ubuntu 26, from 2026-10-19, or pin `ubuntu-24.04` in `release.yml` so the Linux build and the publish job change system only when chosen.
+The line below is from the 2026-10-07 rescan; the rest of its lines are finished.
 - Have someone with a Mac open a build made since 2026-10-07 once, to check that the app the compiler signs again after changing its Info.plist still opens ([[mac_plist_plan]]).
-- Decide whether `release.yml` should run `tests/suite.py` instead of its own one-at-a-time test loop, add a `concurrency` group so two runs cannot overlap, and use the same Python on the Macs (3.13) as on Windows and Linux (3.12). (Built 2026-10-14, group 7: the suite with `--rerun-decides`, a concurrency group that waits, and 3.13 kept on the Macs with a comment; waiting for a workflow test run.)
 The line below is from the 2026-10-06 evaluation ([[evaluation_fixes_plan]]); its other five are finished.
 - Split the longest functions into smaller ones, main in the entry script (about 243 lines) and the biggest stage methods, carefully, since timing-sensitive code is only partly covered by tests (the dev, 2026-10-06: leave it as a developer task).
 
 ## Finished
 
+- The release workflow runs its tests through `tests/suite.py --rerun-decides`, side by side, printing the whole report on a failure, waits its turn in one concurrency group per branch or tag, and keeps Python 3.13 on the Macs with a comment saying why; confirmed by workflow test run 38670417413 on 2026-10-14, where all four systems passed their tests and builds ([[rescan_fixes_plan]], group 7). With it, the whole of [[rescan_fixes_plan]] is finished.
 - A wrong `--game` folder stops the game and says which folder, a sound past the last slot is logged once, the three ALCboolean calls read one byte, a failed context closes its device, and OpenAL is closed however the game ends; tested silently on 2026-10-14 at the dev's request, which the dev accepted ([[rescan_fixes_plan]], group 9).
 - The game keeps a log of each run in `logs/log.txt` in the save folder, the run before as `log.old.txt`, and `crash.txt` when an error stops it; confirmed by the dev on 2026-10-14, whose real logs folder held both logs, each naming the game data ([[rescan_fixes_plan]], group 10).
 The six lines below are groups 1, 2, 4, 6, 8 and 12 of [[rescan_fixes_plan]], confirmed by the dev on 2026-10-14 ("I'm happy with these"), newest group first.
