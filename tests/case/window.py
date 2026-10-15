@@ -322,6 +322,28 @@ def test_each_run_writes_a_fresh_log_and_keeps_the_one_before():
             SixthSenseReborn._log_file = None
 
 
+def test_exit_after_quits_by_itself_and_the_log_names_the_game_data():
+    """2026-10-14: what compiler.py --test relies on: --exit-after ends the frame loop by
+    itself, long before the test's frame limit, and the log says where the game data is."""
+    import logging
+    from sixthsense import paths
+    _save(TUTORIAL='1')
+    try:
+        run = Run({}, argv=('--no-intro', '--exit-after', '0.3')).go()
+        assert run.frames_run < LIMIT, 'it ran until the test closed it'
+        SixthSenseReborn._log_file.flush()
+        with open(os.path.join(SixthSenseReborn._log_folder(), SixthSenseReborn.LOG_FILE),
+                  encoding='utf-8') as fh:
+            text = fh.read()
+        assert 'game data: %s' % paths.game() in text, text
+        assert 'quitting after 0.3 seconds' in text, text
+    finally:
+        if SixthSenseReborn._log_file is not None:
+            logging.getLogger().removeHandler(SixthSenseReborn._log_file)
+            SixthSenseReborn._log_file.close()
+            SixthSenseReborn._log_file = None
+
+
 def test_the_audio_is_closed_however_the_game_ends():
     """2026-10-14: ``run`` closes OpenAL after a normal quit, an error and a SystemExit alike,
     and leaves the delegate with no audio, which the next start opens afresh."""

@@ -816,6 +816,48 @@ def test_the_workflow_tests_before_it_builds_with_a_pinned_pyinstaller():
     assert ' pyinstaller\n' not in install, 'an unpinned pyinstaller is installed too'
 
 
+def test_the_test_build_is_judged_by_its_log():
+    """compiler.py --test (2026-10-14): a run passes only with its game data found, a quit
+    by itself, no crash report and exit code 0."""
+    good = 'INFO main game data: C:\\g\nINFO main quitting after 6 seconds\n'
+    assert compiler.judge_test(0, good, '') == []
+    assert any('crash report' in p for p in compiler.judge_test(1, 'x', 'Traceback ...'))
+    assert any('wrote no log' in p for p in compiler.judge_test(0, '', ''))
+    assert any('never found its data' in p for p in compiler.judge_test(0, 'quitting after', ''))
+    assert any('did not quit' in p for p in compiler.judge_test(0, 'game data: x', ''))
+    assert any('still running' in p for p in compiler.judge_test(None, good, ''))
+    assert any('exit code 3' in p for p in compiler.judge_test(3, good, ''))
+
+
+def test_the_test_build_runs_silently_on_a_throwaway_save():
+    """It starts the build with --exit-after, as the tests run: silent, no sound device, no
+    window, and a save folder of its own, gone afterwards."""
+    from unittest.mock import patch
+    seen = {}
+
+    def fake_run(cmd, env=None, **kw):
+        seen.update(cmd=cmd, env=env)
+        logs = os.path.join(env['SIXTHSENSE_USER_DIR'], 'logs')
+        os.makedirs(logs)
+        with open(os.path.join(logs, 'log.txt'), 'w', encoding='utf-8') as fh:
+            fh.write('game data: here\nquitting after 6 seconds\n')
+        return type('Done', (), {'returncode': 0})()
+    with tempfile.NamedTemporaryFile(suffix='.exe', delete=False) as exe:
+        pass
+    try:
+        with patch.object(compiler.subprocess, 'run', fake_run), \
+                patch.object(compiler, 'say', lambda *a: None):
+            assert compiler.test_build(exe.name) is True
+    finally:
+        os.remove(exe.name)
+    assert seen['cmd'][1:] == ['--no-intro', '--exit-after', str(compiler.TEST_SECONDS)]
+    for name, value in compiler.TEST_QUIET.items():
+        assert seen['env'][name] == value, name
+    save = seen['env']['SIXTHSENSE_USER_DIR']
+    assert save != paths.user_dir() and not os.path.exists(save), 'the save was not a throwaway'
+    assert compiler.main(['--test', '--no-game']) == 2, '--test without the game data was let through'
+
+
 def test_two_runs_of_the_workflow_wait_their_turn():
     """tsatria03, 2026-10-14: one run at a time per branch or tag, the second waiting, never
     cancelling the first, which might be publishing."""

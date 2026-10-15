@@ -467,6 +467,12 @@ where a player can open them. The third-party licenses go inside the executable,
 `licenses` folder. `docks/readme.txt` is the player's own readme: plain text, one sentence a line,
 with none of this file's developer parts.
 
+`--test` (the menu's "Folder build and test") then starts the finished build for six
+seconds, silently, with no window and on a throwaway save, and reads the log it wrote:
+the build passes only if it found its game data, quit by itself and left no
+`crash.txt`. The game itself keeps `logs/log.txt`, the run before as `log.old.txt`, and
+`crash.txt` after an error, in its save folder.
+
 On macOS it builds `dist/SixthSenseReborn-macOS/SixthSenseReborn.app`, with
 the data, dependencies and documents inside: copy the app on its own and open
 it in Finder. The app targets the build Python's architecture, ARM64 or Intel.

@@ -66,14 +66,15 @@ The sounds now live in `game/sounds/used/`, in folders ([[project_sound_organiza
 - `data_summary()` words the counts for both `copy_game()` and `--dry-run`. With the repo's `game/` since the dev's second sound sort (2026-09-24), and `unused/` in builds, that is 507 files: 362 sounds (236 used, 126 unused), plus 145 plists and map layers. It was 474, with 329 sounds, before the sort. Since 2026-10-06, with only `used/` built, it is 248 files: 103 sounds and 145 plists and map layers.
 
 ## Still to do
-1. **Bring `--test` back once the game supports it.** `SixthSenseReborn.py` needs a log file in `%APPDATA%\SixthSenseReborn`, a `crash.txt` excepthook, an `--exit-after N` flag and a "game data: <path>" log line. Then restore `test_build()` and `read_log()` from the reference script in `user/`, adapted without its HRTF check. This also fixes the evaluation's "no crash path" item; see SixthSenseOriginal's `project_evaluation_2026_09` note.
-2. **Silent failures:** until item 1 lands, a `--windowed` build that fails to start is silent. Tell the dev to use the console build (menu choice 4, `--console`) to diagnose.
+1. **`--test` is back since 2026-10-14** ([[rescan_fixes_plan]], group 11; the dev: "I deffenatly want this"). The game writes `logs/log.txt`, `log.old.txt` and `crash.txt` in its save folder, takes `--exit-after SECONDS` and logs `game data: <path>`. `compiler.py --test` (menu choice 2, "Folder build and test", or "App build and test" on a Mac) builds, then starts the build with `--no-intro --exit-after 6`, silent, with the null audio and dummy video drivers and a throwaway `SIXTHSENSE_USER_DIR`, and passes it only when its log names the game data, it quit by itself, it left no `crash.txt` and it ended with 0 (`test_build`, `read_log`, `judge_test`). Written new: the reference script in `user/` is gone. It needs no console build. Not yet confirmed by the dev with a real build.
+2. **Failures are no longer silent:** a windowed build that fails to start says why aloud, and writes the whole traceback to `logs/crash.txt` in the save folder.
 
 ## Test builds versus release builds
-Since 2026-09-23 no compiler build changes the repository, so any choice is safe for a trial build. For a trial, point the dev at:
-- choice 7, `--dry-run`, first
-- choice 4, `--console`, which shows start-up errors
-- choice 2, the single exe, to try what a release carries
+Since 2026-09-23 no compiler build changes the repository, so any choice is safe for a trial build. For a trial, point the dev at (numbers since 2026-10-14):
+- choice 8, `--dry-run`, first
+- choice 2, `--test`, which builds and checks the build starts
+- choice 5, `--console`, which shows start-up errors
+- choice 3, the single exe, to try what a release carries
 
 A release is made only with `releaser.py`, which runs the compiler itself after setting the version ([[release_tooling_plan]]).
 

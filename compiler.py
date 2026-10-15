@@ -31,9 +31,10 @@ frozen.  game\\sounds\\unused, what the game never plays, stays in the repositor
 and paths.py finds them in the folder it unpacks itself to; that costs a few seconds at every launch.
 Nothing else in the original app bundle is copied: the game never opens any of it.
 
-There is no --test yet.  A test build would start the game and read its log; SixthSenseReborn does not write a
-log, or a crash.txt, so there is nothing for a test run to read.  A windowed build that fails says
-why aloud, in one line; build with --console to see the whole traceback.
+--test starts the finished build for a few seconds, silently, with no window and on a throwaway save,
+and reads the log it wrote in that save's logs folder: it must find its game data, quit by itself and
+leave no crash.txt (2026-10-14).  A windowed build that fails says why aloud, in one line, and writes
+the whole traceback to logs/crash.txt in the save folder; --console shows it as well.
 
 macOS builds are self-contained .app bundles for the build Python's architecture; --console keeps
 the console-folder format for debugging.
@@ -52,6 +53,7 @@ import re
 import shutil
 import subprocess
 import sys
+import tempfile
 import time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -536,6 +538,89 @@ def stage_licenses(dest: str = None) -> int:
     return copied
 
 
+# --- the test build ----------------------------------------------------------------------------------
+# --test starts the build it has just made, for TEST_SECONDS, and reads the log the game wrote
+# (tsatria03, 2026-10-14: "I deffenatly want this").  It runs as the tests do: silent, with no
+# sound device, no window and a throwaway save, so it never speaks, plays or touches a player's
+# save, and it needs no console build, since it reads the log file rather than the console.
+
+#: How long the build plays before its --exit-after quits it.
+TEST_SECONDS = 6
+#: Long enough for a single exe to unpack itself and start, and then some.
+TEST_TIMEOUT = 120
+#: What tests/case/_scratch_save.py sets, less the save folder, which test_build makes.
+TEST_QUIET = {'SIXTHSENSE_SILENT': '1', 'ALSOFT_DRIVERS': 'null',
+              'SDL_AUDIODRIVER': 'dummy', 'SDL_VIDEODRIVER': 'dummy'}
+
+
+def built_executable(dest_root: str, bundle: bool) -> str:
+    """The program a build made: the executable in the folder, or the one inside the Mac app."""
+    if bundle:
+        return os.path.join(dest_root, NAME + '.app', 'Contents', 'MacOS', NAME)
+    return os.path.join(dest_root, SYSTEM['exe'])
+
+
+def read_log(save: str) -> tuple[str, str]:
+    """The log a test run wrote in its save folder, and its crash report; '' for one not there."""
+    found = []
+    for name in ('log.txt', 'crash.txt'):
+        try:
+            with open(os.path.join(save, 'logs', name), encoding='utf-8', errors='replace') as fh:
+                found.append(fh.read())
+        except OSError:
+            found.append('')
+    return found[0], found[1]
+
+
+def judge_test(code, log_text: str, crash: str) -> list[str]:
+    """What went wrong with a test run, or nothing: it must have found its game data, quit by
+    itself when told to, left no crash report and ended with 0."""
+    problems = []
+    if crash:
+        problems.append('the game stopped with an error; its crash report:\n' + crash.rstrip())
+    if 'game data: ' not in log_text:
+        problems.append('the log has no "game data:" line, so the game never found its data'
+                        if log_text else 'the game wrote no log at all')
+    if 'quitting after' not in log_text and not crash:
+        problems.append('the game did not quit by itself when --exit-after said to')
+    if code is None:
+        problems.append('the game was still running after %d seconds and was stopped' % TEST_TIMEOUT)
+    elif code != 0:
+        problems.append('the game ended with exit code %s' % code)
+    return problems
+
+
+def test_build(exe: str) -> bool:
+    """Start the build for TEST_SECONDS, silently on a throwaway save, and say whether it worked."""
+    if not os.path.isfile(exe):
+        say('the test cannot start: there is no %s' % exe)
+        return False
+    say('testing the build: starting it for %d seconds, silently and on a throwaway save...'
+        % TEST_SECONDS)
+    with tempfile.TemporaryDirectory(prefix='sixthsense_build_test_') as save:
+        env = dict(os.environ, SIXTHSENSE_USER_DIR=save, **TEST_QUIET)
+        try:
+            code = subprocess.run([exe, '--no-intro', '--exit-after', str(TEST_SECONDS)],
+                                  env=env, cwd=os.path.dirname(exe), timeout=TEST_TIMEOUT,
+                                  stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode
+        except subprocess.TimeoutExpired:
+            code = None
+        except OSError as error:
+            say('the test could not start the game: %s' % error)
+            return False
+        log_text, crash = read_log(save)
+    problems = judge_test(code, log_text, crash)
+    if problems:
+        say('the test build FAILED:')
+        for problem in problems:
+            say('  ' + problem)
+        return False
+    found = next(line for line in log_text.splitlines() if 'game data: ' in line)
+    say('the test build worked: it started, found its %s, and quit by itself.'
+        % found[found.index('game data: '):])
+    return True
+
+
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(prog='compiler.py', description='build SixthSenseReborn with PyInstaller')
     parser.add_argument('--embed', action='store_true',
@@ -549,7 +634,13 @@ def main(argv=None) -> int:
                         help='keep a console window, where a failed start-up prints its traceback')
     parser.add_argument('--clean', action='store_true', help="throw away PyInstaller's cache first")
     parser.add_argument('--dry-run', action='store_true', help='print what would be done, build nothing')
+    parser.add_argument('--test', action='store_true',
+                        help='after building, start the build for a few seconds, silently on a '
+                             'throwaway save, and read its log to check it works')
     args = parser.parse_args(argv)
+    if args.test and args.no_game:
+        say("--test needs the game's data in the build, so it cannot go with --no-game.")
+        return 2
     os.chdir(HERE)                                      # the paths above are relative to the project
 
     found = problems_now()
@@ -605,6 +696,9 @@ def main(argv=None) -> int:
             say('  but the license %s is not here' % rel)
         for warning in release_warnings(os.path.join(HERE, CHANGELOG)):
             say('before releasing: ' + warning)
+        if args.test:
+            say('then %s would be started for %d seconds, silently on a throwaway save, to check it works'
+                % (built_executable(dest_root, bundle), TEST_SECONDS))
         return 0
 
     if data_inside and src:
@@ -633,6 +727,8 @@ def main(argv=None) -> int:
             say('the app could not be finalized: %s' % error)
             return 1
         say('the game is %s; copy this app on its own.' % app_path)
+        if args.test and not test_build(built_executable(dest_root, True)):
+            return 1
         return 0
     if not (args.onefile or args.embed):
         move_folder_build(dest_root)
@@ -649,6 +745,10 @@ def main(argv=None) -> int:
     say()
     say('the game is %s' % exe)
     say("the folder around it is what releaser.py zips, and the game's own files in it are Bitbee's.")
+    if args.test:
+        say()
+        if not test_build(exe):
+            return 1
     return 0
 
 
@@ -659,6 +759,8 @@ def main(argv=None) -> int:
 
 MENU = (
     ("Folder build: the game in a folder, with its data beside the executable", []),
+    ("Folder build and test: the folder build, then start it silently for a few seconds to check it works",
+     ['--test']),
     ("Single exe: the sounds and the game's data inside one executable", ['--embed']),
     ("Clean build: empty PyInstaller's cache first, for when a build behaves oddly", ['--clean']),
     ("Build with a console window, to see why the game will not start", ['--console']),
@@ -669,6 +771,8 @@ MENU = (
 if system_key() == 'darwin':
     MENU = (
         ('App build: a self-contained SixthSenseReborn.app to copy and open in Finder', []),
+        ('App build and test: the app build, then start it silently for a few seconds to check it works',
+         ['--test']),
         ('Clean app build: empty PyInstaller caches first', ['--clean']),
         ('Console folder build for debugging', ['--console']),
         ('Console single executable with game data inside', ['--console', '--embed']),

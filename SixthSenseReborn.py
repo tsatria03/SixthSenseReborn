@@ -181,10 +181,22 @@ def main(argv=None):
     ap.add_argument('--debug', action='store_true',
                     help='nothing hurts you and you cannot die, and no kill, '
                          'headshot, score or gold counts')
+    ap.add_argument('--exit-after', type=float, metavar='SECONDS',
+                    help="quit by itself after this many seconds, as the compiler's test "
+                         'build does')
     ap.add_argument('-v', '--verbose', action='store_true')
     args = ap.parse_args(argv)
 
     _start_log(args.verbose)
+    # PORT ADDITION (2026-10-14): compiler.py --test starts a build with this, then reads the
+    # log for the game data line below and for the clean quit
+    deadline = time.monotonic() + args.exit_after if args.exit_after else None
+
+    def time_is_up():
+        if deadline is None or time.monotonic() < deadline:
+            return False
+        log.info('quitting after %g seconds, as --exit-after asked', args.exit_after)
+        return True
 
     from sixthsense import paths
     if args.game:
@@ -196,6 +208,7 @@ def main(argv=None):
 
     app = AppDelegate.shared()
     app.didFinishLaunching()
+    log.info('game data: %s', paths.game())
     # --debug for one run, or the Settings screen's Debug mode row, remembered from source
     # runs only (app_delegate.debug_setting_on)
     debug = args.debug or app.debug_setting_on
@@ -213,7 +226,7 @@ def main(argv=None):
     if args.no_window:
         obj = _new_tutorial() if args.tutorial else _new_stage()
         try:
-            while obj.running:
+            while obj.running and not time_is_up():
                 loop.pump()
                 time.sleep(1.0 / 60.0)
         except KeyboardInterrupt:
@@ -310,7 +323,7 @@ def main(argv=None):
                 bindings.handle(event, pygame)
             else:
                 inp.handle(event, pygame)
-        if closing:
+        if closing or time_is_up():
             break
 
         # PORT ADDITION: a lost audio device, such as headphones unplugged, is reopened
