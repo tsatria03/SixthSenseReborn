@@ -1,4 +1,6 @@
 unrelease:
+
+26.10.14-1:
 The game keeps a log of each run in a logs folder beside your save, with the run before it and, when an error stops the game, crash.txt, so a game that will not start can be looked into; the readme says where to find it.
 In the game window, the Settings screen's rows now have their right names, the same words the screen reader says, with whether each is on or off.
 
