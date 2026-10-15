@@ -59,6 +59,11 @@ QUIET = {
 
 UNTIMED = 9999.0                        # an unknown file sorts first, never last
 COUNT = re.compile(r'^(\d+)/(\d+) passed$')
+#: A runner's own line for a test that did not pass: `FAIL  test_x: ...` or `ERROR test_x: ...`.  The
+#: test's name is required, since the game's log lines start with their level too, such as
+#: `ERROR   main     the game stopped`, which a test that makes the game fail on purpose prints
+#: (2026-10-14, once the game logged with levels).
+BAD = re.compile(r'^(FAIL|ERROR) +(test_\w+:.*)$')
 
 
 def test_files():
@@ -118,9 +123,10 @@ def parse(output):
         hit = COUNT.match(line)
         if hit:
             passed, total = int(hit.group(1)), int(hit.group(2))
-        elif line.startswith('FAIL  ') or line.startswith('ERROR '):
-            kind, rest = line.split(' ', 1)
-            bad.append((kind, rest.strip()))
+            continue
+        hit = BAD.match(line)
+        if hit:
+            bad.append((hit.group(1), hit.group(2).strip()))
     return passed, total, bad
 
 
@@ -136,7 +142,7 @@ def results_only(output):
         line = line.rstrip()
         if not line:
             continue
-        if line.startswith(('ok    ', 'FAIL  ', 'ERROR ')) or COUNT.match(line):
+        if line.startswith('ok    ') or BAD.match(line) or COUNT.match(line):
             keep.append(line)
         else:
             dropped += 1

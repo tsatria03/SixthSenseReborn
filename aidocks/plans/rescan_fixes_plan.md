@@ -5,7 +5,7 @@ metadata:
   type: project
 ---
 
-**Status: all twelve groups built 2026-10-14, not yet confirmed; nothing pushed.** The dev picked twenty of the open lines in [[project_dev_tasks]] (all but the Mac check, item 8, and the long functions, item 15): "Here are the things I want fixed, in multiple commits when possible. We can fix 1 or several items at a time." And: "Do not push anything untill I say so." Item numbers below are the dev's list.
+**Status: all twelve groups built 2026-10-14, not yet confirmed; nothing pushed.** The full suite then passed, 691 of 691 in 89.8 s, once `tests/suite.py` stopped counting the game's own `ERROR` log lines as failed tests: since group 10 the log has level prefixes, so `window.py`'s deliberate failed start printed `ERROR   main     the game stopped`, which the suite (and so the release workflow) took for a test error. It now counts only a runner's `FAIL`/`ERROR` line naming a `test_` function; `release.py` checks it. The dev picked twenty of the open lines in [[project_dev_tasks]] (all but the Mac check, item 8, and the long functions, item 15): "Here are the things I want fixed, in multiple commits when possible. We can fix 1 or several items at a time." And: "Do not push anything untill I say so." Item numbers below are the dev's list.
 
 Before the plan, each older item was checked against the code of 2026-10-14 (`03d297b`). The boss check of item 22 was fixed long ago (`f2a1e96`), and most of item 17 is done; the rest still applies. The details, with lines, are under each group.
 

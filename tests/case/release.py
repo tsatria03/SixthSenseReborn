@@ -884,6 +884,14 @@ def test_only_a_file_that_fails_on_its_own_too_fails_the_workflows_tests():
     assert suite.exit_code([clock], alone, True) == 0, 'a pass on its own still failed the run'
     assert suite.exit_code([clock, broken], alone, True) == 1
     assert suite.exit_code([clock], {}, True) == 1, 'a file never run again was forgiven'
+    # a game log line at ERROR is not a test that failed (2026-10-14); a runner's line is
+    out = ('ok    test_one\nERROR   main     the game stopped\nFAIL  test_two: 1 != 2\n'
+           "ERROR test_three: OSError('x')\n2/4 passed\n")
+    passed, total, bad = suite.parse(out)
+    assert (passed, total) == (2, 4)
+    assert bad == [('FAIL', 'test_two: 1 != 2'), ('ERROR', "test_three: OSError('x')")], bad
+    kept, dropped = suite.results_only(out)
+    assert 'ERROR   main     the game stopped' not in kept and dropped == 1, kept
 
 
 def test_a_test_run_checks_the_release_and_touches_nothing_on_github():
